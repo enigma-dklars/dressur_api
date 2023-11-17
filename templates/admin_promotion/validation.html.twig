@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Promotion index{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Promotion index</h1>
+        <div class="row g-2">
+            {% for promotion in promotions %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <img src="/promotion/{{promotion.image}}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                          <p class="card-text">
+                            {{ promotion.description|nl2br }}
+                          </p>
+                          <a class="btn btn-sm btn-success mb-1 me-2" target="_blank" href="{{ path('app_admin_promotion_valider', {'id': promotion.id}) }}">Valider</a> 
+                          <a class="btn btn-sm btn-danger mb-1 me-2" target="_blank" href="{{ path('app_admin_promotion_rejeter', {'id': promotion.id}) }}">Rejeter</a>
+                        </div>
+                      </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <h3 class="text-center text-danger mt-5">
+                        RIEN
+                    </h3>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

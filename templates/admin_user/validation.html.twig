@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>User validation</h1>
+        <div class="row g-2">
+            {% for user in users %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            Pseudo : {{ user.pseudo }} <br>
+                            Tel : {{ user.tel }} <br>
+                            Mail : {{ user.mail }} <br>
+                            CreatedAt : {{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }} <br>
+                            <a class="btn btn-sm btn-primary mb-1 me-2" target="_blank" href="https://wa.me/{{user.tel}}">Tester</a> 
+                            <a class="btn btn-sm btn-success mb-1 me-2" target="_blank" href="{{ path('app_admin_user_valider', {'id': user.id}) }}">Valider</a> 
+                            <a class="btn btn-sm btn-danger mb-1 me-2" target="_blank" href="{{ path('app_admin_user_rejeter', {'id': user.id}) }}">Rejeter</a> 
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <h3 class="text-center text-danger mt-5">
+                        RIEN
+                    </h3>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

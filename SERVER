@@ -1,0 +1,11 @@
+SERVER FTP
+host      : ftpupload.net
+username  : if0_35164508
+password  : kOlbaDsQI3
+port      : 21
+
+DATA BASE
+host      : sql211.infinityfree.com
+db name   : if0_35164508_whatsperson
+username  : if0_35164508
+password  : kOlbaDsQI3

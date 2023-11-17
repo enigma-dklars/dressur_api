@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User{% endblock %}
+
+{% block body %}
+    <h1>User</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ user.id }}</td>
+            </tr>
+            <tr>
+                <th>Uid</th>
+                <td>{{ user.uid }}</td>
+            </tr>
+            <tr>
+                <th>Pseudo</th>
+                <td>{{ user.pseudo }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ user.nom }}</td>
+            </tr>
+            <tr>
+                <th>Mail</th>
+                <td>{{ user.mail }}</td>
+            </tr>
+            <tr>
+                <th>Pays</th>
+                <td>{{ user.pays }}</td>
+            </tr>
+            <tr>
+                <th>Tel</th>
+                <td>{{ user.tel }}</td>
+            </tr>
+            <tr>
+                <th>Apropos</th>
+                <td>{{ user.apropos }}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>{{ user.password }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>MailIsVerified</th>
+                <td>{{ user.mailIsVerified ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>TelIsVerified</th>
+                <td>{{ user.telIsVerified ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>SoldeBonus</th>
+                <td>{{ user.soldeBonus }}</td>
+            </tr>
+            <tr>
+                <th>CodeBonus</th>
+                <td>{{ user.codeBonus }}</td>
+            </tr>
+            <tr>
+                <th>ThemeDark</th>
+                <td>{{ user.themeDark ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Admin</th>
+                <td>{{ user.admin ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Blocked</th>
+                <td>{{ user.blocked ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Tiktok</th>
+                <td>{{ user.tiktok }}</td>
+            </tr>
+            <tr>
+                <th>Instagram</th>
+                <td>{{ user.instagram }}</td>
+            </tr>
+            <tr>
+                <th>Facebook</th>
+                <td>{{ user.facebook }}</td>
+            </tr>
+            <tr>
+                <th>Youtube</th>
+                <td>{{ user.youtube }}</td>
+            </tr>
+            <tr>
+                <th>Lang</th>
+                <td>{{ user.lang }}</td>
+            </tr>
+            <tr>
+                <th>LastLoginTo</th>
+                <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_admin_user_index') }}">back to list</a>
+
+    <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}">edit</a>
+
+    {{ include('admin_user/_delete_form.html.twig') }}
+{% endblock %}

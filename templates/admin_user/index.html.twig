@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User index{% endblock %}
+
+{% block body %}
+    <h1>User index <a href="{{ path('app_admin_user_new') }}">Create new</a></h1>
+
+    <div class="table-responsive">
+        <table class="dataTable table table-bordered taable-stripped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Pseudo</th>
+                    <th>Nom</th>
+                    <th>Mail</th>
+                    <th>Tel</th>
+                    <th>CreatedAt</th>
+                    <th>MailIsVerified</th>
+                    <th>TelIsVerified</th>
+                    <th>SoldeBonus</th>
+                    <th>CodeBonus</th>
+                    <th>Admin</th>
+                    <th>Blocked</th>
+                    <th>Lang</th>
+                    <th>LastLoginTo</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <a href="{{ path('app_admin_user_show', {'id': user.id}) }}">show</a>
+                        <a href="{{ path('app_admin_user_edit', {'id': user.id}) }}">edit</a>
+                    </td>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.pseudo }}</td>
+                    <td>{{ user.nom }}</td>
+                    <td>{{ user.mail }}</td>
+                    <td>{{ user.tel }}</td>
+                    <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user.mailIsVerified ? 'Yes' : 'No' }}</td>
+                    <td>{{ user.telIsVerified ? 'Yes' : 'No' }}</td>
+                    <td>{{ user.soldeBonus }}</td>
+                    <td>{{ user.codeBonus }}</td>
+                    <td>{{ user.admin ? 'Yes' : 'No' }}</td>
+                    <td>{{ user.blocked ? 'Yes' : 'No' }}</td>
+                    <td>{{ user.lang }}</td>
+                    <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="24">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    
+{% endblock %}
