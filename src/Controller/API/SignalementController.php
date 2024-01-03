@@ -3,9 +3,9 @@
 namespace App\Controller\API;
 
 use App\Entity\Signalement;
-use App\Services\SessionWP;
+use App\Services\SessionDS;
 use App\Repository\EnvRepository;
-use App\Services\VerificationsWP;
+use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Controller\API\UserController;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,19 +31,19 @@ class SignalementController extends AbstractController
     }
 
     #[Route('/addSignalement', name: 'addSignalement')]
-    public function addSignalement(Request $request, UserRepository $userRepository, SignalementRepository $signalementRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function addSignalement(Request $request, UserRepository $userRepository, SignalementRepository $signalementRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $telSignaler = $datas->get('telSignaler');
         $motifSignaler = $datas->get('motifSignaler');
 
         if(!$telSignaler or !$motifSignaler){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -58,7 +58,7 @@ class SignalementController extends AbstractController
         }
 
         if(strlen($motifSignaler) < 100){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -72,16 +72,16 @@ class SignalementController extends AbstractController
             ]);
         }
 
-        $verificationNumTel = $verificationsWP->verifFormatNumTel($telSignaler);
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($telSignaler);
         if($verificationNumTel["error"] == true){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
         }
         $telSignaler = $verificationNumTel["e164"];
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -95,7 +95,7 @@ class SignalementController extends AbstractController
 
         $userSignaler = $userRepository->findOneBy(['tel' => $telSignaler]);
         if(!$userSignaler){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -111,7 +111,7 @@ class SignalementController extends AbstractController
 
         $signalementExiste = $signalementRepository->findOneBy(['signaler' => $userSignaler, 'signalant' => $user]);
         if($signalementExiste) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -139,16 +139,16 @@ class SignalementController extends AbstractController
             $this->em->flush();
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "Report number. WP thanks you for your participation.",
+                'message' => "Report number. DS thanks you for your participation.",
             ]);
         }
         return new JsonResponse([
             'error' => false,
-            'message' => 'Numéro signaler. WP vous remercie pour votre participation.',
+            'message' => 'Numéro signaler. DS vous remercie pour votre participation.',
         ]);
     }
 }

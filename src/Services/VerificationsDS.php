@@ -13,17 +13,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class VerificationsWP extends AbstractController
+class VerificationsDS extends AbstractController
 {
     private $motRefusers;
     private $userRepository;
-    private $sessionWP;
+    private $sessionDS;
 
-    public function __construct(MotRefuserRepository $motRefuserRepository, UserRepository $userRepository, SessionWP $sessionWP)
+    public function __construct(MotRefuserRepository $motRefuserRepository, UserRepository $userRepository, SessionDS $sessionDS)
     {
         $this->motRefusers = $motRefuserRepository->findAll();
         $this->userRepository = $userRepository;
-        $this->sessionWP = $sessionWP;
+        $this->sessionDS = $sessionDS;
     }
 
     public function remove_emoji($text){
@@ -46,10 +46,10 @@ class VerificationsWP extends AbstractController
 
     public function messageErreurPermissionAdd($nombreContactAdd, $nombreFilleuls, $max){
         $max = $max + 1;
-        if($this->sessionWP->get("langUserPhone") != "fr") {
-            return "You have already added $nombreContactAdd contacts WP. You must have at least $max referrals to be able to continue adding new contacts. Currently, you have $nombreFilleuls godson(s).\n\nWhatsPerson is a community and we cannot let you benefit from its advantages without contributing to its evolution.\n\nTo contribute to its evolution, you must bring others people to use the application. Each user/contact you register came through a user.\n\nAs you will not be able to reach the requested number of referrals, do a Paid WP Boost for users to add you. THANKS.";
+        if($this->sessionDS->get("langUserPhone") != "fr") {
+            return "You have already added $nombreContactAdd contacts DS. You must have at least $max referrals to be able to continue adding new contacts. Currently, you have $nombreFilleuls godson(s).\n\nWhatsPerson is a community and we cannot let you benefit from its advantages without contributing to its evolution.\n\nTo contribute to its evolution, you must bring others people to use the application. Each user/contact you register came through a user.\n\nAs you will not be able to reach the requested number of referrals, do a Paid DS Boost for users to add you. THANKS.";
         }
-        return "Vous avez déjà ajouté $nombreContactAdd contacts WP. Il vous faut avoir au minimum $max filleuls pour pouvoir continuer à ajouter les nouveaux contacts. Actuellement, vous avez $nombreFilleuls filleul(s).\n\nWhatsPerson est une communauté et nous ne pouvons pas vous laisser profité de ses avantages sans contribuer à son évolution.\n\nPour contribuer à son évolution, vous devez amener d'autres personnes à utiliser l'application. Chaque utilisateur/contact que vous enregistrez sont venus par le biais d'un utilisateur.\n\nDans la mesure ou vous ne serez pas capable d'atteindre le nombre de filleuls demandé, faite un Boost WP Payant pour que les utilisateurs vous ajoute. MERCI.";
+        return "Vous avez déjà ajouté $nombreContactAdd contacts DS. Il vous faut avoir au minimum $max filleuls pour pouvoir continuer à ajouter les nouveaux contacts. Actuellement, vous avez $nombreFilleuls filleul(s).\n\nWhatsPerson est une communauté et nous ne pouvons pas vous laisser profité de ses avantages sans contribuer à son évolution.\n\nPour contribuer à son évolution, vous devez amener d'autres personnes à utiliser l'application. Chaque utilisateur/contact que vous enregistrez sont venus par le biais d'un utilisateur.\n\nDans la mesure ou vous ne serez pas capable d'atteindre le nombre de filleuls demandé, faite un Boost DS Payant pour que les utilisateurs vous ajoute. MERCI.";
     }
 
     public function permissionAdd($user)
@@ -244,7 +244,7 @@ class VerificationsWP extends AbstractController
         }
 
         if(strlen($pseudoSansChiffre) == strlen($pseudo)) {
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
@@ -259,7 +259,7 @@ class VerificationsWP extends AbstractController
         }
 
         if(strlen($pseudoSansChiffre) <= 1){
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
@@ -274,7 +274,7 @@ class VerificationsWP extends AbstractController
         }
 
         if(strlen($pseudo) < 3) {
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
@@ -289,7 +289,7 @@ class VerificationsWP extends AbstractController
         }
 
         if(strlen($pseudo) > 10){
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
@@ -306,7 +306,7 @@ class VerificationsWP extends AbstractController
         foreach ($this->motRefusers as $mot) {
             $pseudoTester = str_replace($mot->getMot(), '', $pseudo);
             if(strlen($pseudoTester) < strlen($pseudo)) {
-                if($this->sessionWP->get("langUserPhone") != "fr") {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
                     return [
                         'error' => true,
                         'titre' => 'Attention!',
@@ -331,7 +331,7 @@ class VerificationsWP extends AbstractController
     public function verifUSer($uid) {
         $user = $this->userRepository->findOneBy(['uid' => $uid]);
         if(!$user) {
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'deleted' => true,
@@ -349,7 +349,7 @@ class VerificationsWP extends AbstractController
             ];
         }
         if($user->getBlocked() == true) {
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'deleted' => false,

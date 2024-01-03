@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Promotion;
 use App\Form\PromotionType;
-use App\Services\TraitementsWP;
+use App\Services\TraitementsDS;
 use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;

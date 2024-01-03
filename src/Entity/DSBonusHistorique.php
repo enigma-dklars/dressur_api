@@ -4,12 +4,12 @@ namespace App\Entity;
 
 use DateTime;
 use App\Entity\User;
-use App\Entity\WPBonus;
+use App\Entity\DSBonus;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\WPBonusHistoriqueRepository;
+use App\Repository\DSBonusHistoriqueRepository;
 
-#[ORM\Entity(repositoryClass: WPBonusHistoriqueRepository::class)]
-class WPBonusHistorique
+#[ORM\Entity(repositoryClass: DSBonusHistoriqueRepository::class)]
+class DSBonusHistorique
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -20,7 +20,7 @@ class WPBonusHistorique
     #[ORM\JoinColumn(nullable: true)]
     private $user;
 
-    #[ORM\ManyToOne(targetEntity: WPBonus::class)]
+    #[ORM\ManyToOne(targetEntity: DSBonus::class)]
     #[ORM\JoinColumn(nullable: true)]
     private $wpbonus;
 
@@ -55,12 +55,12 @@ class WPBonusHistorique
         return $this;
     }
 
-    public function getWpbonus(): ?WPBonus
+    public function getWpbonus(): ?DSBonus
     {
         return $this->wpbonus;
     }
 
-    public function setWpbonus(?WPBonus $wpbonus): self
+    public function setWpbonus(?DSBonus $wpbonus): self
     {
         $this->wpbonus = $wpbonus;
 

@@ -37,7 +37,7 @@ class VerifMail
         while (strlen($chars) < $length) {
             $chars .= $chars;
         }
-        return "WP".substr(str_shuffle($chars), 0, $length);
+        return "DS".substr(str_shuffle($chars), 0, $length);
     }
 
     public function getId(): ?int

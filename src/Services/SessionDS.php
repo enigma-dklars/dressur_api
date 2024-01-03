@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-class SessionWP
+class SessionDS
 {
     /**
      * Check if session is enable else enable it 

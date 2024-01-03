@@ -5,9 +5,9 @@ namespace App\Controller\API;
 use App\Entity\ContactsUser;
 use App\Entity\User;
 use App\Repository\UserRepository;
-use App\Services\SessionWP;
-use App\Services\TraitementsWP;
-use App\Services\VerificationsWP;
+use App\Services\SessionDS;
+use App\Services\TraitementsDS;
+use App\Services\VerificationsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,26 +28,26 @@ class ContactController extends AbstractController
         $this->userRepository = $userRepository;
     }   
     
-    #[Route('/listContactWP/{uid}/{langUserPhone}', name: 'listContactWP', methods: ['POST', "GET"])]
-    public function listContactWP(User $user, $langUserPhone, TraitementsWP $traitementsWP, SessionWP $sessionWP): Response
+    #[Route('/listContactDS/{uid}/{langUserPhone}', name: 'listContactDS', methods: ['POST', "GET"])]
+    public function listContactDS(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
         
-        return new JsonResponse($traitementsWP->userContacts($user));
+        return new JsonResponse($traitementsDS->userContacts($user));
     }
 
     #[Route('/addUserContact', name: 'addUserContact')]
-    public function addUserContact(Request $request, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function addUserContact(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $tel = $datas->get('tel');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -61,7 +61,7 @@ class ContactController extends AbstractController
 
         $userAdd = $userRepository->findOneBy(['tel' => $tel]);
         if(!$userAdd){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -75,7 +75,7 @@ class ContactController extends AbstractController
             ]);
         }
 
-        if(($verificationsWP->permissionAdd($user))["permissionAdd"] == true){
+        if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
             // MOD
             $user->getContact()->setNewIAdd($userAdd);
             $userAdd->getContact()->setNewAddMe($user);
@@ -87,8 +87,8 @@ class ContactController extends AbstractController
 
         return new JsonResponse([
             'error' => true,
-            "permissionAdd" => ($verificationsWP->permissionAdd($user))["permissionAdd"],
-            "messageErreurPermissionAdd" => ($verificationsWP->permissionAdd($user))["messageErreurPermissionAdd"],
+            "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
+            "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
         ]);
     }
 
@@ -96,8 +96,8 @@ class ContactController extends AbstractController
     public function stockerUserContacts(Request $request): Response
     {
         $datas = $request->request;
-        $contactsUserBeforeWP = json_decode($datas->get('contactsUserBeforeWP'));
-        foreach ($contactsUserBeforeWP as $contact) {
+        $contactsUserBeforeDS = json_decode($datas->get('contactsUserBeforeDS'));
+        foreach ($contactsUserBeforeDS as $contact) {
             $contactsUser = new ContactsUser();
             $contactsUser->setNameTel($contact->nameTel)
                 ->setDisplayNameTel($contact->displayNameTel)

@@ -4,10 +4,10 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\WPBonusRepository;
+use App\Repository\DSBonusRepository;
 
-#[ORM\Entity(repositoryClass: WPBonusRepository::class)]
-class WPBonus
+#[ORM\Entity(repositoryClass: DSBonusRepository::class)]
+class DSBonus
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -39,7 +39,7 @@ class WPBonus
         while (strlen($chars) < $length) {
             $chars .= $chars;
         }
-        return "WPPROMO-".substr(str_shuffle($chars), 0, $length);
+        return "DSPROMO-".substr(str_shuffle($chars), 0, $length);
     }
 
     public function getId(): ?int

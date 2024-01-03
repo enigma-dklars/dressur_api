@@ -4,14 +4,14 @@ namespace App\Controller\API;
 
 use App\Entity\User;
 use App\Repository\BoostRepository;
-use App\Repository\DeletedWPRepository;
+use App\Repository\DeletedDSRepository;
 use App\Repository\PreferenceRepository;
 use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Repository\VerifMailRepository;
-use App\Repository\WPBonusHistoriqueRepository;
-use App\Repository\WPBonusRepository;
+use App\Repository\DSBonusHistoriqueRepository;
+use App\Repository\DSBonusRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +23,7 @@ class PurgeController extends AbstractController
 {
     private $em;
     private $boostRepository;
-    private $deletedWPRepository;
+    private $deletedDSRepository;
     private $preferenceRepository;
     private $transactionRepository;
     private $verifMailRepository;
@@ -32,11 +32,11 @@ class PurgeController extends AbstractController
     private $signalementRepository;
     private $userRepository;
     
-    public function __construct(EntityManagerInterface $em, BoostRepository $boostRepository, DeletedWPRepository $deletedWPRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, WPBonusRepository $wPBonusRepository, WPBonusHistoriqueRepository $wPBonusHistoriqueRepository, SignalementRepository $signalementRepository, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $em, BoostRepository $boostRepository, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, DSBonusRepository $wPBonusRepository, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, SignalementRepository $signalementRepository, UserRepository $userRepository)
     {
         $this->em = $em; 
         $this->boostRepository = $boostRepository;
-        $this->deletedWPRepository = $deletedWPRepository;
+        $this->deletedDSRepository = $deletedDSRepository;
         $this->preferenceRepository = $preferenceRepository;
         $this->transactionRepository = $transactionRepository;
         $this->verifMailRepository = $verifMailRepository;
@@ -154,8 +154,8 @@ class PurgeController extends AbstractController
             $this->boostRepository->remove($element, true);
         }
 
-        foreach ($this->deletedWPRepository->findBy(['user' => $user]) as $element) {
-            $this->deletedWPRepository->remove($element, true);
+        foreach ($this->deletedDSRepository->findBy(['user' => $user]) as $element) {
+            $this->deletedDSRepository->remove($element, true);
         }
 
         foreach ($this->transactionRepository->findBy(['user' => $user]) as $element) {

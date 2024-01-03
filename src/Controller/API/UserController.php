@@ -8,21 +8,21 @@ use App\Entity\User;
 use App\Entity\VerifMail;
 use App\Entity\Preference;
 use App\Utilities\SendMail;
-use App\Entity\WPBonusHistorique;
+use App\Entity\DSBonusHistorique;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
-use App\Repository\WPBonusRepository;
+use App\Repository\DSBonusRepository;
 use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
-use App\Entity\DeletedWP;
+use App\Entity\DeletedDS;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Repository\WPBonusHistoriqueRepository;
-use App\Services\SessionWP;
-use App\Services\TraitementsWP;
-use App\Services\VerificationsWP;
+use App\Repository\DSBonusHistoriqueRepository;
+use App\Services\SessionDS;
+use App\Services\TraitementsDS;
+use App\Services\VerificationsDS;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,13 +32,13 @@ class UserController extends AbstractController
 {
     private $em;
     private $env;
-    private $traitementsWP;
+    private $traitementsDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsWP $traitementsWP)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
-        $this->traitementsWP = $traitementsWP;
+        $this->traitementsDS = $traitementsDS;
     } 
 
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST'])]
@@ -52,18 +52,18 @@ class UserController extends AbstractController
     }
 
     #[Route('/connect', name: 'connect', methods: ['POST'])]
-    public function connect(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function connect(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $password = $datas->get('password');
 
         if(empty($mail) and empty($password)){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -78,7 +78,7 @@ class UserController extends AbstractController
         }
 
         if(!$mail){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -93,7 +93,7 @@ class UserController extends AbstractController
         }
 
         if(!$password){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -107,8 +107,8 @@ class UserController extends AbstractController
             ]);
         }
 
-        if (!$verificationsWP->verifMail($mail)) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+        if (!$verificationsDS->verifMail($mail)) {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid email address.",]); 
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
@@ -126,7 +126,7 @@ class UserController extends AbstractController
         }
 
         if($user){
-            $verificationUser = $verificationsWP->verifUSer($user->getUid());
+            $verificationUser = $verificationsDS->verifUSer($user->getUid());
             if($verificationUser["error"] == true){
                 return new JsonResponse([
                     'error' => true,
@@ -138,10 +138,10 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Connecter!',
-                "user" => $this->traitementsWP->infosUser($user),
+                "user" => $this->traitementsDS->infosUser($user),
             ]);
         } else {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -155,7 +155,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
@@ -170,25 +170,25 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserInfo', name: 'updateUserInfo', methods: ['POST'])]
-    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
-        $nom = (string)$verificationsWP->remove_emoji($datas->get('nom'));
+        $nom = (string)$verificationsDS->remove_emoji($datas->get('nom'));
         $pseudo = $datas->get('pseudo');
-        $apropos = (string)$verificationsWP->remove_emoji($datas->get('apropos'));
+        $apropos = (string)$verificationsDS->remove_emoji($datas->get('apropos'));
         $tiktok = $datas->get('tiktok');
         $instagram = $datas->get('instagram');
         $facebook = $datas->get('facebook');
         $youtube = $datas->get('youtube');
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');        
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -200,15 +200,15 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
 
-        if (!$verificationsWP->verifMail($mail)) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+        if (!$verificationsDS->verifMail($mail)) {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid email address.",]); 
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
         }
 
         if(!$mail or !$pseudo){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -222,7 +222,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $verificationPseudo = $verificationsWP->verifPseudo($pseudo);
+        $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
         if($verificationPseudo["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -236,7 +236,7 @@ class UserController extends AbstractController
         $userPseudoUid =  $userPseudoUid ? $userPseudoUid->getUid() : null;
         if($userPseudoUid){
             if($userPseudoUid != $uid){
-                if($sessionWP->get("langUserPhone") != "fr") {
+                if($sessionDS->get("langUserPhone") != "fr") {
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Whoops!',
@@ -255,7 +255,7 @@ class UserController extends AbstractController
         $userMailUid =  $userMailUid ? $userMailUid->getUid() : null;
         if($userMailUid){
             if($userMailUid != $uid){
-                if($sessionWP->get("langUserPhone") != "fr") {
+                if($sessionDS->get("langUserPhone") != "fr") {
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Whoops!',
@@ -287,21 +287,21 @@ class UserController extends AbstractController
         $this->em->flush();
 
         if ($user->getId()) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => false,
                     'message' => 'Profile updated!',
-                    'user' => $this->traitementsWP->infosUser($user),
+                    'user' => $this->traitementsDS->infosUser($user),
                 ]);
             }
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Profil mis a jours!',
-                'user' => $this->traitementsWP->infosUser($user),
+                'user' => $this->traitementsDS->infosUser($user),
             ]);
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
@@ -316,7 +316,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserPassword', name: 'updateUserPassword', methods: ['POST'])]
-    public function updateUserPassword(Request $request, UserRepository $userRepository, SessionWP $sessionWP): Response
+    public function updateUserPassword(Request $request, UserRepository $userRepository, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
 
@@ -325,12 +325,12 @@ class UserController extends AbstractController
         $confirmNewPassword = sha1(sha1(sha1($datas->get('confirmNewPassword'))));
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
         if(strlen($newPassword) < 6) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -345,7 +345,7 @@ class UserController extends AbstractController
         }
 
         if(!$currentPassword or !$newPassword or !$confirmNewPassword){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -361,7 +361,7 @@ class UserController extends AbstractController
 
         $userUid = $userRepository->findOneBy(['uid' => $uid]);
         if(!$userUid){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -377,7 +377,7 @@ class UserController extends AbstractController
 
         $user = $userRepository->findOneBy(['uid' => $uid, 'password' => $currentPassword]);
         if(!$user){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => "Attention!",
@@ -403,21 +403,21 @@ class UserController extends AbstractController
         $this->em->flush();
 
         if ($user->getId()) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => false,
                     'message' => 'Password updated!',
-                    "user" => $this->traitementsWP->infosUser($user),
+                    "user" => $this->traitementsDS->infosUser($user),
                 ]);
             }
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Mot de passe mis a jours!',
-                "user" => $this->traitementsWP->infosUser($user),
+                "user" => $this->traitementsDS->infosUser($user),
             ]);
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
@@ -432,16 +432,16 @@ class UserController extends AbstractController
     }
 
     #[Route('/getUserInfo', name: 'getUserInfo', methods: ['POST'])]
-    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -464,11 +464,11 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Ok!',
-                "user" => $this->traitementsWP->infosUser($user),
+                "user" => $this->traitementsDS->infosUser($user),
             ]);
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
@@ -483,19 +483,19 @@ class UserController extends AbstractController
     }
 
     #[Route('/addParrain', name: 'addParrain', methods: ['POST'])]
-    public function addParrain(Request $request, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function addParrain(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
 
         $codeBonus = str_replace(" ", "", $datas->get('codeBonus'));
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
         if(!$codeBonus){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -509,7 +509,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -522,7 +522,7 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -538,7 +538,7 @@ class UserController extends AbstractController
 
         $userCodeBonus = $userRepository->findOneBy(['codeBonus' => $codeBonus]);
         if(!$userCodeBonus){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -553,7 +553,7 @@ class UserController extends AbstractController
         }
 
         if($user->getParrain()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -568,7 +568,7 @@ class UserController extends AbstractController
         }
 
         if($user->getUid() == $userCodeBonus->getUid()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -582,59 +582,59 @@ class UserController extends AbstractController
             ]);
         }
 
-        $WPBH = new WPBonusHistorique();
+        $DSBH = new DSBonusHistorique();
         if($user->getLang() == "fr") {
-            $WPBH->setTitre("Parrainer par ".$userCodeBonus->getTel());
+            $DSBH->setTitre("Parrainer par ".$userCodeBonus->getTel());
         } else {
-            $WPBH->setTitre("Sponsor by ".$userCodeBonus->getTel());
+            $DSBH->setTitre("Sponsor by ".$userCodeBonus->getTel());
         }
-        $WPBH->setUser($user)->setMontant($this->env->getCommissionBonus());
-        $this->em->persist($WPBH);
+        $DSBH->setUser($user)->setMontant($this->env->getCommissionBonus());
+        $this->em->persist($DSBH);
 
-        $WPBHParrain = new WPBonusHistorique();
+        $DSBHParrain = new DSBonusHistorique();
         if($userCodeBonus->getLang() == "fr") {
-            $WPBHParrain->setTitre("+1 filleul ".$user->getTel());
+            $DSBHParrain->setTitre("+1 filleul ".$user->getTel());
         } else {
-            $WPBHParrain->setTitre("+1 referral ".$user->getTel());
+            $DSBHParrain->setTitre("+1 referral ".$user->getTel());
         }
-        $WPBHParrain->setUser($userCodeBonus)->setMontant($this->env->getCommissionBonus());
-        $this->em->persist($WPBHParrain);
+        $DSBHParrain->setUser($userCodeBonus)->setMontant($this->env->getCommissionBonus());
+        $this->em->persist($DSBHParrain);
 
         $user->setParrain($userCodeBonus)->addSoldeBonus($this->env->getCommissionBonus());
         $userCodeBonus->addSoldeBonus($this->env->getCommissionBonus());
         
         $this->em->flush();
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => false,
                 'soldeBonus' => $user->getSoldeBonus(),
-                'message' => "Congratulations!\nYou have been sponsored!\nYou have received ".$this->env->getCommissionBonus(). "Bonus Boost WP!",
-                'user' => $this->traitementsWP->infosUser($user),
+                'message' => "Congratulations!\nYou have been sponsored!\nYou have received ".$this->env->getCommissionBonus(). "Bonus Boost DS!",
+                'user' => $this->traitementsDS->infosUser($user),
             ]);
         }
         return new JsonResponse([
             'error' => false,
             'soldeBonus' => $user->getSoldeBonus(),
-            'message' => "Félicitations!\nVous étes parrainer!\nVous avez reçu ".$this->env->getCommissionBonus(). "WP de Bonus Boost!",
-            'user' => $this->traitementsWP->infosUser($user),
+            'message' => "Félicitations!\nVous étes parrainer!\nVous avez reçu ".$this->env->getCommissionBonus(). "DS de Bonus Boost!",
+            'user' => $this->traitementsDS->infosUser($user),
         ]);
     }
 
     #[Route('/addBonusPromo', name: 'addBonusPromo', methods: ['POST'])]
-    public function addBonusPromo(Request $request, UserRepository $userRepository, WPBonusRepository $wPBonusRepository, WPBonusHistoriqueRepository $wPBonusHistoriqueRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function addBonusPromo(Request $request, UserRepository $userRepository, DSBonusRepository $wPBonusRepository, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
 
         $codePromo = str_replace(" ", "", $datas->get('codePromo'));
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
         if(!$codePromo){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -648,7 +648,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -660,24 +660,24 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
 
-        $WPBonus = $wPBonusRepository->findOneBy(['code' => $codePromo]);
-        if(!$WPBonus){
-            if($sessionWP->get("langUserPhone") != "fr") {
+        $DSBonus = $wPBonusRepository->findOneBy(['code' => $codePromo]);
+        if(!$DSBonus){
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
-                    'message' => "The promo code entered is incorrect. The codes start with WP-. Please write the complete code.",
+                    'message' => "The promo code entered is incorrect. The codes start with DS-. Please write the complete code.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Le code promo saisie est erronée. Les codes commencent par WP-. Veuillez ecrire le code au complet.",
+                'message' => "Le code promo saisie est erronée. Les codes commencent par DS-. Veuillez ecrire le code au complet.",
             ]);
         }
 
-        if((new Datetime()) > $WPBonus->getDateExp()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+        if((new Datetime()) > $DSBonus->getDateExp()){
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -691,9 +691,9 @@ class UserController extends AbstractController
             ]);
         }
 
-        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'wpbonus' => $WPBonus]);
+        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'wpbonus' => $DSBonus]);
         if($wPBonusHistorique){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -707,44 +707,44 @@ class UserController extends AbstractController
             ]);
         }
 
-        $WPBH = new WPBonusHistorique();
+        $DSBH = new DSBonusHistorique();
         if($user->getLang() == "fr") {
-            $WPBH->setTitre("Bonus promo");
+            $DSBH->setTitre("Bonus promo");
         } else {
-            $WPBH->setTitre("Promo Bonuses");
+            $DSBH->setTitre("Promo Bonuses");
         }
-        $WPBH->setUser($user)->setWpbonus($WPBonus)->setMontant($WPBonus->getMontant());
-        $user->addSoldeBonus($WPBonus->getMontant());
-        $this->em->persist($WPBH);
+        $DSBH->setUser($user)->setWpbonus($DSBonus)->setMontant($DSBonus->getMontant());
+        $user->addSoldeBonus($DSBonus->getMontant());
+        $this->em->persist($DSBH);
         $this->em->flush();
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => false,
                 'soldeBonus' => $user->getSoldeBonus(),
-                'message' => "Congratulations!\nYou have benefited from the promo code!\nYou have received ".$WPBonus->getMontant(). "WP of Bonus Boost!",
-                'user' => $this->traitementsWP->infosUser($user),
+                'message' => "Congratulations!\nYou have benefited from the promo code!\nYou have received ".$DSBonus->getMontant(). "DS of Bonus Boost!",
+                'user' => $this->traitementsDS->infosUser($user),
             ]);
         }
         return new JsonResponse([
             'error' => false,
             'soldeBonus' => $user->getSoldeBonus(),
-            'message' => "Félicitations!\nVous avez bénéficier du code promo!\nVous avez reçu ".$WPBonus->getMontant(). "WP de Bonus Boost!",
-            'user' => $this->traitementsWP->infosUser($user),
+            'message' => "Félicitations!\nVous avez bénéficier du code promo!\nVous avez reçu ".$DSBonus->getMontant(). "DS de Bonus Boost!",
+            'user' => $this->traitementsDS->infosUser($user),
         ]);
     }
 
     #[Route('/sendMailVerification', name: 'sendMailVerification', methods: ['POST'])]
-    public function sendMailVerification(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function sendMailVerification(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -772,7 +772,7 @@ class UserController extends AbstractController
                 'error' => false,
             ]);
         } catch (Exception $e) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -788,17 +788,17 @@ class UserController extends AbstractController
     }
 
     #[Route('/mailVerification', name: 'mailVerification', methods: ['POST'])]
-    public function mailVerification(Request $request, UserRepository $userRepository, VerifMailRepository $verifMailRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function mailVerification(Request $request, UserRepository $userRepository, VerifMailRepository $verifMailRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $codeForVerifMail = $datas->get('codeForVerifMail');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -811,7 +811,7 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         if($user->getMailIsVerified() == true){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Action Repeat!',
@@ -828,7 +828,7 @@ class UserController extends AbstractController
         $verifMail = $verifMailRepository->findOneBy(['user' => $user, 'code' => $codeForVerifMail]);
 
         if(!$verifMail){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -843,7 +843,7 @@ class UserController extends AbstractController
         }
 
         if((new Datetime()) > $verifMail->getDateExp()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -866,21 +866,21 @@ class UserController extends AbstractController
 
         return new JsonResponse([
             'error' => false,
-            'user' => $this->traitementsWP->infosUser($user),
+            'user' => $this->traitementsDS->infosUser($user),
         ]);
     }
 
     #[Route('/sendMailPassForgotWithConnecte', name: 'sendMailPassForgotWithConnecte', methods: ['POST'])]
-    public function sendMailPassForgotWithConnecte(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsWP $traitementsWP, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function sendMailPassForgotWithConnecte(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -892,7 +892,7 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
 
-        $newPassword = $traitementsWP->resetPassword();
+        $newPassword = $traitementsDS->resetPassword();
         $user->setPassword(sha1(sha1(sha1($newPassword))));
         $this->em->flush();
 
@@ -907,7 +907,7 @@ class UserController extends AbstractController
                 'error' => false,
             ]);
         } catch (Exception $e) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -923,17 +923,17 @@ class UserController extends AbstractController
     }
 
     #[Route('/sendMailPassForgot', name: 'sendMailPassForgot', methods: ['POST'])]
-    public function sendMailPassForgot(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsWP $traitementsWP, SessionWP $sessionWP): Response
+    public function sendMailPassForgot(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
 
         if(!$mail){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -949,7 +949,7 @@ class UserController extends AbstractController
 
         $user = $userRepository->findOneBy(['mail' => $mail]);
         if(!$user){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -963,7 +963,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $newPassword = $traitementsWP->resetPassword();
+        $newPassword = $traitementsDS->resetPassword();
         $user->setPassword(sha1(sha1(sha1($newPassword))));
         $this->em->flush();
 
@@ -978,7 +978,7 @@ class UserController extends AbstractController
                 'error' => false,
             ]);
         } catch (Exception $e) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -993,13 +993,13 @@ class UserController extends AbstractController
         }
     }   
 
-    #[Route('/inscriptionWP', name: 'inscriptionWP', methods: ['POST'])]
-    public function inscriptionWP(Request $request, UserRepository $userRepository, TraitementsWP $traitementsWP, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
+    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
         
         $pseudo = $datas->get('pseudo');
         $tel = $datas->get('tel'); 
@@ -1008,7 +1008,7 @@ class UserController extends AbstractController
         $confirmPassword = $datas->get('confirmPassword');
 
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -1022,7 +1022,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $verificationPseudo = $verificationsWP->verifPseudo($pseudo);
+        $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
         if($verificationPseudo["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -1032,9 +1032,9 @@ class UserController extends AbstractController
         }
         $pseudo = $verificationPseudo["pseudo"];
 
-        $verificationNumTel = $verificationsWP->verifFormatNumTel($tel);
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
@@ -1042,8 +1042,8 @@ class UserController extends AbstractController
         $tel = $verificationNumTel["e164"];
         $paysTel = $verificationNumTel["country_code"];
 
-        if (!$verificationsWP->verifMail($mail)) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+        if (!$verificationsDS->verifMail($mail)) {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid email address.",]); 
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
@@ -1051,7 +1051,7 @@ class UserController extends AbstractController
 
         $userTel = $userRepository->findOneBy(['tel' => $tel]);
         if($userTel){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Access Deny!',
@@ -1067,7 +1067,7 @@ class UserController extends AbstractController
 
         $userMail = $userRepository->findOneBy(['mail' => $mail]);
         if($userMail){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -1083,7 +1083,7 @@ class UserController extends AbstractController
 
         $userPseudo = $userRepository->findOneBy(['pseudo' => $pseudo]);
         if($userPseudo){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -1098,7 +1098,7 @@ class UserController extends AbstractController
         }
 
         if(strlen($password) < 6) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -1116,7 +1116,7 @@ class UserController extends AbstractController
         $confirmPassword = sha1(sha1(sha1($datas->get('confirmPassword'))));
 
         if($password != $confirmPassword){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
@@ -1164,11 +1164,11 @@ class UserController extends AbstractController
         if ($userAfterRegister) {
             return new JsonResponse([
                 'error' => false,
-                'user' => $this->traitementsWP->infosUser($userAfterRegister),
+                'user' => $this->traitementsDS->infosUser($userAfterRegister),
             ]);
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
@@ -1183,24 +1183,24 @@ class UserController extends AbstractController
     }
 
     #[Route('/listBonus/{uid}/{langUserPhone}', name: 'listBonus', methods: ['POST', "GET"])]
-    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsWP $traitementsWP, SessionWP $sessionWP, WPBonusHistoriqueRepository $wPBonusHistoriqueRepository): Response
+    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository): Response
     {
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
-        return new JsonResponse($traitementsWP->bonusTab($wPBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
+        return new JsonResponse($traitementsDS->bonusTab($wPBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
     }
 
     #[Route('/getAllContactAdmin', name: 'getAllContactAdmin', methods: ['POST'])]
-    public function getAllContactAdmin(Request $request, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function getAllContactAdmin(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -1222,24 +1222,24 @@ class UserController extends AbstractController
 
         return new JsonResponse([
             'error' => false,
-            'contactAddsAdmain' => $this->traitementsWP->generateUserContactAddAdmin($userRepository->findAll()),
+            'contactAddsAdmain' => $this->traitementsDS->generateUserContactAddAdmin($userRepository->findAll()),
         ]);
     }
 
-    #[Route('/deleteCompteWP', name: 'deleteCompteWP', methods: ['POST'])]
-    public function deleteCompteWP(Request $request, TraitementsWP $traitementsWP, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]
+    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         set_time_limit(10000);
 
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $motifDeleted = $datas->get('motifDeleted');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -1252,7 +1252,7 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$motifDeleted){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -1267,7 +1267,7 @@ class UserController extends AbstractController
         }
 
         if(strlen($motifDeleted) < 100){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
@@ -1281,15 +1281,15 @@ class UserController extends AbstractController
             ]);
         }
 
-        $deletedWP = new DeletedWP();
-        $deletedWP->setMail($user->getMail())
+        $deletedDS = new DeletedDS();
+        $deletedDS->setMail($user->getMail())
             ->setTel($user->getTel())
             ->setMotif($motifDeleted)
         ;
-        $this->em->persist($deletedWP);
+        $this->em->persist($deletedDS);
         $this->em->flush();
 
-        $traitementsWP->execPurge($user);
+        $traitementsDS->execPurge($user);
 
         return new JsonResponse([
             'error' => false,
