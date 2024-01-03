@@ -237,13 +237,13 @@ class PromotionController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
-                    'message' => "Your DS balance is insufficient.\nReferred users to increase your DS balance.",
+                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
                 ]);                
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde DS est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde DS.",
+                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
         
