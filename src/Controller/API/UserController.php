@@ -609,14 +609,14 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => false,
                 'soldeBonus' => $user->getSoldeBonus(),
-                'message' => "Congratulations!\nYou have been sponsored!\nYou have received ".$this->env->getCommissionBonus(). "Bonus Boost DS!",
+                'message' => "Congratulations!\nYou have been sponsored!\nYou have received ".$this->env->getCommissionBonus(). " Bonus Points!",
                 'user' => $this->traitementsDS->infosUser($user),
             ]);
         }
         return new JsonResponse([
             'error' => false,
             'soldeBonus' => $user->getSoldeBonus(),
-            'message' => "Félicitations!\nVous étes parrainer!\nVous avez reçu ".$this->env->getCommissionBonus(). "DS de Bonus Boost!",
+            'message' => "Félicitations!\nVous étes parrainer!\nVous avez reçu ".$this->env->getCommissionBonus(). " Points Bonus!",
             'user' => $this->traitementsDS->infosUser($user),
         ]);
     }
@@ -691,7 +691,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'wpbonus' => $DSBonus]);
+        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'dsbonus' => $DSBonus]);
         if($wPBonusHistorique){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([

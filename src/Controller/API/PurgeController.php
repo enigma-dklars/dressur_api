@@ -46,8 +46,8 @@ class PurgeController extends AbstractController
         $this->userRepository = $userRepository;
     }
 
-    #[Route('/purge_wp_by_user_id/{id}', name: 'purge_wp_by_user_id')]
-    public function purge_wp_by_user_id(User $user): Response
+    #[Route('/purge_ds_by_user_id/{id}', name: 'purge_ds_by_user_id')]
+    public function purge_ds_by_user_id(User $user): Response
     {
         set_time_limit(10000);
 
@@ -56,8 +56,8 @@ class PurgeController extends AbstractController
         return new Response("ok");
     }
 
-    #[Route('/purge_wp', name: 'purge_wp')]
-    public function purge_wp(UserRepository $userRepository): Response
+    #[Route('/purge_ds', name: 'purge_ds')]
+    public function purge_ds(UserRepository $userRepository): Response
     {
         set_time_limit(10000);
 

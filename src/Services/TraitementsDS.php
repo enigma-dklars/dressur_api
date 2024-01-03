@@ -383,7 +383,7 @@ class TraitementsDS extends AbstractController
         foreach ($lesDSBonus as $DSBonus) {
             $bonus = [
                 "titre" => $DSBonus->getTitre(),
-                "montant" => (string)$DSBonus->getMontant()." DS",
+                "montant" => (string)$DSBonus->getMontant()." Points",
                 "date" => ($DSBonus->getCreatedAt())->format('d-m-Y à H:i'),
             ];
             array_push($bonusTab, $bonus);

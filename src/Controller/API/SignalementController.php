@@ -143,12 +143,12 @@ class SignalementController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "Report number. DS thanks you for your participation.",
+                'message' => "Report number. Dressur thanks you for your participation.",
             ]);
         }
         return new JsonResponse([
             'error' => false,
-            'message' => 'Numéro signaler. DS vous remercie pour votre participation.',
+            'message' => 'Numéro signaler. Dressur vous remercie pour votre participation.',
         ]);
     }
 }

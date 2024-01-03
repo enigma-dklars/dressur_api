@@ -132,13 +132,13 @@ class BoostController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
-                    'message' => "Your DS balance is insufficient.\nReferred users to increase your DS balance.",
+                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
                 ]);                
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde DS est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde DS.",
+                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
 
@@ -295,13 +295,13 @@ class BoostController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "You already have a DS Boost in progress...\nWait for it to finish before starting another.",
+                    'message' => "You already have a Contact Boost in progress...\nWait for it to finish before starting another.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Vous avez déja un Boost DS en cours...\nAttendez la fin de ce dernier avant de démarrer un autre.",
+                'message' => "Vous avez déja un Boost Contact en cours...\nAttendez la fin de ce dernier avant de démarrer un autre.",
             ]);
         }
 
