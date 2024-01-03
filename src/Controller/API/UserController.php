@@ -691,7 +691,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'wpbonus' => $DSBonus]);
+        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'dsbonus' => $DSBonus]);
         if($wPBonusHistorique){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([

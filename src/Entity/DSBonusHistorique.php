@@ -22,7 +22,7 @@ class DSBonusHistorique
 
     #[ORM\ManyToOne(targetEntity: DSBonus::class)]
     #[ORM\JoinColumn(nullable: true)]
-    private $wpbonus;
+    private $dsbonus;
 
     #[ORM\Column(type: 'datetime')]
     private $createdAt;
@@ -57,12 +57,12 @@ class DSBonusHistorique
 
     public function getWpbonus(): ?DSBonus
     {
-        return $this->wpbonus;
+        return $this->dsbonus;
     }
 
-    public function setWpbonus(?DSBonus $wpbonus): self
+    public function setWpbonus(?DSBonus $dsbonus): self
     {
-        $this->wpbonus = $wpbonus;
+        $this->dsbonus = $dsbonus;
 
         return $this;
     }
