@@ -159,13 +159,13 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
             ]);
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
     }
 
@@ -305,13 +305,13 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
             ]);
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
     }
 
@@ -365,13 +365,13 @@ class UserController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
         }
 
@@ -421,13 +421,13 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
             ]);
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
     }
 
@@ -472,13 +472,13 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
             ]);
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
     }
 
@@ -1172,13 +1172,13 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
             ]);
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
     }
 

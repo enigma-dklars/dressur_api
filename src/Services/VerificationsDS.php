@@ -363,7 +363,7 @@ class VerificationsDS extends AbstractController
                 'deleted' => false,
                 'blocked' => true,
                 'titre' => 'Erreur!',
-                'message' => "Ce compte à été bloquer après plusieurs signalements.\nS'il s'agit d'une erreur, veuillez contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Ce compte à été bloquer après plusieurs signalements.\nS'il s'agit d'une erreur, veuillez contactez l'Assistance par WhatsApp.",
             ];
         }
 
