@@ -65,13 +65,13 @@ class ContactController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         }
 
@@ -90,6 +90,61 @@ class ContactController extends AbstractController
             "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
             "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
         ]);
+    }
+
+    #[Route('/addUserContactAfterScanneQRCode', name: 'addUserContactAfterScanneQRCode')]
+    public function addUserContactAfterScanneQRCode(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    {
+        $datas = $request->request;
+        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $tel = $datas->get('tel');
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        $userAdd = $userRepository->findOneBy(['tel' => $tel]);
+        if(!$userAdd){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        }
+
+        try {
+            $user->getContact()->setNewIAdd($userAdd);
+            $userAdd->getContact()->setNewAddMe($user);
+            $this->em->flush();
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        }
     }
 
     #[Route('/stockerUserContacts', name: 'stockerUserContacts', methods: ['POST', "GET"])]
