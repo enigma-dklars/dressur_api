@@ -11,7 +11,7 @@ class SendMail {
     {
         $smtpMails = [
             ["dressur.ds@gmail.com", "cbecrafioykvabbl"],
-            ["dressur.ds@gmail.com", "cbecrafioykvabbl"],
+            ["no_reply_1_dressur.ds@gmail.com", "zgcyvmfiguinqddz"],
         ];
         
         $randomIndex = array_rand($smtpMails);
