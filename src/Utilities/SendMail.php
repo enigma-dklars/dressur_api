@@ -7,16 +7,21 @@ use Swift_Message;
 use Swift_SmtpTransport;
 
 class SendMail {
-    public function smtpMail(string $to, string $subject, string $message, string $replyto = "whatsperson@gmail.com", string $title = "WhatsPerson Assistance"):bool {
+    public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"):bool
+    {
+        $smtpMails = [
+            ["dressur.ds@gmail.com", "cbecrafioykvabbl"],
+            ["dressur.ds@gmail.com", "cbecrafioykvabbl"],
+        ];
+        
+        $randomIndex = array_rand($smtpMails);
+        $randomSmtpMail = $smtpMails[$randomIndex];
 
-        // ajrj nskf tfmk virv 
-
-        $smtpPasse = 'ajrjnskftfmkvirv';
+        $from = $randomSmtpMail[0];
+        $smtpPasse = $randomSmtpMail[1];
         $smtpServer = 'smtp.gmail.com';
         $smtpPort = '587';
         $smtpSecured = 'tls';
-
-        $from = "whatsperson@gmail.com";
 
         try{
             $transport = (new Swift_SmtpTransport($smtpServer, $smtpPort, $smtpSecured)) 
