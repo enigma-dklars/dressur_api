@@ -10,8 +10,17 @@ class SendMail {
     public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"):bool
     {
         $smtpMails = [
-            ["dressur.ds@gmail.com", "cbecrafioykvabbl"],
-            ["no_reply_1_dressur.ds@gmail.com", "zgcyvmfiguinqddz"],
+            ["noreply1.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy"],
+            ["noreply2.dressur.ds@gmail.com", "fkfpukqzwlgueadu"],
+            ["noreply3.dressur.ds@gmail.com", "gsdmjxfqnzjbwpxq"],
+            ["noreply4.dressur.ds@gmail.com", "amjybgcikdvtsrem"],
+            ["noreply5.dressur.ds@gmail.com", "ylmdtwreacsymamc"],
+
+            ["noreply6.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy"],
+            ["noreply7.dressur.ds@gmail.com", "fkfpukqzwlgueadu"],
+            ["noreply8.dressur.ds@gmail.com", "gsdmjxfqnzjbwpxq"],
+            ["noreply9.dressur.ds@gmail.com", "amjybgcikdvtsrem"],
+            ["noreply10.dressur.ds@gmail.com", "ylmdtwreacsymamc"],
         ];
         
         $randomIndex = array_rand($smtpMails);
