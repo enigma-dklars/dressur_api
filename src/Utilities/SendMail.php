@@ -10,11 +10,11 @@ class SendMail {
     public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"):bool
     {
         $smtpMails = [
-            ["noreply1.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy"],
-            ["noreply2.dressur.ds@gmail.com", "fkfpukqzwlgueadu"],
-            ["noreply3.dressur.ds@gmail.com", "gsdmjxfqnzjbwpxq"],
-            ["noreply4.dressur.ds@gmail.com", "amjybgcikdvtsrem"],
-            ["noreply5.dressur.ds@gmail.com", "ylmdtwreacsymamc"],
+            ["noreply1.dressur.ds@gmail.com", "maatzpxlfnunewqi"],
+            ["noreply2.dressur.ds@gmail.com", "eeufhrlrlbicxdmr"],
+            ["noreply3.dressur.ds@gmail.com", "styzjjntshtyhzcr"],
+            ["noreply4.dressur.ds@gmail.com", "vutvoskfzywhpgjp"],
+            ["noreply5.dressur.ds@gmail.com", "znjaliibcopwqgea"],
 
             ["noreply6.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy"],
             ["noreply7.dressur.ds@gmail.com", "fkfpukqzwlgueadu"],

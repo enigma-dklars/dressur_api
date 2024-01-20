@@ -235,7 +235,7 @@ class TraitementsDS extends AbstractController
         foreach ($user->getContact()->getAllIdOfMyContacts() as $key => $idContact){
             $contact = $this->userRepository->find($idContact);
             $unContact = [
-                "id" => (string)$contact->getId(),
+                "id" => (string)$contact->getUid(),
                 "pseudo" => $contact->getPseudo(),
                 "nom" => $contact->getNom() ? $contact->getNom() : "",
                 "afficheNom" => $contact->getPreference()->getAffNom(),
