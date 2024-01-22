@@ -25,7 +25,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
-
 #[Route('/api', name: 'api_')]
 
 class BoostController extends AbstractController
