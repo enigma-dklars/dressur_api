@@ -25,7 +25,7 @@ class CampagneMailController extends AbstractController
     public function __construct(EntityManagerInterface $em, EnvRepository $env)
     {
         $this->em = $em;
-        $this->env = $env->find(1);
+        $this->env = $env->find(1); 
     }
 
     #[Route('/newCampagneMail', name: 'newCampagneMail', methods: ['POST'])]
