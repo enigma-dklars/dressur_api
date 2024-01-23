@@ -193,6 +193,63 @@ class TraitementsDS extends AbstractController
         return $userPromos;
     }
 
+    public function userCampagneMail($campagneMails) {
+        $userCampagneMail = [];
+
+        foreach ($campagneMails as $campagneMail) {
+            $statut = "";
+            $peutPayer = false;
+
+            if ($campagneMail->getStatus() == 0) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Rejected";
+                } else {
+                    $statut = "Rejeter";
+                }
+            } else if($campagneMail->getStatus() == 1) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Waiting for validation";
+                } else {
+                    $statut = "En Attente de validation";
+                }
+            } else if($campagneMail->getStatus() == 2) {
+                $peutPayer = true;
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Accept and pending payment";
+                } else {
+                    $statut = "Accepter et en attente de paiement";
+                }
+            } else if($campagneMail->getStatus() == 3) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Paying and processing";
+                } else {
+                    $statut = "Payer et en cours de traitement";
+                }
+            } else if($campagneMail->getStatus() == 4) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "To end";
+                } else {
+                    $statut = "Terminer";
+                }
+            }
+
+            $unecampagneMail = [
+                "id" => (string)$campagneMail->getId(),
+                "titre" => $campagneMail->getTitre(),
+                "sujet" => $campagneMail->getSujet(),
+                "replyto" => $campagneMail->getReplyto(),
+                "sendto" => $campagneMail->getSendto(),
+                "contentmail" => $campagneMail->getContentmail(),
+                "status" => $statut,
+                "peutPayer" => $peutPayer,
+                "createdAt" => $campagneMail->getCreatedAt() ? ($campagneMail->getCreatedAt())->format('d-m-Y à H:i') : "",
+            ];
+            array_push($userCampagneMail, $unecampagneMail);
+        }
+        $userCampagneMail = array_reverse($userCampagneMail);
+        return $userCampagneMail;
+    }
+
     public function listePubliciteAffichageAuxUsers($user){
         $listePubliciteAffichageAuxUsers = [];
 

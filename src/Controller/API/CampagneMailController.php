@@ -2,8 +2,10 @@
 
 namespace App\Controller\API;
 
-use App\Entity\CampagneMail;
+use App\Entity\User;
 use App\Services\SessionDS;
+use App\Entity\CampagneMail;
+use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
 use App\Repository\BoostRepository;
@@ -114,5 +116,13 @@ class CampagneMailController extends AbstractController
         return new JsonResponse([
             'error' => false,
         ]);
+    }
+
+    #[Route('/listCampagneMail/{uid}/{langUserPhone}', name: 'listCampagneMail', methods: ['POST', "GET"])]
+    public function listCampagneMail(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $sessionDS->set("langUserPhone", $langUserPhone);
+        
+        return new JsonResponse($traitementsDS->userCampagneMail($user->getCampagneMails()));
     }
 }
