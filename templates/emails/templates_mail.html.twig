@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}{% endblock %}</title>
+        {% block stylesheets %}
+            <style>
+                body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                }
+                .email-signature {
+                width: 440px;
+                margin: 0 auto;
+                border: 1px solid #ccc;
+                color: #808080;
+                font-family: Arial, sans-serif;
+                background: transparent !important;
+                }
+                .header {
+                background-color: #fcfdff;
+                color: #2a4b9a;
+                font-size: 18pt;
+                line-height: 22pt;
+                padding: 10px;
+                }
+                .barre {
+                    width: 100%;
+                    height: 8px; /* Hauteur de la barre */
+                    background-color: #2a4b9a;
+                }
+                .body {
+                padding: 10px;
+                }
+                .body table {
+                width: 100%;
+                }
+                .body td {
+                font-size: 12pt;
+                font-family: Arial, sans-serif;
+                color: #808080;
+                line-height: 14pt;
+                padding-bottom: 2px;
+                }
+                .social-icons img {
+                border: 0;
+                width: 20px;
+                height: 20px;
+                }
+                .footer {
+                font-size: 9pt;
+                color: #000000; 
+                background-color: #f4f4f4;
+                padding: 10px;
+                text-align: center;
+                }
+            </style>
+        {% endblock %}
+    </head>
+   
+    {% block body %}
+        <div class="email-signature">
+        <div class="barre"></div>
+        <div class="header">
+        <table>
+            <th>
+                <td><img src="{{asset('/images/ds_logo1.png')}}" height="60" title="#" alt="#"></td>
+            </th>
+            <th>
+                <td><strong> Dressur</strong></td>
+            </th>
+        </table>
+        </div>
+        <div class="body">
+        <table>
+            <tr>
+            <td width="260">
+                <span>Dressur</span>
+            </td>
+            <td width="160" style="text-align: right;">
+                <table class="social-icons">
+                <tr>
+                    <td><a href="#" target="_blank" rel="noopener"><img src="{{asset('/images/icon_facebook.png')}}" alt="facebook icon"></a></td>
+                    <td><a href="#" target="_blank" rel="noopener"><img src="{{asset('/images/icon_instagram.png')}}" alt="instagram icon"></a></td>
+                    <td><a href="#" target="_blank" rel="noopener"><img src="{{asset('/images/icon_tiktok.png')}}" alt="tiktok icon"></a></td>
+                    <td><a href="#" target="_blank" rel="noopener"><img src="{{asset('/images/icon_youtube.png')}}" alt="youtube icon"></a></td>
+                </tr>
+                </table>
+            </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+            <td colspan="2" style="padding-top: 15px; border-top: solid 1px #2a4b9a;">
+                <span><strong>Appel :</strong> <a href="tel:+22964044294"> +229 640 442 94 </a> | </span>
+                <span><strong>WhatsApp :</strong> <a href="whatsapp://send?phone=+22964044294"> +229 640 442 94 </a> </span>
+                <br>
+                <span><strong>Email:</strong> <a href="mailto:dressur.ds@gmail.com" style="text-decoration: none;">dressur.ds@gmail.com</a></span>
+                <br>
+                <span><strong>Dressur</strong>, Cotonou, Bénin</span>
+                <br><br>
+                <a href="{website}" target="_blank" rel="noopener" style="text-decoration: none;"><strong style="color: #2a4b9a;">{website}</strong></a>
+            </td>
+            </tr>
+        </table>
+        </div>
+        <div class="footer">
+        <p>Dressur © 2024 - <a href="https://www.bluelife.tech/realisations/dressur/condition">Termes et Conditions</a> | 
+            <a href="https://www.bluelife.tech/realisations/dressur/politique">Politique de confidentialité.</a> </p>
+        </div>
+        </div>
+    {% endblock %}
+</html>
