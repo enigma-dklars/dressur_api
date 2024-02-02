@@ -37,6 +37,7 @@ class AdminPromotionController extends AbstractController
             'promotions' => $promotionRepository->findBy(["status" => 1]),
         ]);
     }
+    
 
     #[Route('/new', name: 'app_admin_promotion_new', methods: ['GET', 'POST'])]
     public function new(Request $request, PromotionRepository $promotionRepository): Response
