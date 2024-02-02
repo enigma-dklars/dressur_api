@@ -316,7 +316,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserPassword', name: 'updateUserPassword', methods: ['POST'])]
-    public function updateUserPassword(Request $request, UserRepository $userRepository, SessionDS $sessionDS): Response
+    public function updateUserPassword(Request $request, UserRepository $userRepository, SessionDS $sessionDS, SendMail $sendMail): Response
     {
         $datas = $request->request;
 
@@ -403,6 +403,11 @@ class UserController extends AbstractController
         $this->em->flush();
 
         if ($user->getId()) {
+            $sendMail->smtpMail(
+                $user->getMail(), 
+                "Mot de Passe Modifié sur Dressur", 
+                $this->renderView('emails/pass_edit_mail.html.twig', []
+            ));
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => false,
@@ -761,7 +766,7 @@ class UserController extends AbstractController
         $this->em->persist($verifMail);
         $this->em->flush();
 
-        $html = $this->renderView("emails/mailverified.html.twig",[
+        $html = $this->renderView("emails/verif_mail.html.twig",[
             'code' => $verifMail->getCode(),
             'username' => $user,
         ]);
@@ -896,7 +901,7 @@ class UserController extends AbstractController
         $user->setPassword(sha1(sha1(sha1($newPassword))));
         $this->em->flush();
 
-        $html = $this->renderView("emails/resetPassword.html.twig",[
+        $html = $this->renderView("emails/passe_4got_mail.html.twig",[
             'code' => $newPassword,
             'username' => $user,
         ]);
@@ -967,7 +972,7 @@ class UserController extends AbstractController
         $user->setPassword(sha1(sha1(sha1($newPassword))));
         $this->em->flush();
 
-        $html = $this->renderView("emails/resetPassword.html.twig",[
+        $html = $this->renderView("emails/passe_4got_mail.html.twig",[
             'code' => $newPassword,
             'username' => $user,
         ]);
@@ -994,7 +999,7 @@ class UserController extends AbstractController
     }   
 
     #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
-    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, SendMail $sendMail): Response
     {
         $datas = $request->request;
 
@@ -1162,6 +1167,13 @@ class UserController extends AbstractController
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
 
         if ($userAfterRegister) {
+            $sendMail->smtpMail(
+                $userAfterRegister->getMail(), 
+                "Bienvenu sur Dressur", 
+                $this->renderView('emails/bienvenu_mail.html.twig', [
+                    'pseudoUser' => $userAfterRegister->getPseudo(),
+                ]
+            ));
             return new JsonResponse([
                 'error' => false,
                 'user' => $this->traitementsDS->infosUser($userAfterRegister),
