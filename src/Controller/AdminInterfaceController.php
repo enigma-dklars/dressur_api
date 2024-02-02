@@ -28,4 +28,12 @@ class AdminInterfaceController extends AbstractController
             'env' => $this->env,
         ]);
     }
+
+    #[Route('/admin/interface/upadte_env_value', name: 'app_admin_interface_update_env_value')]
+    public function update_env_value(): Response
+    {
+        return $this->render('admin_interface/index.html.twig', [
+            'env' => $this->env,
+        ]);
+    }
 }
