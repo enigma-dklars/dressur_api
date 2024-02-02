@@ -243,20 +243,20 @@ class VerificationsDS extends AbstractController
             $pseudoSansChiffre = str_replace($i, '', $pseudoSansChiffre);
         }
 
-        if(strlen($pseudoSansChiffre) == strlen($pseudo)) {
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Your Nickname contains forbidden words...',
-                ];
-            }
-            return [
-                'error' => true,
-                'titre' => 'Refus!',
-                'message' => "Votre Pseudo doit contenir au minimum un chiffre.",
-            ];
-        }
+        // if(strlen($pseudoSansChiffre) == strlen($pseudo)) {
+        //     if($this->sessionDS->get("langUserPhone") != "fr") {
+        //         return [
+        //             'error' => true,
+        //             'titre' => 'Attention!',
+        //             'message' => 'Your Nickname contains forbidden words...',
+        //         ];
+        //     }
+        //     return [
+        //         'error' => true,
+        //         'titre' => 'Refus!',
+        //         'message' => "Votre Pseudo doit contenir au minimum un chiffre.",
+        //     ];
+        // }
 
         if(strlen($pseudoSansChiffre) <= 1){
             if($this->sessionDS->get("langUserPhone") != "fr") {
