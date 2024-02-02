@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,10 +24,11 @@ class AdminInterfaceController extends AbstractController
         $this->traitementsDS = $traitementsDS;
     } 
     #[Route('/admin/interface', name: 'app_admin_interface')]
-    public function index(): Response
+    public function index(UserRepository $userRepository): Response
     {
         return $this->render('admin_interface/index.html.twig', [
             'env' => $this->env,
+            'users' => $userRepository->findBy(["telIsVerified" => false]),
         ]);
     }
 
