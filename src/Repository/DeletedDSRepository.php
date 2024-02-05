@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\DeletedWP;
+use App\Entity\DeletedDS;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<DeletedWP>
+ * @extends ServiceEntityRepository<DeletedDS>
  *
- * @method DeletedWP|null find($id, $lockMode = null, $lockVersion = null)
- * @method DeletedWP|null findOneBy(array $criteria, array $orderBy = null)
- * @method DeletedWP[]    findAll()
- * @method DeletedWP[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method DeletedDS|null find($id, $lockMode = null, $lockVersion = null)
+ * @method DeletedDS|null findOneBy(array $criteria, array $orderBy = null)
+ * @method DeletedDS[]    findAll()
+ * @method DeletedDS[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class DeletedWPRepository extends ServiceEntityRepository
+class DeletedDSRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, DeletedWP::class);
+        parent::__construct($registry, DeletedDS::class);
     }
 
-    public function add(DeletedWP $entity, bool $flush = false): void
+    public function add(DeletedDS $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
 
@@ -30,7 +30,7 @@ class DeletedWPRepository extends ServiceEntityRepository
         }
     }
 
-    public function remove(DeletedWP $entity, bool $flush = false): void
+    public function remove(DeletedDS $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
 
@@ -40,7 +40,7 @@ class DeletedWPRepository extends ServiceEntityRepository
     }
 
 //    /**
-//     * @return DeletedWP[] Returns an array of DeletedWP objects
+//     * @return DeletedDS[] Returns an array of DeletedDS objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -54,7 +54,7 @@ class DeletedWPRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?DeletedWP
+//    public function findOneBySomeField($value): ?DeletedDS
 //    {
 //        return $this->createQueryBuilder('d')
 //            ->andWhere('d.exampleField = :val')

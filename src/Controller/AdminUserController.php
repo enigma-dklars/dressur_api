@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
-use App\Services\TraitementsWP;
+use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -68,10 +68,10 @@ class AdminUserController extends AbstractController
     }
 
     #[Route('/{id}/rejeter', name: 'app_admin_user_rejeter', methods: ['GET'])]
-    public function rejeter(User $user, TraitementsWP $traitementsWP): Response
+    public function rejeter(User $user, TraitementsDS $traitementsDS): Response
     {   
         $text = $user->getPseudo().", votre compte WhatsPerson a été supprimer car vous n'avez pas utliser un numéro WhatsApp.";
-        $traitementsWP->execPurge($user);
+        $traitementsDS->execPurge($user);
         return $this->redirect('https://wa.me/'.$user->getTel().'?text='.$text);
     }
 
@@ -111,4 +111,5 @@ class AdminUserController extends AbstractController
 
         return $this->redirectToRoute('app_admin_user_index', [], Response::HTTP_SEE_OTHER);
     }
+
 }

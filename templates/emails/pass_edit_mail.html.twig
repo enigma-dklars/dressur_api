@@ -1,0 +1,36 @@
+{% extends 'emails/templates_mail.html.twig' %}
+
+{% block contenu_mail %}
+  <style>
+    .container {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+
+      max-width: 600px;
+      text-align: justify;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    h2 {
+      color: #333;
+    }
+    p {
+      color: #555;
+    }
+  </style>
+  <div class="container">
+    <h2>Mot de Passe Modifié avec Succès</h2>
+    <p>
+        Votre mot de passe sur Dressur a été modifié avec succès. Si vous n'avez pas effectué cette modification, 
+        veuillez nous contacter immédiatement à adresse e-mail du support :
+        </strong> <a href="mailto:dressur.ds@gmail.com" style="text-decoration: none;">dressur.ds@gmail.com</a></span>.
+    </p>
+    <p>
+        Merci de faire confiance à Dressur pour la sécurité de votre compte.
+    </p>
+  </div>
+
+{% endblock %}

@@ -8,10 +8,10 @@ use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
 use FedaPay\Transaction;
-use App\Services\SessionWP;
-use App\Services\TraitementsWP;
+use App\Services\SessionDS;
+use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
-use App\Services\VerificationsWP;
+use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,7 +23,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
 
 
 #[Route('/api', name: 'api_')]
@@ -58,18 +57,18 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoost', name: 'newBoost', methods: ['POST'])]
-    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
         $programBoost = false;
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $idFormulBoost = $datas->get('idFormulBoost');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -82,7 +81,7 @@ class BoostController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -97,7 +96,7 @@ class BoostController extends AbstractController
         }
 
         if(!$user->getMailIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -113,36 +112,36 @@ class BoostController extends AbstractController
 
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         }
 
         if($user->getSoldeBonus() < $formulBoost->getPrix()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
-                    'message' => "Your WP balance is insufficient.\nReferred users to increase your WP balance.",
+                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
                 ]);                
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde WP est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde WP.",
+                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
 
-        if ($verificationsWP->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
+        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
             $programBoost = true;
         }
         
@@ -170,7 +169,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoostPayant', name: 'newBoostPayant', methods: ['POST'])]
-    public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP): Response
+    public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
         FedaPay::setEnvironment('live');
@@ -179,14 +178,14 @@ class BoostController extends AbstractController
 
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $idFormulBoost = $datas->get('idFormulBoost');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -199,7 +198,7 @@ class BoostController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -214,7 +213,7 @@ class BoostController extends AbstractController
         }
 
         if(!$user->getMailIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -229,7 +228,7 @@ class BoostController extends AbstractController
         }
 
         if(!$this->env->getDoBoostPayant()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Paid boosts are temporarily unavailable. Do a free boost instead."]);
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Les boosts payants sont momentanément indisponibles. Faite plutôt un boost gratuit."]);
@@ -237,23 +236,23 @@ class BoostController extends AbstractController
 
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         }
 
-        $verificationNumTel = $verificationsWP->verifFormatNumTel($tel);
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
@@ -261,7 +260,7 @@ class BoostController extends AbstractController
         $tel = $verificationNumTel["e164"];
 
         if(!$tel){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -276,7 +275,7 @@ class BoostController extends AbstractController
         }
 
         if(!$valueMethodePaiement){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -290,18 +289,18 @@ class BoostController extends AbstractController
             ]);
         }
 
-        if ($verificationsWP->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "You already have a WP Boost in progress...\nWait for it to finish before starting another.",
+                    'message' => "You already have a Contact Boost in progress...\nWait for it to finish before starting another.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Vous avez déja un Boost WP en cours...\nAttendez la fin de ce dernier avant de démarrer un autre.",
+                'message' => "Vous avez déja un Boost Contact en cours...\nAttendez la fin de ce dernier avant de démarrer un autre.",
             ]);
         }
 
@@ -353,7 +352,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/checkTransaction', name: 'checkTransaction', methods: ['POST'])]
-    public function checkTransaction(Request $request, VerificationsWP $verificationsWP, TransactionRepository $transactionRepository, SessionWP $sessionWP): Response
+    public function checkTransaction(Request $request, VerificationsDS $verificationsDS, TransactionRepository $transactionRepository, SessionDS $sessionDS): Response
     {
         FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
         FedaPay::setEnvironment('live');
@@ -362,12 +361,12 @@ class BoostController extends AbstractController
 
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $idTransaction = $datas->get('idTransaction');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -380,7 +379,7 @@ class BoostController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -395,7 +394,7 @@ class BoostController extends AbstractController
         }
 
         if(!$user->getMailIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -411,17 +410,17 @@ class BoostController extends AbstractController
 
         $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
         if(!$myTransaction){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         } else {
             if($myTransaction->getStatus() != "approved") {
@@ -443,7 +442,7 @@ class BoostController extends AbstractController
 
                     $this->em->flush();
 
-                    if($sessionWP->get("langUserPhone") != "fr") {
+                    if($sessionDS->get("langUserPhone") != "fr") {
                         return new JsonResponse([
                             'error' => false,
                             'transaction' => true,
@@ -462,7 +461,7 @@ class BoostController extends AbstractController
 
                     $this->em->flush();
 
-                    if($sessionWP->get("langUserPhone") != "fr") {
+                    if($sessionDS->get("langUserPhone") != "fr") {
                         return new JsonResponse([
                             'error' => true,
                             'titre' => "Transaction ($transaction->status) ...?",
@@ -478,7 +477,7 @@ class BoostController extends AbstractController
                 }
             }
 
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => "Transaction Validate...",
@@ -493,17 +492,17 @@ class BoostController extends AbstractController
             ]);
         }
 
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
             ]);
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
     }
 
@@ -591,11 +590,11 @@ class BoostController extends AbstractController
     }
 
     #[Route('/listBoost/{uid}/{langUserPhone}', name: 'listBoost', methods: ['POST', "GET"])]
-    public function listBoost(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsWP $traitementsWP, SessionWP $sessionWP): Response
+    public function listBoost(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
-        return new JsonResponse($traitementsWP->userBoosts($boostRepository->findBy(['user' => $user])));
+        return new JsonResponse($traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])));
     }
 
     #[Route('/fauxBoostTousUser', name: 'fauxBoostTousUser', methods: ['GET'])]

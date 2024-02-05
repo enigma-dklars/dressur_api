@@ -5,10 +5,10 @@ namespace App\Entity;
 use DateTime;
 use App\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\DeletedWPRepository;
+use App\Repository\DeletedDSRepository;
 
-#[ORM\Entity(repositoryClass: DeletedWPRepository::class)]
-class DeletedWP
+#[ORM\Entity(repositoryClass: DeletedDSRepository::class)]
+class DeletedDS
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]

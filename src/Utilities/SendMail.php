@@ -7,16 +7,30 @@ use Swift_Message;
 use Swift_SmtpTransport;
 
 class SendMail {
-    public function smtpMail(string $to, string $subject, string $message, string $replyto = "whatsperson@gmail.com", string $title = "WhatsPerson Assistance"):bool {
+    public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"):bool
+    {
+        $smtpMails = [
+            ["noreply1.dressur.ds@gmail.com", "maatzpxlfnunewqi"],
+            ["noreply2.dressur.ds@gmail.com", "eeufhrlrlbicxdmr"],
+            ["noreply3.dressur.ds@gmail.com", "styzjjntshtyhzcr"],
+            ["noreply4.dressur.ds@gmail.com", "vutvoskfzywhpgjp"],
+            ["noreply5.dressur.ds@gmail.com", "znjaliibcopwqgea"],
 
-        // ajrj nskf tfmk virv 
+            ["noreply6.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy"],
+            ["noreply7.dressur.ds@gmail.com", "fkfpukqzwlgueadu"],
+            ["noreply8.dressur.ds@gmail.com", "gsdmjxfqnzjbwpxq"],
+            ["noreply9.dressur.ds@gmail.com", "amjybgcikdvtsrem"],
+            ["noreply10.dressur.ds@gmail.com", "ylmdtwreacsymamc"],
+        ];
+        
+        $randomIndex = array_rand($smtpMails);
+        $randomSmtpMail = $smtpMails[$randomIndex];
 
-        $smtpPasse = 'ajrjnskftfmkvirv';
+        $from = $randomSmtpMail[0];
+        $smtpPasse = $randomSmtpMail[1];
         $smtpServer = 'smtp.gmail.com';
         $smtpPort = '587';
         $smtpSecured = 'tls';
-
-        $from = "whatsperson@gmail.com";
 
         try{
             $transport = (new Swift_SmtpTransport($smtpServer, $smtpPort, $smtpSecured)) 

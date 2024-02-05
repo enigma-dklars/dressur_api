@@ -4,12 +4,12 @@ namespace App\Services;
 
 use DateTime;
 use App\Repository\EnvRepository;
-use App\Services\VerificationsWP;
+use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
-use App\Repository\WPBonusRepository;
+use App\Repository\DSBonusRepository;
 use App\Controller\API\BoostController;
-use App\Repository\DeletedWPRepository;
+use App\Repository\DeletedDSRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\VerifMailRepository;
 use App\Repository\PreferenceRepository;
@@ -17,37 +17,37 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\API\ContactController;
 use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
-use App\Repository\WPBonusHistoriqueRepository;
+use App\Repository\DSBonusHistoriqueRepository;
 use App\Controller\API\UserPreferenceController;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
-class TraitementsWP extends AbstractController
+class TraitementsDS extends AbstractController
 {
     private $em;
     private $env;
-    private $verificationsWP;
+    private $verificationsDS;
     private $wPBonusHistoriqueRepository;
     private $boostRepository;
     private $wPBonusRepository;
     private $userRepository;
-    private $sessionWP;
+    private $sessionDS;
     private $preferenceRepository;
     private $transactionRepository;
     private $verifMailRepository;
     private $signalementRepository;
     private $promotionRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsWP $verificationsWP, WPBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, WPBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionWP $sessionWP, DeletedWPRepository $deletedWPRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);
-        $this->verificationsWP = $verificationsWP; 
+        $this->verificationsDS = $verificationsDS; 
         $this->wPBonusHistoriqueRepository = $wPBonusHistoriqueRepository;
         $this->boostRepository = $boostRepository;
         $this->wPBonusRepository = $wPBonusRepository;
         $this->userRepository = $userRepository;
-        $this->sessionWP = $sessionWP;
+        $this->sessionDS = $sessionDS;
         $this->preferenceRepository = $preferenceRepository;
         $this->transactionRepository = $transactionRepository;
         $this->verifMailRepository = $verifMailRepository;
@@ -77,7 +77,7 @@ class TraitementsWP extends AbstractController
         $dejaUnBoostEncours = 0;
 
         foreach ($boosts as $boost) {
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 $statut = "In progress 🚀";
             } else {
                 $statut = "En cours 🚀";
@@ -86,7 +86,7 @@ class TraitementsWP extends AbstractController
             if((new DateTime()) < $boost->getDateExp()){
                 $dejaUnBoostEncours++;
                 if ($dejaUnBoostEncours > 1) {
-                    if($this->sessionWP->get("langUserPhone") != "fr") {
+                    if($this->sessionDS->get("langUserPhone") != "fr") {
                         $statut = "scheduled 💤";
                     } else {
                         $statut = "Programmé 💤";
@@ -96,7 +96,7 @@ class TraitementsWP extends AbstractController
             
 
             if((new DateTime()) > $boost->getDateExp()){
-                if($this->sessionWP->get("langUserPhone") != "fr") {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Completed ✅";
                 } else {
                     $statut = "Terminé ✅";
@@ -104,12 +104,12 @@ class TraitementsWP extends AbstractController
             }
 
             if($boost->getMode() == "Gratuit") {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). "WP";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). "DS";
             } else {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). "FCFA";
             }
 
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 if($boost->getMode() == "Gratuit") {
                     $boostMode = "Free";
                 } else {
@@ -147,26 +147,26 @@ class TraitementsWP extends AbstractController
             $peutPayer = false;
 
             if ($promo->getStatus() == 0) {
-                if($this->sessionWP->get("langUserPhone") != "fr") {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Rejected";
                 } else {
                     $statut = "Rejeter";
                 }
             } else if($promo->getStatus() == 1) {
-                if($this->sessionWP->get("langUserPhone") != "fr") {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Waiting for validation";
                 } else {
                     $statut = "En Attente de validation";
                 }
             } else if($promo->getStatus() == 2) {
                 $peutPayer = true;
-                if($this->sessionWP->get("langUserPhone") != "fr") {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Accept and pending payment";
                 } else {
                     $statut = "Accepter et en attente de paiement";
                 }
             } else if($promo->getStatus() == 3) {
-                if($this->sessionWP->get("langUserPhone") != "fr") {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Accept and already pay";
                 } else {
                     $statut = "Accepter et déja payer";
@@ -191,6 +191,63 @@ class TraitementsWP extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function userCampagneMail($campagneMails) {
+        $userCampagneMail = [];
+
+        foreach ($campagneMails as $campagneMail) {
+            $statut = "";
+            $peutPayer = false;
+
+            if ($campagneMail->getStatus() == 0) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Rejected";
+                } else {
+                    $statut = "Rejeter";
+                }
+            } else if($campagneMail->getStatus() == 1) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Waiting for validation";
+                } else {
+                    $statut = "En Attente de validation";
+                }
+            } else if($campagneMail->getStatus() == 2) {
+                $peutPayer = true;
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Accept and pending payment";
+                } else {
+                    $statut = "Accepter et en attente de paiement";
+                }
+            } else if($campagneMail->getStatus() == 3) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Paying and processing";
+                } else {
+                    $statut = "Payer et en cours de traitement";
+                }
+            } else if($campagneMail->getStatus() == 4) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "To end";
+                } else {
+                    $statut = "Terminer";
+                }
+            }
+
+            $unecampagneMail = [
+                "id" => (string)$campagneMail->getId(),
+                "titre" => $campagneMail->getTitre(),
+                "sujet" => $campagneMail->getSujet(),
+                "replyto" => $campagneMail->getReplyto(),
+                "sendto" => $campagneMail->getSendto(),
+                "contentmail" => $campagneMail->getContentmail(),
+                "status" => $statut,
+                "peutPayer" => $peutPayer,
+                "createdAt" => $campagneMail->getCreatedAt() ? ($campagneMail->getCreatedAt())->format('d-m-Y à H:i') : "",
+            ];
+            array_push($userCampagneMail, $unecampagneMail);
+        }
+        $userCampagneMail = array_reverse($userCampagneMail);
+        return $userCampagneMail;
     }
 
     public function listePubliciteAffichageAuxUsers($user){
@@ -235,7 +292,7 @@ class TraitementsWP extends AbstractController
         foreach ($user->getContact()->getAllIdOfMyContacts() as $key => $idContact){
             $contact = $this->userRepository->find($idContact);
             $unContact = [
-                "id" => (string)$contact->getId(),
+                "id" => (string)$contact->getUid(),
                 "pseudo" => $contact->getPseudo(),
                 "nom" => $contact->getNom() ? $contact->getNom() : "",
                 "afficheNom" => $contact->getPreference()->getAffNom(),
@@ -358,7 +415,7 @@ class TraitementsWP extends AbstractController
             }
         }
         if($pays == ""){
-            if($this->sessionWP->get("langUserPhone") != "fr") {
+            if($this->sessionDS->get("langUserPhone") != "fr") {
                 $pays .= "No Country Selected";
             } else {
                 $pays .= "Aucun Pays Choisi";
@@ -375,16 +432,16 @@ class TraitementsWP extends AbstractController
         while (strlen($chars) < $length) {
             $chars .= $chars;
         }
-        return "WP".substr(str_shuffle($chars), 0, $length);
+        return "DS".substr(str_shuffle($chars), 0, $length);
     }
 
-    public function bonusTab($lesWPBonus){
+    public function bonusTab($lesDSBonus){
         $bonusTab = [];
-        foreach ($lesWPBonus as $WPBonus) {
+        foreach ($lesDSBonus as $DSBonus) {
             $bonus = [
-                "titre" => $WPBonus->getTitre(),
-                "montant" => (string)$WPBonus->getMontant()." WP",
-                "date" => ($WPBonus->getCreatedAt())->format('d-m-Y à H:i'),
+                "titre" => $DSBonus->getTitre(),
+                "montant" => (string)$DSBonus->getMontant()." Points",
+                "date" => ($DSBonus->getCreatedAt())->format('d-m-Y à H:i'),
             ];
             array_push($bonusTab, $bonus);
         }
@@ -419,8 +476,8 @@ class TraitementsWP extends AbstractController
             "affUserName" => $user->getPreference()->getAffNom() ? true : false,
             "nombreFilleuls" => count($user->getFilleuls()),
             "admin" => $user->getAdmin() ? true : false,
-            "permissionAdd" => ($this->verificationsWP->permissionAdd($user))["permissionAdd"],
-            "messageErreurPermissionAdd" => ($this->verificationsWP->permissionAdd($user))["messageErreurPermissionAdd"],
+            "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],
+            "messageErreurPermissionAdd" => ($this->verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
             "commissionBonus" => $this->env->getCommissionBonus(),
             'preferencePaysText' => $this->preferencePaysText($user->getPreference()),
         ];

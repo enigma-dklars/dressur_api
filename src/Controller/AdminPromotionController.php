@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Promotion;
 use App\Form\PromotionType;
-use App\Services\TraitementsWP;
+use App\Services\TraitementsDS;
 use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +37,7 @@ class AdminPromotionController extends AbstractController
             'promotions' => $promotionRepository->findBy(["status" => 1]),
         ]);
     }
+    
 
     #[Route('/new', name: 'app_admin_promotion_new', methods: ['GET', 'POST'])]
     public function new(Request $request, PromotionRepository $promotionRepository): Response

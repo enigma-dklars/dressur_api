@@ -8,10 +8,10 @@ use FedaPay\Webhook;
 use App\Entity\Boost;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
-use App\Services\SessionWP;
-use App\Services\TraitementsWP;
+use App\Services\SessionDS;
+use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
-use App\Services\VerificationsWP;
+use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,13 +41,13 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromotion', name: 'newPromotion', methods: ['POST'])]
-    public function newPromotion(Request $request, VerificationsWP $verificationsWP, SessionWP $sessionWP, PromotionRepository $promotionRepository): Response
+    public function newPromotion(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
         $files = $request->files;
 
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $text = $datas->get('text');
@@ -62,7 +62,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -75,7 +75,7 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -90,7 +90,7 @@ class PromotionController extends AbstractController
         }
 
         if(!$user->getMailIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -106,7 +106,7 @@ class PromotionController extends AbstractController
 
         // Vérification et traitement de l'image
         if (!$image->isValid()) {
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -143,7 +143,7 @@ class PromotionController extends AbstractController
 
         // Enregistrer le chemin de l'image dans la base de données ou effectuer d'autres opérations nécessaires
         // ...
-        if($sessionWP->get("langUserPhone") != "fr") { 
+        if($sessionDS->get("langUserPhone") != "fr") { 
             return new JsonResponse([
                 'error' => false
             ]); 
@@ -155,26 +155,26 @@ class PromotionController extends AbstractController
 
 
     #[Route('/listPromotion/{uid}/{langUserPhone}', name: 'listPromotion', methods: ['POST', "GET"])]
-    public function listPromotion(User $user, $langUserPhone, TraitementsWP $traitementsWP, SessionWP $sessionWP): Response
+    public function listPromotion(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
         
-        return new JsonResponse($traitementsWP->userPromos($user->getPromotions()));
+        return new JsonResponse($traitementsDS->userPromos($user->getPromotions()));
     }
 
     #[Route('/newPromo', name: 'newPromo', methods: ['POST'])]
-    public function newPromo(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP, PromotionRepository $promotionRepository): Response
+    public function newPromo(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
         $idFormulBoost = $datas->get('idFormulBoost');
         $idPromotion = $datas->get('idPromotion');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -187,7 +187,7 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -202,7 +202,7 @@ class PromotionController extends AbstractController
         }
 
         if(!$user->getMailIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -218,32 +218,32 @@ class PromotionController extends AbstractController
 
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         }
 
         if($user->getSoldeBonus() < $formulBoost->getPrix()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Whoops!',
-                    'message' => "Your WP balance is insufficient.\nReferred users to increase your WP balance.",
+                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
                 ]);                
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde WP est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde WP.",
+                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
         
@@ -264,7 +264,7 @@ class PromotionController extends AbstractController
                 'error' => false,
             ]);
         }
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Whoops!',
@@ -279,7 +279,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
-    public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP, PromotionRepository $promotionRepository): Response
+    public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
         FedaPay::setEnvironment('live');
@@ -287,7 +287,7 @@ class PromotionController extends AbstractController
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $idPromotion = $datas->get('idPromotion');
         $uid = $datas->get('uid');
@@ -295,7 +295,7 @@ class PromotionController extends AbstractController
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -308,7 +308,7 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -323,7 +323,7 @@ class PromotionController extends AbstractController
         }
 
         if(!$user->getMailIsVerified()){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -339,23 +339,23 @@ class PromotionController extends AbstractController
 
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact WhatsPerson Assistance by WhatsApp.",
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance WhatsPerson par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         }
 
-        $verificationNumTel = $verificationsWP->verifFormatNumTel($tel);
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
             }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
@@ -363,7 +363,7 @@ class PromotionController extends AbstractController
         $tel = $verificationNumTel["e164"];
 
         if(!$tel){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -378,7 +378,7 @@ class PromotionController extends AbstractController
         }
 
         if(!$valueMethodePaiement){
-            if($sessionWP->get("langUserPhone") != "fr") {
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
@@ -445,7 +445,7 @@ class PromotionController extends AbstractController
                 'error' => false,
             ]);
         }
-        if($sessionWP->get("langUserPhone") != "fr") {
+        if($sessionDS->get("langUserPhone") != "fr") {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Whoops!',

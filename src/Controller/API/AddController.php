@@ -3,10 +3,10 @@
 namespace App\Controller\API;
 
 use App\Entity\User;
-use App\Services\SessionWP;
-use App\Services\TraitementsWP;
+use App\Services\SessionDS;
+use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
-use App\Services\VerificationsWP;
+use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,22 +30,22 @@ class AddController extends AbstractController
     }
     
     #[Route('/getContactActuUser/{uid}', name: 'getContactActuUser', methods: ['POST', "GET"])]
-    public function getContactActuUser(User $user, TraitementsWP $traitementsWP): Response
+    public function getContactActuUser(User $user, TraitementsDS $traitementsDS): Response
     {
-        return new JsonResponse($traitementsWP->getAddDisponible($user));
+        return new JsonResponse($traitementsDS->getAddDisponible($user));
     }
 
     #[Route('/addTousUserContact', name: 'addTousUserContact')]
-    public function addTousUserContact(Request $request, UserRepository $userRepository, VerificationsWP $verificationsWP, SessionWP $sessionWP, TraitementsWP $traitementsWP): Response
+    public function addTousUserContact(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionWP->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
-        $verificationUser = $verificationsWP->verifUSer($uid);
+        $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
                 'error' => true,
@@ -57,10 +57,10 @@ class AddController extends AbstractController
         }
         $user = $verificationUser["user"];
         $contactsAdd = [];
-        foreach ($traitementsWP->getAddDisponible($user) as $add) {
+        foreach ($traitementsDS->getAddDisponible($user) as $add) {
             $userAdd = $userRepository->findOneBy(['tel' => $add['tel']]);
             if($userAdd){
-                if(($verificationsWP->permissionAdd($user))["permissionAdd"] == true){
+                if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
                     // MOD
                     $user->getContact()->setNewIAdd($userAdd);
                     $userAdd->getContact()->setNewAddMe($user);
@@ -73,8 +73,8 @@ class AddController extends AbstractController
                     return new JsonResponse([
                         'error' => true,
                         "contactsAdd" => $contactsAdd,
-                        "permissionAdd" => ($verificationsWP->permissionAdd($user))["permissionAdd"],
-                        "messageErreurPermissionAdd" => ($verificationsWP->permissionAdd($user))["messageErreurPermissionAdd"],
+                        "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
+                        "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
                     ]);
                 }
             }

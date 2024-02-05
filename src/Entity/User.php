@@ -102,6 +102,9 @@ class User
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $lastLoginTo = null;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: CampagneMail::class, orphanRemoval: true)]
+    private Collection $campagneMails;
+
     public function __construct()
     {
         $this->admin = false;
@@ -116,6 +119,7 @@ class User
         $this->themeDark = false;
         $this->blocked = false;
         $this->promotions = new ArrayCollection();
+        $this->campagneMails = new ArrayCollection();
     }
 
     public function __toString()
@@ -131,7 +135,7 @@ class User
         while (strlen($chars) < $length) {
             $chars .= $chars;
         }
-        return "WP".substr(str_shuffle($chars), 0, $length);
+        return "DS".substr(str_shuffle($chars), 0, $length);
     }
 
     public function getId(): ?int
@@ -549,6 +553,36 @@ class User
     public function setLastLoginTo(?\DateTimeInterface $lastLoginTo): self
     {
         $this->lastLoginTo = $lastLoginTo;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CampagneMail>
+     */
+    public function getCampagneMails(): Collection
+    {
+        return $this->campagneMails;
+    }
+
+    public function addCampagneMail(CampagneMail $campagneMail): self
+    {
+        if (!$this->campagneMails->contains($campagneMail)) {
+            $this->campagneMails->add($campagneMail);
+            $campagneMail->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCampagneMail(CampagneMail $campagneMail): self
+    {
+        if ($this->campagneMails->removeElement($campagneMail)) {
+            // set the owning side to null (unless already changed)
+            if ($campagneMail->getUser() === $this) {
+                $campagneMail->setUser(null);
+            }
+        }
 
         return $this;
     }

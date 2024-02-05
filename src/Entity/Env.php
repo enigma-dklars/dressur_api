@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EnvRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EnvRepository::class)]
@@ -27,6 +28,9 @@ class Env
 
     #[ORM\Column(nullable: true)]
     private ?bool $doBoostPayant = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $linkLocalServer = null;
 
     public function getId(): ?int
     {
@@ -89,6 +93,18 @@ class Env
     public function setDoBoostPayant(?bool $doBoostPayant): self
     {
         $this->doBoostPayant = $doBoostPayant;
+
+        return $this;
+    }
+
+    public function getLinkLocalServer(): ?string
+    {
+        return $this->linkLocalServer;
+    }
+
+    public function setLinkLocalServer(?string $linkLocalServer): self
+    {
+        $this->linkLocalServer = $linkLocalServer;
 
         return $this;
     }
