@@ -26,6 +26,7 @@ use App\Services\VerificationsDS;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpClient\HttpClient;
 
 #[Route('/api', name: 'api_')]
 class UserController extends AbstractController
@@ -1167,6 +1168,12 @@ class UserController extends AbstractController
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
 
         if ($userAfterRegister) {
+            // try {
+            //     (HttpClient::create())->request('POST', $this->env->getLinkLocalServer()."/add_taff");
+            // } catch (\Throwable $th) {
+            //     //throw $th;
+            // }
+
             $sendMail->smtpMail(
                 $userAfterRegister->getMail(), 
                 "Bienvenu sur Dressur", 
@@ -1174,6 +1181,7 @@ class UserController extends AbstractController
                     'pseudoUser' => $userAfterRegister->getPseudo(),
                 ]
             ));
+
             return new JsonResponse([
                 'error' => false,
                 'user' => $this->traitementsDS->infosUser($userAfterRegister),
