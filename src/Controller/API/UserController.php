@@ -1168,11 +1168,7 @@ class UserController extends AbstractController
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
 
         if ($userAfterRegister) {
-            // try {
-            //     (HttpClient::create())->request('POST', $this->env->getLinkLocalServer()."/add_taff");
-            // } catch (\Throwable $th) {
-            //     //throw $th;
-            // }
+            $response_add_taff = file_get_contents($this->env->getLinkLocalServer()."/add_taff");
 
             $sendMail->smtpMail(
                 $userAfterRegister->getMail(), 
