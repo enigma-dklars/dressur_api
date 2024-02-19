@@ -364,7 +364,6 @@ class BoostController extends AbstractController
         FedaPay::setEnvironment('live');
 
         $datas = $request->request;
-
         
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
