@@ -21,6 +21,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
+use App\Repository\CampagneMailRepository;
+use App\Repository\PromotionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -304,7 +306,7 @@ class BoostController extends AbstractController
             ]);
         }
 
-        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov") { $country = "bj"; }
+        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
         else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci") { $country = "ci"; }
         else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
         else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
@@ -313,7 +315,7 @@ class BoostController extends AbstractController
         else if($valueMethodePaiement == "mtn_gn") { $country = "gn"; }
 
         $array_create_transaction = [
-            "description" => "WhatsPerson : Boost Payant : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
+            "description" => "Dressur :  Boost Payant : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
             "amount" => $formulBoost->getPrix(),
             "currency" => ["iso" => "XOF"],
             "customer" => [
@@ -330,14 +332,18 @@ class BoostController extends AbstractController
         $transaction = Transaction::create($array_create_transaction);
 
         $myTransaction  = new EntityTransaction();
-        $myTransaction->setFormuleBoost($formulBoost)
-                      ->setUser($user)
-                      ->setIdTransaction($transaction["id"])
-                      ->setReference($transaction["reference"])
-                      ->setAmount($transaction["amount"])
-                      ->setStatus($transaction["status"])
-                      ->setCustomerId($transaction["customer_id"])
-                      ->setCurrencyId($transaction["currency_id"])
+        $myTransaction
+            ->setUser($user)
+            ->setTransactionFor("boost_contact")
+            ->setIdTransaction($transaction["id"])
+            ->setReference($transaction["reference"])
+            ->setAmount($transaction["amount"])
+            ->setStatus($transaction["status"])
+            ->setCustomerId($transaction["customer_id"])
+            ->setCurrencyId($transaction["currency_id"])
+            ->setAnnotherInfo([
+                'formulBoostId' => $formulBoost->getId(),
+            ])
         ;
         $this->em->persist($myTransaction);
         $this->em->flush();
@@ -506,8 +512,8 @@ class BoostController extends AbstractController
         ]);
     }
 
-    #[Route('/webhookWhatsperson', name: 'webhookWhatsperson')]
-    public function webhookWhatsperson(TransactionRepository $transactionRepository)
+    #[Route('/webhookDressur', name: 'webhookDressur')]
+    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository)
     {
         FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
         FedaPay::setEnvironment('live');
@@ -543,12 +549,11 @@ class BoostController extends AbstractController
                 $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
                 if($myTransaction){
                     if($myTransaction->getStatus() != "approved") {
-                        
-                        $formuleBoost = $myTransaction->getFormuleBoost();
                         $transaction = Transaction::retrieve($idTransaction);
                         $myTransaction->setStatus($transaction->status)->isUpdated();
 
-                        if (!$myTransaction->getPromotion()) {
+                        if ($myTransaction->getTransactionFor() == "boost_contact") {
+                            $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
                             $boost = new Boost();
                             $boost->setFormuleBoost($formuleBoost)
                                 ->setMode("Payant")
@@ -556,15 +561,25 @@ class BoostController extends AbstractController
                                 ->setDateDebut(new DateTime())
                                 ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
                             ;
-                            $this->em->persist($boost);  
-                        } else {
-                            $promotion = $myTransaction->getPromotion();
+                            $this->em->persist($boost);
+                        }
+
+                        if ($myTransaction->getTransactionFor() == "boost_affaire") {
+                            $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                            $promotion = $promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
                             $promotion->setMode("Payant")
                                 ->setDateDebut(new DateTime())
                                 ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
                                 ->setStatus(3)
                             ;
-                        }                              
+                        }
+
+                        if ($myTransaction->getTransactionFor() == "campagne_mail") {
+                            $campagneMail = $campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
+                            $campagneMail
+                                ->setStatus(3)
+                            ;
+                        }
                         $this->em->flush();
                     }
                 }

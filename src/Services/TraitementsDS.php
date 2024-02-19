@@ -235,6 +235,8 @@ class TraitementsDS extends AbstractController
 
             $unecampagneMail = [
                 "id" => (string)$campagneMail->getId(),
+                "idFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getId(),
+                "prixFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getPrix(),
                 "titre" => $campagneMail->getTitre(),
                 "sujet" => $campagneMail->getSujet(),
                 "replyto" => $campagneMail->getReplyto(),
