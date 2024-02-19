@@ -358,7 +358,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/checkTransaction', name: 'checkTransaction', methods: ['POST'])]
-    public function checkTransaction(Request $request, VerificationsDS $verificationsDS, TransactionRepository $transactionRepository, SessionDS $sessionDS): Response
+    public function checkTransaction(Request $request, VerificationsDS $verificationsDS, TransactionRepository $transactionRepository, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
     {
         FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
         FedaPay::setEnvironment('live');
@@ -430,7 +430,7 @@ class BoostController extends AbstractController
             ]);
         } else {
             if($myTransaction->getStatus() != "approved") {
-                $formuleBoost = $myTransaction->getFormuleBoost();
+                $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
 
                 $transaction = Transaction::retrieve($idTransaction);
 
@@ -510,98 +510,6 @@ class BoostController extends AbstractController
             'titre' => 'Erreur!',
             'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
-    }
-
-    #[Route('/webhookDressur', name: 'webhookDressur')]
-    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository)
-    {
-        FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
-        FedaPay::setEnvironment('live');
-
-        // You can find your endpoint's secret key in your webhook settings
-        $endpoint_secret = 'wh_live_NJkrpSjT4UM2FaRO7zSEn_gN';
-
-        $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_X_FEDAPAY_SIGNATURE'];
-        $event = null;
-
-        try {
-            $event = Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
-            );
-        } catch(\UnexpectedValueException $e) {
-            // Invalid payload
-
-            http_response_code(400);
-            exit();
-        } catch(\FedaPay\Error\SignatureVerification $e) {
-            // Invalid signature
-
-            http_response_code(400);
-            exit();
-        }
-
-        // Handle the event
-        switch ($event->name) {
-            case 'transaction.approved':
-                // Transaction approuvée
-                $idTransaction = $event->entity->id;
-                $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
-                if($myTransaction){
-                    if($myTransaction->getStatus() != "approved") {
-                        $transaction = Transaction::retrieve($idTransaction);
-                        $myTransaction->setStatus($transaction->status)->isUpdated();
-
-                        if ($myTransaction->getTransactionFor() == "boost_contact") {
-                            $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-                            $boost = new Boost();
-                            $boost->setFormuleBoost($formuleBoost)
-                                ->setMode("Payant")
-                                ->setUser($myTransaction->getUser())
-                                ->setDateDebut(new DateTime())
-                                ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
-                            ;
-                            $this->em->persist($boost);
-                        }
-
-                        if ($myTransaction->getTransactionFor() == "boost_affaire") {
-                            $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-                            $promotion = $promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
-                            $promotion->setMode("Payant")
-                                ->setDateDebut(new DateTime())
-                                ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
-                                ->setStatus(3)
-                            ;
-                        }
-
-                        if ($myTransaction->getTransactionFor() == "campagne_mail") {
-                            $campagneMail = $campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
-                            $campagneMail
-                                ->setStatus(3)
-                            ;
-                        }
-                        $this->em->flush();
-                    }
-                }
-
-                http_response_code(400);
-                exit();
-            
-                break;
-            case 'transaction.canceled':
-                // Transaction annulée
-                $idTransaction = $event->entity->id;
-                $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
-                $transaction = Transaction::retrieve($idTransaction);
-                $myTransaction->setStatus($transaction->status)->isUpdated();
-                $this->em->flush();
-                break;
-            default:
-                http_response_code(400);
-                exit();
-        }
-
-        http_response_code(200);
     }
 
     #[Route('/listBoost/{uid}/{langUserPhone}', name: 'listBoost', methods: ['POST', "GET"])]
