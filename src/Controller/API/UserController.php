@@ -17,6 +17,7 @@ use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
 use App\Entity\DeletedDS;
+use App\Entity\Env;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
@@ -45,11 +46,31 @@ class UserController extends AbstractController
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST'])]
     public function getVersionApp(): Response
     {
-        return new JsonResponse([
-            'error' => false,
-            'versionApp' => $this->env->getVersionApp(),
-            'importantUpdate' => $this->env->getImportantUpdate(),
-        ]);
+        try {
+            return new JsonResponse([
+                'error' => false,
+                'versionApp' => $this->env->getVersionApp(),
+                'importantUpdate' => $this->env->getImportantUpdate(),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            $init_env = new Env();
+            $init_env->setCommissionBonus(1000)
+                ->setVersionApp("1.0.0")
+                ->setImportantUpdate(false)
+                ->setUsersTel([])
+                ->setDoBoostPayant(false)
+                ->setLinkLocalServer("PAS_ENCORE_DE_LINK")
+            ;
+            $this->em->persist($init_env);
+            $this->em->flush();
+            return new JsonResponse([
+                'error' => false,
+                'versionApp' => "1.0.0",
+                'importantUpdate' => false,
+            ]);
+        }
+        
     }
 
     #[Route('/connect', name: 'connect', methods: ['POST'])]
@@ -1168,7 +1189,11 @@ class UserController extends AbstractController
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
 
         if ($userAfterRegister) {
-            $response_add_taff = file_get_contents($this->env->getLinkLocalServer()."/add_taff");
+            try {
+                $response_add_taff = file_get_contents($this->env->getLinkLocalServer()."/add_taff");
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
 
             $sendMail->smtpMail(
                 $userAfterRegister->getMail(), 
