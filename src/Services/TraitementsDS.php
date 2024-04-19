@@ -285,9 +285,15 @@ class TraitementsDS extends AbstractController
                 "description" => $promoVIP->getDescription(),
                 "whatsappNumber" => $promoVIP->getUser()->getTel(),
                 "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
             ]);
         }
         $this->em->flush();
+
+        // Mélanger l'ordre des éléments de manière aléatoire
+        shuffle($listePubliciteAffichageAuxUsers);
+        
         return $listePubliciteAffichageAuxUsers;
     }
 
