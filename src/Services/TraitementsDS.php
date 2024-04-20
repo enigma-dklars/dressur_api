@@ -280,6 +280,7 @@ class TraitementsDS extends AbstractController
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
             array_push($listePubliciteAffichageAuxUsers, [
+                "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promoVIP->getId(),
                 "image" => $promoVIP->getImage(),
                 "description" => $promoVIP->getDescription(),
