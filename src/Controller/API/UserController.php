@@ -18,6 +18,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
 use App\Entity\DeletedDS;
 use App\Entity\Env;
+use App\Entity\FormuleBoost;
+use App\Entity\FormuleCampagneMail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
@@ -53,17 +55,27 @@ class UserController extends AbstractController
                 'importantUpdate' => $this->env->getImportantUpdate(),
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
-            $init_env = new Env();
-            $init_env->setCommissionBonus(1000)
-                ->setVersionApp("1.0.0")
-                ->setImportantUpdate(false)
-                ->setUsersTel([])
-                ->setDoBoostPayant(false)
-                ->setLinkLocalServer("PAS_ENCORE_DE_LINK")
-            ;
-            $this->em->persist($init_env);
+
+            $this->em->persist((new Env())->setCommissionBonus(2000)->setVersionApp("1.0.0")->setImportantUpdate(false)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
+
+            $this->em->persist((new FormuleBoost())->setTitre("Formule A")->setPrix(500)->setNbrJour(2)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule B")->setPrix(1000)->setNbrJour(4)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule C")->setPrix(1500)->setNbrJour(7)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule D")->setPrix(3000)->setNbrJour(14)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule E")->setPrix(7000)->setNbrJour(30)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule F")->setPrix(12500)->setNbrJour(60)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule G")->setPrix(25000)->setNbrJour(120)->setAlert(false));
+
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule A")->setPrix(1000)->setNombreMail(15));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule B")->setPrix(6000)->setNombreMail(100));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule C")->setPrix(9000)->setNombreMail(150));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule D")->setPrix(30000)->setNombreMail(500));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule E")->setPrix(55000)->setNombreMail(1000));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule F")->setPrix(330000)->setNombreMail(5000));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule G")->setPrix(600000)->setNombreMail(10000));
+
             $this->em->flush();
+
             return new JsonResponse([
                 'error' => false,
                 'versionApp' => "1.0.0",
