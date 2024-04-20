@@ -1196,6 +1196,19 @@ class UserController extends AbstractController
         $contact->setUser($user);
         $this->em->persist($contact);
 
+        $verifMail = new VerifMail();
+        $verifMail->setUser($user);
+        $this->em->persist($verifMail);
+        
+        $sendMail->smtpMail(
+            $user->getMail(), 
+            "Confirmation du Mail", 
+            $this->renderView("emails/verif_mail.html.twig",[
+                'code' => $verifMail->getCode(),
+                'username' => $user,
+            ])
+        );
+
         $this->em->flush();
 
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
