@@ -171,7 +171,7 @@ class CampagneMailController extends AbstractController
     #[Route('/newCampageMailPayant', name: 'newCampageMailPayant', methods: ['POST'])]
     public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository): Response
     {
-        FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
 
         $datas = $request->request;

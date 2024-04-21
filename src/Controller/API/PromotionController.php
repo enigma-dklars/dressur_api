@@ -281,7 +281,7 @@ class PromotionController extends AbstractController
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
     public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
-        FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
 
         $datas = $request->request;
