@@ -152,14 +152,14 @@ class UserController extends AbstractController
 
         $user = $userRepository->findOneBy(['mail' => $mail, 'password' => $password]);
 
-        // enregistrement de la langue du user et du last login
-        $user->setLastLoginTo(new DateTime());
-        if($user->getLang() != $langUserPhone) { 
-            $user->setLang($langUserPhone);
+        if($user) {
+            // enregistrement de la langue du user et du last login
+            $user->setLastLoginTo(new DateTime());
+            if($user->getLang() != $langUserPhone) { 
+                $user->setLang($langUserPhone);
+            }
             $this->em->flush();
-        }
 
-        if($user){
             $verificationUser = $verificationsDS->verifUSer($user->getUid());
             if($verificationUser["error"] == true){
                 return new JsonResponse([
@@ -492,19 +492,21 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
         
-        // enregistrement de la langue du user et du last login
-        $user->setLastLoginTo(new DateTime());
-        if($user->getLang() != $langUserPhone) { 
-            $user->setLang($langUserPhone);
+        if($user) {
+            // enregistrement de la langue du user et du last login
+            $user->setLastLoginTo(new DateTime());
+            if($user->getLang() != $langUserPhone) {
+                $user->setLang($langUserPhone);
+            }
             $this->em->flush();
-        }
 
-        if ($user->getId()) {
-            return new JsonResponse([
-                'error' => false,
-                'message' => 'Ok!',
-                "user" => $this->traitementsDS->infosUser($user),
-            ]);
+            if ($user->getId()) {
+                return new JsonResponse([
+                    'error' => false,
+                    'message' => 'Ok!',
+                    "user" => $this->traitementsDS->infosUser($user),
+                ]);
+            }
         }
 
         if($sessionDS->get("langUserPhone") != "fr") {
