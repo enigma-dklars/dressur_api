@@ -1180,10 +1180,11 @@ class UserController extends AbstractController
             ->setLang($langUserPhone)
         ;
         if(in_array($tel, $this->env->getUsersTel())) { 
-            $user->setSoldeBonus(0); 
+            $user->setSoldeBonus(0);
         } else { 
             $arrayUsersTel = $this->env->getUsersTel();
             array_push($arrayUsersTel, $tel);
+            $user->setSoldeBonus($this->env->getCommissionBonus());
             $this->env->setUsersTel($arrayUsersTel);
         }
         $this->em->persist($user);
