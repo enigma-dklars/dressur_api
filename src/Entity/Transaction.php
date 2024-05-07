@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use DateTime;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\TransactionRepository;
 
@@ -38,14 +39,14 @@ class Transaction
     #[ORM\Column(type: 'datetime', nullable: true)]
     private $updatedAt;
 
-    #[ORM\ManyToOne(targetEntity: FormuleBoost::class)]
-    private $formuleBoost;
-
     #[ORM\ManyToOne(targetEntity: User::class)]
     private $user;
 
-    #[ORM\ManyToOne]
-    private ?Promotion $promotion = null;
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    private array $annotherInfo = [];
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $transactionFor = null;
 
     public function __construct()
     {
@@ -66,7 +67,6 @@ class Transaction
     public function setIdTransaction(?string $idTransaction): self
     {
         $this->idTransaction = $idTransaction;
-
         return $this;
     }
 
@@ -78,7 +78,6 @@ class Transaction
     public function setReference(string $reference): self
     {
         $this->reference = $reference;
-
         return $this;
     }
 
@@ -90,7 +89,6 @@ class Transaction
     public function setAmount(?int $amount): self
     {
         $this->amount = $amount;
-
         return $this;
     }
 
@@ -102,7 +100,6 @@ class Transaction
     public function setStatus(?string $status): self
     {
         $this->status = $status;
-
         return $this;
     }
 
@@ -114,7 +111,6 @@ class Transaction
     public function setCustomerId(?int $customerId): self
     {
         $this->customerId = $customerId;
-
         return $this;
     }
 
@@ -126,7 +122,6 @@ class Transaction
     public function setCurrencyId(?int $currencyId): self
     {
         $this->currencyId = $currencyId;
-
         return $this;
     }
 
@@ -138,7 +133,6 @@ class Transaction
     public function setCreatedAt(?\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -150,26 +144,12 @@ class Transaction
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
 
     public function isUpdated(): self
     {
         $this->updatedAt = new DateTime();
-
-        return $this;
-    }
-
-    public function getFormuleBoost(): ?FormuleBoost
-    {
-        return $this->formuleBoost;
-    }
-
-    public function setFormuleBoost(?FormuleBoost $formuleBoost): self
-    {
-        $this->formuleBoost = $formuleBoost;
-
         return $this;
     }
 
@@ -181,19 +161,28 @@ class Transaction
     public function setUser(?User $user): self
     {
         $this->user = $user;
-
         return $this;
     }
 
-    public function getPromotion(): ?Promotion
+    public function getAnnotherInfo(): array
     {
-        return $this->promotion;
+        return $this->annotherInfo;
     }
 
-    public function setPromotion(?Promotion $promotion): self
+    public function setAnnotherInfo(?array $annotherInfo): self
     {
-        $this->promotion = $promotion;
+        $this->annotherInfo = $annotherInfo;
+        return $this;
+    }
 
+    public function getTransactionFor(): ?string
+    {
+        return $this->transactionFor;
+    }
+
+    public function setTransactionFor(?string $transactionFor): self
+    {
+        $this->transactionFor = $transactionFor;
         return $this;
     }
 }

@@ -281,7 +281,7 @@ class PromotionController extends AbstractController
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
     public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
-        FedaPay::setApiKey("sk_live_Y5QwNfYEjXX6VXp0iqWqhaZX");
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
 
         $datas = $request->request;
@@ -392,7 +392,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov") { $country = "bj"; }
+        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
         else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci") { $country = "ci"; }
         else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
         else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
@@ -401,7 +401,7 @@ class PromotionController extends AbstractController
         else if($valueMethodePaiement == "mtn_gn") { $country = "gn"; }
 
         $array_create_transaction = [
-            "description" => "WhatsPerson : Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
+            "description" => "Dressur :  Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
             "amount" => $formulBoost->getPrix(),
             "currency" => ["iso" => "XOF"],
             "customer" => [
@@ -423,15 +423,19 @@ class PromotionController extends AbstractController
             $transaction = Transaction::create($array_create_transaction);
 
             $myTransaction  = new EntityTransaction();
-            $myTransaction->setFormuleBoost($formulBoost)
-                        ->setUser($user)
-                        ->setIdTransaction($transaction["id"])
-                        ->setReference($transaction["reference"])
-                        ->setAmount($transaction["amount"])
-                        ->setStatus($transaction["status"])
-                        ->setCustomerId($transaction["customer_id"])
-                        ->setCurrencyId($transaction["currency_id"])
-                        ->setPromotion($promotion)
+            $myTransaction
+                ->setUser($user)
+                ->setTransactionFor("boost_affaire")
+                ->setIdTransaction($transaction["id"])
+                ->setReference($transaction["reference"])
+                ->setAmount($transaction["amount"])
+                ->setStatus($transaction["status"])
+                ->setCustomerId($transaction["customer_id"])
+                ->setCurrencyId($transaction["currency_id"])
+                ->setAnnotherInfo([
+                    'formulBoostId' => $formulBoost->getId(),
+                    'promotionId' => $promotion->getId(),
+                ])
             ;
             $this->em->persist($myTransaction);
 

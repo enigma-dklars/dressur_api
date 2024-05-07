@@ -17,6 +17,9 @@ use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
 use App\Entity\DeletedDS;
+use App\Entity\Env;
+use App\Entity\FormuleBoost;
+use App\Entity\FormuleCampagneMail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
@@ -26,6 +29,7 @@ use App\Services\VerificationsDS;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpClient\HttpClient;
 
 #[Route('/api', name: 'api_')]
 class UserController extends AbstractController
@@ -44,11 +48,41 @@ class UserController extends AbstractController
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST'])]
     public function getVersionApp(): Response
     {
-        return new JsonResponse([
-            'error' => false,
-            'versionApp' => $this->env->getVersionApp(),
-            'importantUpdate' => $this->env->getImportantUpdate(),
-        ]);
+        try {
+            return new JsonResponse([
+                'error' => false,
+                'versionApp' => $this->env->getVersionApp(),
+                'importantUpdate' => $this->env->getImportantUpdate(),
+            ]);
+        } catch (\Throwable $th) {
+
+            $this->em->persist((new Env())->setCommissionBonus(2000)->setVersionApp("1.0.0")->setImportantUpdate(false)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
+
+            $this->em->persist((new FormuleBoost())->setTitre("Formule A")->setPrix(500)->setNbrJour(2)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule B")->setPrix(1000)->setNbrJour(4)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule C")->setPrix(1500)->setNbrJour(7)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule D")->setPrix(3000)->setNbrJour(14)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule E")->setPrix(7000)->setNbrJour(30)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule F")->setPrix(12500)->setNbrJour(60)->setAlert(false));
+            $this->em->persist((new FormuleBoost())->setTitre("Formule G")->setPrix(25000)->setNbrJour(120)->setAlert(false));
+
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule A")->setPrix(1000)->setNombreMail(15));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule B")->setPrix(6000)->setNombreMail(100));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule C")->setPrix(9000)->setNombreMail(150));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule D")->setPrix(30000)->setNombreMail(500));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule E")->setPrix(55000)->setNombreMail(1000));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule F")->setPrix(330000)->setNombreMail(5000));
+            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule G")->setPrix(600000)->setNombreMail(10000));
+
+            $this->em->flush();
+
+            return new JsonResponse([
+                'error' => false,
+                'versionApp' => "1.0.0",
+                'importantUpdate' => false,
+            ]);
+        }
+        
     }
 
     #[Route('/connect', name: 'connect', methods: ['POST'])]
@@ -118,14 +152,14 @@ class UserController extends AbstractController
 
         $user = $userRepository->findOneBy(['mail' => $mail, 'password' => $password]);
 
-        // enregistrement de la langue du user et du last login
-        $user->setLastLoginTo(new DateTime());
-        if($user->getLang() != $langUserPhone) { 
-            $user->setLang($langUserPhone);
+        if($user) {
+            // enregistrement de la langue du user et du last login
+            $user->setLastLoginTo(new DateTime());
+            if($user->getLang() != $langUserPhone) { 
+                $user->setLang($langUserPhone);
+            }
             $this->em->flush();
-        }
 
-        if($user){
             $verificationUser = $verificationsDS->verifUSer($user->getUid());
             if($verificationUser["error"] == true){
                 return new JsonResponse([
@@ -458,19 +492,21 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
         
-        // enregistrement de la langue du user et du last login
-        $user->setLastLoginTo(new DateTime());
-        if($user->getLang() != $langUserPhone) { 
-            $user->setLang($langUserPhone);
+        if($user) {
+            // enregistrement de la langue du user et du last login
+            $user->setLastLoginTo(new DateTime());
+            if($user->getLang() != $langUserPhone) {
+                $user->setLang($langUserPhone);
+            }
             $this->em->flush();
-        }
 
-        if ($user->getId()) {
-            return new JsonResponse([
-                'error' => false,
-                'message' => 'Ok!',
-                "user" => $this->traitementsDS->infosUser($user),
-            ]);
+            if ($user->getId()) {
+                return new JsonResponse([
+                    'error' => false,
+                    'message' => 'Ok!',
+                    "user" => $this->traitementsDS->infosUser($user),
+                ]);
+            }
         }
 
         if($sessionDS->get("langUserPhone") != "fr") {
@@ -1144,10 +1180,11 @@ class UserController extends AbstractController
             ->setLang($langUserPhone)
         ;
         if(in_array($tel, $this->env->getUsersTel())) { 
-            $user->setSoldeBonus(0); 
+            $user->setSoldeBonus(0);
         } else { 
             $arrayUsersTel = $this->env->getUsersTel();
             array_push($arrayUsersTel, $tel);
+            $user->setSoldeBonus($this->env->getCommissionBonus());
             $this->env->setUsersTel($arrayUsersTel);
         }
         $this->em->persist($user);
@@ -1162,11 +1199,30 @@ class UserController extends AbstractController
         $contact->setUser($user);
         $this->em->persist($contact);
 
+        $verifMail = new VerifMail();
+        $verifMail->setUser($user);
+        $this->em->persist($verifMail);
+        
+        $sendMail->smtpMail(
+            $user->getMail(), 
+            "Confirmation du Mail", 
+            $this->renderView("emails/verif_mail.html.twig",[
+                'code' => $verifMail->getCode(),
+                'username' => $user,
+            ])
+        );
+
         $this->em->flush();
 
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
 
         if ($userAfterRegister) {
+            try {
+                $response_add_taff = file_get_contents($this->env->getLinkLocalServer()."/add_taff");
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+
             $sendMail->smtpMail(
                 $userAfterRegister->getMail(), 
                 "Bienvenu sur Dressur", 
@@ -1174,6 +1230,7 @@ class UserController extends AbstractController
                     'pseudoUser' => $userAfterRegister->getPseudo(),
                 ]
             ));
+
             return new JsonResponse([
                 'error' => false,
                 'user' => $this->traitementsDS->infosUser($userAfterRegister),

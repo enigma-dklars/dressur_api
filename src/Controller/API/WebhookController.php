@@ -1,0 +1,296 @@
+<?php
+
+namespace App\Controller\API;
+
+use DateTime;
+use App\Entity\User;
+use FedaPay\FedaPay;
+use FedaPay\Webhook;
+use App\Entity\Boost;
+use FedaPay\Transaction;
+use App\Services\SessionDS;
+use App\Services\TraitementsDS;
+use App\Repository\EnvRepository;
+use App\Services\VerificationsDS;
+use App\Repository\UserRepository;
+use App\Repository\BoostRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\TransactionRepository;
+use App\Repository\FormuleBoostRepository;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Transaction as EntityTransaction;
+use App\Repository\CampagneMailRepository;
+use App\Repository\PromotionRepository;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+
+#[Route('/api', name: 'api_')]
+
+class WebhookController extends AbstractController
+{
+    private $em;
+    private $env;
+
+    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    {
+        $this->em = $em;
+        $this->env = $env->find(1);
+    }
+
+    #[Route('/webhookDressur', name: 'webhookDressur')]
+    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository)
+    {
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
+        FedaPay::setEnvironment('live');
+
+        // You can find your endpoint's secret key in your webhook settings
+        $endpoint_secret = 'wh_live_uzOpVnagGHZPsdTlg5At5TDt';
+
+        $payload = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_X_FEDAPAY_SIGNATURE'];
+        $event = null;
+
+        try {
+            $event = Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        } catch(\UnexpectedValueException $e) {
+            // Invalid payload
+
+            http_response_code(400);
+            exit();
+        } catch(\FedaPay\Error\SignatureVerification $e) {
+            // Invalid signature
+
+            http_response_code(400);
+            exit();
+        }
+
+        // Handle the event
+        switch ($event->name) {
+            case 'transaction.approved':
+                // Transaction approuvée
+                $idTransaction = $event->entity->id;
+                $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
+                if($myTransaction){
+                    if($myTransaction->getStatus() != "approved") {
+                        $transaction = Transaction::retrieve($idTransaction);
+                        $myTransaction->setStatus($transaction->status)->isUpdated();
+
+                        if ($myTransaction->getTransactionFor() == "boost_contact") {
+                            $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                            $boost = new Boost();
+                            $boost->setFormuleBoost($formuleBoost)
+                                ->setMode("Payant")
+                                ->setUser($myTransaction->getUser())
+                                ->setDateDebut(new DateTime())
+                                ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
+                            ;
+                            $this->em->persist($boost);
+                        }
+
+                        if ($myTransaction->getTransactionFor() == "boost_affaire") {
+                            $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                            $promotion = $promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+                            $promotion->setMode("Payant")
+                                ->setDateDebut(new DateTime())
+                                ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
+                                ->setStatus(3)
+                            ;
+                        }
+
+                        if ($myTransaction->getTransactionFor() == "campagne_mail") {
+                            $campagneMail = $campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
+                            $campagneMail
+                                ->setStatus(3)
+                            ;
+                        }
+                        $this->em->flush();
+                    }
+                }
+
+                http_response_code(200);
+                exit();            
+                break;
+            case 'transaction.canceled':
+                // Transaction annulée
+                $idTransaction = $event->entity->id;
+                $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
+                $transaction = Transaction::retrieve($idTransaction);
+                $myTransaction->setStatus($transaction->status)->isUpdated();
+                $this->em->flush();
+
+                http_response_code(200);
+                exit();
+                break;
+            default:
+                // action par defaut si ce n'est ni approved ni canceled
+                $idTransaction = $event->entity->id;
+                $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
+                $transaction = Transaction::retrieve($idTransaction);
+                $myTransaction->setStatus($transaction->status)->isUpdated();
+                $this->em->flush();
+                
+                http_response_code(200);
+                exit();
+        }
+        http_response_code(200);
+    }
+
+    #[Route('/checkTransaction', name: 'checkTransaction', methods: ['POST'])]
+    public function checkTransaction(Request $request, VerificationsDS $verificationsDS, TransactionRepository $transactionRepository, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
+    {
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
+        FedaPay::setEnvironment('live');
+
+        $datas = $request->request;
+        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $idTransaction = $datas->get('idTransaction');
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
+        if(!$user->getMailIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Please confirm your email address.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Veuillez confirmez votre adresse mail.",
+            ]);
+        }
+
+        $myTransaction = $transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
+        if(!$myTransaction){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        } else {
+            if($myTransaction->getStatus() != "approved") {
+                $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+
+                $transaction = Transaction::retrieve($idTransaction);
+
+                if ($transaction->status == "approved") {
+                    $myTransaction->setStatus($transaction->status)->isUpdated();
+
+                    $boost = new Boost();
+                    $boost->setFormuleBoost($formuleBoost)
+                        ->setMode("Payant")
+                        ->setUser($user)
+                        ->setDateDebut(new DateTime())
+                        ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
+                    ;
+                    $this->em->persist($boost);
+
+                    $this->em->flush();
+
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => false,
+                            'transaction' => true,
+                            'titre' => 'Transaction Validate...',
+                            'message' => "Your Paid Boost is activated...",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => false,
+                        'transaction' => true,
+                        'titre' => 'Transaction Valider...',
+                        'message' => "Votre Boost Payant est activé...",
+                    ]);
+                } else {
+                    $myTransaction->setStatus($transaction->status)->isUpdated();
+
+                    $this->em->flush();
+
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => "Transaction ($transaction->status) ...?",
+                            'message' => "Please contact WhatsPerson Support by WhatsApp if this is an error...",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => false,
+                        'transaction' => false,
+                        'titre' => "Transaction ($transaction->status) ...?",
+                        'message' => "Veuillez contactez l'Assistance WhatsPerson par WhatsApp s'il s'agit d'une erreur...",
+                    ]);
+                }
+            }
+
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => "Transaction Validate...",
+                    'message' => "Your Paid Boost was already activated...",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => false,
+                'transaction' => true,
+                'titre' => 'Transaction Valider...',
+                'message' => "Votre Boost Payant était déja activé...",
+            ]);
+        }
+
+        if($sessionDS->get("langUserPhone") != "fr") {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Mistake!',
+                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+            ]);
+        }
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Erreur!',
+            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+        ]);
+    }
+}
