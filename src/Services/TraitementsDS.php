@@ -235,6 +235,8 @@ class TraitementsDS extends AbstractController
 
             $unecampagneMail = [
                 "id" => (string)$campagneMail->getId(),
+                "idFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getId(),
+                "prixFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getPrix(),
                 "titre" => $campagneMail->getTitre(),
                 "sujet" => $campagneMail->getSujet(),
                 "replyto" => $campagneMail->getReplyto(),
@@ -268,6 +270,8 @@ class TraitementsDS extends AbstractController
                         "description" => $promo->getDescription(),
                         "whatsappNumber" => $promo->getUser()->getTel(),
                         "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                        "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                        "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 }
@@ -276,14 +280,21 @@ class TraitementsDS extends AbstractController
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
             array_push($listePubliciteAffichageAuxUsers, [
+                "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promoVIP->getId(),
                 "image" => $promoVIP->getImage(),
                 "description" => $promoVIP->getDescription(),
                 "whatsappNumber" => $promoVIP->getUser()->getTel(),
                 "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
             ]);
         }
         $this->em->flush();
+
+        // Mélanger l'ordre des éléments de manière aléatoire
+        shuffle($listePubliciteAffichageAuxUsers);
+        
         return $listePubliciteAffichageAuxUsers;
     }
 

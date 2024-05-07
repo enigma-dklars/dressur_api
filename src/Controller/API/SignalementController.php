@@ -134,7 +134,7 @@ class SignalementController extends AbstractController
         $this->em->flush();
 
         $countSignaler = count($signalementRepository->findBy(['signaler' => $userSignaler]));
-        if ($countSignaler >= 2) {
+        if ($countSignaler >= 20) {
             $userSignaler->setBlocked(true);
             $this->em->flush();
         }

@@ -40,6 +40,10 @@ class CampagneMail
     #[ORM\Column]
     private ?int $status = null;
 
+    #[ORM\ManyToOne(inversedBy: 'campagneMails')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?FormuleCampagneMail $formuleCampagneMail = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -143,6 +147,18 @@ class CampagneMail
     public function setStatus(int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getFormuleCampagneMail(): ?FormuleCampagneMail
+    {
+        return $this->formuleCampagneMail;
+    }
+
+    public function setFormuleCampagneMail(?FormuleCampagneMail $formuleCampagneMail): self
+    {
+        $this->formuleCampagneMail = $formuleCampagneMail;
 
         return $this;
     }
