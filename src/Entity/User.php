@@ -105,6 +105,9 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: CampagneMail::class, orphanRemoval: true)]
     private Collection $campagneMails;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: PromoReseau::class, orphanRemoval: true)]
+    private Collection $promoReseaus;
+
     public function __construct()
     {
         $this->admin = false;
@@ -120,6 +123,7 @@ class User
         $this->blocked = false;
         $this->promotions = new ArrayCollection();
         $this->campagneMails = new ArrayCollection();
+        $this->promoReseaus = new ArrayCollection();
     }
 
     public function __toString()
@@ -581,6 +585,36 @@ class User
             // set the owning side to null (unless already changed)
             if ($campagneMail->getUser() === $this) {
                 $campagneMail->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PromoReseau>
+     */
+    public function getPromoReseaus(): Collection
+    {
+        return $this->promoReseaus;
+    }
+
+    public function addPromoReseau(PromoReseau $promoReseau): self
+    {
+        if (!$this->promoReseaus->contains($promoReseau)) {
+            $this->promoReseaus->add($promoReseau);
+            $promoReseau->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePromoReseau(PromoReseau $promoReseau): self
+    {
+        if ($this->promoReseaus->removeElement($promoReseau)) {
+            // set the owning side to null (unless already changed)
+            if ($promoReseau->getUser() === $this) {
+                $promoReseau->setUser(null);
             }
         }
 

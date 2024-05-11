@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use DateTime;
 use App\Entity\User;
+use App\Repository\ContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Proxies\__CG__\App\Entity\User as EntityUser;
