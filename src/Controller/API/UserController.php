@@ -20,6 +20,7 @@ use App\Entity\DeletedDS;
 use App\Entity\Env;
 use App\Entity\FormuleBoost;
 use App\Entity\FormuleCampagneMail;
+use App\Entity\FormulePromoReseau;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
@@ -45,7 +46,7 @@ class UserController extends AbstractController
         $this->traitementsDS = $traitementsDS;
     } 
 
-    #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST'])]
+    #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST', 'GET'])]
     public function getVersionApp(): Response
     {
         try {
@@ -73,7 +74,166 @@ class UserController extends AbstractController
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule E")->setPrix(55000)->setNombreMail(1000));
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule F")->setPrix(330000)->setNombreMail(5000));
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule G")->setPrix(600000)->setNombreMail(10000));
+            
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("TikTok")->setIconFlutterName("tiktok")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(6.82)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Profile Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.01)->setQte(1000)->setQteMin(100)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Vues")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.19)->setQte(1000)->setQteMin(10)->setQteMax(30000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes Rapide")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.67)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes Lent")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.45)->setQte(1000)->setQteMin(10)->setQteMax(20000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Save")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Recup : Non\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Recovery: No\n🔗 Video Link\n🔓 Public profile required")
+            );
 
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Instagram")->setIconFlutterName("instagram")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.30)->setQte(1000)->setQteMin(20)->setQteMax(500000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Très bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du profil\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Very good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Profile link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.28)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes Rapide")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 0-20%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 0-20%\n🔗 Photo/video link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.13)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes Lent")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 0-20%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 0-20%\n🔗 Photo/video link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.08)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes Bot")
+                ->setDescription("🔝 Qualité : Mauvaise\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-1%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Bad\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-1%\n🔗 Photo/video link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.42)->setQte(1000)->setQteMin(10)->setQteMax(15000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Story Views")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie : 24 heures\n📉 Taux de perte : 0%\n🔗 Lien du profil\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Guarantee: 24 hours\n📉 Loss rate: 0%\n🔗 Profile link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.10)->setQte(1000)->setQteMin(100)->setQteMax(50000000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Vues de Reels Lent")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.11)->setQte(1000)->setQteMin(150)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Vues de Reels Rapide")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
+            );
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Twitter/X")->setIconFlutterName("twitter")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.43)->setQte(1000)->setQteMin(10)->setQteMax(40000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Profile Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.20)->setQte(1000)->setQteMin(10)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Tweet link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.82)->setQte(1000)->setQteMin(50)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Retweets")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Tweet link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.01)->setQte(1000)->setQteMin(100)->setQteMax(100000000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Retweets Views")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Tweet link\n🔓 Public profile required")
+            );
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("YouTube")->setIconFlutterName("youtube")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(20.23)->setQte(1000)->setQteMin(100)->setQteMax(200000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien de la Chaine\n⚠️ Note : Pour assurer le bon fonctionnement de notre service, une vidéo d’au moins une minute doit être publiée sur votre chaîne YouTube pendant la période de traitement de votre commande. En l'absence de vidéo répondant à ce critère, la commande sera automatiquement annulée. Veuillez vous assurer de respecter cette exigence pour bénéficier de notre service.")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Chain Link\n⚠️ Note: To ensure the proper functioning of our service, a video of at least one minute must be published on your YouTube channel during the processing period of your order. In the absence of a video meeting this criterion, the order will be automatically canceled. Please ensure you meet this requirement to benefit from our service.")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(4.17)->setQte(1000)->setQteMin(100)->setQteMax(30000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Vues")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien de la vidéo")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Video link")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(2.76)->setQte(1000)->setQteMin(10)->setQteMax(30000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Likes")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien de la vidéo")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Video link")
+            );
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Facebook")->setIconFlutterName("Facebook")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(3.98)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la page\n🔓 Page publique obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Page link\n🔓 Mandatory public page")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(3.68)->setQte(1000)->setQteMin(100)->setQteMax(30000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Page Likes")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la page\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Page link\n🔓 Public profile required")
+            );
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Telegram")->setIconFlutterName("Telegram")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.10)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Members")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 0-10%\n🔗 Lien du canal\n🔓 Canal public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 0-10%\n🔗 Channel link\n🔓 Mandatory public channel")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.04)->setQte(1000)->setQteMin(100)->setQteMax(500000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Post Views")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du post\n🔓 Canal public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Post link\n🔓 Mandatory public channel")
+            );
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Twitch")->setIconFlutterName("Twitch")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(3.71)->setQte(1000)->setQteMin(10)->setQteMax(10000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 0-5%\n🔗 Lien du Profil")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 0-5%\n🔗 Profile Link")
+            );
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Spotify")->setIconFlutterName("Spotify")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.64)->setQte(1000)->setQteMin(20)->setQteMax(100000000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien: https://open.spotify.com/artist/.... OU https://open.spotify.com/user/....")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Link: https://open.spotify.com/artist/.... OR https://open.spotify.com/user/....")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(7.30)->setQte(1000)->setQteMin(1000)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Auditeurs Mentuels")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien: https://open.spotify.com/artist/....")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Link: https://open.spotify.com/artist/....")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.86)->setQte(1000)->setQteMin(500)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Plays")
+                ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du track")
+                ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Track link")
+            );
+            
             $this->em->flush();
 
             return new JsonResponse([
