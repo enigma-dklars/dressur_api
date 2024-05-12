@@ -59,7 +59,7 @@ class PromotionReseauController extends AbstractController
                     "label" => $formuleFils->getTitre(),
                     "id" => $formuleFils->getId(),
                     "titre" => $formuleFils->getTitre(),
-                    "prix" => $formuleFils->getPrix(),
+                    "prix" => $formuleFils->getPrix() * 1.2 * 1.3 * 700,
                     "qte" => $formuleFils->getQte(),
                     "qteMin" => $formuleFils->getQteMin(),
                     "qteMax" => $formuleFils->getQteMax(),
