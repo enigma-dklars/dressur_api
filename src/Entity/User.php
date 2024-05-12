@@ -128,7 +128,11 @@ class User
 
     public function __toString()
     {
-        return "(".$this->pseudo.") ".$this->nom;
+        if($this->nom) {
+            return $this->nom." (".$this->pseudo.")";
+        } else {
+            return $this->pseudo;
+        }
     }
 
     public function codeBonus(int $length = 5): ?string

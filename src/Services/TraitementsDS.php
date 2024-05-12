@@ -305,8 +305,7 @@ class TraitementsDS extends AbstractController
             $unContact = [
                 "id" => (string)$contact->getUid(),
                 "pseudo" => $contact->getPseudo(),
-                "nom" => $contact->getNom() ? $contact->getNom() : "",
-                "afficheNom" => $contact->getPreference()->getAffNom(),
+                "nom" => $contact,
                 "mail" => $contact->getMail(),
                 "pays" => (string)$contact->getPays(),
                 "tel" => $contact->getTel(),
@@ -325,14 +324,9 @@ class TraitementsDS extends AbstractController
         $contactAdds = [];
         foreach ($contacts as $contact) {
             $user = $this->userRepository->find($contact["id"]);
-            if($user->getPreference()->getAffNom() == true){
-                $nom = $user->getPseudo()." ".$nom = $user->getNom();
-            } else {
-                $nom = $user->getPseudo();
-            }
             array_push($contactAdds, [
                 'idContact' => $contact["idContact"],
-                'nomAdd' => $nom,
+                'nomAdd' => $contact,
                 'telAdd' => $user->getTel(),
             ]);
         }
@@ -370,15 +364,9 @@ class TraitementsDS extends AbstractController
     public function generateUserContactAddAdmin($contacts){
         $contactAdds = [];
         foreach ($contacts as $contact) {
-            if($contact->getPreference()->getAffNom() == true){
-                $nom = $contact->getPseudo()." ".$nom = $contact->getNom();
-            } else {
-                $nom = $contact->getPseudo();
-            }
-            if(strlen($nom) == 0){ $nom = "chere utilisateur";}
             array_push($contactAdds, [
                 'idContact' => $contact->getId(),
-                'nomAdd' => $nom,
+                'nomAdd' => $contact,
                 'telAdd' => $contact->getTel(),
             ]);
         }
@@ -484,7 +472,6 @@ class TraitementsDS extends AbstractController
             "nombreContactDispo" => count($this->getAddDisponible($user)),
             "lesPublicites" => $lesPublicites,
             "havePublicites" => (count($lesPublicitesArray) >= 1) ? true : false,
-            "affUserName" => $user->getPreference()->getAffNom() ? true : false,
             "nombreFilleuls" => count($user->getFilleuls()),
             "admin" => $user->getAdmin() ? true : false,
             "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],

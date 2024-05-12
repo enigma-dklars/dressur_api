@@ -66,7 +66,7 @@ class AddController extends AbstractController
                     $userAdd->getContact()->setNewAddMe($user);
                     $this->em->flush();
                     array_push($contactsAdd, [
-                        "pseudo" => $userAdd->getPseudo(),
+                        "pseudo" => $userAdd,
                         "tel" => $userAdd->getTel(),
                     ]);
                 } else {
