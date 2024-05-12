@@ -55,6 +55,8 @@ class PromotionReseauController extends AbstractController
             $lesFormulesFils = [];
             foreach ($formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
                 array_push($lesFormulesFils, [
+                    "value" => $formuleFils->getId(),
+                    "label" => $formuleFils->getTitre(),
                     "id" => $formuleFils->getId(),
                     "titre" => $formuleFils->getTitre(),
                     "prix" => $formuleFils->getPrix(),
