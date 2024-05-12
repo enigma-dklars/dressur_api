@@ -54,16 +54,23 @@ class PromotionReseauController extends AbstractController
         foreach ($formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
             $lesFormulesFils = [];
             foreach ($formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.3 * 700;
+                $prix_service_fcfa = round($prix_service_fcfa) + 1;
+                if($langUserPhone == 'fr') {
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\n".$formuleFils->getDescription();
+                } else {
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\n".$formuleFils->getDescriptionEn();
+                }
                 array_push($lesFormulesFils, [
                     "value" => $formuleFils->getId(),
                     "label" => $formuleFils->getTitre(),
                     "id" => $formuleFils->getId(),
                     "titre" => $formuleFils->getTitre(),
-                    "prix" => $formuleFils->getPrix() * 1.2 * 1.3 * 700,
+                    "prix" => $prix_service_fcfa,
                     "qte" => $formuleFils->getQte(),
                     "qteMin" => $formuleFils->getQteMin(),
                     "qteMax" => $formuleFils->getQteMax(),
-                    "description" => $langUserPhone == 'fr' ? $formuleFils->getDescription() : $formuleFils->getDescriptionEn(),
+                    "description" => $description_service,
                 ]);
             }
 
