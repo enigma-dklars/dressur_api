@@ -54,6 +54,11 @@ class VerificationsDS extends AbstractController
 
     public function permissionAdd($user)
     {
+        return [
+            "permissionAdd" => true,
+            "messageErreurPermissionAdd" => "WhatsPerson",
+        ];
+        
         $nombreFilleuls = count($user->getFilleuls());
         $nombreContactAdd = count($user->getContact()->getWhoIAdd());
         if($nombreFilleuls >= 0 and $nombreFilleuls <= 9){
