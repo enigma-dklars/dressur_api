@@ -83,14 +83,15 @@ class TraitementsDS extends AbstractController
                 $statut = "En cours 🚀";
             }
 
-            if((new DateTime()) < $boost->getDateExp()){
+            if((new DateTime()) > $boost->getDateDebut() and (new DateTime()) < $boost->getDateExp()){
                 $dejaUnBoostEncours++;
-                if ($dejaUnBoostEncours > 1) {
-                    if($this->sessionDS->get("langUserPhone") != "fr") {
-                        $statut = "scheduled 💤";
-                    } else {
-                        $statut = "Programmé 💤";
-                    }
+            }
+
+            if((new DateTime()) < $boost->getDateDebut()){
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "scheduled 💤";
+                } else {
+                    $statut = "Programmé 💤";
                 }
             }
             
@@ -104,9 +105,9 @@ class TraitementsDS extends AbstractController
             }
 
             if($boost->getMode() == "Gratuit") {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). "DS";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). " Bonus";
             } else {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). "FCFA";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
             }
 
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -481,6 +482,18 @@ class TraitementsDS extends AbstractController
         ];
     }
 
+    public function getCountryWithMethodePaiement($valueMethodePaiement){
+        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
+        else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci" || $valueMethodePaiement == "moov_ci") { $country = "ci"; }
+        else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
+        else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
+        else if($valueMethodePaiement == "airtel_ne") { $country = "ne"; }
+        else if($valueMethodePaiement == "orange_ml") { $country = "ml"; }
+        else if($valueMethodePaiement == "mtn_open_gn") { $country = "gn"; }
+        else if($valueMethodePaiement == "moov_bf" || $valueMethodePaiement == "orange_bf") { $country = "bf"; }
+        return $country;
+    }
+
     public function execPurge($user){
         foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
             $element->setParrain($this->userRepository->find(1));
@@ -512,5 +525,5 @@ class TraitementsDS extends AbstractController
         }
 
         $this->userRepository->remove($user, true);
-    }   
+    }
 }

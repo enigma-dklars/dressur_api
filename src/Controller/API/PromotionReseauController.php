@@ -86,4 +86,112 @@ class PromotionReseauController extends AbstractController
             'listeFormulePromoReseau' => $listeFormulePromoReseau,
         ]);
     }
+
+    #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]
+    public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    {
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
+        FedaPay::setEnvironment('live');
+
+        $datas = $request->request;
+        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $idFormulePromoReseau = $datas->get('idFormulePromoReseau');
+        $qteDemander = $datas->get('qteDemander');
+        $prixQteDemander = $datas->get('prixQteDemander');
+        $lien = $datas->get('lien');
+        $valueMethodePaiement = $datas->get('valueMethodePaiement');
+        $tel = $datas->get('tel');
+
+        $user = $userRepository->findOneBy(['uid' => $uid]);
+
+        $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
+        if(!$formulePromoReseau){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        }
+
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
+        if($verificationNumTel["error"] == true){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
+            }
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
+        }
+        $tel = $verificationNumTel["e164"];
+
+        if(!$valueMethodePaiement){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Please choose a Payment Method...",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+
+        $array_create_transaction = [
+            "description" => "Dressur :  Boost Réseau Sociaux : ". $formulePromoReseau->getTitre() ." - ". $prixQteDemander ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
+            "amount" => $prixQteDemander,
+            "currency" => ["iso" => "XOF"],
+            "customer" => [
+                "firstname" => $user->getPseudo(),
+                "lastname" => $user,
+                "email" => $user->getMail(),
+                "phone_number" => [
+                    "number" => $tel,
+                    "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                ]
+            ]
+        ];
+
+        $transaction = Transaction::create($array_create_transaction);
+
+        $myTransaction  = new EntityTransaction();
+        $myTransaction
+            ->setUser($user)
+            ->setTransactionFor("boost_reseau_sociaux")
+            ->setIdTransaction($transaction["id"])
+            ->setReference($transaction["reference"])
+            ->setAmount($transaction["amount"])
+            ->setStatus($transaction["status"])
+            ->setCustomerId($transaction["customer_id"])
+            ->setCurrencyId($transaction["currency_id"])
+            ->setAnnotherInfo([
+                'idFormulePromoReseau' => $idFormulePromoReseau,
+                'qteDemander' => $qteDemander,
+                'prixQteDemander' => $prixQteDemander,
+                'lien' => $lien,
+                'tel' => $tel,
+            ])
+        ;
+        $this->em->persist($myTransaction);
+        $this->em->flush();
+
+        $token = $transaction->generateToken()->token;
+        $mode = $valueMethodePaiement;
+        $transaction->sendNowWithToken($mode, $token);
+
+        return new JsonResponse([
+            'error' => false,
+        ]);
+    }
 }

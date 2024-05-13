@@ -57,6 +57,14 @@ class UserController extends AbstractController
             ]);
         } catch (\Throwable $th) {
 
+            $platform = $this->em->getConnection()->getDatabasePlatform();
+            $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=0');
+            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(Env::class)->getTableName()));
+            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormuleBoost::class)->getTableName()));
+            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormuleCampagneMail::class)->getTableName()));
+            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormulePromoReseau::class)->getTableName()));
+            $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+
             $this->em->persist((new Env())->setCommissionBonus(2000)->setVersionApp("1.0.0")->setImportantUpdate(false)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
 
             $this->em->persist((new FormuleBoost())->setTitre("Formule A")->setPrix(500)->setNbrJour(2)->setAlert(false));
@@ -168,8 +176,8 @@ class UserController extends AbstractController
             $this->em->persist($formulePromoReseau);
             $this->em->persist((new FormulePromoReseau())->setPrix(20.23)->setQte(1000)->setQteMin(100)->setQteMax(200000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Followers")
-                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien de la Chaine\n⚠️ Note : Pour assurer le bon fonctionnement de notre service, une vidéo d’au moins une minute doit être publiée sur votre chaîne YouTube pendant la période de traitement de votre commande. En l'absence de vidéo répondant à ce critère, la commande sera automatiquement annulée. Veuillez vous assurer de respecter cette exigence pour bénéficier de notre service.")
-                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Chain Link\n⚠️ Note: To ensure the proper functioning of our service, a video of at least one minute must be published on your YouTube channel during the processing period of your order. In the absence of a video meeting this criterion, the order will be automatically canceled. Please ensure you meet this requirement to benefit from our service.")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien de la Chaine\n\n⚠️ Note : Pour assurer le bon fonctionnement de notre service, une vidéo d’au moins une minute doit être publiée sur votre chaîne YouTube pendant la période de traitement de votre commande. En l'absence de vidéo répondant à ce critère, la commande sera automatiquement annulée. Veuillez vous assurer de respecter cette exigence pour bénéficier de notre service.")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Chain Link\n\n⚠️ Note: To ensure the proper functioning of our service, a video of at least one minute must be published on your YouTube channel during the processing period of your order. In the absence of a video meeting this criterion, the order will be automatically canceled. Please ensure you meet this requirement to benefit from our service.")
             );
             $this->em->persist((new FormulePromoReseau())->setPrix(4.17)->setQte(1000)->setQteMin(100)->setQteMax(30000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues")
