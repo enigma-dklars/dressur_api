@@ -57,9 +57,9 @@ class PromotionReseauController extends AbstractController
                 $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.3 * 700;
                 $prix_service_fcfa = round($prix_service_fcfa) + 1;
                 if($langUserPhone == 'fr') {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\n".$formuleFils->getDescription();
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
                 } else {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\n".$formuleFils->getDescriptionEn();
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\nQuantity Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescriptionEn();
                 }
                 array_push($lesFormulesFils, [
                     "value" => $formuleFils->getId(),
