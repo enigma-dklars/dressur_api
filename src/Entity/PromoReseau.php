@@ -59,7 +59,7 @@ class PromoReseau
         $this->updatedAt = new DateTime();
         /**
          * status values description
-         * 0 : rembourcée
+         * 0 : remboursée
          * 1 : en attente
          * 2 : en cours
          * 3 : terminer

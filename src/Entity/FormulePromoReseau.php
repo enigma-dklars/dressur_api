@@ -54,6 +54,14 @@ class FormulePromoReseau
         $this->sonFormulePromoReseaus = new ArrayCollection();
     }
 
+    public function __toString()
+    {
+        if($this->parent) {
+            return $this->parent->getTitre()." ".$this->titre;
+        }
+        return $this->titre;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

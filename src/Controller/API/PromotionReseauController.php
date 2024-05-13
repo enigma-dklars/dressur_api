@@ -87,6 +87,14 @@ class PromotionReseauController extends AbstractController
         ]);
     }
 
+    #[Route('/listPromoReseau/{uid}/{langUserPhone}', name: 'listPromoReseau', methods: ['POST', "GET"])]
+    public function listPromoReseau(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $sessionDS->set("langUserPhone", $langUserPhone);
+        
+        return new JsonResponse($traitementsDS->userPromoReseaus($user->getPromoReseaus()));
+    }
+
     #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]
     public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
     {

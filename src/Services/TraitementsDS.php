@@ -69,6 +69,10 @@ class TraitementsDS extends AbstractController
         }        
         return (string)$nbrVue.$suffix;
     }
+
+    public function separateurMillier($nombre) {       
+        return number_format($nombre, 0, ',', ' ');;
+    }
     
     public function userBoosts($boosts) {
         $userBoosts = [];
@@ -192,6 +196,64 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function userPromoReseaus($promos){
+        $userPromoReseaus = [];
+
+        foreach ($promos as $promo) {
+            $statut = "";
+
+            if ($promo->getStatus() == 0) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Refunded";
+                } else {
+                    $statut = "Remboursée";
+                }
+            } else if($promo->getStatus() == 1) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "On hold";
+                } else {
+                    $statut = "En attente";
+                }
+            } else if($promo->getStatus() == 2) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "In progress";
+                } else {
+                    $statut = "En cours";
+                }
+            } else if($promo->getStatus() == 3) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Finishing";
+                } else {
+                    $statut = "En Terminer";
+                }
+            }
+
+            $titre = $promo->getFormulePromoReseau()->getTitre();
+            if($promo->getFormulePromoReseau()->getParent()) {
+                $titre = $promo->getFormulePromoReseau()->getParent()->getTitre()." : ".$promo->getFormulePromoReseau()->getTitre();
+            }
+
+            $unePromo = [
+                "id" => (string)$promo->getId(),
+                "titre" => $titre,
+                "qteDemander" => $this->separateurMillier($promo->getQteDemander()),
+                "prixFixer" => $this->separateurMillier($promo->getPrixFixer())." FCFA",
+                "url" => $promo->getUrl(),
+                "reference" => $promo->getIdZefame(),
+                "status" => $statut,
+                "compteurDebut" => $this->separateurMillier($promo->getCompteurDebut()),
+                "compteurRestant" => $this->separateurMillier($promo->getCompteurRestant()),
+                "createdAt" => $promo->getCreatedAt() ? ($promo->getCreatedAt())->format('d-m-Y à H:i') : "",
+                "updatedAt" => $promo->getUpdatedAt() ? ($promo->getUpdatedAt())->format('d-m-Y à H:i') : "",
+            ];
+            array_push($userPromoReseaus, $unePromo);
+        }
+
+        $this->em->flush();
+        $userPromoReseaus = array_reverse($userPromoReseaus);
+        return $userPromoReseaus;
     }
 
     public function userCampagneMail($campagneMails) {
