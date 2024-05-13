@@ -169,7 +169,7 @@ class CampagneMailController extends AbstractController
     }
 
     #[Route('/newCampageMailPayant', name: 'newCampageMailPayant', methods: ['POST'])]
-    public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository): Response
+    public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, TraitementsDS $traitementsDS): Response
     {
         FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
@@ -281,25 +281,17 @@ class CampagneMailController extends AbstractController
             ]);
         }
 
-        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
-        else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci") { $country = "ci"; }
-        else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
-        else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
-        else if($valueMethodePaiement == "airtel_ne") { $country = "ne"; }
-        else if($valueMethodePaiement == "orange_ml") { $country = "ml"; }
-        else if($valueMethodePaiement == "mtn_gn") { $country = "gn"; }
-
         $array_create_transaction = [
             "description" => "Dressur :  Promotion Payante : ". $campagneMail->getTitre() ." - ". $campagneMail->getFormuleCampagneMail()->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
             "amount" => $campagneMail->getFormuleCampagneMail()->getPrix(),
             "currency" => ["iso" => "XOF"],
             "customer" => [
                 "firstname" => $user->getPseudo(),
-                "lastname" => $user->getNom() ? $user->getNom() : $user->getPseudo(),
+                "lastname" => $user,
                 "email" => $user->getMail(),
                 "phone_number" => [
                     "number" => $tel,
-                    "country" => $country
+                    "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
                 ]
             ]
         ];

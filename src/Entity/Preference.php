@@ -20,15 +20,11 @@ class Preference
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 
-    #[ORM\Column(type: 'boolean')]
-    private $affNom;
-
     #[ORM\Column(nullable: true)]
     private array $paysChoisies = [];
 
     public function __construct()
     {
-        $this->affNom = false;
         // $this->paysChoisies = [$this->user->getPays()];
     }
 
@@ -45,18 +41,6 @@ class Preference
     public function setUser(User $user): self
     {
         $this->user = $user;
-
-        return $this;
-    }
-
-    public function getAffNom(): ?bool
-    {
-        return $this->affNom;
-    }
-
-    public function setAffNom(bool $affNom): self
-    {
-        $this->affNom = $affNom;
 
         return $this;
     }

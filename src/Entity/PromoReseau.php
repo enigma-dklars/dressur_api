@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PromoReseauRepository;
+use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -48,6 +49,22 @@ class PromoReseau
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    public function __construct()
+    {
+        $this->status = 1;
+        $this->compteurDebut = 0;
+        $this->compteurRestant = 0;
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
+        /**
+         * status values description
+         * 0 : remboursée
+         * 1 : en attente
+         * 2 : en cours
+         * 3 : terminer
+         */
+    }
 
     public function getId(): ?int
     {

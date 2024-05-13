@@ -7,6 +7,7 @@ use App\Entity\User;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
+use App\Entity\PromoReseau;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
+use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -41,7 +43,7 @@ class WebhookController extends AbstractController
     }
 
     #[Route('/webhookDressur', name: 'webhookDressur')]
-    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository)
+    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository)
     {
         FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
@@ -102,12 +104,25 @@ class WebhookController extends AbstractController
                             ;
                         }
 
+                        if ($myTransaction->getTransactionFor() == "boost_reseau_sociaux") {
+                            $formulePromoReseau = $formulePromoReseauRepository->find($myTransaction->getAnnotherInfo()['idFormulePromoReseau']);
+                            $boost = new PromoReseau();
+                            $boost->setFormulePromoReseau($formulePromoReseau)
+                                ->setUser($myTransaction->getUser())
+                                ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
+                                ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
+                                ->setUrl($myTransaction->getAnnotherInfo()['lien'])
+                            ;
+                            $this->em->persist($boost);
+                        }
+
                         if ($myTransaction->getTransactionFor() == "campagne_mail") {
                             $campagneMail = $campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
                             $campagneMail
                                 ->setStatus(3)
                             ;
                         }
+
                         $this->em->flush();
                     }
                 }

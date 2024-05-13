@@ -69,6 +69,10 @@ class TraitementsDS extends AbstractController
         }        
         return (string)$nbrVue.$suffix;
     }
+
+    public function separateurMillier($nombre) {       
+        return number_format($nombre, 0, ',', ' ');;
+    }
     
     public function userBoosts($boosts) {
         $userBoosts = [];
@@ -83,14 +87,15 @@ class TraitementsDS extends AbstractController
                 $statut = "En cours 🚀";
             }
 
-            if((new DateTime()) < $boost->getDateExp()){
+            if((new DateTime()) > $boost->getDateDebut() and (new DateTime()) < $boost->getDateExp()){
                 $dejaUnBoostEncours++;
-                if ($dejaUnBoostEncours > 1) {
-                    if($this->sessionDS->get("langUserPhone") != "fr") {
-                        $statut = "scheduled 💤";
-                    } else {
-                        $statut = "Programmé 💤";
-                    }
+            }
+
+            if((new DateTime()) < $boost->getDateDebut()){
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "scheduled 💤";
+                } else {
+                    $statut = "Programmé 💤";
                 }
             }
             
@@ -104,9 +109,9 @@ class TraitementsDS extends AbstractController
             }
 
             if($boost->getMode() == "Gratuit") {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). "DS";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). " Bonus";
             } else {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). "FCFA";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
             }
 
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -191,6 +196,64 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function userPromoReseaus($promos){
+        $userPromoReseaus = [];
+
+        foreach ($promos as $promo) {
+            $statut = "";
+
+            if ($promo->getStatus() == 0) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Refunded";
+                } else {
+                    $statut = "Remboursée";
+                }
+            } else if($promo->getStatus() == 1) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "On hold";
+                } else {
+                    $statut = "En attente";
+                }
+            } else if($promo->getStatus() == 2) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "In progress";
+                } else {
+                    $statut = "En cours";
+                }
+            } else if($promo->getStatus() == 3) {
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "Finishing";
+                } else {
+                    $statut = "En Terminer";
+                }
+            }
+
+            $titre = $promo->getFormulePromoReseau()->getTitre();
+            if($promo->getFormulePromoReseau()->getParent()) {
+                $titre = $promo->getFormulePromoReseau()->getParent()->getTitre()." : ".$promo->getFormulePromoReseau()->getTitre();
+            }
+
+            $unePromo = [
+                "id" => (string)$promo->getId(),
+                "titre" => $titre,
+                "qteDemander" => $this->separateurMillier($promo->getQteDemander()),
+                "prixFixer" => $this->separateurMillier($promo->getPrixFixer())." FCFA",
+                "url" => $promo->getUrl(),
+                "reference" => $promo->getIdZefame(),
+                "status" => $statut,
+                "compteurDebut" => $this->separateurMillier($promo->getCompteurDebut()),
+                "compteurRestant" => $this->separateurMillier($promo->getCompteurRestant()),
+                "createdAt" => $promo->getCreatedAt() ? ($promo->getCreatedAt())->format('d-m-Y à H:i') : "",
+                "updatedAt" => $promo->getUpdatedAt() ? ($promo->getUpdatedAt())->format('d-m-Y à H:i') : "",
+            ];
+            array_push($userPromoReseaus, $unePromo);
+        }
+
+        $this->em->flush();
+        $userPromoReseaus = array_reverse($userPromoReseaus);
+        return $userPromoReseaus;
     }
 
     public function userCampagneMail($campagneMails) {
@@ -305,8 +368,7 @@ class TraitementsDS extends AbstractController
             $unContact = [
                 "id" => (string)$contact->getUid(),
                 "pseudo" => $contact->getPseudo(),
-                "nom" => $contact->getNom() ? $contact->getNom() : "",
-                "afficheNom" => $contact->getPreference()->getAffNom(),
+                "nom" => $contact,
                 "mail" => $contact->getMail(),
                 "pays" => (string)$contact->getPays(),
                 "tel" => $contact->getTel(),
@@ -325,14 +387,9 @@ class TraitementsDS extends AbstractController
         $contactAdds = [];
         foreach ($contacts as $contact) {
             $user = $this->userRepository->find($contact["id"]);
-            if($user->getPreference()->getAffNom() == true){
-                $nom = $user->getPseudo()." ".$nom = $user->getNom();
-            } else {
-                $nom = $user->getPseudo();
-            }
             array_push($contactAdds, [
                 'idContact' => $contact["idContact"],
-                'nomAdd' => $nom,
+                'nomAdd' => $contact,
                 'telAdd' => $user->getTel(),
             ]);
         }
@@ -370,15 +427,9 @@ class TraitementsDS extends AbstractController
     public function generateUserContactAddAdmin($contacts){
         $contactAdds = [];
         foreach ($contacts as $contact) {
-            if($contact->getPreference()->getAffNom() == true){
-                $nom = $contact->getPseudo()." ".$nom = $contact->getNom();
-            } else {
-                $nom = $contact->getPseudo();
-            }
-            if(strlen($nom) == 0){ $nom = "chere utilisateur";}
             array_push($contactAdds, [
                 'idContact' => $contact->getId(),
-                'nomAdd' => $nom,
+                'nomAdd' => $contact,
                 'telAdd' => $contact->getTel(),
             ]);
         }
@@ -484,7 +535,6 @@ class TraitementsDS extends AbstractController
             "nombreContactDispo" => count($this->getAddDisponible($user)),
             "lesPublicites" => $lesPublicites,
             "havePublicites" => (count($lesPublicitesArray) >= 1) ? true : false,
-            "affUserName" => $user->getPreference()->getAffNom() ? true : false,
             "nombreFilleuls" => count($user->getFilleuls()),
             "admin" => $user->getAdmin() ? true : false,
             "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],
@@ -492,6 +542,18 @@ class TraitementsDS extends AbstractController
             "commissionBonus" => $this->env->getCommissionBonus(),
             'preferencePaysText' => $this->preferencePaysText($user->getPreference()),
         ];
+    }
+
+    public function getCountryWithMethodePaiement($valueMethodePaiement){
+        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
+        else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci" || $valueMethodePaiement == "moov_ci") { $country = "ci"; }
+        else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
+        else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
+        else if($valueMethodePaiement == "airtel_ne") { $country = "ne"; }
+        else if($valueMethodePaiement == "orange_ml") { $country = "ml"; }
+        else if($valueMethodePaiement == "mtn_open_gn") { $country = "gn"; }
+        else if($valueMethodePaiement == "moov_bf" || $valueMethodePaiement == "orange_bf") { $country = "bf"; }
+        return $country;
     }
 
     public function execPurge($user){
@@ -525,5 +587,5 @@ class TraitementsDS extends AbstractController
         }
 
         $this->userRepository->remove($user, true);
-    }   
+    }
 }
