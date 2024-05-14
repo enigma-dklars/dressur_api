@@ -35,15 +35,15 @@ class AddController extends AbstractController
         return new JsonResponse($traitementsDS->getAddDisponible($user));
     }
 
-    #[Route('/addTousUserContact', name: 'addTousUserContact')]
-    public function addTousUserContact(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
+    #[Route('/addTousUserContact/{uid}/{langUserPhone}', name: 'addTousUserContact', methods: ['POST', "GET"])]
+    public function addTousUserContact(Request $request, $langUserPhone, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        // $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $datas->get('uid');
+        // $uid = $datas->get('uid');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -66,7 +66,8 @@ class AddController extends AbstractController
                     $userAdd->getContact()->setNewAddMe($user);
                     $this->em->flush();
                     array_push($contactsAdd, [
-                        "pseudo" => $userAdd,
+                        "pseudo" => $userAdd->getPseudo(),
+                        "nom" => (string)$userAdd,
                         "tel" => $userAdd->getTel(),
                     ]);
                 } else {

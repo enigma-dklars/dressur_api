@@ -364,19 +364,19 @@ class TraitementsDS extends AbstractController
     public function userContacts($user){
         $userContacts = [];
         foreach ($user->getContact()->getAllIdOfMyContacts() as $key => $idContact){
-            $contact = $this->userRepository->find($idContact);
+            $userContact = $this->userRepository->find($idContact);
             $unContact = [
-                "id" => (string)$contact->getUid(),
-                "pseudo" => $contact->getPseudo(),
-                "nom" => $contact,
-                "mail" => $contact->getMail(),
-                "pays" => (string)$contact->getPays(),
-                "tel" => $contact->getTel(),
-                "apropos" => $contact->getApropos() ? $contact->getApropos() : "",
-                "tiktok" => $contact->getTiktok() ? $contact->getTiktok() : "",
-                "instagram" => $contact->getInstagram() ? $contact->getInstagram() : "",
-                "facebook" => $contact->getFacebook() ? $contact->getFacebook() : "",
-                "youtube" => $contact->getYoutube() ? $contact->getYoutube() : "",
+                "id" => (string)$userContact->getUid(),
+                "pseudo" => $userContact->getPseudo(),
+                "mail" => $userContact->getMail(),
+                "pays" => (string)$userContact->getPays(),
+                "tel" => $userContact->getTel(),
+                "nom" => (string)$userContact,
+                "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
+                "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
+                "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
+                "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
+                "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
             ];
             array_push($userContacts, $unContact);
         }
@@ -413,6 +413,7 @@ class TraitementsDS extends AbstractController
                                     'uid' => $userBoost->getUid(),
                                     'pseudo' => $userBoost->getPseudo(),
                                     'pays' => (string)$userBoost->getPays(),
+                                    'nom' => (string)$userBoost,
                                     'tel' => $userBoost->getTel(),
                                 ]);
                             }
@@ -429,7 +430,7 @@ class TraitementsDS extends AbstractController
         foreach ($contacts as $contact) {
             array_push($contactAdds, [
                 'idContact' => $contact->getId(),
-                'nomAdd' => $contact,
+                'nomAdd' => (string)$contact,
                 'telAdd' => $contact->getTel(),
             ]);
         }
