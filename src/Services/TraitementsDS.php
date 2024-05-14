@@ -436,46 +436,10 @@ class TraitementsDS extends AbstractController
         return $contactAdds;
     }
 
-    public function mergePaysDisponibleAndUserPreferencePays($userPreference)
-    {
-        $pays = [];
-        foreach ($this->userRepository->getPaysDistinct() as $paysDisponible) {
-
-            $arrayPaysChoisie = $userPreference->getPaysChoisies();
-            $isExiste = in_array($paysDisponible["pays"], $arrayPaysChoisie);
-            if($isExiste){
-                array_push($pays, [
-                    'name' => (string)$paysDisponible["pays"],
-                    'isSelected' => true,
-                ]);
-            } else {
-                array_push($pays, [
-                    'name' => (string)$paysDisponible["pays"],
-                    'isSelected' => false,
-                ]);
-            }
-        }
-        return $pays;
-    }
-
     public function preferencePaysText($userPreference)
     {
         $pays = "";
-        // $pays = implode(', ', $userPreference->getPaysChoisies());
-
-        foreach ($this->userRepository->getPaysDistinct() as $paysDisponible) {
-            
-            $arrayPaysChoisie = $userPreference->getPaysChoisies();
-            
-            $isExiste = in_array($paysDisponible["pays"], $arrayPaysChoisie);
-            if($isExiste){
-                if($pays == ""){
-                    $pays .= $paysDisponible["pays"];
-                } else {
-                    $pays .= ", ".$paysDisponible["pays"];
-                }
-            }
-        }
+        $pays = implode(', ', $userPreference->getPaysChoisies());
         if($pays == ""){
             if($this->sessionDS->get("langUserPhone") != "fr") {
                 $pays .= "No Country Selected";

@@ -32,7 +32,7 @@ class UserPreferenceController extends AbstractController
     {        
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        return new JsonResponse($traitementsDS->mergePaysDisponibleAndUserPreferencePays($user->getPreference()));
+        return new JsonResponse($user->getPreference()->getPaysChoisies());
     }
 
     #[Route('/updateUserPaysChoisies/{uid}/{langUserPhone}/{paysChoisieJson}', name: 'updateUserPaysChoisies', methods: ['POST', 'GET'])]
@@ -44,9 +44,7 @@ class UserPreferenceController extends AbstractController
         $arrayPays = [];
 
         foreach ($paysChoisieJson as $key) {
-            if($key->isSelected == true){
-                array_push($arrayPays, $key->name);
-            }
+            array_push($arrayPays, $key);
         }
         $user->getPreference()->setPaysChoisies($arrayPays);
         $this->em->flush();
