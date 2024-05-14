@@ -436,34 +436,6 @@ class TraitementsDS extends AbstractController
         return $contactAdds;
     }
 
-    public function preferencePaysText($userPreference)
-    {
-        $pays = "";
-        $pays = implode(', ', $userPreference->getPaysChoisies());
-        if($pays == ""){
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                $pays .= "No Country Selected";
-            } else {
-                $pays .= "Aucun Pays Choisi";
-            }
-        }
-        return $pays;
-    }
-
-    public function preferenceCentreInteretLoisirText($userPreference)
-    {
-        $pays = "";
-        $pays = implode(', ', $userPreference->getCentreInteretLoisirChoisies());
-        if($pays == ""){
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                $pays .= "No Choice";
-            } else {
-                $pays .= "Aucun Choix";
-            }
-        }
-        return $pays;
-    }
-
     public function resetPassword(int $length = 8): ?string
     {
         // allowed characters
