@@ -39,16 +39,6 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
-    public function getPaysDistinct(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->select('u.pays')
-            ->distinct(true)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */
