@@ -450,6 +450,20 @@ class TraitementsDS extends AbstractController
         return $pays;
     }
 
+    public function preferenceCentreInteretLoisirText($userPreference)
+    {
+        $pays = "";
+        $pays = implode(', ', $userPreference->getCentreInteretLoisirChoisies());
+        if($pays == ""){
+            if($this->sessionDS->get("langUserPhone") != "fr") {
+                $pays .= "No Choice";
+            } else {
+                $pays .= "Aucun Choix";
+            }
+        }
+        return $pays;
+    }
+
     public function resetPassword(int $length = 8): ?string
     {
         // allowed characters
@@ -504,7 +518,8 @@ class TraitementsDS extends AbstractController
             "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],
             "messageErreurPermissionAdd" => ($this->verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
             "commissionBonus" => $this->env->getCommissionBonus(),
-            'preferencePaysText' => $this->preferencePaysText($user->getPreference()),
+            'preferencePays' => $user->getPreference()->getPaysChoisies(),
+            'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
         ];
     }
 

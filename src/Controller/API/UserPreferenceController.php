@@ -35,6 +35,14 @@ class UserPreferenceController extends AbstractController
         return new JsonResponse($user->getPreference()->getPaysChoisies());
     }
 
+    #[Route('/listCentreInteretLoisirChoisies/{uid}/{langUserPhone}', name: 'listCentreInteretLoisirChoisies', methods: ['POST', 'GET'])]
+    public function listCentreInteretLoisirChoisies(User $user,$langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {        
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        return new JsonResponse($user->getPreference()->getCentreInteretLoisirChoisies());
+    }
+
     #[Route('/updateUserPaysChoisies/{uid}/{langUserPhone}/{paysChoisieJson}', name: 'updateUserPaysChoisies', methods: ['POST', 'GET'])]
     public function updateUserPaysChoisies(User $user, $langUserPhone, $paysChoisieJson, SessionDS $sessionDS): Response
     {        
@@ -47,6 +55,23 @@ class UserPreferenceController extends AbstractController
             array_push($arrayPays, $key);
         }
         $user->getPreference()->setPaysChoisies($arrayPays);
+        $this->em->flush();
+
+        return new Response('OK');
+    }
+
+    #[Route('/updateCentreInteretLoisirChoisies/{uid}/{langUserPhone}/{centreInteretLoisirJson}', name: 'updateCentreInteretLoisirChoisies', methods: ['POST', 'GET'])]
+    public function updateCentreInteretLoisirChoisies(User $user, $langUserPhone, $centreInteretLoisirJson, SessionDS $sessionDS): Response
+    {        
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $centreInteretLoisirJson = json_decode($centreInteretLoisirJson);
+        $arrayCentreInteretLoisir = [];
+
+        foreach ($centreInteretLoisirJson as $key) {
+            array_push($arrayCentreInteretLoisir, $key);
+        }
+        $user->getPreference()->setCentreInteretLoisirChoisies($arrayCentreInteretLoisir);
         $this->em->flush();
 
         return new Response('OK');
