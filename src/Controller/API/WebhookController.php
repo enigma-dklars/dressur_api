@@ -43,7 +43,7 @@ class WebhookController extends AbstractController
     }
 
     #[Route('/webhookDressur', name: 'webhookDressur')]
-    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository)
+    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository)
     {
         FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
@@ -81,16 +81,24 @@ class WebhookController extends AbstractController
                     if($myTransaction->getStatus() != "approved") {
                         $transaction = Transaction::retrieve($idTransaction);
                         $myTransaction->setStatus($transaction->status)->isUpdated();
-
+                        
                         if ($myTransaction->getTransactionFor() == "boost_contact") {
                             $formuleBoost = $formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
                             $boost = new Boost();
                             $boost->setFormuleBoost($formuleBoost)
                                 ->setMode("Payant")
                                 ->setUser($myTransaction->getUser())
-                                ->setDateDebut(new DateTime())
-                                ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
                             ;
+                            if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
+                                $lastBoostDateExp = ($boostRepository->findOneBy(['user' => $myTransaction->getUser()], ["id" => "DESC"]))->getDateExp();
+                                $boost->setDateDebut($lastBoostDateExp)
+                                    ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime("+ ".$formuleBoost->getNbrJour()."days ".$lastBoostDateExp->format('d-m-Y H:i')))))
+                                ;
+                            } else {
+                                $boost->setDateDebut(new DateTime())
+                                    ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
+                                ;
+                            }                            
                             $this->em->persist($boost);
                         }
 

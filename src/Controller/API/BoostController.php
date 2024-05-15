@@ -63,7 +63,6 @@ class BoostController extends AbstractController
     {
         $datas = $request->request;
         
-        $programBoost = false;
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
@@ -142,10 +141,6 @@ class BoostController extends AbstractController
                 'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
-
-        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
-            $programBoost = true;
-        }
         
         $user->debitSoldeBonus($formulBoost->getPrix());
 
@@ -153,20 +148,24 @@ class BoostController extends AbstractController
         $boost->setFormuleBoost($formulBoost)
               ->setUser($user)
         ;
-        if($programBoost == false) {
+        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
             $boost->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"));
+                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
+            ;
+            $message = ($langUserPhone == 'fr') ? "Votre boost contact a démarré." : "Your contact boost has started.";
         } else {
             $lastBoostDateExp = ($boostRepository->findOneBy(['user' => $user], ["id" => "DESC"]))->getDateExp();
             $boost->setDateDebut($lastBoostDateExp)
                 ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime("+ ".$formulBoost->getNbrJour()."days ".$lastBoostDateExp->format('d-m-Y H:i')))))
             ;
+            $message = ($langUserPhone == 'fr') ? "Votre boost contact a été programmé." : "Your contact boost has been programmed.";
         }
         $this->em->persist($boost);
         $this->em->flush();
 
         return new JsonResponse([
             'error' => false,
+            'message' => $message,
         ]);
     }
 
@@ -287,21 +286,6 @@ class BoostController extends AbstractController
                 'error' => true,
                 'titre' => 'Attention!',
                 'message' => 'Veuillez choisir une Methode de Paiement...',
-            ]);
-        }
-
-        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "You already have a Contact Boost in progress...\nWait for it to finish before starting another.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Oups!',
-                'message' => "Vous avez déja un Boost Contact en cours...\nAttendez la fin de ce dernier avant de démarrer un autre.",
             ]);
         }
 

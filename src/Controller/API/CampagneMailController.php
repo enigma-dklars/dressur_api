@@ -45,7 +45,7 @@ class CampagneMailController extends AbstractController
                 "id" => $boost->getId(),
                 "label" => $boost->getTitre(),
                 "prix" => $boost->getPrix(),
-                "nombre_mail" => $boost->getNombreMail(),
+                "nombre_mail" => (string)$boost->getNombreMail(),
             ]);
         }
         return new JsonResponse([
