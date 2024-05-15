@@ -97,8 +97,7 @@ class TraitementsDS extends AbstractController
                 } else {
                     $statut = "Programmé 💤";
                 }
-            }
-            
+            }            
 
             if((new DateTime()) > $boost->getDateExp()){
                 if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -151,6 +150,10 @@ class TraitementsDS extends AbstractController
             $statut = "";
             $peutPayer = false;
 
+            if((new DateTime()) > $promo->getDateExp()) {
+                $promo->setStatus(4);
+            }
+
             if ($promo->getStatus() == 0) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Rejected";
@@ -175,6 +178,13 @@ class TraitementsDS extends AbstractController
                     $statut = "Accept and already pay";
                 } else {
                     $statut = "Accepter et déja payer";
+                }
+            } else if($promo->getStatus() == 4) {
+                $peutPayer = true;
+                if($this->sessionDS->get("langUserPhone") != "fr") {
+                    $statut = "To End";
+                } else {
+                    $statut = "Terminer";
                 }
             }
 
@@ -224,9 +234,9 @@ class TraitementsDS extends AbstractController
                 }
             } else if($promo->getStatus() == 3) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Finishing";
+                    $statut = "To End";
                 } else {
-                    $statut = "En Terminer";
+                    $statut = "Terminer";
                 }
             }
 

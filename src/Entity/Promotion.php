@@ -61,6 +61,7 @@ class Promotion
          * 1 : en attente
          * 2 : accepter et en attente de paiement
          * 3 : accepter et deja payer
+         * 4 : terminer
          */
     }
 

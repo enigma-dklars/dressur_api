@@ -251,7 +251,7 @@ class PromotionController extends AbstractController
 
         $promotion = $promotionRepository->find($idPromotion);
 
-        if($promotion->getStatus() == 2){
+        if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
             $promotion->setFormuleBoost($formulBoost)
                 ->setDateDebut(new DateTime())
                 ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
@@ -409,7 +409,7 @@ class PromotionController extends AbstractController
 
         $promotion = $promotionRepository->find($idPromotion);
 
-        if($promotion->getStatus() == 2){
+        if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
             $promotion->setFormuleBoost($formulBoost);
             
             $transaction = Transaction::create($array_create_transaction);

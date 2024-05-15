@@ -48,6 +48,14 @@ class CampagneMail
     {
         $this->status = 1;
         $this->createdAt = new DateTime();
+        /**
+         * status values description
+         * 0 : rejeter
+         * 1 : en attente
+         * 2 : accepter et en attente de paiement
+         * 3 : payer et en cours de traitement
+         * 4 : terminer
+         */
     }
 
     public function getId(): ?int
