@@ -47,8 +47,9 @@ class BoostController extends AbstractController
         foreach ($formuleBoostRepository->findAll() as $boost) {
             array_push($listeFormulBoost, [
                 "id" => $boost->getId(),
+                "value" => $boost->getId(),
                 "label" => $boost->getTitre(),
-                "prix" => $boost->getPrix(),
+                "prix" => intval($boost->getPrix()),
                 "jours" => $boost->getNbrJour(),
             ]);
         }

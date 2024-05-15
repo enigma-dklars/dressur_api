@@ -43,9 +43,10 @@ class CampagneMailController extends AbstractController
         foreach ($formuleCampagneMailRepository->findAll() as $boost) {
             array_push($listeFormuleCampagneMail, [
                 "id" => $boost->getId(),
+                "value" => $boost->getId(),
                 "label" => $boost->getTitre(),
                 "prix" => $boost->getPrix(),
-                "nombre_mail" => (string)$boost->getNombreMail(),
+                "nombre_mail" => $boost->getNombreMail(),
             ]);
         }
         return new JsonResponse([
