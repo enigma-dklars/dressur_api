@@ -175,16 +175,16 @@ class TraitementsDS extends AbstractController
                 }
             } else if($promo->getStatus() == 3) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and already pay";
+                    $statut = "Accept and in progress";
                 } else {
-                    $statut = "Accepter et déja payer";
+                    $statut = "Accepter et en cours";
                 }
             } else if($promo->getStatus() == 4) {
                 $peutPayer = true;
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "To End";
+                    $statut = "Completed";
                 } else {
-                    $statut = "Terminer";
+                    $statut = "Terminé";
                 }
             }
 
@@ -234,7 +234,7 @@ class TraitementsDS extends AbstractController
                 }
             } else if($promo->getStatus() == 3) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "To End";
+                    $statut = "Completed";
                 } else {
                     $statut = "Terminer";
                 }
@@ -294,15 +294,15 @@ class TraitementsDS extends AbstractController
                 }
             } else if($campagneMail->getStatus() == 3) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Paying and processing";
+                    $statut = "Accept and in progress";
                 } else {
-                    $statut = "Payer et en cours de traitement";
+                    $statut = "Accepter et en cours";
                 }
             } else if($campagneMail->getStatus() == 4) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "To end";
+                    $statut = "Completed";
                 } else {
-                    $statut = "Terminer";
+                    $statut = "Terminé";
                 }
             }
 

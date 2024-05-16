@@ -60,7 +60,7 @@ class Promotion
          * 0 : rejeter
          * 1 : en attente
          * 2 : accepter et en attente de paiement
-         * 3 : accepter et deja payer
+         * 3 : accepter et en cours
          * 4 : terminer
          */
     }
