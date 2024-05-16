@@ -114,6 +114,21 @@ class PromotionReseauController extends AbstractController
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');
 
+        if(!$idFormulePromoReseau || !$qteDemander || !$prixQteDemander || !$lien || $valueMethodePaiement || !$tel){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Please fill in all the information requested in the form.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez renseigner toutes les informations demandées dans le formulaire.',
+            ]);
+        }
+
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
         $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
@@ -162,7 +177,7 @@ class PromotionReseauController extends AbstractController
             "currency" => ["iso" => "XOF"],
             "customer" => [
                 "firstname" => $user->getPseudo(),
-                "lastname" => $user,
+                "lastname" => $user->getNom(),
                 "email" => $user->getMail(),
                 "phone_number" => [
                     "number" => $tel,

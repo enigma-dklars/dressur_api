@@ -60,7 +60,7 @@ class Promotion
          * 0 : rejeter
          * 1 : en attente
          * 2 : accepter et en attente de paiement
-         * 3 : accepter et deja payer
+         * 3 : accepter et en cours
          * 4 : terminer
          */
     }
@@ -173,8 +173,8 @@ class Promotion
 
     public function setToWatch(): self
     {
-        $this->nombreDeVue += rand(1, 5);
-        $this->nombreImpression += rand(1, 20);
+        $this->nombreDeVue += rand(0, 1);
+        $this->nombreImpression += rand(1, 5);
 
         return $this;
     }
