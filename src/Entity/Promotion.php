@@ -173,8 +173,8 @@ class Promotion
 
     public function setToWatch(): self
     {
-        $this->nombreDeVue += rand(0, 2);
-        $this->nombreImpression += rand(0, 4);
+        $this->nombreDeVue += rand(0, 1);
+        $this->nombreImpression += rand(1, 5);
 
         return $this;
     }
