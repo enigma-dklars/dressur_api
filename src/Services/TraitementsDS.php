@@ -150,7 +150,7 @@ class TraitementsDS extends AbstractController
             $statut = "";
             $peutPayer = false;
 
-            if((new DateTime()) > $promo->getDateExp()) {
+            if($promo->getDateExp() and ((new DateTime()) > $promo->getDateExp())) {
                 $promo->setStatus(4);
             }
 

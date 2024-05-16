@@ -149,17 +149,17 @@ class BoostController extends AbstractController
         $boost->setFormuleBoost($formulBoost)
               ->setUser($user)
         ;
-        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
-            $boost->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
-            ;
-            $message = ($langUserPhone == 'fr') ? "Votre boost contact a démarré." : "Your contact boost has started.";
-        } else {
+        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {            
             $lastBoostDateExp = ($boostRepository->findOneBy(['user' => $user], ["id" => "DESC"]))->getDateExp();
             $boost->setDateDebut($lastBoostDateExp)
                 ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime("+ ".$formulBoost->getNbrJour()."days ".$lastBoostDateExp->format('d-m-Y H:i')))))
             ;
             $message = ($langUserPhone == 'fr') ? "Votre boost contact a été programmé." : "Your contact boost has been programmed.";
+        } else {
+            $boost->setDateDebut(new DateTime())
+                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
+            ;
+            $message = ($langUserPhone == 'fr') ? "Votre boost contact a démarré." : "Your contact boost has started.";
         }
         $this->em->persist($boost);
         $this->em->flush();
