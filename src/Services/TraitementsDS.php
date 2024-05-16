@@ -82,9 +82,9 @@ class TraitementsDS extends AbstractController
 
         foreach ($boosts as $boost) {
             if($this->sessionDS->get("langUserPhone") != "fr") {
-                $statut = "In progress 🚀";
+                $statut = "In progress";
             } else {
-                $statut = "En cours 🚀";
+                $statut = "En cours";
             }
 
             if((new DateTime()) > $boost->getDateDebut() and (new DateTime()) < $boost->getDateExp()){
@@ -93,17 +93,17 @@ class TraitementsDS extends AbstractController
 
             if((new DateTime()) < $boost->getDateDebut()){
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "scheduled 💤";
+                    $statut = "scheduled";
                 } else {
-                    $statut = "Programmé 💤";
+                    $statut = "Programmé";
                 }
             }            
 
             if((new DateTime()) > $boost->getDateExp()){
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Completed ✅";
+                    $statut = "Completed";
                 } else {
-                    $statut = "Terminé ✅";
+                    $statut = "Terminé";
                 }
             }
 
