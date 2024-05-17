@@ -474,6 +474,10 @@ class TraitementsDS extends AbstractController
     public function infosUser($user){
         $lesPublicitesArray = $this->listePubliciteAffichageAuxUsers($user);
         $lesPublicites = json_encode($lesPublicitesArray);
+        if(strlen(str_replace(" ", "", $user->getTiktok())) == 0 ) { $user->setTiktok(null); }
+        if(strlen(str_replace(" ", "", $user->getInstagram())) == 0 ) { $user->setInstagram(null); }
+        if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
+        if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         return [
             "id" => $user->getId(),
             "uid" => $user->getUid(),

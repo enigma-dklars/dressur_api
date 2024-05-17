@@ -379,7 +379,7 @@ class UserController extends AbstractController
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $nom = (string)$verificationsDS->remove_emoji($datas->get('nom'));
         $pseudo = $datas->get('pseudo');
-        $apropos = (string)$verificationsDS->remove_emoji($datas->get('apropos'));
+        $apropos = $datas->get('apropos');
         $tiktok = $datas->get('tiktok');
         $instagram = $datas->get('instagram');
         $facebook = $datas->get('facebook');
@@ -388,7 +388,67 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $datas->get('uid');        
+        $uid = $datas->get('uid');
+
+        if($instagram) {
+            if (!$verificationsDS->isValidSocialUrl($instagram, 'instagram')) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'message' => strtoupper('instagram').' Invalid URL.',
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => strtoupper('instagram').' URL invalide.',
+                ]);
+            }
+        }
+
+        if($facebook) {
+            if (!$verificationsDS->isValidSocialUrl($facebook, 'facebook')) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'message' => strtoupper('facebook').' Invalid URL.',
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => strtoupper('facebook').' URL invalide.',
+                ]);
+            }
+        }
+
+        if($youtube) {
+            if (!$verificationsDS->isValidSocialUrl($youtube, 'youtube')) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'message' => strtoupper('youtube').' Invalid URL.',
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => strtoupper('youtube').' URL invalide.',
+                ]);
+            }
+        }
+
+        if($tiktok) {
+            if (!$verificationsDS->isValidSocialUrl($tiktok, 'tiktok')) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'message' => strtoupper('tiktok').' Invalid URL.',
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'message' => strtoupper('tiktok').' URL invalide.',
+                ]);
+            }
+        }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
