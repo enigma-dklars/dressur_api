@@ -53,6 +53,7 @@ class PromoReseau
     public function __construct()
     {
         $this->status = 1;
+        $this->idZefame = "*****";
         $this->compteurDebut = 0;
         $this->compteurRestant = 0;
         $this->createdAt = new DateTime();
