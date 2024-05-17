@@ -105,7 +105,7 @@ class PromotionReseauController extends AbstractController
         
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-
+        
         $uid = $datas->get('uid');
         $idFormulePromoReseau = $datas->get('idFormulePromoReseau');
         $qteDemander = $datas->get('qteDemander');
@@ -113,8 +113,8 @@ class PromotionReseauController extends AbstractController
         $lien = $datas->get('lien');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');
-
-        if(!$idFormulePromoReseau || !$qteDemander || !$prixQteDemander || !$lien || $valueMethodePaiement || !$tel){
+        
+        if(!$idFormulePromoReseau || !$qteDemander || !$prixQteDemander || !$lien || !$valueMethodePaiement || !$tel){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
