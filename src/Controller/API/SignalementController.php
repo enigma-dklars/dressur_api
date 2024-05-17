@@ -94,7 +94,7 @@ class SignalementController extends AbstractController
         $user = $verificationUser["user"];
 
         $userSignaler = $userRepository->findOneBy(['tel' => $telSignaler]);
-        if(!$userSignaler){
+        if(!$userSignaler) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
