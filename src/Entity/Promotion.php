@@ -48,6 +48,9 @@ class Promotion
     #[ORM\Column]
     private ?bool $limited = null;
 
+    #[ORM\Column(nullable: true)]
+    private array $whoSaw = [];
+
     public function __construct()
     {
         $this->status = 1;
@@ -55,6 +58,7 @@ class Promotion
         $this->mode = "Gratuit";
         $this->nombreDeVue = 0;
         $this->nombreImpression = 0;
+        $this->whoSaw = [];
         /**
          * status values description
          * 0 : rejeter
@@ -171,11 +175,15 @@ class Promotion
         return $this->mode;
     }
 
-    public function setToWatch(): self
+    public function setToWatch($user): self
     {
+        if (in_array($user->getId(), $this->whoSaw)) {
+            $this->nombreImpression += rand(0, 2);
+        } else {
+            $this->nombreImpression += rand(1, 5);
+            array_push($this->whoSaw, $user->getId());
+        }        
         $this->nombreDeVue += rand(0, 1);
-        $this->nombreImpression += rand(1, 5);
-
         return $this;
     }
 
@@ -206,6 +214,18 @@ class Promotion
     public function setLimited(bool $limited): self
     {
         $this->limited = $limited;
+
+        return $this;
+    }
+
+    public function getWhoSaw(): array
+    {
+        return $this->whoSaw;
+    }
+
+    public function setWhoSaw(?array $whoSaw): self
+    {
+        $this->whoSaw = $whoSaw;
 
         return $this;
     }

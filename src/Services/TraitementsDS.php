@@ -335,7 +335,7 @@ class TraitementsDS extends AbstractController
         foreach ($promos as $promo) {
             if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())){
-                    $promo->setToWatch();
+                    $promo->setToWatch($user);
                     $unePromo = [
                         "uidUser" => $promo->getUser()->getUid(),
                         "id" => $promo->getId(),

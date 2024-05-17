@@ -12,7 +12,6 @@ use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
-use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
@@ -23,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Entity\User;
 use App\Repository\PromotionRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -455,12 +455,12 @@ class PromotionController extends AbstractController
         ]);
     }
 
-    #[Route('/setPromotionToWatch/{id}', name: 'setPromotionToWatch', methods: ['POST', "GET"])]
-    public function setPromotionToWatch(Promotion $promotion): Response
+    #[Route('/setPromotionToWatch/{id}/{uid}', name: 'setPromotionToWatch', methods: ['POST', "GET"])]
+    public function setPromotionToWatch(Promotion $promotion, $uid, UserRepository $userRepository): Response
     {
-        $promotion->setToWatch();
-        $this->em->flush();
-        
+        $user = $userRepository->findOneBy(['uid' => $uid]);
+        $promotion->setToWatch($user);
+        $this->em->flush();        
         return new Response("OK");
     }
 }
