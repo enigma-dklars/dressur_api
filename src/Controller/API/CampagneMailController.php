@@ -169,7 +169,7 @@ class CampagneMailController extends AbstractController
         return new JsonResponse($traitementsDS->userCampagneMail($user->getCampagneMails()));
     }
 
-    #[Route('/newCampageMailPayant', name: 'newCampageMailPayant', methods: ['POST'])]
+    #[Route('/newCampageMailPayant/paiement', name: 'newCampageMailPayant', methods: ['POST'])]
     public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, TraitementsDS $traitementsDS): Response
     {
         FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
