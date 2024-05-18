@@ -85,6 +85,7 @@ class UserController extends AbstractController
                 // $user = (new User())->setPseudo("")->setTel("")->setMail("")->setCodeBonus("")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
             }
 
+            // les FormuleBoost
             $this->em->persist((new FormuleBoost())->setTitre("Formule A")->setPrix(500)->setNbrJour(2)->setAlert(false));
             $this->em->persist((new FormuleBoost())->setTitre("Formule B")->setPrix(1000)->setNbrJour(4)->setAlert(false));
             $this->em->persist((new FormuleBoost())->setTitre("Formule C")->setPrix(1500)->setNbrJour(7)->setAlert(false));
@@ -93,6 +94,7 @@ class UserController extends AbstractController
             $this->em->persist((new FormuleBoost())->setTitre("Formule F")->setPrix(12500)->setNbrJour(60)->setAlert(false));
             $this->em->persist((new FormuleBoost())->setTitre("Formule G")->setPrix(25000)->setNbrJour(120)->setAlert(false));
 
+            // les FormuleCampagneMail
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule A")->setPrix(1000)->setNombreMail(15));
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule B")->setPrix(6000)->setNombreMail(100));
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule C")->setPrix(9000)->setNombreMail(150));
@@ -101,6 +103,7 @@ class UserController extends AbstractController
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule F")->setPrix(330000)->setNombreMail(5000));
             $this->em->persist((new FormuleCampagneMail())->setTitre("Formule G")->setPrix(600000)->setNombreMail(10000));
             
+            // les FormulePromoReseau
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("TikTok")->setIconFlutterName("tiktok")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
             $this->em->persist((new FormulePromoReseau())->setPrix(6.82)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
