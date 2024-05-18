@@ -47,7 +47,7 @@ class UserController extends AbstractController
     } 
 
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST', 'GET'])]
-    public function getVersionApp(): Response
+    public function getVersionApp(UserRepository $userRepository): Response
     {
         try {
             return new JsonResponse([
@@ -56,7 +56,7 @@ class UserController extends AbstractController
                 'importantUpdate' => $this->env->getImportantUpdate(),
             ]);
         } catch (\Throwable $th) {
-
+            // vider les tables Env, FormuleBoost, FormuleCampagneMail, FormulePromoReseau
             $platform = $this->em->getConnection()->getDatabasePlatform();
             $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=0');
             $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(Env::class)->getTableName()));
@@ -65,7 +65,25 @@ class UserController extends AbstractController
             $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormulePromoReseau::class)->getTableName()));
             $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
 
+            // mise en place de l'env
             $this->em->persist((new Env())->setCommissionBonus(2000)->setVersionApp("1.0.0")->setImportantUpdate(false)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
+
+            // creation des utilisateures important
+            if(count($userRepository->findAll()) == 0) {
+                $user = (new User())->setPseudo("profil.google")->setTel("+22900000000")->setMail("equipe.test.dressur.ds@gmail.com")->setCodeBonus("DS0000")->setPassword(sha1(sha1(sha1("DressurDS3@"))))->setPays("229")->setLang("en")->setSoldeBonus(2000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setPseudo("bluelife.tech")->setTel("+22958519556")->setMail("bluelife.tech@gmail.com")->setCodeBonus("BLUE-LIFE-TECH")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setPseudo("elitics.core")->setTel("+22990978787")->setMail("elitics.core@tech-center.com")->setCodeBonus("ELITICS-CORE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                
+                $user = (new User())->setPseudo("louise")->setTel("+22956518088")->setMail("affichekpolouise@gmail.com")->setCodeBonus("LOUISE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setPseudo("dklars")->setTel("+22962273861")->setMail("dklars.dev@gmail.com")->setCodeBonus("DKLARS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setPseudo("san")->setTel("+22969165323")->setMail("alladayesandym@gmail.com")->setCodeBonus("SAN")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setPseudo("noe")->setTel("+22997542851")->setMail("noegouton@gmail.com")->setCodeBonus("NOE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                
+                $user = (new User())->setPseudo("dev")->setTel("+22963856891")->setMail("kofukunoatama@gmail.com")->setCodeBonus("DEV")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setPseudo("dynams")->setTel("+22955487985")->setMail("dynamslars@gmail.com")->setCodeBonus("DYNAMS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                
+                // $user = (new User())->setPseudo("")->setTel("")->setMail("")->setCodeBonus("")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+            }
 
             $this->em->persist((new FormuleBoost())->setTitre("Formule A")->setPrix(500)->setNbrJour(2)->setAlert(false));
             $this->em->persist((new FormuleBoost())->setTitre("Formule B")->setPrix(1000)->setNbrJour(4)->setAlert(false));
@@ -133,6 +151,16 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Mauvaise\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-1%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Bad\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-1%\n🔗 Photo/video link\n🔓 Public profile required")
             );
+            $this->em->persist((new FormulePromoReseau())->setPrix(1.80)->setQte(1000)->setQteMin(10)->setQteMax(200000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Comments Emoji Positive")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Photo/video link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(3.28)->setQte(1000)->setQteMin(5)->setQteMax(5000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Comment Like")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien : Voir la note\n🔓 Profil public obligatoire\n\n\n⚠️ Note : Pour récupérer le bon lien : trouvez votre commentaire dans le navigateur (sur un ordinateur), lorsque vous cliquez sur les secondes, les minutes où les heures à gauche du commentaire, vous verrez que le lien a changé. Vous pouvez alors copier ce lien et indiquer la quantité. Lorsque seul le nom d'utilisateur est saisi, votre commentaire ne peut être retrouvé parmi des milliers d'autres et cela nécessite de nombreuses requêtes. Par conséquent, le lien doit être créé de cette manière.")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Link: See note\n🔓 Public profile required\n\n\n⚠️ Note: To retrieve the correct link: find your comment in the browser (on a computer), when you click on the seconds, minutes or hours to the left of the comment, you will see that the link has changed. You can then copy this link and indicate the quantity. When only the username is entered, your comment cannot be found among thousands of others and this requires many queries. Therefore, the link must be created in this way.")
+            );
             $this->em->persist((new FormulePromoReseau())->setPrix(0.42)->setQte(1000)->setQteMin(10)->setQteMax(15000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Story Views")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie : 24 heures\n📉 Taux de perte : 0%\n🔗 Lien du profil\n🔓 Profil public obligatoire")
@@ -147,6 +175,11 @@ class UserController extends AbstractController
                 ->setTitre("Vues de Reels Rapide")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(9.66)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Channel Member")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du canal\n🔓 Canal public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Channel link\n🔓 Mandatory public channel")
             );
 
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Twitter/X")->setIconFlutterName("twitter")->setAvailable(true);
