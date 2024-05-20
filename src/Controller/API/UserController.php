@@ -766,15 +766,16 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/getUserInfo', name: 'getUserInfo', methods: ['POST'])]
-    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    #[Route('/getUserInfo/{uid}/{langUserPhone}', name: 'getUserInfo', methods: ['POST'])]
+    public function getUserInfo($uid, $langUserPhone, Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        // $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $datas->get('uid');
+        // $uid = $datas->get('uid');
+        $uid = str_replace(["\n", "\r", " "], "", $uid);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
