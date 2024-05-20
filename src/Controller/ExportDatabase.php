@@ -36,7 +36,8 @@ class ExportDatabase extends AbstractController
         }
 
         // Define the filename and path for the backup file
-        $fileName = sprintf('%s_%s.sql', $dbName, date('Ymd_His'));
+        $dateTime = (new \DateTime())->format('d-m-Y_H-i-s');
+        $fileName = sprintf('db_%s.sql', $dateTime);
         $filePath = $backupDir . DIRECTORY_SEPARATOR . $fileName;
 
         // Create the mysqldump command
