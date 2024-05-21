@@ -108,6 +108,9 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: PromoReseau::class, orphanRemoval: true)]
     private Collection $promoReseaus;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, orphanRemoval: true)]
+    private Collection $suggestions;
+
     public function __construct()
     {
         $this->admin = false;
@@ -124,6 +127,7 @@ class User
         $this->promotions = new ArrayCollection();
         $this->campagneMails = new ArrayCollection();
         $this->promoReseaus = new ArrayCollection();
+        $this->suggestions = new ArrayCollection();
     }
 
     public function __toString()
@@ -619,6 +623,36 @@ class User
             // set the owning side to null (unless already changed)
             if ($promoReseau->getUser() === $this) {
                 $promoReseau->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Suggestion>
+     */
+    public function getSuggestions(): Collection
+    {
+        return $this->suggestions;
+    }
+
+    public function addSuggestion(Suggestion $suggestion): self
+    {
+        if (!$this->suggestions->contains($suggestion)) {
+            $this->suggestions->add($suggestion);
+            $suggestion->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSuggestion(Suggestion $suggestion): self
+    {
+        if ($this->suggestions->removeElement($suggestion)) {
+            // set the owning side to null (unless already changed)
+            if ($suggestion->getUser() === $this) {
+                $suggestion->setUser(null);
             }
         }
 

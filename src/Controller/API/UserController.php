@@ -21,9 +21,11 @@ use App\Entity\Env;
 use App\Entity\FormuleBoost;
 use App\Entity\FormuleCampagneMail;
 use App\Entity\FormulePromoReseau;
+use App\Entity\Suggestion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
+use App\Repository\SuggestionRepository;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
@@ -771,10 +773,10 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
         
-        // $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        // $uid = $datas->get('uid');
+        $uid = $datas->get('uid');
         $uid = str_replace(["\n", "\r", " "], "", $uid);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -1658,6 +1660,68 @@ class UserController extends AbstractController
 
         $traitementsDS->execPurge($user);
 
+        return new JsonResponse([
+            'error' => false,
+        ]);
+    }
+
+    #[Route('/addSuggestion', name: 'addSuggestion')]
+    public function addSuggestion(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    {
+        $datas = $request->request;
+        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $suggestion = $datas->get('suggestion');
+
+        if(!$suggestion){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Please enter your suggestion carefully...",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez bien entrer votre suggestion...',
+            ]);
+        }
+
+        if(strlen($suggestion) < 10){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "The pattern must contain at least 10 characters",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Le motif doit contenir au minimum 10 caractères',
+            ]);
+        }
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        $signalement = new Suggestion();
+        $signalement->setUser($user)->setSuggestion($suggestion);
+        $this->em->persist($signalement);
+        $this->em->flush();
         return new JsonResponse([
             'error' => false,
         ]);
