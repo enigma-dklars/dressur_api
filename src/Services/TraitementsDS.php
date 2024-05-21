@@ -393,6 +393,27 @@ class TraitementsDS extends AbstractController
         return $userContacts;
     }
 
+    public function adminListeContacts($users){
+        $userContacts = [];
+        foreach ($users as $unUser){
+            $unContact = [
+                "id" => (string)$unUser->getUid(),
+                "pseudo" => $unUser->getPseudo(),
+                "mail" => $unUser->getMail(),
+                "pays" => (string)$unUser->getPays(),
+                "tel" => $unUser->getTel(),
+                "nom" => (string)$unUser,
+                "apropos" => $unUser->getApropos() ? $unUser->getApropos() : "",
+                "tiktok" => $unUser->getTiktok() ? $unUser->getTiktok() : "",
+                "instagram" => $unUser->getInstagram() ? $unUser->getInstagram() : "",
+                "facebook" => $unUser->getFacebook() ? $unUser->getFacebook() : "",
+                "youtube" => $unUser->getYoutube() ? $unUser->getYoutube() : "",
+            ];
+            array_push($userContacts, $unContact);
+        }
+        return $userContacts;
+    }
+
     public function generateUserContactAdd($contacts){
         $contactAdds = [];
         foreach ($contacts as $contact) {

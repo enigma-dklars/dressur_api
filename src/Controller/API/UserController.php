@@ -415,6 +415,7 @@ class UserController extends AbstractController
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $nom = (string)$verificationsDS->remove_emoji($datas->get('nom'));
         $pseudo = $datas->get('pseudo');
+        $tel = $datas->get('tel');
         $apropos = $datas->get('apropos');
         $tiktok = $datas->get('tiktok');
         $instagram = $datas->get('instagram');
@@ -582,6 +583,37 @@ class UserController extends AbstractController
             ->setYoutube($youtube)
         ;
 
+        if($user->getTelIsVerified() == false) {
+            $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
+            if($verificationNumTel["error"] == true){
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
+                }
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
+            }
+            $tel = $verificationNumTel["e164"];
+            $paysTel = $verificationNumTel["country_code"];
+
+            $userTel = $userRepository->findOneBy(['tel' => $tel]);
+            if($userTel) {
+                if($userTel->getUid() != $user->getUid()) {
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Access Deny!',
+                            'message' => 'This number is already used.',
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Accès Refuser!',
+                        'message' => 'Ce numéro est déja utilisé.',
+                    ]);
+                }
+            }
+            $user->setTel($tel)->setPays($paysTel);
+        }
+
         $this->em->flush();
 
         if ($user->getId()) {
@@ -734,15 +766,16 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/getUserInfo', name: 'getUserInfo', methods: ['POST'])]
-    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    #[Route('/getUserInfo/{uid}/{langUserPhone}', name: 'getUserInfo', methods: ['POST'])]
+    public function getUserInfo($uid, $langUserPhone, Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        // $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $datas->get('uid');
+        // $uid = $datas->get('uid');
+        $uid = str_replace(["\n", "\r", " "], "", $uid);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
