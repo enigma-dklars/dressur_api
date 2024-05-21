@@ -53,10 +53,10 @@ class AdminController extends AbstractController
         return new Response("OK");
     }
 
-    #[Route('/adminListCampagneMail/refuser/{id}', name: 'adminListCampagneMailRefuser', methods: ['POST', "GET"])]
-    public function adminListCampagneMailRefuser(CampagneMail $campagneMail): Response
+    #[Route('/adminListCampagneMail/refuser/{id}/{motif}', name: 'adminListCampagneMailRefuser', methods: ['POST', "GET"])]
+    public function adminListCampagneMailRefuser(CampagneMail $campagneMail, $motif): Response
     {
-        $campagneMail->setStatus(0);
+        $campagneMail->setStatus(0)->setMotif($motif);
         $this->em->flush();        
         return new Response("OK");
     }
@@ -76,10 +76,10 @@ class AdminController extends AbstractController
         return new Response("OK");
     }
 
-    #[Route('/adminListPromotion/refuser/{id}', name: 'adminListPromotionRefuser', methods: ['POST', "GET"])]
-    public function adminListPromotionRefuser(Promotion $promotion): Response
+    #[Route('/adminListPromotion/refuser/{id}/{motif}', name: 'adminListPromotionRefuser', methods: ['POST', "GET"])]
+    public function adminListPromotionRefuser(Promotion $promotion, $motif): Response
     {
-        $promotion->setStatus(0);
+        $promotion->setStatus(0)->setMotif($motif);
         $this->em->flush();        
         return new Response("OK");
     }

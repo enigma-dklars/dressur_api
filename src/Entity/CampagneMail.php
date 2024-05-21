@@ -44,6 +44,9 @@ class CampagneMail
     #[ORM\JoinColumn(nullable: false)]
     private ?FormuleCampagneMail $formuleCampagneMail = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $motif = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -167,6 +170,18 @@ class CampagneMail
     public function setFormuleCampagneMail(?FormuleCampagneMail $formuleCampagneMail): self
     {
         $this->formuleCampagneMail = $formuleCampagneMail;
+
+        return $this;
+    }
+
+    public function getMotif(): ?string
+    {
+        return $this->motif;
+    }
+
+    public function setMotif(?string $motif): self
+    {
+        $this->motif = $motif;
 
         return $this;
     }

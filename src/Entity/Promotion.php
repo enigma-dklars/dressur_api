@@ -51,6 +51,9 @@ class Promotion
     #[ORM\Column(nullable: true)]
     private array $whoSaw = [];
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $motif = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -226,6 +229,18 @@ class Promotion
     public function setWhoSaw(?array $whoSaw): self
     {
         $this->whoSaw = $whoSaw;
+
+        return $this;
+    }
+
+    public function getMotif(): ?string
+    {
+        return $this->motif;
+    }
+
+    public function setMotif(?string $motif): self
+    {
+        $this->motif = $motif;
 
         return $this;
     }

@@ -199,6 +199,7 @@ class TraitementsDS extends AbstractController
                 "dateDebut" => $promo->getDateDebut() ? ($promo->getDateDebut())->format('d-m-Y à H:i') : "",
                 "dateExp" => $promo->getDateExp() ? ($promo->getDateExp())->format('d-m-Y à H:i') : "",
                 "formulePromotion" => $promo->getFormuleBoost() ? $promo->getFormuleBoost()->getTitre() : "",
+                "motif" => $promo->getMotif() ? $promo->getMotif() : "",
             ];
             array_push($userPromos, $unePromo);
         }
@@ -318,6 +319,7 @@ class TraitementsDS extends AbstractController
                 "status" => $statut,
                 "peutPayer" => $peutPayer,
                 "createdAt" => $campagneMail->getCreatedAt() ? ($campagneMail->getCreatedAt())->format('d-m-Y à H:i') : "",
+                "motif" => $campagneMail->getMotif() ? $campagneMail->getMotif() : "",
             ];
             array_push($userCampagneMail, $unecampagneMail);
         }
