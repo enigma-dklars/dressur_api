@@ -38,6 +38,16 @@ class AdminController extends AbstractController
         $this->env = $env->find(1); 
     }
 
+    #[Route('/traitementAdmin', name: 'traitementAdmin', methods: ['POST', "GET"])]
+    public function traitementAdmin(CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, UserRepository $userRepository): Response
+    {
+        $traitementAdmin = [];
+        if(count($campagneMailRepository->findBy(['status' => 1])) >= 1) { array_push($traitementAdmin, "Campage Mail En Attente");}
+        if(count($promotionRepository->findBy(['status' => 1])) >= 1) { array_push($traitementAdmin, "Promotion Affaire En Attente");}
+        if(count($userRepository->findBy(['telIsVerified' => false])) >= 1) { array_push($traitementAdmin, "Validation Numéro En Attente");}
+        return new JsonResponse($traitementAdmin);
+    }
+
     #[Route('/adminListCampagneMail', name: 'adminListCampagneMail', methods: ['POST', "GET"])]
     public function adminListCampagneMail(TraitementsDS $traitementsDS, SessionDS $sessionDS, CampagneMailRepository $campagneMailRepository): Response
     {

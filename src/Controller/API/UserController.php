@@ -768,8 +768,8 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/getUserInfo/{uid}/{langUserPhone}', name: 'getUserInfo', methods: ['POST'])]
-    public function getUserInfo($uid, $langUserPhone, Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    #[Route('/getUserInfo', name: 'getUserInfo', methods: ['POST'])]
+    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
         $datas = $request->request;
         
