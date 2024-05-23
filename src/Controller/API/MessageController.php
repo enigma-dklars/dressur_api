@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
+use App\Repository\MessageRepository;
 use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use DateTime;
@@ -52,6 +53,71 @@ class MessageController extends AbstractController
             ;
             $this->em->persist($newMessage);
             $this->em->flush();
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+            ]);
+        }
+    }
+
+    #[Route('/getMessageEnAttente', name: 'getMessageEnAttente', methods: ['POST', "GET"])]
+    public function getMessageEnAttente(Request $request, UserRepository $userRepository, SessionDS $sessionDS, MessageRepository $messageRepository): Response
+    {
+        $datas = $request->request;
+        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        try {
+            $lesMessages = [];
+            $user = $userRepository->findOneBy(['uid' => $datas->get('uidUser')]);
+
+            foreach ($messageRepository->findBy(['recepteur' => $user]) as $message) {
+                array_push($lesMessages, [
+                    "idMessage" => $message->getId(),
+                    "emetteurName" => $message->getEmetteur()->__toString(),
+                    "emetteur" => $message->getEmetteur()->getUid(),
+                    "recepteur" => $message->getRecepteur()->getUid(),
+                    "message" => $message->getMessage(),
+                    "dateEnvoi" => $message->getDateEnvoi()->getTimestamp() * 1000,
+                    "vue" => "non"
+                ]);
+            }
+
+            return new JsonResponse([
+                'error' => false,
+                'lesMessages' => $lesMessages,
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+            ]);
+        }
+    }
+
+    #[Route('/deleteMessageEnAttente/{lastIdMessage}/{uidUser}', name: 'deleteMessageEnAttente', methods: ['POST', "GET"])]
+    public function deleteMessageEnAttente($lastIdMessage, $uidUser, Request $request, UserRepository $userRepository, SessionDS $sessionDS, MessageRepository $messageRepository): Response
+    {
+        $user = $userRepository->findOneBy(['uid' => $uidUser]);
+        try {
+            $messages = $messageRepository->createQueryBuilder('m')
+                ->where('m.recepteur = :user')
+                ->andWhere('m.id <= :lastIdMessage')
+                ->setParameter('user', $user)
+                ->setParameter('lastIdMessage', $lastIdMessage)
+                ->getQuery()
+                ->getResult()
+            ;
+            
+            foreach ($messages as $message) {
+                $this->em->remove($message);
+            }
+
+            $this->em->flush();
+
             return new JsonResponse([
                 'error' => false,
             ]);
