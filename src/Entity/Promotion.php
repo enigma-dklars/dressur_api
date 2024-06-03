@@ -178,12 +178,12 @@ class Promotion
         return $this->mode;
     }
 
-    public function setToWatch($user): self
+    public function setToWatch($user, $mode): self
     {
         if (in_array($user->getId(), $this->whoSaw)) {
-            $this->nombreImpression += rand(0, 2);
+            $this->nombreImpression += rand(0, 1);
         } else {
-            $this->nombreImpression += rand(1, 5);
+            $this->nombreImpression += rand(1, 2);
             array_push($this->whoSaw, $user->getId());
         }        
         $this->nombreDeVue += rand(0, 1);

@@ -459,7 +459,7 @@ class PromotionController extends AbstractController
     public function setPromotionToWatch(Promotion $promotion, $uid, UserRepository $userRepository): Response
     {
         $user = $userRepository->findOneBy(['uid' => $uid]);
-        $promotion->setToWatch($user);
+        $promotion->setToWatch($user, "vue");
         $this->em->flush();        
         return new Response("OK");
     }
