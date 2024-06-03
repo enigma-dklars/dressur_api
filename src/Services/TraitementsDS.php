@@ -503,6 +503,7 @@ class TraitementsDS extends AbstractController
         return [
             "id" => $user->getId(),
             "uid" => $user->getUid(),
+            "name" => $user->__toString(),
             "pseudo" => $user->getPseudo(),
             "nom" => $user->getNom(),
             "mail" => $user->getMail(),
