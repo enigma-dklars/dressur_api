@@ -180,13 +180,15 @@ class Promotion
 
     public function setToWatch($user, $mode): self
     {
-        if (in_array($user->getId(), $this->whoSaw)) {
-            $this->nombreImpression += rand(0, 1);
-        } else {
-            $this->nombreImpression += rand(1, 2);
-            array_push($this->whoSaw, $user->getId());
-        }        
-        $this->nombreDeVue += rand(0, 1);
+        if($user->getId() != $this->getUser()->getId()) {
+            if (in_array($user->getId(), $this->whoSaw)) {
+                $this->nombreImpression += rand(0, 1);
+            } else {
+                $this->nombreImpression += rand(1, 2);
+                array_push($this->whoSaw, $user->getId());
+            }        
+            $this->nombreDeVue += rand(0, 1);
+        }
         return $this;
     }
 
