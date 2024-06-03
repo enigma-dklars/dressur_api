@@ -121,7 +121,7 @@ class PromotionController extends AbstractController
         }
 
         // Générer un nom de fichier unique
-        $fileName = "promotion__".md5(uniqid()).'.'.$image->getClientOriginalExtension();
+        $fileName = "pro_".time().'.'.$image->getClientOriginalExtension();
 
         // Déplacer l'image vers le dossier de promotion dans le dossier public
         try {
