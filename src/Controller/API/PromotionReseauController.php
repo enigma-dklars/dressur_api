@@ -23,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Entity\User;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -96,7 +97,7 @@ class PromotionReseauController extends AbstractController
     }
 
     #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]
-    public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository): Response
     {
         FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
@@ -128,11 +129,27 @@ class PromotionReseauController extends AbstractController
                 'message' => 'Veuillez renseigner toutes les informations demandées dans le formulaire.',
             ]);
         }
+        $url_promo_en_attente = $promoReseauRepository->findBy(['status' => 1, 'url' => $lien]);
+        $url_promo_en_cours = $promoReseauRepository->findBy(['status' => 2, 'url' => $lien]);
+        if($url_promo_en_attente || $url_promo_en_cours) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => "One of your promotions initiated with this URL has not yet been completed. Please wait until the end before starting another one. THANKS.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Une de vos promotions initiée avec cette URL n'est pas encore terminée. Veuillez attendre la fin avant de démarrer une autre. Merci.",
+            ]);
+        }
 
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
         $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
-        if(!$formulePromoReseau){
+        if(!$formulePromoReseau) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
