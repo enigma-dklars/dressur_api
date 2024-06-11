@@ -329,15 +329,14 @@ class TraitementsDS extends AbstractController
 
     public function listePubliciteAffichageAuxUsers($user){
         $listePubliciteAffichageAuxUsers = [];
-
         $promos = $this->promotionRepository->findBy([
             "status" => 3,
             "limited" => true,
         ]);
         foreach ($promos as $promo) {
             if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
-                if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())){
-                    $promo->setToWatch($user);
+                if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                    $promo->setToWatch($user, "all");
                     $unePromo = [
                         "uidUser" => $promo->getUser()->getUid(),
                         "id" => $promo->getId(),
@@ -504,6 +503,9 @@ class TraitementsDS extends AbstractController
         return [
             "id" => $user->getId(),
             "uid" => $user->getUid(),
+            "name_complete" => $user->__toString(),
+            "avatar" => $user->getAvatar(),
+            "banniere" => $user->getBanniere(),
             "pseudo" => $user->getPseudo(),
             "nom" => $user->getNom(),
             "mail" => $user->getMail(),

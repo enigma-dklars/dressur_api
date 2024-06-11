@@ -21,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleCampagneMailRepository;
+use App\Repository\PromoReseauRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -114,5 +115,12 @@ class AdminController extends AbstractController
     {
         $sessionDS->set("langUserPhone", "fr");        
         return new JsonResponse($traitementsDS->adminListeContacts($userRepository->findBy([], ["id" => 'DESC'])));
+    }
+
+    #[Route('/adminListPromoReseau', name: 'adminListPromoReseau', methods: ['POST', "GET"])]
+    public function adminListPromoReseau(TraitementsDS $traitementsDS, SessionDS $sessionDS, PromoReseauRepository $promoReseauRepository): Response
+    {
+        $sessionDS->set("langUserPhone", "fr");        
+        return new JsonResponse($traitementsDS->userPromoReseaus($promoReseauRepository->findBy(['status' => 1])));
     }
 }
