@@ -501,6 +501,7 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         return [
+            "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),
             "uid" => $user->getUid(),
             "name_complete" => $user->__toString(),
