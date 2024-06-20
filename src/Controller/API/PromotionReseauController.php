@@ -55,7 +55,7 @@ class PromotionReseauController extends AbstractController
         foreach ($formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
             $lesFormulesFils = [];
             foreach ($formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.3 * 700;
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.6 * 700;
                 $prix_service_fcfa = round($prix_service_fcfa) + 1;
                 if($langUserPhone == 'fr') {
                     $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
