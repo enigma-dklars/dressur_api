@@ -68,7 +68,7 @@ class UserController extends AbstractController
             $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
 
             // mise en place de l'env
-            $this->em->persist((new Env())->setCommissionBonus(2000)->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
+            $this->em->persist((new Env())->setCommissionBonus(5000)->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
 
             // creation des utilisateures important
             if(count($userRepository->findAll()) == 0) {
@@ -110,10 +110,15 @@ class UserController extends AbstractController
             // les FormulePromoReseau
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("TikTok")->setIconFlutterName("tiktok")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
-            $this->em->persist((new FormulePromoReseau())->setPrix(6.82)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
-                ->setTitre("Followers")
+            $this->em->persist((new FormulePromoReseau())->setPrix(2.83)->setQte(1000)->setQteMin(50)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers Rapide")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Profile Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(5.34)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers Lent")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Profile Link\n🔓 Public profile required")
             );
             $this->em->persist((new FormulePromoReseau())->setPrix(0.01)->setQte(1000)->setQteMin(100)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues")
@@ -125,7 +130,7 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.67)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.37)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Likes Lent")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
@@ -134,6 +139,7 @@ class UserController extends AbstractController
                 ->setTitre("Save")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Recup : Non\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Recovery: No\n🔗 Video Link\n🔓 Public profile required")
+                ->setAvailable(false)
             );
 
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Instagram")->setIconFlutterName("instagram")->setAvailable(true);
@@ -163,7 +169,7 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Photo/video link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(3.28)->setQte(1000)->setQteMin(5)->setQteMax(5000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(3.40)->setQte(1000)->setQteMin(5)->setQteMax(5000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Comment Like")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien : Voir la note\n🔓 Profil public obligatoire\n\n\n⚠️ Note : Pour récupérer le bon lien : trouvez votre commentaire dans le navigateur (sur un ordinateur), lorsque vous cliquez sur les secondes, les minutes où les heures à gauche du commentaire, vous verrez que le lien a changé. Vous pouvez alors copier ce lien et indiquer la quantité. Lorsque seul le nom d'utilisateur est saisi, votre commentaire ne peut être retrouvé parmi des milliers d'autres et cela nécessite de nombreuses requêtes. Par conséquent, le lien doit être créé de cette manière.")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Link: See note\n🔓 Public profile required\n\n\n⚠️ Note: To retrieve the correct link: find your comment in the browser (on a computer), when you click on the seconds, minutes or hours to the left of the comment, you will see that the link has changed. You can then copy this link and indicate the quantity. When only the username is entered, your comment cannot be found among thousands of others and this requires many queries. Therefore, the link must be created in this way.")
@@ -173,17 +179,17 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie : 24 heures\n📉 Taux de perte : 0%\n🔗 Lien du profil\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Guarantee: 24 hours\n📉 Loss rate: 0%\n🔗 Profile link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.10)->setQte(1000)->setQteMin(100)->setQteMax(50000000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.15)->setQte(1000)->setQteMin(100)->setQteMax(50000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues de Reels Lent")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.11)->setQte(1000)->setQteMin(150)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.20)->setQte(1000)->setQteMin(150)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues de Reels Rapide")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(9.66)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(14.02)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Channel Member")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du canal\n🔓 Canal public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Channel link\n🔓 Mandatory public channel")
@@ -195,18 +201,19 @@ class UserController extends AbstractController
                 ->setTitre("Followers")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Profile Link\n🔓 Public profile required")
+                ->setAvailable(false)
             );
             $this->em->persist((new FormulePromoReseau())->setPrix(1.20)->setQte(1000)->setQteMin(10)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Likes")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Tweet link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.82)->setQte(1000)->setQteMin(50)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.90)->setQte(1000)->setQteMin(50)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Retweets")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Tweet link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.01)->setQte(1000)->setQteMin(100)->setQteMax(100000000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.05)->setQte(1000)->setQteMin(100)->setQteMax(100000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Retweets Views")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Tweet link\n🔓 Public profile required")
@@ -245,12 +252,12 @@ class UserController extends AbstractController
 
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Telegram")->setIconFlutterName("Telegram")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
-            $this->em->persist((new FormulePromoReseau())->setPrix(1.10)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(5.05)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Members")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 0-10%\n🔗 Lien du canal\n🔓 Canal public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 0-10%\n🔗 Channel link\n🔓 Mandatory public channel")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.04)->setQte(1000)->setQteMin(100)->setQteMax(500000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.10)->setQte(1000)->setQteMin(100)->setQteMax(500000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Post Views")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du post\n🔓 Canal public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Post link\n🔓 Mandatory public channel")
