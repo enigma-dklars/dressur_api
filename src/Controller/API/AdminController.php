@@ -45,7 +45,7 @@ class AdminController extends AbstractController
         $traitementAdmin = [];
         if(count($campagneMailRepository->findBy(['status' => 1])) >= 1) { array_push($traitementAdmin, "Campage Mail En Attente");}
         if(count($promotionRepository->findBy(['status' => 1])) >= 1) { array_push($traitementAdmin, "Promotion Affaire En Attente");}
-        if(count($userRepository->findBy(['telIsVerified' => false])) >= 1) { array_push($traitementAdmin, "Validation Numéro En Attente");}
+        if(count($userRepository->findBy(['telIsVerified' => false, 'blocked' => false])) >= 1) { array_push($traitementAdmin, "Validation Numéro En Attente");}
         return new JsonResponse($traitementAdmin);
     }
 
