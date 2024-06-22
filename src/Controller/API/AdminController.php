@@ -99,7 +99,7 @@ class AdminController extends AbstractController
     public function adminNumWhatsApp(TraitementsDS $traitementsDS, SessionDS $sessionDS, UserRepository $userRepository): Response
     {
         $sessionDS->set("langUserPhone", "fr");        
-        return new JsonResponse($traitementsDS->adminListeContacts($userRepository->findBy(['telIsVerified' => false], ["id" => 'DESC'])));
+        return new JsonResponse($traitementsDS->adminListeContacts($userRepository->findBy(['telIsVerified' => false, 'blocked' => false], ["id" => 'DESC'])));
     }
 
     #[Route('/adminNumWhatsApp/accepter/{uid}', name: 'adminNumWhatsAppAccepter', methods: ['POST', "GET"])]
