@@ -334,7 +334,7 @@ class TraitementsDS extends AbstractController
             "limited" => true,
         ]);
         foreach ($promos as $promo) {
-            if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+            if ($user->getId() == 3) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
                     $promo->setToWatch($user, "all");
                     $unePromo = [
@@ -349,7 +349,25 @@ class TraitementsDS extends AbstractController
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 }
+            } else {
+                if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+                    if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                        $promo->setToWatch($user, "all");
+                        $unePromo = [
+                            "uidUser" => $promo->getUser()->getUid(),
+                            "id" => $promo->getId(),
+                            "image" => $promo->getImage(),
+                            "description" => $promo->getDescription(),
+                            "whatsappNumber" => $promo->getUser()->getTel(),
+                            "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                            "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                            "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                        ];
+                        array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                    }
+                }
             }
+            
         }
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
