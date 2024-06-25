@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Process\Process;
 
+#[Route('/api', name: 'api_')]
 class ExportDatabase extends AbstractController
 {
     private $params;
