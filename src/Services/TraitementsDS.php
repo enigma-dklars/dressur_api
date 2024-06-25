@@ -336,7 +336,11 @@ class TraitementsDS extends AbstractController
         foreach ($promos as $promo) {
             if ($user->getId() == 3) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                    $promo->setToWatch($user, "all");
+                    if($promo->getIsFakeVue() == true) {
+                        $promo->setToWatch($user, "fakeVue");
+                    } else {
+                        $promo->setToWatch($user, "all");
+                    }
                     $unePromo = [
                         "uidUser" => $promo->getUser()->getUid(),
                         "id" => $promo->getId(),
@@ -352,7 +356,11 @@ class TraitementsDS extends AbstractController
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
                     if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                        $promo->setToWatch($user, "all");
+                        if($promo->getIsFakeVue() == true) {
+                            $promo->setToWatch($user, "fakeVue");
+                        } else {
+                            $promo->setToWatch($user, "all");
+                        }
                         $unePromo = [
                             "uidUser" => $promo->getUser()->getUid(),
                             "id" => $promo->getId(),
