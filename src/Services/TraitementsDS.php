@@ -456,24 +456,43 @@ class TraitementsDS extends AbstractController
 
     public function getAddDisponible($user){
         $contacts = [];
-        foreach ($user->getPreference()->getPaysChoisies() as $codePays){
-            $boosts = $this->boostRepository->getBoostAndUser($codePays);
-            foreach ($boosts as $boost){
-                $userBoost = $boost["boost"]->getUser();
-                if($userBoost->getId() != $user->getId()){
-                    $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
-                    $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
-                    if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
-                        if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
-                            if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
-                                array_push($contacts, [
-                                    'id' => $userBoost->getId(),
-                                    'uid' => $userBoost->getUid(),
-                                    'pseudo' => $userBoost->getPseudo(),
-                                    'pays' => (string)$userBoost->getPays(),
-                                    'nom' => (string)$userBoost,
-                                    'tel' => $userBoost->getTel(),
-                                ]);
+        if($user->getId() == 3) {
+            foreach ($user->getPreference()->getPaysChoisies() as $codePays){
+                $boosts = $this->boostRepository->getBoostAndUser($codePays);
+                foreach ($boosts as $boost){
+                    $userBoost = $boost["boost"]->getUser();
+                    if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                        array_push($contacts, [
+                            'id' => $userBoost->getId(),
+                            'uid' => $userBoost->getUid(),
+                            'pseudo' => $userBoost->getPseudo(),
+                            'pays' => (string)$userBoost->getPays(),
+                            'nom' => (string)$userBoost,
+                            'tel' => $userBoost->getTel(),
+                        ]);
+                    }
+                }
+            }
+        } else {
+            foreach ($user->getPreference()->getPaysChoisies() as $codePays){
+                $boosts = $this->boostRepository->getBoostAndUser($codePays);
+                foreach ($boosts as $boost){
+                    $userBoost = $boost["boost"]->getUser();
+                    if($userBoost->getId() != $user->getId()){
+                        $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
+                        $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
+                        if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
+                            if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                                if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
+                                    array_push($contacts, [
+                                        'id' => $userBoost->getId(),
+                                        'uid' => $userBoost->getUid(),
+                                        'pseudo' => $userBoost->getPseudo(),
+                                        'pays' => (string)$userBoost->getPays(),
+                                        'nom' => (string)$userBoost,
+                                        'tel' => $userBoost->getTel(),
+                                    ]);
+                                }
                             }
                         }
                     }
