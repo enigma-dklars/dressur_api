@@ -1605,7 +1605,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]
-    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository): Response
     {
         set_time_limit(10000);
 
@@ -1617,17 +1617,22 @@ class UserController extends AbstractController
         $uid = $datas->get('uid');
         $motifDeleted = $datas->get('motifDeleted');
 
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
+        $user = $userRepository->findOneBy(['uid' => $uid]);
+
+        if(!$user) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'User not found... Contact Dressur support on WhatsApp.',
+                ]);
+            }
             return new JsonResponse([
                 'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
+                'titre' => 'Attention!',
+                'message' => "Utilisateur introuvable... Contactez l'assistance Dressur sur WhatsApp.",
             ]);
         }
-        $user = $verificationUser["user"];
 
         if(!$motifDeleted){
             if($sessionDS->get("langUserPhone") != "fr") {
