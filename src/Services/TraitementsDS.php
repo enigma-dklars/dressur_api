@@ -402,20 +402,22 @@ class TraitementsDS extends AbstractController
         $userContacts = [];
         foreach ($user->getContact()->getAllIdOfMyContacts() as $key => $idContact){
             $userContact = $this->userRepository->find($idContact);
-            $unContact = [
-                "id" => (string)$userContact->getUid(),
-                "pseudo" => $userContact->getPseudo(),
-                "mail" => $userContact->getMail(),
-                "pays" => (string)$userContact->getPays(),
-                "tel" => $userContact->getTel(),
-                "nom" => (string)$userContact,
-                "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
-                "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
-                "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
-                "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
-                "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
-            ];
-            array_push($userContacts, $unContact);
+            if($userContact) {
+                $unContact = [
+                    "id" => (string)$userContact->getUid(),
+                    "pseudo" => $userContact->getPseudo(),
+                    "mail" => $userContact->getMail(),
+                    "pays" => (string)$userContact->getPays(),
+                    "tel" => $userContact->getTel(),
+                    "nom" => (string)$userContact,
+                    "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
+                    "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
+                    "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
+                    "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
+                    "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
+                ];
+                array_push($userContacts, $unContact);
+            }
         }
         return $userContacts;
     }
