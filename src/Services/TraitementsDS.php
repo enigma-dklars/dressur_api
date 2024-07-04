@@ -334,9 +334,13 @@ class TraitementsDS extends AbstractController
             "limited" => true,
         ]);
         foreach ($promos as $promo) {
-            if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+            if ($user->getId() == 3) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                    $promo->setToWatch($user, "all");
+                    if($promo->getIsFakeVue() == true) {
+                        $promo->setToWatch($user, "fakeVue");
+                    } else {
+                        $promo->setToWatch($user, "all");
+                    }
                     $unePromo = [
                         "uidUser" => $promo->getUser()->getUid(),
                         "id" => $promo->getId(),
@@ -349,7 +353,29 @@ class TraitementsDS extends AbstractController
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 }
+            } else {
+                if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+                    if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                        if($promo->getIsFakeVue() == true) {
+                            $promo->setToWatch($user, "fakeVue");
+                        } else {
+                            $promo->setToWatch($user, "all");
+                        }
+                        $unePromo = [
+                            "uidUser" => $promo->getUser()->getUid(),
+                            "id" => $promo->getId(),
+                            "image" => $promo->getImage(),
+                            "description" => $promo->getDescription(),
+                            "whatsappNumber" => $promo->getUser()->getTel(),
+                            "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                            "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                            "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                        ];
+                        array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                    }
+                }
             }
+            
         }
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
@@ -376,20 +402,22 @@ class TraitementsDS extends AbstractController
         $userContacts = [];
         foreach ($user->getContact()->getAllIdOfMyContacts() as $key => $idContact){
             $userContact = $this->userRepository->find($idContact);
-            $unContact = [
-                "id" => (string)$userContact->getUid(),
-                "pseudo" => $userContact->getPseudo(),
-                "mail" => $userContact->getMail(),
-                "pays" => (string)$userContact->getPays(),
-                "tel" => $userContact->getTel(),
-                "nom" => (string)$userContact,
-                "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
-                "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
-                "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
-                "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
-                "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
-            ];
-            array_push($userContacts, $unContact);
+            if($userContact) {
+                $unContact = [
+                    "id" => (string)$userContact->getUid(),
+                    "pseudo" => $userContact->getPseudo(),
+                    "mail" => $userContact->getMail(),
+                    "pays" => (string)$userContact->getPays(),
+                    "tel" => $userContact->getTel(),
+                    "nom" => (string)$userContact,
+                    "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
+                    "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
+                    "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
+                    "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
+                    "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
+                ];
+                array_push($userContacts, $unContact);
+            }
         }
         return $userContacts;
     }
@@ -430,24 +458,43 @@ class TraitementsDS extends AbstractController
 
     public function getAddDisponible($user){
         $contacts = [];
-        foreach ($user->getPreference()->getPaysChoisies() as $codePays){
-            $boosts = $this->boostRepository->getBoostAndUser($codePays);
-            foreach ($boosts as $boost){
-                $userBoost = $boost["boost"]->getUser();
-                if($userBoost->getId() != $user->getId()){
-                    $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
-                    $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
-                    if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
-                        if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
-                            if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
-                                array_push($contacts, [
-                                    'id' => $userBoost->getId(),
-                                    'uid' => $userBoost->getUid(),
-                                    'pseudo' => $userBoost->getPseudo(),
-                                    'pays' => (string)$userBoost->getPays(),
-                                    'nom' => (string)$userBoost,
-                                    'tel' => $userBoost->getTel(),
-                                ]);
+        if($user->getId() == 3) {
+            foreach ($user->getPreference()->getPaysChoisies() as $codePays){
+                $boosts = $this->boostRepository->getBoostAndUser($codePays);
+                foreach ($boosts as $boost){
+                    $userBoost = $boost["boost"]->getUser();
+                    if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                        array_push($contacts, [
+                            'id' => $userBoost->getId(),
+                            'uid' => $userBoost->getUid(),
+                            'pseudo' => $userBoost->getPseudo(),
+                            'pays' => (string)$userBoost->getPays(),
+                            'nom' => (string)$userBoost,
+                            'tel' => $userBoost->getTel(),
+                        ]);
+                    }
+                }
+            }
+        } else {
+            foreach ($user->getPreference()->getPaysChoisies() as $codePays){
+                $boosts = $this->boostRepository->getBoostAndUser($codePays);
+                foreach ($boosts as $boost){
+                    $userBoost = $boost["boost"]->getUser();
+                    if($userBoost->getId() != $user->getId()){
+                        $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
+                        $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
+                        if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
+                            if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                                if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
+                                    array_push($contacts, [
+                                        'id' => $userBoost->getId(),
+                                        'uid' => $userBoost->getUid(),
+                                        'pseudo' => $userBoost->getPseudo(),
+                                        'pays' => (string)$userBoost->getPays(),
+                                        'nom' => (string)$userBoost,
+                                        'tel' => $userBoost->getTel(),
+                                    ]);
+                                }
                             }
                         }
                     }
@@ -501,6 +548,7 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         return [
+            "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),
             "uid" => $user->getUid(),
             "name_complete" => $user->__toString(),
