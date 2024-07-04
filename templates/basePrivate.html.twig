@@ -27,13 +27,14 @@
     <link href="assets/css/light-theme.css" rel="stylesheet" />
     <link href="assets/css/semi-dark.css" rel="stylesheet" />
     <link href="assets/css/header-colors.css" rel="stylesheet" />
+    <link href="assets/css/preloader.css" rel="stylesheet" />
 
-    <title>Skodash - Bootstrap 5 Admin Template</title>
+    <title>{% block title %}{% endblock %} | Dressur Web</title>
 </head>
 
 <body>
-  <!--start wrapper-->
-  <div class="wrapper">
+    <!--start wrapper-->
+    <div class="wrapper">
         {% include "private/_includes/top_header.html.twig" %}
         
         {% include "private/_includes/sidebar_wrapper.html.twig" %}
@@ -115,34 +116,35 @@
                 </div>
             </div>
         <!--end switcher-->
+    </div>
+    <!--end wrapper-->
 
-  </div>
-  <!--end wrapper-->
 
+    <!-- Bootstrap bundle JS -->
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <!--plugins-->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/plugins/simplebar/js/simplebar.min.js"></script>
+    <script src="assets/plugins/metismenu/js/metisMenu.min.js"></script>
+    <script src="assets/plugins/easyPieChart/jquery.easypiechart.js"></script>
+    <script src="assets/plugins/peity/jquery.peity.min.js"></script>
+    <script src="assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
+    <script src="assets/js/pace.min.js"></script>
+    <script src="assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js"></script>
+    <script src="assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="assets/plugins/apexcharts-bundle/js/apexcharts.min.js"></script>
+    <script src="assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
+    <script src="assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
+    <!--app-->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/index.js"></script>
+    <script src="assets/js/custum-js.js"></script>
 
-  <!-- Bootstrap bundle JS -->
-  <script src="assets/js/bootstrap.bundle.min.js"></script>
-  <!--plugins-->
-  <script src="assets/js/jquery.min.js"></script>
-  <script src="assets/plugins/simplebar/js/simplebar.min.js"></script>
-  <script src="assets/plugins/metismenu/js/metisMenu.min.js"></script>
-  <script src="assets/plugins/easyPieChart/jquery.easypiechart.js"></script>
-  <script src="assets/plugins/peity/jquery.peity.min.js"></script>
-  <script src="assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>
-  <script src="assets/js/pace.min.js"></script>
-  <script src="assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js"></script>
-	<script src="assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js"></script>
-  <script src="assets/plugins/apexcharts-bundle/js/apexcharts.min.js"></script>
-  <script src="assets/plugins/datatable/js/jquery.dataTables.min.js"></script>
-	<script src="assets/plugins/datatable/js/dataTables.bootstrap5.min.js"></script>
-  <!--app-->
-  <script src="assets/js/app.js"></script>
-  <script src="assets/js/index.js"></script>
-
-  <script>
-     new PerfectScrollbar(".best-product")
-     new PerfectScrollbar(".top-sellers-list")
-  </script>
+    <script>
+        // new PerfectScrollbar(".wrapper")
+        new PerfectScrollbar(".best-product")
+        new PerfectScrollbar(".top-sellers-list")
+    </script>
 
 </body>
 </html>
