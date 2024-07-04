@@ -20,16 +20,19 @@
                             </p>
                             <form class="form-body">
                                 <div class="row g-3">
-                                  <div class="col-12">
-                                    <label for="inputEmail" class="form-label">Renseigner votre adresse email.</label>
-                                    <input type="email" class="form-control form-control-lg radius-30" id="inputEmail" placeholder="E-mail">
-                                  </div>
-                                  <div class="col-12">
-                                    <div class="d-grid gap-3">
-                                        <button type="submit" class="btn btn-lg btn-primary radius-30">CONFIRMER</button>
-                                        <a href="{{path('app_connexion')}}" class="btn btn-lg btn-light radius-30">Retour à la page de connexion</a>
+                                    <div class="col-12">
+                                        <label for="inputEmail" class="form-label">Renseigner votre adresse email.</label>
+                                        <div class="ms-auto position-relative">
+                                            <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-envelope-fill fs-5"></i></div>
+                                            <input type="email" class="form-control form-control-lg radius-30 ps-5" id="inputEmail" placeholder="Email">
+                                        </div>
                                     </div>
-                                  </div>
+                                    <div class="col-12">
+                                        <div class="d-grid gap-3">
+                                            <button type="submit" class="btn btn-lg btn-primary radius-30">CONFIRMER</button>
+                                            <a href="{{path('app_connexion')}}" class="btn btn-lg btn-light radius-30">Retour à la page de connexion</a>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                          </div>
