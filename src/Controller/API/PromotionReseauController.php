@@ -55,7 +55,7 @@ class PromotionReseauController extends AbstractController
         foreach ($formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
             $lesFormulesFils = [];
             foreach ($formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.3 * 700;
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.6 * 700;
                 $prix_service_fcfa = round($prix_service_fcfa) + 1;
                 if($langUserPhone == 'fr') {
                     $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
@@ -185,6 +185,21 @@ class PromotionReseauController extends AbstractController
                 'error' => true,
                 'titre' => 'Attention!',
                 'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+
+        if($valueMethodePaiement == "mtn") {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Payments by MTN from the application are currently experiencing disruptions. Please use Moov or Celtis for your payments if possible. If this is not possible, contact Dressur support by WhatsApp Please. THANKS.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Les paiements par MTN depuis l'application rencontre en ce moment des perturbations. Veuillez si possible utiliser Moov ou Celtis pour vos paiements. Si ce n'est pas possible, contactez l'assistance Dressur par WhatsApp Svp. Merci.",
             ]);
         }
 

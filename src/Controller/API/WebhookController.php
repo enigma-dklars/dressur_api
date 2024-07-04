@@ -276,14 +276,14 @@ class WebhookController extends AbstractController
                         return new JsonResponse([
                             'error' => true,
                             'titre' => "Transaction ($transaction->status) ...?",
-                            'message' => "Please contact WhatsPerson Support by WhatsApp if this is an error...",
+                            'message' => "Please contact Dressur Support by WhatsApp if this is an error...",
                         ]);
                     }
                     return new JsonResponse([
                         'error' => false,
                         'transaction' => false,
                         'titre' => "Transaction ($transaction->status) ...?",
-                        'message' => "Veuillez contactez l'Assistance WhatsPerson par WhatsApp s'il s'agit d'une erreur...",
+                        'message' => "Veuillez contactez l'Assistance Dressur par WhatsApp s'il s'agit d'une erreur...",
                     ]);
                 }
             }

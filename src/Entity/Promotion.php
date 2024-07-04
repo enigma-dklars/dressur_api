@@ -54,6 +54,9 @@ class Promotion
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $motif = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isFakeVue = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -180,14 +183,19 @@ class Promotion
 
     public function setToWatch($user, $mode): self
     {
-        if($user->getId() != $this->getUser()->getId()) {
-            if (in_array($user->getId(), $this->whoSaw)) {
-                $this->nombreImpression += rand(0, 1);
-            } else {
-                $this->nombreImpression += rand(1, 2);
-                array_push($this->whoSaw, $user->getId());
-            }        
-            $this->nombreDeVue += rand(0, 1);
+        if($mode == "fakeVue") {
+            $this->nombreImpression += rand(5, 10);
+            $this->nombreDeVue += rand(1, 5);
+        } else if($mode == "all" || $mode == "vue" ) {
+            if($user->getId() != $this->getUser()->getId()) {
+                if (in_array($user->getId(), $this->whoSaw)) {
+                    $this->nombreImpression += rand(0, 1);
+                } else {
+                    $this->nombreImpression += rand(1, 2);
+                    array_push($this->whoSaw, $user->getId());
+                }
+                $this->nombreDeVue += rand(0, 1);
+            }
         }
         return $this;
     }
@@ -243,6 +251,18 @@ class Promotion
     public function setMotif(?string $motif): self
     {
         $this->motif = $motif;
+
+        return $this;
+    }
+
+    public function getIsFakeVue(): ?bool
+    {
+        return $this->isFakeVue;
+    }
+
+    public function setIsFakeVue(?bool $isFakeVue): static
+    {
+        $this->isFakeVue = $isFakeVue;
 
         return $this;
     }
