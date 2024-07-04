@@ -68,13 +68,13 @@ class UserController extends AbstractController
             $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
 
             // mise en place de l'env
-            $this->em->persist((new Env())->setCommissionBonus(2000)->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
+            $this->em->persist((new Env())->setCommissionBonus(5000)->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
 
             // creation des utilisateures important
             if(count($userRepository->findAll()) == 0) {
                 $user = (new User())->setPseudo("profil.google")->setTel("+22900000000")->setMail("equipe.test.dressur.ds@gmail.com")->setCodeBonus("DS0000")->setPassword(sha1(sha1(sha1("DressurDS3@"))))->setPays("229")->setLang("en")->setSoldeBonus(2000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setPseudo("dressur.ds")->setTel("+22964044294")->setMail("dressur.ds@gmail.com")->setCodeBonus("DRESSUR-DS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(100000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setUid("blue-life-tech")->setAvatar("blt.png")->setBanniere("banniere_blt.jpg")->setPseudo("bluelife.tech")->setTel("+22958519556")->setMail("bluelife.tech@gmail.com")->setCodeBonus("BLUE-LIFE-TECH")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(200000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true)->setNom("BLUE LIFE TECH")->setTiktok("https://www.tiktok.com/@bluelife.tech")->setInstagram("https://www.instagram.com/bluelife.tech/")->setYoutube("https://www.youtube.com/@bluelife-tech")->setFacebook("https://www.facebook.com/bluelife.tech"); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setAvatar("dressur.png")->setPseudo("dressur.ds")->setTel("+22964044294")->setMail("dressur.ds@gmail.com")->setCodeBonus("DRESSUR-DS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(100000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
+                $user = (new User())->setAvatar("blt.png")->setBanniere("banniere_blt.jpg")->setPseudo("bluelife.tech")->setTel("+22958519556")->setMail("bluelife.tech@gmail.com")->setCodeBonus("BLUE-LIFE-TECH")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(200000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true)->setNom("BLUE LIFE TECH")->setTiktok("https://www.tiktok.com/@bluelife.tech")->setInstagram("https://www.instagram.com/bluelife.tech/")->setYoutube("https://www.youtube.com/@bluelife-tech")->setFacebook("https://www.facebook.com/bluelife.tech"); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
                 $user = (new User())->setAvatar("elitics.png")->setBanniere("banniere_elitics.jpg")->setPseudo("elitics.core")->setTel("+22990978787")->setMail("elitics.core@tech-center.com")->setCodeBonus("ELITICS-CORE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(200000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
                 
                 $user = (new User())->setPseudo("louise")->setTel("+22956518088")->setMail("affichekpolouise@gmail.com")->setCodeBonus("LOUISE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
@@ -110,10 +110,15 @@ class UserController extends AbstractController
             // les FormulePromoReseau
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("TikTok")->setIconFlutterName("tiktok")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
-            $this->em->persist((new FormulePromoReseau())->setPrix(6.82)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
-                ->setTitre("Followers")
+            $this->em->persist((new FormulePromoReseau())->setPrix(2.83)->setQte(1000)->setQteMin(50)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers Rapide")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Profile Link\n🔓 Public profile required")
+            );
+            $this->em->persist((new FormulePromoReseau())->setPrix(5.34)->setQte(1000)->setQteMin(100)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+                ->setTitre("Followers Lent")
+                ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
+                ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Profile Link\n🔓 Public profile required")
             );
             $this->em->persist((new FormulePromoReseau())->setPrix(0.01)->setQte(1000)->setQteMin(100)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues")
@@ -125,7 +130,7 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.67)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.37)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Likes Lent")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Video Link\n🔓 Public profile required")
@@ -134,6 +139,7 @@ class UserController extends AbstractController
                 ->setTitre("Save")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Recup : Non\n🔗 Lien de la Vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Recovery: No\n🔗 Video Link\n🔓 Public profile required")
+                ->setAvailable(false)
             );
 
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Instagram")->setIconFlutterName("instagram")->setAvailable(true);
@@ -163,7 +169,7 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien de la photo/vidéo\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Photo/video link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(3.28)->setQte(1000)->setQteMin(5)->setQteMax(5000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(3.40)->setQte(1000)->setQteMin(5)->setQteMax(5000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Comment Like")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien : Voir la note\n🔓 Profil public obligatoire\n\n\n⚠️ Note : Pour récupérer le bon lien : trouvez votre commentaire dans le navigateur (sur un ordinateur), lorsque vous cliquez sur les secondes, les minutes où les heures à gauche du commentaire, vous verrez que le lien a changé. Vous pouvez alors copier ce lien et indiquer la quantité. Lorsque seul le nom d'utilisateur est saisi, votre commentaire ne peut être retrouvé parmi des milliers d'autres et cela nécessite de nombreuses requêtes. Par conséquent, le lien doit être créé de cette manière.")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Link: See note\n🔓 Public profile required\n\n\n⚠️ Note: To retrieve the correct link: find your comment in the browser (on a computer), when you click on the seconds, minutes or hours to the left of the comment, you will see that the link has changed. You can then copy this link and indicate the quantity. When only the username is entered, your comment cannot be found among thousands of others and this requires many queries. Therefore, the link must be created in this way.")
@@ -173,17 +179,17 @@ class UserController extends AbstractController
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie : 24 heures\n📉 Taux de perte : 0%\n🔗 Lien du profil\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Guarantee: 24 hours\n📉 Loss rate: 0%\n🔗 Profile link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.10)->setQte(1000)->setQteMin(100)->setQteMax(50000000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.15)->setQte(1000)->setQteMin(100)->setQteMax(50000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues de Reels Lent")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.11)->setQte(1000)->setQteMin(150)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.20)->setQte(1000)->setQteMin(150)->setQteMax(10000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Vues de Reels Rapide")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Reel\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Reel link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(9.66)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(14.02)->setQte(1000)->setQteMin(10)->setQteMax(100000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Channel Member")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0-5%\n🔗 Lien du canal\n🔓 Canal public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0-5%\n🔗 Channel link\n🔓 Mandatory public channel")
@@ -195,18 +201,19 @@ class UserController extends AbstractController
                 ->setTitre("Followers")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Profil\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Profile Link\n🔓 Public profile required")
+                ->setAvailable(false)
             );
             $this->em->persist((new FormulePromoReseau())->setPrix(1.20)->setQte(1000)->setQteMin(10)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Likes")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Tweet link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.82)->setQte(1000)->setQteMin(50)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.90)->setQte(1000)->setQteMin(50)->setQteMax(25000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Retweets")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Rapide\n♻️ Garantie : Non\n📉 Taux de perte : 80-100%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Fast\n♻️ Warranty: No\n📉 Loss rate: 80-100%\n🔗 Tweet link\n🔓 Public profile required")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.01)->setQte(1000)->setQteMin(100)->setQteMax(100000000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.05)->setQte(1000)->setQteMin(100)->setQteMax(100000000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Retweets Views")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Rapide\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du Tweet\n🔓 Profil public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Fast\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Tweet link\n🔓 Public profile required")
@@ -245,12 +252,12 @@ class UserController extends AbstractController
 
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Telegram")->setIconFlutterName("Telegram")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
-            $this->em->persist((new FormulePromoReseau())->setPrix(1.10)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(5.05)->setQte(1000)->setQteMin(10)->setQteMax(50000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Members")
                 ->setDescription("🔝 Qualité : Moyenne\n⚡ Vitesse : Lent\n♻️ Garantie : Non\n📉 Taux de perte : 0-10%\n🔗 Lien du canal\n🔓 Canal public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Average\n⚡ Speed: Slow\n♻️ Warranty: No\n📉 Loss rate: 0-10%\n🔗 Channel link\n🔓 Mandatory public channel")
             );
-            $this->em->persist((new FormulePromoReseau())->setPrix(0.04)->setQte(1000)->setQteMin(100)->setQteMax(500000)->setAvailable(true)->setParent($formulePromoReseau)
+            $this->em->persist((new FormulePromoReseau())->setPrix(0.10)->setQte(1000)->setQteMin(100)->setQteMax(500000)->setAvailable(true)->setParent($formulePromoReseau)
                 ->setTitre("Post Views")
                 ->setDescription("🔝 Qualité : Bonne\n⚡ Vitesse : Lent\n♻️ Garantie à vie\n📉 Taux de perte : 0%\n🔗 Lien du post\n🔓 Canal public obligatoire")
                 ->setDescriptionEn("🔝 Quality: Good\n⚡ Speed: Slow\n♻️ Lifetime warranty\n📉 Loss rate: 0%\n🔗 Post link\n🔓 Mandatory public channel")
@@ -1598,7 +1605,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]
-    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository): Response
     {
         set_time_limit(10000);
 
@@ -1610,17 +1617,22 @@ class UserController extends AbstractController
         $uid = $datas->get('uid');
         $motifDeleted = $datas->get('motifDeleted');
 
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
+        $user = $userRepository->findOneBy(['uid' => $uid]);
+
+        if(!$user) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'User not found... Contact Dressur support on WhatsApp.',
+                ]);
+            }
             return new JsonResponse([
                 'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
+                'titre' => 'Attention!',
+                'message' => "Utilisateur introuvable... Contactez l'assistance Dressur sur WhatsApp.",
             ]);
         }
-        $user = $verificationUser["user"];
 
         if(!$motifDeleted){
             if($sessionDS->get("langUserPhone") != "fr") {
