@@ -1502,6 +1502,14 @@ a {
 
   /* Authentication */
 
+.authentication-card-nabar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    height: 85vh;
+}
+
 .authentication-card {
     display: flex;
     align-items: center;
