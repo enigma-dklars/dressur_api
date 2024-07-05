@@ -156,6 +156,118 @@ $(document).ready(function () {
         });
     });
 
+    $("#connexion").on("click", function () {
+        traitementContact("debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError").text()
+
+        let inputEmail = $("#inputEmail").val();
+        let inputMotPasse = $("#inputMotPasse").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if (!inputEmail.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i)) {
+            if(msgError == "Veuillez renseigner :") {
+                if(inputEmail){
+                    msgError = "<b>" + inputEmail + "</b> n'est pas une adresse e-mail valide.";
+                }
+            } else {
+                if(inputEmail){
+                    msgError = msgError + "<br> <b>" + inputEmail + "</b> n'est pas une adresse e-mail valide.";
+                }
+            }
+        }
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError").toggle(800)
+            }
+            traitementContact("fin", "CONNEXION")
+            return 0;
+        }
+        
+        $.ajax({
+            type: "POST",
+            url: "/api/connect",
+            data: {
+                langUserPhone : 'fr',
+                mail : inputEmail,
+                password : inputMotPasse,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    let uid = response.user.uid
+                    setUidCookie(uid);
+                    msgError = "Connexion réussie, vous serez redirigé dans quelques secondes. <span class='decompte'>5</span>s"
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError").toggle(800);
+                    let timerr = setInterval(() => {
+                        let temps = parseInt($('.decompte').text());
+                        if(temps >= 1){
+                            temps = temps - 1
+                            $('.decompte').text(""+temps+"")
+                        } else {
+                            clearInterval(timerr)
+                            $('.decompte').text(0)
+                            location.href = "/private"
+                            return;
+                        }
+                    }, 1000);
+                }
+                traitementContact("fin", "CONNEXION")
+            }
+        });
+    });
+
     /**
      * Clique sur un element du menu
      */

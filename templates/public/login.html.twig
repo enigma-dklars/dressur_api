@@ -19,24 +19,27 @@
                                 
                                 <div class="row g-3">
                                     <div class="col-12">
+                                        <div class="mt-0" id="msgError" style="display: none;"></div>
+                                    </div>
+                                    <div class="col-12">
                                     <label for="inputEmail" class="form-label">E-mail</label>
                                     <div class="ms-auto position-relative">
                                         <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-envelope-fill fs-6"></i></div>
-                                        <input type="email" class="form-control radius-30 ps-5" id="inputEmail" placeholder="Email">
+                                        <input type="email" class="form-control getInfo radius-30 ps-5" id="inputEmail" placeholder="E-mail">
                                     </div>
                                     </div>
                                     <div class="col-12">
                                     <label for="inputMotPasse" class="form-label">Mot de passe</label>
                                     <div class="ms-auto position-relative">
                                         <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-lock-fill fs-6"></i></div>
-                                        <input type="password" class="form-control radius-30 ps-5" id="inputMotPasse" placeholder="Password">
+                                        <input type="password" class="form-control getInfo radius-30 ps-5" id="inputMotPasse" placeholder="Mot de passe">
                                     </div>
                                     </div>
                                     <div class="col-12 text-end">	<a href="{{path('app_mot_de_passe_oublier')}}">Mot de passe oublié ?</a>
                                     </div>
                                     <div class="col-12">
                                     <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary radius-30">CONNEXION</button>
+                                        <button type="button" class="btn btn-primary radius-30" id="connexion">CONNEXION</button>
                                     </div>
                                     </div>
                                     <div class="col-12 text-center">
