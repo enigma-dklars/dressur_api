@@ -9,3 +9,5 @@ formulaire reseau sociaux,
 page profil, afficher la vue utilisateur
 
 page actu, remplacer les retour a la lignes dans l'appercu du texte ecrit par un espace " "
+
+L'appli doit cibler Android 14 (niveau d'API 34) ou une version ultérieure

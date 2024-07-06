@@ -1,3 +1,21 @@
-<p class="h1 text-center">
-    Page Actu
-</p>
+<div class="row g-2">
+    <pre>
+        {{ dump(actus) }}
+    </pre>
+    {# {% for actu in actus %}
+    <pre>
+        {{ dump() }}
+    </pre>
+        <div class="col-md-3">
+            <div class="card">
+                <img src="/promotion/{{actu.image}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <p class="card-text">
+                        {{actu.description}}
+                    </p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %} #}
+</div>
