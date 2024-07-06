@@ -78,4 +78,19 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/contact', name: 'app_contact')]
+    public function contact(): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $userinfo = $this->traitementsDS->userContacts($user);
+        $html = $this->renderView('private/contact.html.twig', [
+            'contacts' => $userinfo,
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }

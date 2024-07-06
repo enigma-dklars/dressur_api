@@ -1,29 +1,10 @@
-<style>
-    .advertisement-description {
-        font-weight: 400;
-        font-size: 16px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3; /* Limite à 3 lignes */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 15px;
-        cursor: pointer;
-    }
-    .image-actu {
-        height: 300px;
-        object-fit: cover;
-        cursor: pointer;
-    }
-</style>
-
 <div class="row g-3">
     {% for actu in actus %}
         <div class="col-md-4">
             <div class="card mb-0">
                 <img src="/promotion/{{actu.image}}" class="card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
                 <div class="card-body">
-                    <p class="card-text advertisement-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                    <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
                         {{actu.description}}
                     </p>
                     <div class="row">

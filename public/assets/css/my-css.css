@@ -1,0 +1,28 @@
+.actu-small-description {
+    font-weight: 400;
+    font-size: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Limite à 3 lignes */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.contact-name {
+    font-weight: 400;
+    font-size: 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1; /* Limite à 3 lignes */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 15px;
+    cursor: pointer;
+}
+.image-actu {
+    height: 300px;
+    object-fit: cover;
+    cursor: pointer;
+}
