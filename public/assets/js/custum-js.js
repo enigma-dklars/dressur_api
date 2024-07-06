@@ -376,6 +376,53 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", ".shar-actu", function () {
+        let pseudoAnnonceur = $(this).attr("pseudoAnnonceur");
+        let description = $(this).attr("description");
+        let whatsappNumber = $(this).attr("whatsappNumber");
+        let image = $(this).attr("image");
+        
+        let dressurUrlPlaystore = "https://play.google.com/store/apps/details?id=com.dressur.ds";
+        let messageShare = '';
+    
+        messageShare = `Bonjour/Bonsoir *${pseudoAnnonceur}*, j'ai une question concernant la promotion ci-dessous: \n\n`;
+    
+        if (description.length >= 100) {
+            messageShare += `<<${description.substring(0, 100)}...>>\n\n*Depuis Dressur.*`;
+        } else {
+            messageShare += `<<${description}>>\n\n*Depuis Dressur.*`;
+        }
+    
+        messageShare += "\n\n";
+        messageShare += "Depuis Dressur : ";
+        messageShare += dressurUrlPlaystore;
+    
+        const imageUrl = `/promotion/${image}`;
+    
+        console.log("Préparation du partage...");
+        console.log("Pseudo Annonceur: ", pseudoAnnonceur);
+        console.log("Description: ", description);
+        console.log("Message à partager: ", messageShare);
+        console.log("Image URL: ", imageUrl);
+    
+        if (navigator.share) {
+            console.log("API Web Share disponible");
+            navigator.share({
+                title: 'Partager Promotion!',
+                text: messageShare,
+                url: imageUrl
+            }).then(() => {
+                console.log('Partage réussi');
+            }).catch((error) => {
+                console.error('Erreur de partage', error);
+            });
+        } else {
+            console.warn('API Web Share non supportée sur ce navigateur.');
+            alert('API Web Share non supportée sur ce navigateur.');
+        }
+    });
+    
+
     /**
      * Clique sur un element du menu
      */
