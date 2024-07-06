@@ -402,11 +402,13 @@ $(document).ready(function () {
                 if(response.error == false){
                     $(".page-content").html(response.content); 
                 } else {
-                    window.location.reload()
+                    // window.location.reload()
+                    $(".page-content").html(response); 
                 }
             },
             error: function (response) {
-                window.location.reload()
+                // window.location.reload()
+                $(".page-content").html(response); 
             }
         });
     });
