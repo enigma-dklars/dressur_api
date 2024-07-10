@@ -14,7 +14,7 @@ $(document).ready(function () {
         }
     }
 
-    $(".form-select").on("change", function () {
+    $(document).on("change", ".form-select", function () {
         elementMsgError = $("#msgError")
         if(elementMsgError.text()){
             elementMsgError.toggle(800, function () {
@@ -23,7 +23,7 @@ $(document).ready(function () {
         }
     });
 
-    $(".getInfo").on("focus", function () {
+    $(document).on("focus", ".getInfo", function () {
         elementMsgError = $("#msgError")
         if(elementMsgError.text()){
             elementMsgError.toggle(800, function () {
@@ -87,13 +87,7 @@ $(document).ready(function () {
             traitementContact("inscription", "fin", "INSCRIPTION")
             return 0;
         }
-        console.log({
-            inputPseudo : inputPseudo,
-            inputNumeroWhatsApp : inputNumeroWhatsApp,
-            inputEmail : inputEmail,
-            inputMotPasse : inputMotPasse,
-            inputConfirmerMotPasse : inputConfirmerMotPasse,
-        });
+
         $.ajax({
             type: "POST",
             url: "/api/inscriptionDS",
@@ -399,12 +393,6 @@ $(document).ready(function () {
     
         const imageUrl = `/promotion/${image}`;
     
-        console.log("Préparation du partage...");
-        console.log("Pseudo Annonceur: ", pseudoAnnonceur);
-        console.log("Description: ", description);
-        console.log("Message à partager: ", messageShare);
-        console.log("Image URL: ", imageUrl);
-    
         if (navigator.share) {
             console.log("API Web Share disponible");
             navigator.share({
@@ -422,6 +410,121 @@ $(document).ready(function () {
         }
     });
     
+    $(document).on("change", "#formule-campage", function () {
+        let value = JSON.parse($(this).val())
+        let id = value[0];
+        let prix = value[1];
+        let nombremail = value[2];
+        let msg = "Cette formule vous offre une Campage Mail vers 10 à "+nombremail+" mails au maximum à "+prix+" FCFA."
+        $("#description-formule-mail").html(msg);
+    });
+
+    $(document).on("click", "#newcampagnemail", function () {
+        traitementContact("newcampagnemail", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError").text()
+
+        let formule_campage = JSON.parse($("#formule-campage").val())
+        let titre = $("#titre").val();
+        let sujet = $("#sujet").val();
+        let destinataires = $("#destinataires").val();
+        let contenu = $("#contenu-mail").val();
+        let reply_to = $("#reply-to").val();
+        let uid = $("#uid").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError").toggle(800)
+            }
+            traitementContact("newcampagnemail", "fin", "Envoyer")
+            return 0;
+        }
+
+        console.log({
+            uid : uid,
+            langUserPhone : 'fr',
+            idFormuleCampagneMail : formule_campage[0],
+            titre : titre,
+            sujet : sujet,
+            replyto : reply_to,
+            sendto : destinataires,
+            contentmail : contenu,
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newCampagneMail",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                idFormuleCampagneMail : formule_campage[0],
+                titre : titre,
+                sujet : sujet,
+                replyto : reply_to,
+                sendto : destinataires,
+                contentmail : contenu,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    msgError = "Votre campagne a été enregistrée, vous passerez au paiement si elle est acceptée."
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError").toggle(800);
+                }
+                traitementContact("newcampagnemail", "fin", "Envoyer")
+            }
+        });
+    });
 
     /**
      * Clique sur un element du menu
@@ -444,8 +547,6 @@ $(document).ready(function () {
                 `);
             },
             success: function (response) {
-                // response = JSON.parse(response)
-                console.log(response);
                 if(response.error == false){
                     $(".page-content").html(response.content); 
                 } else {

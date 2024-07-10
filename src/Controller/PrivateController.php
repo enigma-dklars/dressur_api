@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Controller\API\UserController;
 use App\Repository\EnvRepository;
+use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\SessionDS;
@@ -86,6 +87,23 @@ class PrivateController extends AbstractController
         $userinfo = $this->traitementsDS->userContacts($user);
         $html = $this->renderView('private/contact.html.twig', [
             'contacts' => $userinfo,
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
+    #[Route('/newcampagemail', name: 'app_newcampagemail')]
+    public function newcampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $formuleCampageMails = $formuleCampagneMailRepository->findAll();
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/newcampagemail.html.twig', [
+            'formuleCampageMails' => $formuleCampageMails,
+            'user' => $traitementsDS->infosUser($user),
         ]);
 
         return new JsonResponse([
