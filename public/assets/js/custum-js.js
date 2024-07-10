@@ -532,6 +532,15 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".payerCampageMail", function () {
+        $(".msgError").each(function() {
+            elementMsgError = $(this)
+            if(elementMsgError.text()){
+                elementMsgError.toggle(800, function () {
+                    $(this).html("");
+                })
+            }
+        });
+
         let idCampagneMail = $(this).attr("payerCampageMail");
         traitementContact("payerCampageMail-"+idCampagneMail, "debut", "")
         
