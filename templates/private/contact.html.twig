@@ -1,0 +1,67 @@
+<div class="row g-3">
+    {% for contact in contacts %}
+        <div class="col-md-4">
+            <div class="card mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="assets/images-pays/{{contact.pays}}.png" alt="" class="rounded-circle" width="50" height="50">
+                        <div class="ms-3">
+                            <h6 class="mb-0 dropdown-user-name contact-name">{{contact.nom}}</h6>
+                            <small class="mb-0 dropdown-user-designation text-secondary">@{{contact.pseudo}}</small>
+                        </div>
+                    </div>
+                    <p class="mb-0 mt-2">
+                        <a href="tel:{{contact.tel}}" class="btn btn-sm btn-primary pe-3 me-1"><i class="fas fa-phone"></i></a>
+                        <a href="mailto:{{contact.mail}}" class="btn btn-sm btn-primary pe-3 me-1"><i class="fas fa-envelope"></i></a>
+                        <a href="https://wa.me/{{contact.tel}}" class="btn btn-sm btn-primary pe-3 me-1"><i class="fab fa-whatsapp"></i></a>
+                        {% set plus = 0 %}
+                        {% if contact.tiktok %}
+                            {% set plus = 1 %}
+                        {% endif %}
+                        {% if contact.instagram %}
+                            {% set plus = 1 %}
+                        {% endif %}
+                        {% if contact.facebook %}
+                            {% set plus = 1 %}
+                        {% endif %}
+                        {% if contact.youtube %}
+                            {% set plus = 1 %}
+                        {% endif %}
+                        {% if contact.apropos %}
+                            {% set plus = 1 %}
+                        {% endif %}
+                        {% if plus == 1 %}
+                            <button class="btn btn-sm btn-primary pe-3 me-1" data-bs-toggle="modal" data-bs-target="#modal_contact_{{contact.id}}"><i class="fas fa-info"></i></button>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+                <div class="modal fade" id="modal_contact_{{contact.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                {% if contact.tiktok %}
+                                    <a href="{{contact.tiktok}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-tiktok me-2"></i> TikTok</a>
+                                {% endif %}
+                                {% if contact.instagram %}
+                                    <a href="{{contact.instagram}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-instagram me-2"></i> Instagram</a>
+                                {% endif %}
+                                {% if contact.facebook %}
+                                    <a href="{{contact.facebook}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-facebook-f me-2"></i> FaceBook</a>
+                                {% endif %}
+                                {% if contact.youtube %}
+                                    <a href="{{contact.youtube}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-youtube me-2"></i> Youtube</a>
+                                {% endif %}
+                                {% if contact.apropos %}
+                                    {{contact.apropos|nl2br}}
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    {% endfor %}
+</div>
