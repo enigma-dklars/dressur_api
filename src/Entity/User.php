@@ -117,6 +117,9 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $banniere = null;
 
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $hasReceived = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -687,6 +690,18 @@ class User
     public function setBanniere(?string $banniere): static
     {
         $this->banniere = $banniere;
+
+        return $this;
+    }
+
+    public function getHasReceived(): ?string
+    {
+        return $this->hasReceived;
+    }
+
+    public function setHasReceived(?string $hasReceived): static
+    {
+        $this->hasReceived = $hasReceived;
 
         return $this;
     }
