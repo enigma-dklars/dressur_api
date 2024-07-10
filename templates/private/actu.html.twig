@@ -1,0 +1,52 @@
+<div class="row g-3">
+    {% for actu in actus %}
+        <div class="col-md-4">
+            <div class="card mb-0">
+                <img src="/promotion/{{actu.image}}" class="card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                <div class="card-body">
+                    <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                        {{actu.description}}
+                    </p>
+                    <div class="row">
+                        <div class="col-7">
+                            <div class="row g-3">
+                                <div class="col-auto"> <i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
+                                <div class="col-auto"> <i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
+                            </div>
+                        </div>
+                        <div class="col-5 text-end">
+                            <button class="btn default btn-sm shar-actu p-0 border-0" pseudoAnnonceur="{{actu.pseudoAnnonceur}}" description="{{actu.description}}" whatsappNumber="{{actu.whatsappNumber}}" image="{{actu.image}}">
+                                <i class="fas fa-share-nodes me-1"></i> Partager
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
+
+            {% set encodedText = text|url_encode %}
+
+            {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
+
+            <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-body p-0">
+                            <img src="/promotion/{{actu.image}}" class="card-img-top" alt="...">
+                            <p class="text-end px-3 pt-3 mb-0">
+                                <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm mb-3 rounded-5">Contacter l'annonceur</a>
+                            </p>
+                            <p class="px-3">
+                                {{actu.description|nl2br}}
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

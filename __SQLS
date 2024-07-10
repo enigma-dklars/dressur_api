@@ -1,0 +1,14 @@
+# connaitre le nombre de parrainer par user
+SELECT 
+  u.id AS user_id,
+  u.pseudo AS user_pseudo,
+  COUNT(p.id) AS parrain_count
+FROM 
+  user u
+LEFT JOIN 
+  user p ON u.id = p.parrain_id
+GROUP BY 
+  u.id, u.pseudo
+ORDER BY 
+  parrain_count DESC;
+

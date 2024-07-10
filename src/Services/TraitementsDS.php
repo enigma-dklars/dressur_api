@@ -316,6 +316,7 @@ class TraitementsDS extends AbstractController
                 "replyto" => $campagneMail->getReplyto(),
                 "sendto" => $campagneMail->getSendto(),
                 "contentmail" => $campagneMail->getContentmail(),
+                "statusNumber" => $campagneMail->getStatus(),
                 "status" => $statut,
                 "peutPayer" => $peutPayer,
                 "createdAt" => $campagneMail->getCreatedAt() ? ($campagneMail->getCreatedAt())->format('d-m-Y à H:i') : "",
