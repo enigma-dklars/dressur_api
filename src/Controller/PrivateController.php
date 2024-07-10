@@ -111,4 +111,20 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/listecampagemail', name: 'app_listecampagemail')]
+    public function listecampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        // dd($traitementsDS->userCampagneMail($user->getCampagneMails()));
+        $html = $this->renderView('private/listecampagemail.html.twig', [
+            'campagemails' => $traitementsDS->userCampagneMail($user->getCampagneMails()),
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }

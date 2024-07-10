@@ -21,6 +21,14 @@ $(document).ready(function () {
                 $(this).html("");
             })
         }
+        $(".msgError").each(function() {
+            elementMsgError = $(this)
+            if(elementMsgError.text()){
+                elementMsgError.toggle(800, function () {
+                    $(this).html("");
+                })
+            }
+        });
     });
 
     $(document).on("focus", ".getInfo", function () {
@@ -30,6 +38,14 @@ $(document).ready(function () {
                 $(this).html("");
             })
         }
+        $(".msgError").each(function() {
+            elementMsgError = $(this)
+            if(elementMsgError.text()){
+                elementMsgError.toggle(800, function () {
+                    $(this).html("");
+                })
+            }
+        });
     });
 
     $("#inscription").on("click", function () {
@@ -465,17 +481,6 @@ $(document).ready(function () {
             return 0;
         }
 
-        console.log({
-            uid : uid,
-            langUserPhone : 'fr',
-            idFormuleCampagneMail : formule_campage[0],
-            titre : titre,
-            sujet : sujet,
-            replyto : reply_to,
-            sendto : destinataires,
-            contentmail : contenu,
-        });
-
         $.ajax({
             type: "POST",
             url: "/api/newCampagneMail",
@@ -522,6 +527,98 @@ $(document).ready(function () {
                     $("#msgError").toggle(800);
                 }
                 traitementContact("newcampagnemail", "fin", "Envoyer")
+            }
+        });
+    });
+
+    $(document).on("click", ".payerCampageMail", function () {
+        let idCampagneMail = $(this).attr("payerCampageMail");
+        traitementContact("payerCampageMail-"+idCampagneMail, "debut", "")
+        
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError-"+idCampagneMail).text()
+        
+        
+        let uid = $("#uid-"+idCampagneMail).val();
+        let valueMethodePaiement = $("#moyen-paiement-"+idCampagneMail).val();
+        let tel = $("#numero-paiement-"+idCampagneMail).val();
+        console.log(idCampagneMail, uid, valueMethodePaiement, tel)
+        
+        $(".getInfo-"+idCampagneMail).each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError-"+idCampagneMail).html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError-"+idCampagneMail).toggle(800)
+            }
+            traitementContact("payerCampageMail-"+idCampagneMail, "fin", "Payer")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newCampageMailPayant/paiement",
+            data: {
+                uid : uid,
+                idCampagneMail : idCampagneMail,
+                langUserPhone : 'fr',
+                valueMethodePaiement : valueMethodePaiement,
+                tel : tel
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError-"+idCampagneMail).html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError-"+idCampagneMail).toggle(800)
+                } else {
+                    msgError = "Après confirmation du paiement, veuillez consulter la liste de vos campagnes mails."
+                    $("#msgError-"+idCampagneMail).html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError-"+idCampagneMail).toggle(800);
+                }
+                traitementContact("payerCampageMail-"+idCampagneMail, "fin", "Payer")
             }
         });
     });
