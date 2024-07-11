@@ -256,6 +256,7 @@ class TraitementsDS extends AbstractController
                 "prixFixer" => $this->separateurMillier($promo->getPrixFixer())." FCFA",
                 "url" => $promo->getUrl(),
                 "reference" => $promo->getIdZefame(),
+                "statusNumber" => $promo->getStatus(),
                 "status" => $statut,
                 "compteurDebut" => $this->separateurMillier($promo->getCompteurDebut()),
                 "compteurRestant" => $this->separateurMillier($promo->getCompteurRestant()),

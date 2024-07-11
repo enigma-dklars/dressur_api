@@ -144,4 +144,21 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/listepromoreseau', name: 'app_listepromoreseau')]
+    public function listepromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/listepromoreseau.html.twig', [
+            'listepromoreseau' => $traitementsDS->userPromoReseaus($user->getPromoReseaus()),
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }
