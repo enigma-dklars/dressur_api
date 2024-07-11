@@ -19,6 +19,7 @@ use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Controller\API\UserPreferenceController;
+use App\Repository\FormuleBoostRepository;
 use App\Repository\FormulePromoReseauRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -39,8 +40,9 @@ class TraitementsDS extends AbstractController
     private $signalementRepository;
     private $promotionRepository;
     private $formulePromoReseauRepository;
+    private $formuleBoostRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);
@@ -56,6 +58,7 @@ class TraitementsDS extends AbstractController
         $this->signalementRepository = $signalementRepository;
         $this->promotionRepository = $promotionRepository;
         $this->formulePromoReseauRepository = $formulePromoReseauRepository;
+        $this->formuleBoostRepository = $formuleBoostRepository;
     }
 
     public function formatNumber($nbrVue) {
@@ -198,6 +201,7 @@ class TraitementsDS extends AbstractController
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "description" => $promo->getDescription(),
+                "statusNumber" => $promo->getStatus(),
                 "status" => $statut,
                 "dateDebut" => $promo->getDateDebut() ? ($promo->getDateDebut())->format('d-m-Y à H:i') : "",
                 "dateExp" => $promo->getDateExp() ? ($promo->getDateExp())->format('d-m-Y à H:i') : "",
@@ -210,6 +214,20 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function listeFormulBoost() {
+        $listeFormulBoost = [];
+        foreach ($this->formuleBoostRepository->findAll() as $boost) {
+            array_push($listeFormulBoost, [
+                "id" => $boost->getId(),
+                "value" => $boost->getId(),
+                "label" => $boost->getTitre(),
+                "prix" => intval($boost->getPrix()),
+                "jours" => $boost->getNbrJour(),
+            ]);
+        }
+        return $listeFormulBoost;
     }
 
     public function userPromoReseaus($promos){

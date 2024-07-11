@@ -16,6 +16,37 @@ $(document).ready(function () {
         }
     }
 
+    let actualiseContent = function (url){
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: "data",
+            beforeSend: function (response) {
+                $(".page-content").html(`
+                    <div id="parent">
+                        <div id="loader-wrapper">
+                            <div id="loader"></div>
+                            <div class="loader-section section-left"></div>
+                            <div class="loader-section section-right"></div>
+                        </div>
+                    </div>
+                `);
+            },
+            success: function (response) {
+                if(response.error == false){
+                    $(".page-content").html(response.content); 
+                } else {
+                    // window.location.reload()
+                    $(".page-content").html(response); 
+                }
+            },
+            error: function (response) {
+                // window.location.reload()
+                $(".page-content").html(response); 
+            }
+        });
+    }
+
     $(document).on("change", ".form-select", function () {
         elementMsgError = $("#msgError")
         if(elementMsgError.text()){
@@ -733,7 +764,6 @@ $(document).ready(function () {
             }
         });
     });
-
     
     $(document).on('change', '#image', function () {
         const imageInput = this.files[0];
@@ -893,6 +923,228 @@ $(document).ready(function () {
             $("#msgError").toggle(800);
             traitementContact("btn-promotionForm", "fin", "Envoyer")
             return;
+        });
+    });
+
+    $(document).on("click", ".boostpromoaffaire", function () {
+        $(".msgError").each(function() {
+            elementMsgError = $(this)
+            if(elementMsgError.text()){
+                elementMsgError.toggle(800, function () {
+                    $(this).html("");
+                })
+            }
+        });
+
+        let idPromoAffaire = $(this).attr("payerpromoaffaire");
+        traitementContact("boostpromoaffaire-"+idPromoAffaire, "debut", "")
+        
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError-"+idPromoAffaire).text()
+        
+        
+        let uid = $("#uid-booster-"+idPromoAffaire).val();
+        let idFormulBoost = $(".formulBoost-"+idPromoAffaire).val();
+        
+        $(".getInfoBoost-"+idPromoAffaire).each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError-"+idPromoAffaire).html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError-"+idPromoAffaire).toggle(800)
+            }
+            traitementContact("boostpromoaffaire-"+idPromoAffaire, "fin", "BOOSTER")
+            return 0;
+        }
+
+        console.log({
+            uid : uid,
+            langUserPhone : 'fr',
+            idPromotion : idPromoAffaire,
+            idFormulBoost : idFormulBoost
+        });
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newPromo",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                idPromotion : idPromoAffaire,
+                idFormulBoost : idFormulBoost
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError-"+idPromoAffaire).html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError-"+idPromoAffaire).toggle(800)
+                } else {
+                    msgError = "Votre Promo a déja démarer."
+                    $("#msgError-"+idPromoAffaire).html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError-"+idPromoAffaire).toggle(800);
+
+                    setTimeout(() => {
+                        $("#modal_payer_bonus_promoaffaire_"+idPromoAffaire).modal("hide");
+                    }, 2500);
+
+                    setTimeout(() => {
+                        actualiseContent("/listepromoaffaire");
+                    }, 3300);
+                }
+                traitementContact("boostpromoaffaire-"+idPromoAffaire, "fin", "BOOSTER")
+            }
+        });
+    });
+
+    $(document).on("click", ".payerpromoaffaire", function () {
+        $(".msgError").each(function() {
+            elementMsgError = $(this)
+            if(elementMsgError.text()){
+                elementMsgError.toggle(800, function () {
+                    $(this).html("");
+                })
+            }
+        });
+
+        let idPromoAffaire = $(this).attr("payerpromoaffaire");
+        traitementContact("payerpromoaffaire-"+idPromoAffaire, "debut", "")
+        
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $(".msgError-"+idPromoAffaire).text()
+        
+        let uid = $("#uidPayant-"+idPromoAffaire).val();
+        let idFormulBoost = $(".formulBoostPayant-"+idPromoAffaire).val();
+        let valueMethodePaiement = $(".moyenPaiementPayant-"+idPromoAffaire).val();
+        let tel = $(".numeroPaiementPayant-"+idPromoAffaire).val();
+                
+        $(".getInfoBoostPayant-"+idPromoAffaire).each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+        
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $(".msgError-"+idPromoAffaire).html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $(".msgError-"+idPromoAffaire).toggle(800)
+            }
+            traitementContact("payerpromoaffaire-"+idPromoAffaire, "fin", "PAYER et BOOSTER")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newPromoPayant",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                idPromotion : idPromoAffaire,
+                idFormulBoost : idFormulBoost,
+                valueMethodePaiement : valueMethodePaiement,
+                tel : tel
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $(".msgError-"+idPromoAffaire).html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".msgError-"+idPromoAffaire).toggle(800)
+                } else {
+                    msgError = "Après confirmation du paiement, veuillez consulter la liste de vos promotions affaires."
+                    $(".msgError-"+idPromoAffaire).html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $(".msgError-"+idPromoAffaire).toggle(800);
+
+                    setTimeout(() => {
+                        $("#modal_payerpromoaffaire_"+idPromoAffaire).modal("hide");
+                    }, 15000);
+
+                    setTimeout(() => {
+                        actualiseContent("/listepromoaffaire");
+                    }, 25000);
+                }
+                traitementContact("payerpromoaffaire-"+idPromoAffaire, "fin", "PAYER et BOOSTER")
+            }
         });
     });
 

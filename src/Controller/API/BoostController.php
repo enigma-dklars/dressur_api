@@ -41,21 +41,11 @@ class BoostController extends AbstractController
     }
 
     #[Route('/listeFormuleBoost', name: 'listeFormuleBoost', methods: ['POST', 'GET'])]
-    public function listeFormuleBoost(FormuleBoostRepository $formuleBoostRepository): Response
+    public function listeFormuleBoost(FormuleBoostRepository $formuleBoostRepository, TraitementsDS $traitementsDS): Response
     {
-        $listeFormulBoost = [];
-        foreach ($formuleBoostRepository->findAll() as $boost) {
-            array_push($listeFormulBoost, [
-                "id" => $boost->getId(),
-                "value" => $boost->getId(),
-                "label" => $boost->getTitre(),
-                "prix" => intval($boost->getPrix()),
-                "jours" => $boost->getNbrJour(),
-            ]);
-        }
         return new JsonResponse([
             'error' => false,
-            'listeFormulBoost' => $listeFormulBoost,
+            'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
         ]);
     }
 

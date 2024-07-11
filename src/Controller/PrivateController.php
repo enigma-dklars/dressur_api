@@ -186,6 +186,7 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listepromoaffaire.html.twig', [
             'listepromoaffaire' => $traitementsDS->userPromos($user->getPromotions()),
+            'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 
