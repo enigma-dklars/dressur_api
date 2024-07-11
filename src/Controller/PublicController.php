@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Services\TraitementsDS;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,10 +10,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class PublicController extends AbstractController
 {
     #[Route('/', name: 'app_public')]
-    public function index(): Response
+    public function index(TraitementsDS $traitementsDS): Response
     {
         return $this->render('public/index.html.twig', [
-            'controller_name' => 'PublicController',
+            'actus' => $traitementsDS->getTopAffaires(6),
         ]);
     }
 
@@ -37,6 +38,14 @@ class PublicController extends AbstractController
     {
         return $this->render('public/passe4get.html.twig', [
             'controller_name' => 'PublicController',
+        ]);
+    }
+
+    #[Route('/actualite', name: 'app_actualite')]
+    public function actualite(TraitementsDS $traitementsDS): Response
+    {
+        return $this->render('public/actualite.html.twig', [
+            'actus' => $traitementsDS->getAffaires(),
         ]);
     }
 }

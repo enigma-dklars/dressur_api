@@ -65,7 +65,7 @@ class PrivateController extends AbstractController
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                    'top_trois_affaires' => $traitementsDS->getTopTroisAffaires(),
+                    'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
                 ]);
             }
         }

@@ -398,9 +398,30 @@ class TraitementsDS extends AbstractController
         return $listeFormulePromoReseau;
     }
 
-    public function getTopTroisAffaires(){
+    public function getAffaires(){
         $top_trois_affaires = [];
-        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], 3);
+        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], 36);
+        foreach ($promos as $promo) {
+            $unePromo = [
+                "uidUser" => $promo->getUser()->getUid(),
+                "id" => $promo->getId(),
+                "image" => $promo->getImage(),
+                "description" => $promo->getDescription(),
+                "whatsappNumber" => $promo->getUser()->getTel(),
+                "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+            ];
+            array_push($top_trois_affaires, $unePromo);            
+        }
+        // Mélanger l'ordre des éléments de manière aléatoire
+        shuffle($top_trois_affaires);
+        return $top_trois_affaires;
+    }
+
+    public function getTopAffaires($limite){
+        $top_trois_affaires = [];
+        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], $limite);
         foreach ($promos as $promo) {
             $unePromo = [
                 "uidUser" => $promo->getUser()->getUid(),
