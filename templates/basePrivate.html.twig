@@ -140,13 +140,15 @@
     <!--app-->
     <script src="assets/js/app.js"></script>
     <script src="assets/js/index.js"></script>
-    <script src="assets/js/custum-js.js"></script>
-
+    
     <script>
         // new PerfectScrollbar(".wrapper")
-        new PerfectScrollbar(".best-product")
-        new PerfectScrollbar(".top-sellers-list")
+        // new PerfectScrollbar(".best-product")
+        // new PerfectScrollbar(".top-sellers-list")
     </script>
+        
+    {% block script %}{% endblock %}
 
+    <script src="assets/js/custum-js.js"></script>
 </body>
 </html>

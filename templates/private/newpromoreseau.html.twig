@@ -1,0 +1,93 @@
+<div class="card">
+    <div class="card-body">
+        <h1 class="text-center">Promotion Réseau Sociaux</h1>
+        
+        <div class="row g-3">
+            <div class="col-12" hidden>
+                <input type="text" id="uid" value="{{user.uid}}">
+            </div>
+            <div class="col-12">
+                <div class="mt-0" id="msgError" style="display: none;"></div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="socialNetwork">Réseau Social</label>
+                    <select id="socialNetwork" class="form-select getInfo">
+                        <option value="" selected disabled>Choissez un réseau</option>
+                        {% for network in listSocialNetworks %}
+                            <option value="{{ network.id }}">{{ network.titre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% for network in listSocialNetworks %}
+                    <div class="lesFormulesFils" id="fils-{{ network.id }}" network-id="{{ network.id }}" hidden>
+                        <label for="">Services de {{ network.titre }}</label>
+                        <select id="select-fils-{{ network.id }}" class="form-select getInfo select-service-network">
+                            <option value="" selected disabled>Choissez un service de {{ network.titre }}</option>
+                            {% for unfils in network.lesFormulesFils %}
+                                <option value="{{unfils.id}}">{{unfils.label}}</option>
+                            {% endfor %}
+                        </select>
+                        {% for unfils in network.lesFormulesFils %}
+                            <div class="unfils" id="unfils-{{unfils.id}}" unfils-id="{{ unfils.id }}" unfils-prix="{{ unfils.prix }}" unfils-qte="{{ unfils.qte }}" unfils-qteMin="{{ unfils.qteMin }}" unfils-qteMax="{{ unfils.qteMax }}" hidden>
+                                <p class="mt-3">
+                                    {{unfils.description | nl2br}}
+                                </p>
+                            </div>
+                    {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="quantity">Quantité</label>
+                    <input type="number" class="form-control getInfo" id="quantity" value="0">
+                    <div id="message" class="alert alert-danger py-2 px-3 mt-3 small d-none"></div>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="price" class="">Prix (FCFA)</label>
+                    <input type="text" class="form-control getInfo" id="price" disabled>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="link" class="">Lien</label>
+                    <input type="url" class="form-control getInfo" id="link">
+                </div>
+        
+                <div class="mb-3">
+                    <label for="paymentMethod" class="">Methode de paiement mobile</label>
+                    <select id="paymentMethod" class="form-select getInfo">
+                        <option value="" disabled selected>Choisisez le Moyen de paiement</option>
+                        <option value="airtel_ne">Airtel Niger</option>
+                        <option value="sbin">Celtis Cash</option>
+                        <option value="free_sn">Free Sénégal</option>
+                        <option value="moov">MOOV Flooz Bénin</option>
+                        <option value="moov_bf">MOOV Burkina Faso</option>
+                        <option value="moov_ci">MOOV Côte d'Ivoire</option>
+                        <option value="moov_tg">MOOV Flooz Togo</option>
+                        <option value="mtn">MTN Mobile Money Bénin</option>
+                        <option value="mtn_ci">MTN Mobile Money Côte d'Ivoire</option>
+                        <option value="mtn_open_gn">MTN Mobile Money Guinée</option>
+                        <option value="orange_bf">Orange Burkina Faso</option>
+                        <option value="orange_ci">Orange Côte d'Ivoire</option>
+                        <option value="orange_ml">Orange Mali</option>
+                        <option value="orange_sn">Orange Sénégal</option>
+                        <option value="togocel">TOGOCEL T-Money</option>
+                    </select>
+                </div>
+        
+                <div class="mb-3">
+                    <label for="tel" class="">Indicatif + Numéro de paiement</label>
+                    <input type="tel" class="form-control getInfo" id="tel">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary w-100" id="newPromoReseau">Payer et Démarrer</button>    
+    
+        <div class="mt-3 text-center text-danger">
+            Pour payer par Wave ou Carte Bancaire, veuillez contacter l'Assistance Dressur par WhatsApp. Merci...
+        </div>
+    </div>
+</div>

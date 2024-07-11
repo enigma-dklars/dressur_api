@@ -44,47 +44,16 @@ class PromotionReseauController extends AbstractController
 
 
     #[Route('/listeFormulePromoReseau', name: 'listeFormulePromoReseau', methods: ['POST', 'GET'])]
-    public function listeFormulePromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    public function listeFormulePromoReseau(Request $request, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $listeFormulePromoReseau = [];
-        foreach ($formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
-            $lesFormulesFils = [];
-            foreach ($formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.6 * 700;
-                $prix_service_fcfa = round($prix_service_fcfa) + 1;
-                if($langUserPhone == 'fr') {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
-                } else {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\nQuantity Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescriptionEn();
-                }
-                array_push($lesFormulesFils, [
-                    "value" => $formuleFils->getId(),
-                    "label" => $formuleFils->getTitre(),
-                    "id" => $formuleFils->getId(),
-                    "titre" => $formuleFils->getTitre(),
-                    "prix" => $prix_service_fcfa,
-                    "qte" => $formuleFils->getQte(),
-                    "qteMin" => $formuleFils->getQteMin(),
-                    "qteMax" => $formuleFils->getQteMax(),
-                    "description" => $description_service,
-                ]);
-            }
-
-            array_push($listeFormulePromoReseau, [
-                "id" => $formule->getId(),
-                "titre" => $formule->getTitre(),
-                "iconFlutterName" => $formule->getIconFlutterName(),
-                "lesFormulesFils" => $lesFormulesFils,
-            ]);
-        }
+        
         return new JsonResponse([
             'error' => false,
-            'listeFormulePromoReseau' => $listeFormulePromoReseau,
+            'listeFormulePromoReseau' => $traitementsDS->listeFormulePromoReseau(),
         ]);
     }
 

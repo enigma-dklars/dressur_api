@@ -19,6 +19,7 @@ use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Controller\API\UserPreferenceController;
+use App\Repository\FormulePromoReseauRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
@@ -37,8 +38,9 @@ class TraitementsDS extends AbstractController
     private $verifMailRepository;
     private $signalementRepository;
     private $promotionRepository;
+    private $formulePromoReseauRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);
@@ -53,6 +55,7 @@ class TraitementsDS extends AbstractController
         $this->verifMailRepository = $verifMailRepository;
         $this->signalementRepository = $signalementRepository;
         $this->promotionRepository = $promotionRepository;
+        $this->formulePromoReseauRepository = $formulePromoReseauRepository;
     }
 
     public function formatNumber($nbrVue) {
@@ -326,6 +329,41 @@ class TraitementsDS extends AbstractController
         }
         $userCampagneMail = array_reverse($userCampagneMail);
         return $userCampagneMail;
+    }
+
+    public function listeFormulePromoReseau() {
+        $listeFormulePromoReseau = [];
+        foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
+            $lesFormulesFils = [];
+            foreach ($this->formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.6 * 700;
+                $prix_service_fcfa = round($prix_service_fcfa) + 1;
+                if($this->sessionDS->get("langUserPhone") == 'fr') {
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
+                } else {
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\nQuantity Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescriptionEn();
+                }
+                array_push($lesFormulesFils, [
+                    "value" => $formuleFils->getId(),
+                    "label" => $formuleFils->getTitre(),
+                    "id" => $formuleFils->getId(),
+                    "titre" => $formuleFils->getTitre(),
+                    "prix" => $prix_service_fcfa,
+                    "qte" => $formuleFils->getQte(),
+                    "qteMin" => $formuleFils->getQteMin(),
+                    "qteMax" => $formuleFils->getQteMax(),
+                    "description" => $description_service,
+                ]);
+            }
+
+            array_push($listeFormulePromoReseau, [
+                "id" => $formule->getId(),
+                "titre" => $formule->getTitre(),
+                "iconFlutterName" => $formule->getIconFlutterName(),
+                "lesFormulesFils" => $lesFormulesFils,
+            ]);
+        }
+        return $listeFormulePromoReseau;
     }
 
     public function listePubliciteAffichageAuxUsers($user){

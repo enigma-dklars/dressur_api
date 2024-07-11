@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    let network_id;
+    let service_network_id;
     let setUidCookie = function (uid) {
         var d = new Date();
         d.setTime(d.getTime() + (365*24*60*60*1000)); // 365 jours en millisecondes
@@ -628,6 +630,106 @@ $(document).ready(function () {
                     $("#msgError-"+idCampagneMail).toggle(800);
                 }
                 traitementContact("payerCampageMail-"+idCampagneMail, "fin", "Payer")
+            }
+        });
+    });
+
+    $(document).on("change", "#socialNetwork", function (){
+        network_id = $(this).val();
+        $(".lesFormulesFils").attr("hidden", "");
+        $("#fils-"+network_id).removeAttr("hidden");
+        $('#quantity').val(0);
+        $('#price').val(0);
+    });
+
+    $(document).on("change", ".select-service-network", function () {
+        service_network_id = $(this).val();
+        $(".unfils").attr("hidden", "");
+        $("#unfils-"+service_network_id).removeAttr("hidden");
+        $('#quantity').val(0);
+        $('#price').val(0);
+    });
+
+    $(document).on('input', '#quantity', function () {
+        let unfils = $("#unfils-"+service_network_id);
+
+        let prix = unfils.attr("unfils-prix");
+        let qte = unfils.attr("unfils-qte");
+        let qteMin = unfils.attr("unfils-qteMin");
+        let qteMax = unfils.attr("unfils-qteMax");
+
+        let qteDemander = parseInt($(this).val());
+        $(this).val(qteDemander);
+        
+        if (qteDemander >= qteMin && qteDemander <= qteMax) {
+            let prixQteDemander = ((prix * qteDemander) / qte).toFixed(0);
+            $('#price').val(prixQteDemander);
+            $('#message').addClass('d-none');
+            console.log("pas error qte");
+        } else {
+            console.log("error qte");
+            $('#message').text(`La quantité doit être comprise entre ${qteMin} et ${qteMax}.`).removeClass('d-none');
+        }
+    });
+
+    $(document).on("click", "#newPromoReseau", function () {
+        traitementContact("newPromoReseau", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+
+        let qteDemander = $("#quantity").val();
+        let prixQteDemander = $("#price").val();
+        let link = $("#link").val();
+        let paymentMethod = $("#paymentMethod").val();
+        let tel = $("#tel").val();
+        let uid = $("#uid").val();
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newPromoReseau",
+            data: {
+                langUserPhone : 'fr',
+                uid : uid,
+                idFormulePromoReseau : service_network_id,
+                qteDemander : qteDemander,
+                prixQteDemander : prixQteDemander,
+                lien : link,
+                valueMethodePaiement : paymentMethod,
+                tel : tel,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    msgError = "Votre campagne a été enregistrée, vous passerez au paiement si elle est acceptée."
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError").toggle(800);
+                }
+                traitementContact("newPromoReseau", "fin", "Payer et Démarrer")
             }
         });
     });
