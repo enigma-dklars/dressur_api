@@ -1,0 +1,27 @@
+<div class="bg-danger text-white p-3 rounded">
+    NB: Après avoir rempli et envoyé votre promotion, elle sera analysée par les administrateurs de Dressur. Si votre promotion est acceptée, vous passerez au paiement et ainsi votre promotion sera visible par des milliers d'utilisateurs correspondant à vos préférences pays.
+</div>
+<div class="card mt-3">
+    <div class="card-body">
+        <form id="promotionForm" enctype="multipart/form-data" class="row g-3">
+            <div class="col-12" hidden>
+                <input type="text" id="uid" value="{{user.uid}}">
+            </div>
+            <div class="col-12">
+                <div class="mt-0" id="msgError" style="display: none;"></div>
+            </div>
+            <div class="col-md-6">
+                <label for="image" class="form-label">Sélectionner une image</label>
+                <input type="file" class="form-control getInfo" id="image" accept="image/*">
+                <div id="imagePreview" class="mt-3"></div>
+            </div>
+            <div class="col-md-6">
+                <label for="description" class="form-label">Description de la promotion</label>
+                <textarea class="form-control getInfo" id="description" rows="10"></textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary" id="btn-promotionForm">Envoyer</button>
+            </div>
+        </form>
+    </div>
+</div>
