@@ -149,6 +149,19 @@ class TraitementsDS extends AbstractController
         return $userBoosts;
     }
 
+    public function vuesImpressionsCumulerUserPromos($promos){
+        $countVues = 0;
+        $countImpressions = 0;
+        foreach ($promos as $promo) {
+            $countVues += $promo->getNombreDeVue();
+            $countImpressions += $promo->getNombreImpression();
+        }
+        return [
+            "countVues" => $countVues,
+            "countImpressions" => $countImpressions,
+        ];
+    }
+
     public function userPromos($promos){
         $userPromos = [];
 
@@ -383,6 +396,27 @@ class TraitementsDS extends AbstractController
             ]);
         }
         return $listeFormulePromoReseau;
+    }
+
+    public function getTopTroisAffaires(){
+        $top_trois_affaires = [];
+        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], 3);
+        foreach ($promos as $promo) {
+            $unePromo = [
+                "uidUser" => $promo->getUser()->getUid(),
+                "id" => $promo->getId(),
+                "image" => $promo->getImage(),
+                "description" => $promo->getDescription(),
+                "whatsappNumber" => $promo->getUser()->getTel(),
+                "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+            ];
+            array_push($top_trois_affaires, $unePromo);            
+        }
+        // Mélanger l'ordre des éléments de manière aléatoire
+        shuffle($top_trois_affaires);
+        return $top_trois_affaires;
     }
 
     public function listePubliciteAffichageAuxUsers($user){

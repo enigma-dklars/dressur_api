@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Controller\API\UserController;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleCampagneMailRepository;
+use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\SessionDS;
@@ -51,14 +52,20 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/private', name: 'app_private')]
-    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
             $user = $userRepository->findOneBy(['uid' => $uid]);
+            $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
             if($user){
                 return $this->render('private/index.html.twig', [
                     'user' => $traitementsDS->infosUser($user),
+                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
+                    'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
+                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
+                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
+                    'top_trois_affaires' => $traitementsDS->getTopTroisAffaires(),
                 ]);
             }
         }
