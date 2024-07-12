@@ -9,6 +9,10 @@
         </div>
         <div class="row g-3">
             {% for actu in actus %}
+                {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
+                {% set encodedText = text|url_encode %}
+                {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
+
                 <div class="col-md-4">
                     <div class="card mb-0 shadow">
                         <img src="/promotion/{{actu.image}}" class="card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
@@ -24,19 +28,11 @@
                                     </div>
                                 </div>
                                 <div class="col-5 text-end">
-                                    <button class="btn default btn-sm shar-actu p-0 border-0" pseudoAnnonceur="{{actu.pseudoAnnonceur}}" description="{{actu.description}}" whatsappNumber="{{actu.whatsappNumber}}" image="{{actu.image}}">
-                                        <i class="fas fa-share-nodes me-1"></i> Partager
-                                    </button>
+                                    <a href="{{ url }}" target="_blank" class="btn btn-info btn-sm rounded-2 py-0">En savoir plus</a>
                                 </div>
                             </div>
                         </div>
                     </div>
-    
-                    {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
-    
-                    {% set encodedText = text|url_encode %}
-    
-                    {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
     
                     <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable">

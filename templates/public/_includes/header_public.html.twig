@@ -8,10 +8,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0 align-items-center">
             <li class="nav-item">
-                <a class="nav-link text-dark fw-semibold" href="{{path('app_public')}}">Accueil</a>
+                <a class="nav-link {% if app.request.requestUri == path('app_public') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_public')}}">Accueil</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-dark fw-semibold" href="{{path('app_actualite')}}">Actualités</a>
+                <a class="nav-link {% if app.request.requestUri == path('app_actualite') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_actualite')}}">Actualités</a>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link text-dark fw-semibold dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown"> 
@@ -28,12 +28,12 @@
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
             <li class="nav-item">
-                <a class="nav-link text-dark fw-semibold" href="{{path('app_contactez_nous')}}">Contacts</a>
+                <a class="nav-link {% if app.request.requestUri == path('app_contactez_nous') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_contactez_nous')}}">Contacts</a>
             </li>
             </ul>
             <div class="d-flex ms-3 gap-3">
-            <a href="{{path('app_connexion')}}" class="btn {% if app.request.requestUri == path('app_connexion') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-4 radius-30">Connexion</a>
-            <a href="{{path('app_inscription')}}" class="btn {% if app.request.requestUri == path('app_inscription') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-4 radius-30">Inscription</a>
+            <a href="{{path('app_connexion')}}" class="btn {% if app.request.requestUri == path('app_connexion') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-3 py-2 radius-30"><i class="fas fa-arrow-right-to-bracket me-2"></i>Connexion</a>
+            <a href="{{path('app_inscription')}}" class="btn {% if app.request.requestUri == path('app_inscription') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-3 py-2 radius-30"><i class="fas fa-user-plus me-2"></i>Inscription</a>
             </div>
         </div>
         </div>
