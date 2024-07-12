@@ -199,6 +199,108 @@ $(document).ready(function () {
         });
     });
 
+    $("#envoyer").on("click", function () {
+        traitementContact("envoyer", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError").text()
+
+        let nomPrenom = $("#nom-prenom").val();
+        let inputEmail = $("#e-mail").val();
+        let objet = $("#objet").val();
+        let message = $("#message").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if (!inputEmail.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i)) {
+            if(msgError == "Veuillez renseigner :") {
+                if(inputEmail){
+                    msgError = "<b>" + inputEmail + "</b> n'est pas une adresse e-mail valide.";
+                }
+            } else {
+                if(inputEmail){
+                    msgError = msgError + "<br> <b>" + inputEmail + "</b> n'est pas une adresse e-mail valide.";
+                }
+            }
+        }
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError").toggle(800)
+            }
+            traitementContact("envoyer", "fin", "Envoyer")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/sendMailToDressur",
+            data: {
+                langUserPhone : 'fr',
+                name : nomPrenom,
+                email : inputEmail,
+                objet : objet,
+                message : message,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    msgError = "Message reçu. Nous vous répondrons dans les plus brefs délais. Merci."
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError").toggle(800);
+                }
+                traitementContact("envoyer", "fin", "Envoyer")
+            }
+        });
+    });
+
     $("#connexion").on("click", function () {
         traitementContact("connexion", "debut", "")
 
