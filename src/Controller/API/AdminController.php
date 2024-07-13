@@ -86,6 +86,48 @@ class AdminController extends AbstractController
         ]);
     }
 
+    #[Route('/sendMailToUserBotForDressur', name: 'sendMailToUserBotForDressur')]
+    public function sendMailToUserBotForDressur(Request $request, SendMail $sendMail): Response
+    {
+        $name = $request->get("name");
+        $email = $request->get("email");
+        $numero = $request->get("numero");
+        $mdp = $request->get("mdp");
+
+        $html = $this->renderView('emails/sendPassDressurBot.html.twig',[
+            "name" => $name,
+            "email" => $email,
+            "numero" => $numero,
+            "mdp" => $mdp,
+        ]);
+
+        try {
+            $sendMail->smtpMail(
+                $email,
+                "BIENVENU SUR DRESSUR BOT",
+                $html,
+                "dressur.ds@gmail.com", 
+                "Dressur Bot No ".time(), 
+            );
+            
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Mail non envoyer.",
+            ]);
+        }
+
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Erreur!',
+            'message' => "Erreur de traitement.",
+        ]);
+    }
+
     #[Route('/traitementAdmin', name: 'traitementAdmin', methods: ['POST', "GET"])]
     public function traitementAdmin(CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, UserRepository $userRepository): Response
     {
