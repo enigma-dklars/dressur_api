@@ -1,6 +1,7 @@
 $(document).ready(function () {
     let network_id;
     let service_network_id;
+
     let setUidCookie = function (uid) {
         var d = new Date();
         d.setTime(d.getTime() + (365*24*60*60*1000)); // 365 jours en millisecondes
@@ -1246,6 +1247,119 @@ $(document).ready(function () {
                     }, 25000);
                 }
                 traitementContact("payerpromoaffaire-"+idPromoAffaire, "fin", "PAYER et BOOSTER")
+            }
+        });
+    });
+
+    $(document).on("click", "#enregistrerProfil", function () {
+        traitementContact("enregistrerProfil", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError").text()
+
+        let uid = $("#uid").val();
+        let inputPseudo = $("#inputPseudo").val();
+        let inputTelWhatsApp = $("#inputTelWhatsApp").val();
+        let inputEmail = $("#inputEmail").val();
+        let inputNomPrenom = $("#inputNomPrenom").val();
+        let inputTiktok = $("#inputTiktok").val();
+        let inputInstagram = $("#inputInstagram").val();
+        let inputFacebook = $("#inputFacebook").val();
+        let inputYoutube = $("#inputYoutube").val();
+        let inputAPropos = $("#inputAPropos").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if (!inputEmail.match(/[a-z0-9_\-\.]+@[a-z0-9_\-\.]+\.[a-z]+/i)) {
+            if(msgError == "Veuillez renseigner :") {
+                if(inputEmail){
+                    msgError = "<b>" + inputEmail + "</b> n'est pas une adresse e-mail valide.";
+                }
+            } else {
+                if(inputEmail){
+                    msgError = msgError + "<br> <b>" + inputEmail + "</b> n'est pas une adresse e-mail valide.";
+                }
+            }
+        }
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError").toggle(800)
+            }
+            traitementContact("enregistrerProfil", "fin", "ENREGISTRER")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/updateUserInfo",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                tel : inputTelWhatsApp,
+                mail : inputEmail,
+                nom : inputNomPrenom,
+                pseudo : inputPseudo,
+                apropos : inputAPropos,
+                tiktok : inputTiktok,
+                instagram : inputInstagram,
+                facebook : inputFacebook,
+                youtube : inputYoutube,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    msgError = "Profil mis à jour..."
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800);
+                }
+                traitementContact("enregistrerProfil", "fin", "ENREGISTRER")
             }
         });
     });
