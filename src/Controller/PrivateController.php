@@ -202,4 +202,20 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/editprofil', name: 'app_editprofil')]
+    public function editprofil(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/editprofil.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }

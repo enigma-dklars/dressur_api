@@ -1,0 +1,71 @@
+<div class="card">
+    <div class="card-body">
+        <h4 class="text-center">Modifiez et complétez vos informations</h4>
+        
+        <div class="row g-3">
+            <div class="col-12" hidden>
+                <input type="text" id="uid" value="{{user.uid}}">
+            </div>
+            <div class="col-12">
+                <div class="mt-0" id="msgError" style="display: none;"></div>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="inputPseudo" class="mb-1">Pseudo</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-person-circle fs-6"></i></div>
+                <input value="{{user.pseudo}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputPseudo" placeholder="Pseudo">
+                </div>
+            </div>
+            <div class="col-md-5">
+                <label for="inputEmail" class="mb-1">E-mail</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-envelope-fill fs-6"></i></div>
+                <input value="{{user.mail}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputEmail" placeholder="E-mail">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label for="inputNomPrenom" class="mb-1">Nom & Prénom(s)</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-person-circle fs-6"></i></div>
+                <input value="{{user.nom}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputNomPrenom" placeholder="Numéro WhatsApp">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="inputMotPasse" class="mb-1">Lien TikTok</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.tiktok}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputMotPasse" placeholder="Mot de passe">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="inputConfirmerMotPasse" class="mb-1">Lien Instagram</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.instagram}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputConfirmerMotPasse" placeholder="Confirmation du mot de passe">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="inputMotPasse" class="mb-1">Lien FaceBook</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.facebook}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputMotPasse" placeholder="Mot de passe">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="inputConfirmerMotPasse" class="mb-1">Lien Youtube</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.youtube}}" type="text" class="form-control getInfo radius-30 ps-5" id="inputConfirmerMotPasse" placeholder="Confirmation du mot de passe">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label for="inputAPropos" class="mb-1">A propos de vous</label>
+                <textarea id="inputAPropos" class="form-control getInfo" rows="8">{{user.apropos}}</textarea>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3" id="enregistrerProfil">ENREGISTRER</button>
+    </div>
+</div>
