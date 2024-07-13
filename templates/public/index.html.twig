@@ -3,7 +3,28 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
+    <section id="hero">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-lg-7 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center">
+                    <div data-aos="zoom-out">
+                        <h1>Dressur <span>Mobile & Web</span></h1>
+                        <h2>Dressé votre mure de compétences et assurez-vous une grande visibilité.</h2>
+                        <div class="d-md-flex text-center text-lg-start justify-content-between">
+                            <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-get-started scrollto mb-2 mb-md-0"> <i class="fs-5 fab fa-google-play me-2"></i> Télécharger sur Google Play</a>
+                            <a href="{{path('app_inscription')}}" class="btn-get-started scrollto">S'inscrire <i class="fs-5 fas fa-user-plus ms-2"></i> </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="300">
+                    <img src="/assets/img/hero.jpg" class="img-fluid animated" alt="">
+                </div>
+            </div>
+        </div>
+    </section>
+
     <div class="container mt-3">
+        <h1 class="fs-4 fw-semibolder mb-3"><i class="fs-5 fas fa-play"></i> Top 6 des Promotions Affaires</h1>
         <div class="row g-3">
             {% for actu in actus %}
                 {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
