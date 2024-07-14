@@ -72,7 +72,7 @@ class DressurBotController extends AbstractController
         }
 
         if($userBotFind) {
-            if($userBotFind->getExpiratedAt() < new DateTime()) {
+            if($userBotFind->getExpiratedAt() > new DateTime()) {
                 return new JsonResponse([
                     'error' => false,
                     'target' => "configPage",
