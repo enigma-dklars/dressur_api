@@ -234,4 +234,20 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/invitezVosAmis', name: 'app_invitezVosAmis')]
+    public function invitezVosAmis(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/invitezVosAmis.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }
