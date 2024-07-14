@@ -48,6 +48,9 @@ class Transaction
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $transactionFor = null;
 
+    #[ORM\ManyToOne]
+    private ?UserBot $userBot = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
@@ -183,6 +186,18 @@ class Transaction
     public function setTransactionFor(?string $transactionFor): self
     {
         $this->transactionFor = $transactionFor;
+        return $this;
+    }
+
+    public function getUserBot(): ?UserBot
+    {
+        return $this->userBot;
+    }
+
+    public function setUserBot(?UserBot $userBot): static
+    {
+        $this->userBot = $userBot;
+
         return $this;
     }
 }

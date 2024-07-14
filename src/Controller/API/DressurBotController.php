@@ -22,6 +22,7 @@ use App\Entity\Transaction as EntityTransaction;
 use App\Entity\UserBot;
 use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleCampagneMailRepository;
+use App\Repository\FormuleDressurBotRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\UserBotRepository;
 use App\Repository\UserRepository;
@@ -76,11 +77,31 @@ class DressurBotController extends AbstractController
                 return new JsonResponse([
                     'error' => false,
                     'target' => "configPage",
+                    'userInfo' => [
+                        'nom' => $nom,
+                        'email' => $email,
+                        'numero' => $numero,
+                        'adresseMac' => $adresseMac,
+                        'uuidMachine' => $uuidMachine,
+                        'diskSerialNumber' => $diskSerialNumber,
+                        'createdAt' => $userBotFind->getCreatedAt(),
+                        'expiratedAt' => $userBotFind->getExpiratedAt(),
+                    ],
                 ]);
             } else {
                 return new JsonResponse([
                     'error' => false,
                     'target' => "paiementPage",
+                    'userInfo' => [
+                        'nom' => $nom,
+                        'email' => $email,
+                        'numero' => $numero,
+                        'adresseMac' => $adresseMac,
+                        'uuidMachine' => $uuidMachine,
+                        'diskSerialNumber' => $diskSerialNumber,
+                        'createdAt' => $userBotFind->getCreatedAt(),
+                        'expiratedAt' => $userBotFind->getExpiratedAt(),
+                    ],
                 ]);
             }
         } else {
@@ -114,6 +135,7 @@ class DressurBotController extends AbstractController
                     'error' => false,
                     'target' => "paiementPage",
                     'userInfo' => [
+                        'nom' => $nom,
                         'email' => $email,
                         'numero' => $numero,
                         'adresseMac' => $adresseMac,
@@ -135,6 +157,125 @@ class DressurBotController extends AbstractController
             'error' => true,
             'titre' => 'Erreur!',
             'message' => "Erreur de traitement. Veuillez contactez l'assistance de Dressur Bot...",
+        ]);
+    }
+
+    #[Route('/listeFormuleDressurBot', name: 'listeFormuleDressurBot', methods: ['POST', 'GET'])]
+    public function listeFormuleDressurBot(FormuleBoostRepository $formuleBoostRepository, TraitementsDS $traitementsDS): Response
+    {
+        return new JsonResponse([
+            'error' => false,
+            'listeFormuleDressurBot' => $traitementsDS->listeFormuleDressurBot(),
+        ]);
+    }
+
+    #[Route('/paiementDressurUserBot', name: 'paiementDressurUserBot', methods: ['POST'])]
+    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository): Response
+    {
+        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
+        FedaPay::setEnvironment('live');
+
+        $datas = $request->request;
+        
+        $email = $request->get("email");
+        $numero = $request->get("numero");
+        $adresseMac = $request->get("adresseMac");
+        $uuidMachine = $request->get("uuidMachine");
+        $diskSerialNumber = $request->get("diskSerialNumber");
+
+        $idFormulDressurBot = $datas->get('idFormulDressurBot');
+        $valueMethodePaiement = $datas->get('valueMethodePaiement');
+        $tel = $datas->get('tel');     
+
+        if(!$tel){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez saisir un numéro de téléphone.',
+            ]);
+        }
+
+        if(!$valueMethodePaiement){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+
+        if($valueMethodePaiement == "mtn") {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Les paiements par MTN depuis l'application rencontre en ce moment des perturbations. Veuillez si possible utiliser Moov ou Celtis pour vos paiements. Si ce n'est pas possible, contactez l'assistance Dressur par WhatsApp Svp. Merci.",
+            ]);
+        }
+
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
+        if($verificationNumTel["error"] == true){
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
+        }
+        $tel = $verificationNumTel["e164"];
+
+        $userBotFind = $userBotRepository->findOneBy([
+            'email' => $email,
+            'numero' => $numero,
+            'adresseMac' => $adresseMac,
+            'uuidMachine' => $uuidMachine,
+            'diskSerialNumber' => $diskSerialNumber,
+        ]);
+
+        $formulDressurBot = $formuleDressurBotRepository->find($idFormulDressurBot);
+        if(!$formulDressurBot){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        }
+
+        $array_create_transaction = [
+            "description" => "DressurBot : Activation : ". $formulDressurBot->getTitre() ." - ". $formulDressurBot->getPrix() ."FCFA : Transaction for ". $userBotFind->getNom() ." ".$userBotFind->getEmail(),
+            "amount" => $formulDressurBot->getPrix(),
+            "currency" => ["iso" => "XOF"],
+            "customer" => [
+                "firstname" => $userBotFind->getNom(),
+                "lastname" => $userBotFind->getNom(),
+                "email" => $userBotFind->getEmail(),
+                "phone_number" => [
+                    "number" => $tel,
+                    "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                ]
+            ]
+        ];
+            
+        $transaction = Transaction::create($array_create_transaction);
+
+        $myTransaction  = new EntityTransaction();
+        $myTransaction
+            ->setUserBot($userBotFind)
+            ->setTransactionFor("dressur_bot_activation")
+            ->setIdTransaction($transaction["id"])
+            ->setReference($transaction["reference"])
+            ->setAmount($transaction["amount"])
+            ->setStatus($transaction["status"])
+            ->setCustomerId($transaction["customer_id"])
+            ->setCurrencyId($transaction["currency_id"])
+            ->setAnnotherInfo([
+                'formulDressurBotId' => $formulDressurBot->getId(),
+                'userBot' => $userBotFind->getId(),
+            ])
+        ;
+        $this->em->persist($myTransaction);
+
+        $this->em->flush();
+
+        $token = $transaction->generateToken()->token;
+        $mode = $valueMethodePaiement;
+        $transaction->sendNowWithToken($mode, $token);
+
+        return new JsonResponse([
+            'error' => false,
         ]);
     }
 }

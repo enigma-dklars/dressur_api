@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
+use App\Repository\FormuleDressurBotRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -43,7 +44,7 @@ class WebhookController extends AbstractController
     }
 
     #[Route('/webhookDressur', name: 'webhookDressur')]
-    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository)
+    public function webhookDressur(TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
     {
         FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
         FedaPay::setEnvironment('live');
@@ -129,6 +130,12 @@ class WebhookController extends AbstractController
                             $campagneMail
                                 ->setStatus(3)
                             ;
+                        }
+
+                        if ($myTransaction->getTransactionFor() == "dressur_bot_activation") {
+                            $formuleDressurBot = $formuleDressurBotRepository->find($myTransaction->getAnnotherInfo()['formulDressurBotId']);
+                            $userBot = $myTransaction->getUserBot();
+                            $userBot->setExpiratedAt(new DateTime("+ ".$formuleDressurBot->getNbrJour()."days"));
                         }
 
                         $this->em->flush();
