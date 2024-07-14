@@ -14,13 +14,13 @@
                     </div>
                     {% if user.siParrain == false %}
                         <div class="col-md-7">
-                            <button class="btn btn-success w-100">
+                            <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modal_parrainage">
                                 Utilisez un code de Parrainage
                             </button>
                         </div>
                     {% endif %}
                     <div class="{% if user.siParrain == false %}col-md-5{% else %}col-md-12{% endif %} mb-1">
-                        <button class="btn btn-success w-100">
+                        <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modal_promo">
                             Utilisez un code Promo
                         </button>
                     </div>
@@ -31,7 +31,7 @@
                     <p class="m-0">Point(s)</p>
                 </div>
                 <h4 class="text-center mt-4 mb-1">Code de Parrainage</h4>
-                <input type="text" class="form-control mb-3" disabled value="{{user.codeBonus}}">
+                <input type="text" class="form-control form-control-lg mb-3" disabled value="{{user.codeBonus}}">
                 <div class="text-center fw-bolder fs-4 mb-3">
                     {{user.nombreFilleuls}} invité(s)
                 </div>
@@ -41,6 +41,48 @@
                 <div class="text-center fw-bolder">
                     OFFREZ {{user.commissionBonus}} Points A CHAQU'UN DE VOS FILLEULS
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_parrainage" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>Utilisez un code de Parrainage</h6>
+            </div>
+            <div class="modal-body">
+                <div class="col-12">
+                    <div class="mt-0 msgError" id="msgErrorParrainage" style="display: none;"></div>
+                </div>
+                <p class="fw-normal mb-1">Le code reçu de votre parrain</p>
+                <input type="text" class="form-control getInfo getInfoParrainage form-control-lg mb-2" id="codeParrainage">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-success btn-sm" id="validerCodeParrainage">Valider</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal_promo" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>Utilisez un code Promo</h6>
+            </div>
+            <div class="modal-body">
+                <div class="col-12">
+                    <div class="mt-0 msgError" id="msgErrorPromo" style="display: none;"></div>
+                </div>
+                <p class="fw-normal mb-1">Le code promo</p>
+                <input type="text" class="form-control getInfo getInfoPromo form-control-lg mb-2" id="codePromo">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-success btn-sm" id="validerCodePromo">Valider</button>
             </div>
         </div>
     </div>

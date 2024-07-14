@@ -1454,6 +1454,186 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", "#validerCodeParrainage", function () {
+        traitementContact("validerCodeParrainage", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgErrorParrainage").text()
+
+        let uid = $("#uid").val();
+        let codeParrainage = $("#codeParrainage").val();
+
+        $(".getInfoParrainage").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgErrorParrainage").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgErrorParrainage").toggle(800)
+            }
+            traitementContact("validerCodeParrainage", "fin", "Valider")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/addParrain",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                codeBonus : codeParrainage,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgErrorParrainage").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgErrorParrainage").toggle(800)
+                } else {
+                    msgError = "C'est Valider..."
+                    $("#msgErrorParrainage").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgErrorParrainage").toggle(800);
+                    setTimeout(() => {
+                        $("#modal_parrainage").modal("hide");
+                        actualiseContent("/invitezVosAmis");
+                    }, 5000);
+                }
+                traitementContact("validerCodeParrainage", "fin", "Valider")
+            }
+        });
+    });
+
+    $(document).on("click", "#validerCodePromo", function () {
+        traitementContact("validerCodePromo", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgErrorPromo").text()
+
+        let uid = $("#uid").val();
+        let codePromo = $("#codePromo").val();
+
+        $(".getInfoPromo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgErrorPromo").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgErrorPromo").toggle(800)
+            }
+            traitementContact("validerCodePromo", "fin", "Valider")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/addBonusPromo",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                codePromo : codePromo,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgErrorPromo").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgErrorPromo").toggle(800)
+                } else {
+                    msgError = "C'est Valider..."
+                    $("#msgErrorPromo").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgErrorPromo").toggle(800);
+                    setTimeout(() => {
+                        $("#modal_promo").modal("hide");
+                        actualiseContent("/invitezVosAmis");
+                    }, 5000);
+                }
+                traitementContact("validerCodePromo", "fin", "Valider")
+            }
+        });
+    });
+
     /**
      * Clique sur un element du menu
      */
@@ -1488,6 +1668,4 @@ $(document).ready(function () {
             }
         });
     });
-
-
 });
