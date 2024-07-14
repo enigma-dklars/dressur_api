@@ -218,4 +218,20 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/editPassword', name: 'app_editPassword')]
+    public function editPassword(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/editPassword.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }

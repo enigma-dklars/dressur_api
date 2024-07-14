@@ -1364,6 +1364,96 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", "#editMdp", function () {
+        traitementContact("editMdp", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError").text()
+
+        let uid = $("#uid").val();
+        let inputAncienMdp = $("#inputAncienMdp").val();
+        let inputNewMdp = $("#inputNewMdp").val();
+        let inputConfNewMdp = $("#inputConfNewMdp").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError").toggle(800)
+            }
+            traitementContact("editMdp", "fin", "MODIFIER")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/updateUserPassword",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                currentPassword : inputAncienMdp,
+                newPassword : inputNewMdp,
+                confirmNewPassword : inputConfNewMdp,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    msgError = "Mot de passe modifié avec succès."
+                    $("#msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError").toggle(800);
+                }
+                traitementContact("editMdp", "fin", "MODIFIER")
+            }
+        });
+    });
+
     /**
      * Clique sur un element du menu
      */
