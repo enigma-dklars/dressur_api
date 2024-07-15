@@ -3,9 +3,52 @@
 {% block title %}DASHBOARD{% endblock %}
 
 {% block body %}
-    <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
+
+    <div hidden>
+        <input type="text" id="uid" value="{{user.uid}}">
+    </div>
+
+    <div class="row g-3 mb-3">
+        {% if user.telIsVerified == false %}
+            <div class="{% if user.mailIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-0 text-secondary"><i class="fab fa-whatsapp me-1"></i> Confirmation du numéro WhatsApp</p>
+                        <p class="mt-1 mb-2">
+                            Assurez-vous de nous envoyer <span class="text-success fw-bold">WhatsApp Confirmation</span> avec le numéro WhatsApp utiliser pour créer votre compte Dressur. 
+                            Cliquez juste sur <span class="mx-1 px-2 rounded bg-success text-white">Demander</span> ci-dessous pour demander la confirmation de votre numéro WhatsApp. 
+                            Les demandes sont traitées le plus tôt possible, ne vous inquiétez pas. 
+                        </p>
+                        <a href="https://wa.me/22964044294??text=WhatsApp Confirmation" target="_blank" class="btn btn-sm btn-success">Demander</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if user.mailIsVerified == false %}
+            <div class="{% if user.telIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-0 text-secondary"><i class="fas fa-envelope me-1"></i> Confirmation de l'adresse mail</p>
+                        <p class="mt-1 mb-2">
+                            Cliquez sur <span class="mx-1 px-2 rounded bg-primary text-white">Envoyer le code</span> pour recevoir un nouveau code de confirmation de votre adresse mail (<span class="mx-1 px-2 rounded bg-primary text-white">{{user.mail}}</span>). Contactez simplement l'Assistance Dressur après 2H d'attente...
+                        </p>
+                        <div class="mb-0">
+                            <div class="mt-0 mb-0 msgError" id="msgErrorValideMail" style="display: none;"></div>
+                        </div>
+                        <label for="" hidden>Code reçu par mail</label>
+                        <input type="text" class="form-control form-control-sm mt-1 mb-2 getInfo getInfoVerifMail" placeholder="Code reçu par mail" id="codeVerifMail">
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-primary me-1" id="envoyerCodeMail">Envoyer le Code</button>
+                            <button class="btn btn-sm btn-primary ms-1" id="validerVerifMail">Valider</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="row g-3 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
         <div class="col">
-        <div class="card radius-10 mb-3">
+        <div class="card radius-10 mb-0">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div>
@@ -20,7 +63,7 @@
         </div>
         </div>
         <div class="col">
-            <div class="card radius-10 mb-3">
+            <div class="card radius-10 mb-0">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div>
@@ -35,7 +78,7 @@
         </div>
         </div>
         <div class="col">
-        <div class="card radius-10 mb-3">
+        <div class="card radius-10 mb-0">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div>
@@ -50,7 +93,7 @@
         </div>
         </div>
         <div class="col">
-        <div class="card radius-10 mb-3">
+        <div class="card radius-10 mb-0">
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div>
