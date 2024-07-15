@@ -43,6 +43,39 @@
   height: 100%;
 }
 
+.carousel.slide.vertical .carousel-inner {
+  height: 100%;
+}
+
+.carousel.slide.vertical .carousel-inner > .item {
+  transition: 0.6s ease-in-out top;
+  transform: translateY(100%);
+  position: absolute;
+}
+
+.carousel.slide.vertical .carousel-inner > .active {
+  transform: translateY(0%);
+}
+
+.carousel.slide.vertical .carousel-inner > .next,
+.carousel.slide.vertical .carousel-inner > .prev {
+  transform: translateY(0%);
+  top: 0;
+  position: absolute;
+}
+
+.carousel-zoom .carousel-item {
+    transition: transform 0.6s ease;
+    transform: scale(0.8);
+    opacity: 0;
+}
+
+.carousel-zoom .carousel-item.active {
+    transform: scale(1);
+    opacity: 1;
+}
+
+
 #hero {
     width: 100%;
     /* background: url("/assets/img/hero-bg.jpg"); */
