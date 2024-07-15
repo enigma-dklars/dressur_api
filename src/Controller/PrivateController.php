@@ -250,4 +250,36 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/newboostcontact', name: 'app_newboostcontact')]
+    public function newboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/newboostcontact.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
+    #[Route('/listeboostcontact', name: 'app_listeboostcontact')]
+    public function listeboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/listeboostcontact.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }
