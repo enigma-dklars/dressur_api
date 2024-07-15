@@ -1,39 +1,46 @@
 * {
-    font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 .small-fort {
-    font-size: 14.5px !important;
+  font-size: 14.5px !important;
 }
 
 .actu-small-description {
-    font-weight: 400;
-    font-size: 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* Limite à 3 lignes */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 15px;
-    cursor: pointer;
+  font-weight: 400;
+  font-size: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limite à 3 lignes */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  cursor: pointer;
 }
 
 .contact-name {
-    font-weight: 400;
-    font-size: 16px;
-    display: -webkit-box;
-    -webkit-line-clamp: 1; /* Limite à 3 lignes */
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 15px;
-    cursor: pointer;
+  font-weight: 400;
+  font-size: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* Limite à 3 lignes */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 15px;
+  cursor: pointer;
 }
 
 .image-actu {
-    height: 300px;
-    object-fit: cover;
-    cursor: pointer;
+  height: 300px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.feature-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 }
 
 #hero {
