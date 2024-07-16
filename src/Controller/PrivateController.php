@@ -18,7 +18,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Encoder\JsonEncode;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PrivateController extends AbstractController
 {
@@ -46,6 +46,63 @@ class PrivateController extends AbstractController
             }
         }
         return false;
+    }
+
+    #[Route('/export_vcf', name: 'app_export_vcf')]
+    public function export_vcf(): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $pseudo = str_replace(".", "", $user->getPseudo());
+        $contacts = $this->traitementsDS->userContacts($user);
+
+        $response = new StreamedResponse();
+        $response->headers->set('Content-Type', 'text/vcard; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="contacts_'.$pseudo.'.vcf"');
+
+        $response->setCallback(function () use ($contacts) {
+            $handle = fopen('php://output', 'w');
+
+            foreach ($contacts as $contact) {
+                fwrite($handle, "BEGIN:VCARD\n");
+                fwrite($handle, "VERSION:3.0\n");
+                fwrite($handle, "FN:" . $contact['nom'] . "\n");
+                fwrite($handle, "EMAIL:" . $contact['mail'] . "\n");
+                fwrite($handle, "TEL:" . $contact['tel'] . "\n");
+                fwrite($handle, "END:VCARD\n");
+            }
+
+            fclose($handle);
+        });
+
+        return $response;
+    }
+
+    #[Route('/export_csv', name: 'app_export_csv')]
+    public function export_csv(): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $pseudo = str_replace(".", "", $user->getPseudo());
+        $contacts = $this->traitementsDS->userContacts($user);
+
+        $response = new StreamedResponse();
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="contacts_'.$pseudo.'.csv"');
+
+        $response->setCallback(function () use ($contacts) {
+            $handle = fopen('php://output', 'w');
+
+            // Headers CSV
+            fputcsv($handle, ['Nom', 'Email', 'Téléphone']);
+
+            // Données des contacts
+            foreach ($contacts as $contact) {
+                fputcsv($handle, [$contact['nom'], $contact['mail'], $contact['tel']]);
+            }
+
+            fclose($handle);
+        });
+
+        return $response;
     }
 
     #[Route('/logout', name: 'app_logout')]
@@ -95,9 +152,9 @@ class PrivateController extends AbstractController
     public function contact(): Response
     {
         $user = $this->getUserByUidInCookies();
-        $userinfo = $this->traitementsDS->userContacts($user);
+        $contacts = $this->traitementsDS->userContacts($user);
         $html = $this->renderView('private/contact.html.twig', [
-            'contacts' => $userinfo,
+            'contacts' => $contacts,
         ]);
 
         return new JsonResponse([

@@ -1,4 +1,13 @@
 <div class="row g-3">
+    <div class="col-md-6">
+        <p class="h5 mb-0">{{contacts|length}} Contact(s) Dressur</p>
+    </div>
+    <div class="col-md-6 text-end">
+        {% if contacts|length > 0 %}
+            <a href="{{path('app_export_csv')}}" class="btn btn-sm btn-secondary me-1"><i class="fa-solid fa-file-export me-1"></i> Exporter <span class="badge">CSV</span></a>
+            <a href="{{path('app_export_vcf')}}" class="btn btn-sm btn-primary"><i class="fa-solid fa-file-export me-1"></i> Exporter <span class="badge">VCF</span></a>
+        {% endif %}
+    </div>
     {% for contact in contacts %}
         <div class="col-md-4">
             <div class="card mb-0">
@@ -62,6 +71,10 @@
                         </div>
                     </div>
                 </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Vous n'avez pas encore de contact sur Dressur. Faites un Boost Contact pour en avoir.
         </div>
     {% endfor %}
 </div>
