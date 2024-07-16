@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Controller\API\UserController;
 use App\Repository\BoostRepository;
 use App\Repository\EnvRepository;
+use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
@@ -107,10 +108,9 @@ class PrivateController extends AbstractController
     public function newcampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
     {
         $user = $this->getUserByUidInCookies();
-        $formuleCampageMails = $formuleCampagneMailRepository->findAll();
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newcampagemail.html.twig', [
-            'formuleCampageMails' => $formuleCampageMails,
+            'formuleCampageMails' => $formuleCampagneMailRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 
@@ -253,12 +253,13 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/newboostcontact', name: 'app_newboostcontact')]
-    public function newboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function newboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
     {
         $user = $this->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newboostcontact.html.twig', [
+            'formuleBoosts' => $formuleBoostRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 

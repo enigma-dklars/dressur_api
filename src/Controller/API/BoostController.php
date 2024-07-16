@@ -129,7 +129,7 @@ class BoostController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
+                'message' => "Votre solde bonus est insuffisant.\nFaite un Boost Payant ou parrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
         

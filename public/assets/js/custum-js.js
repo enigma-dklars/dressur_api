@@ -1743,6 +1743,200 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("change", "#formule-boost-gratuit", function () {
+        let value = JSON.parse($(this).val())
+        let id = value[0];
+        let prix = value[1];
+        let nbrJour = value[2];
+        let msg = "Cette formule vous offre un boost de "+nbrJour+" jour(s) pour "+prix+" Bonus."
+        $("#description-boost-gratuit").html(msg).removeClass("bg-info").addClass("bg-success");
+    });
+
+    $(document).on("click", "#newBoostGratuit", function () {
+        traitementContact("newBoostGratuit", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgErrorBoostGratuit").text()
+
+        let formule_boost_gratuit = JSON.parse($("#formule-boost-gratuit").val())
+        let uid = $("#uid").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgErrorBoostGratuit").html(`
+                    <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgErrorBoostGratuit").toggle(800)
+            }
+            traitementContact("newBoostGratuit", "fin", "BOOSTER")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newBoost",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                idFormulBoost : formule_boost_gratuit[0],
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgErrorBoostGratuit").html(`
+                        <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgErrorBoostGratuit").toggle(800)
+                } else {
+                    msgError = "Votre boost a été enregistrée."
+                    $("#msgErrorBoostGratuit").html(`
+                        <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgErrorBoostGratuit").toggle(800);
+                }
+                traitementContact("newBoostGratuit", "fin", "BOOSTER")
+            }
+        });
+    });
+
+    $(document).on("change", "#formule-boost-payant", function () {
+        let value = JSON.parse($(this).val())
+        let id = value[0];
+        let prix = value[1];
+        let nbrJour = value[2];
+        let msg = "Cette formule vous offre un boost de "+nbrJour+" jour(s) pour "+prix+" FCFA."
+        $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
+    });
+
+    $(document).on("click", "#newBoostPayant", function () {
+        traitementContact("newBoostPayant", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgErrorBoostPayant").text()
+
+        let formule_boost_payant = JSON.parse($("#formule-boost-payant").val())
+        let paymentMethod = $("#paymentMethod").val();
+        let tel = $("#tel").val();
+        let uid = $("#uid").val();
+
+        $(".getInfoPayant").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgErrorBoostPayant").html(`
+                    <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgErrorBoostPayant").toggle(800)
+            }
+            traitementContact("newBoostPayant", "fin", "PAYER & BOOSTER")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newBoostPayant",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                idFormulBoost : formule_boost_payant[0],
+                valueMethodePaiement : paymentMethod,
+                tel : tel,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgErrorBoostPayant").html(`
+                        <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgErrorBoostPayant").toggle(800)
+                } else {
+                    msgError = "Votre boost a été enregistrée."
+                    $("#msgErrorBoostPayant").html(`
+                        <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfoPayant").val("");
+                    $("#msgErrorBoostPayant").toggle(800);
+                }
+                traitementContact("newBoostPayant", "fin", "PAYER & BOOSTER")
+            }
+        });
+    });
+
     /**
      * Clique sur un element du menu
      */
