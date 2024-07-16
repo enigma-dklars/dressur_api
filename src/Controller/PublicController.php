@@ -26,8 +26,11 @@ class PublicController extends AbstractController
     }
 
     #[Route('/connexion', name: 'app_connexion')]
-    public function connexion(): Response
+    public function connexion(PrivateController $privateController): Response
     {
+        if($privateController->getUserByUidInCookies()){
+            return $this->redirectToRoute('app_private');
+        }
         return $this->render('public/login.html.twig', [
             'controller_name' => 'PublicController',
         ]);
