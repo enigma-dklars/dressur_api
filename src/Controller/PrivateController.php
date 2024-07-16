@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Controller\API\UserController;
 use App\Repository\BoostRepository;
+use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleCampagneMailRepository;
@@ -278,6 +279,55 @@ class PrivateController extends AbstractController
         $html = $this->renderView('private/listeboostcontact.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user]))
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
+    #[Route('/listeBonusRecu', name: 'app_listeBonusRecu')]
+    public function listeBonusRecu(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/listeBonusRecu.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+            'lesBonus' => $traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"]))
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
+    #[Route('/addSuggestion', name: 'app_addSuggestion')]
+    public function addSuggestion(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/addSuggestion.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
+    #[Route('/signalerUser', name: 'app_signalerUser')]
+    public function signalerUser(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/signalerUser.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
         ]);
 
         return new JsonResponse([

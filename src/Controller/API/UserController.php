@@ -1561,11 +1561,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/listBonus/{uid}/{langUserPhone}', name: 'listBonus', methods: ['POST', "GET"])]
-    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository): Response
+    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository): Response
     {
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        return new JsonResponse($traitementsDS->bonusTab($wPBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
+        return new JsonResponse($traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
     }
 
     #[Route('/getAllContactAdmin', name: 'getAllContactAdmin', methods: ['POST'])]
