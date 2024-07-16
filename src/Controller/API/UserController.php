@@ -1710,13 +1710,13 @@ class UserController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "The pattern must contain at least 10 characters",
+                    'message' => "The suggestion must contain at least 10 characters",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Le motif doit contenir au minimum 10 caractères',
+                'message' => 'La suggestion doit contenir au minimum 10 caractères',
             ]);
         }
 
