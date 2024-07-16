@@ -2023,6 +2023,94 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", "#addSignaler", function () {
+        traitementContact("addSignaler", "debut", "")
+
+        let msgError = "Veuillez renseigner :"
+        let msgErrorHtml = $("#msgError").text()
+
+        let telSignaler = $("#telSignaler").val();
+        let motifSignaler = $("#motifSignaler").val();
+        let uid = $("#uid").val();
+
+        $(".getInfo").each(function() {
+            let titre = $(this).prev().text();
+            if(!titre){ titre = $(this).attr("placeholder"); }
+            let value = $(this).val();
+            if(!value){ 
+                if(msgError == "Veuillez renseigner :") {
+                    msgError += " " + titre
+                } else {
+                    msgError += ", " + titre
+                }
+            }
+        });
+
+        if(msgError != "Veuillez renseigner :"){
+            if(!msgErrorHtml){
+                $("#msgError").html(`
+                    <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $("#msgError").toggle(800)
+            }
+            traitementContact("addSignaler", "fin", "SIGNALER")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/addSignalement",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                telSignaler : telSignaler,
+                motifSignaler : motifSignaler,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $("#msgError").html(`
+                        <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $("#msgError").toggle(800)
+                } else {
+                    msgError = "Votre signalement a été enregistrée. Merci."
+                    $("#msgError").html(`
+                        <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $(".getInfo").val("");
+                    $("#msgError").toggle(800);
+                }
+                traitementContact("addSignaler", "fin", "SIGNALER")
+            }
+        });
+    });
+
     /**
      * Clique sur un element du menu
      */
