@@ -2111,6 +2111,45 @@ $(document).ready(function () {
         });
     });
 
+    $(document).on("click", ".un-pays", function () {
+        if($(this).hasClass("btn-success")){
+            $(this).removeClass("btn-success");
+            $(this).addClass("btn-light");
+        } else {
+            $(this).removeClass("btn-light");
+            $(this).addClass("btn-success");
+        }
+    });
+
+    $(document).on("click", ".savedPaysCgoisie", function () {
+        $(".savedPaysCgoisie").html("Patientez ... <div class='spinner-border spinner-btn spinner-border-sm' role='status'><span class='visually-hidden'>Loading...</span></div>").attr('disabled', '')
+        
+        let langUserPhone = 'fr';
+        let uid = $("#uid").val();
+        let paysChoisies = [];
+
+        $(".un-pays").each(function() {
+            if($(this).hasClass("btn-success")){
+                indicatif = $(this).attr("indicatif")
+                paysChoisies.push(indicatif)
+            }
+        });
+
+        let paysChoisieJson = JSON.stringify(paysChoisies);
+
+        $.ajax({
+            url: `api/updateUserPaysChoisies/${uid}/${langUserPhone}/${paysChoisieJson}`,
+            method: 'POST',
+            success: function (response) {
+                if(response.error == true){
+                    alert("Erreur, Envoyez une capture a l'assistance...")
+                } else {
+                    $(".savedPaysCgoisie").text("Modification effectuée").removeClass("btn-primary").addClass("btn-success");
+                }
+            }
+        });
+    });
+
     /**
      * Clique sur un element du menu
      */
