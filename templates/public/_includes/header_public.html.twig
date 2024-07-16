@@ -7,34 +7,46 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a class="nav-link {% if app.request.requestUri == path('app_public') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_public')}}">Accueil</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if app.request.requestUri == path('app_actualite') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_actualite')}}">Actualités</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link text-dark fw-semibold dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown"> 
-                    Services <i class="fas fa-chevron-down align-middle ms-2"></i>
-                </a>
-                <ul class="dropdown-menu bg-white border border-2 border-primary">
-                    <li><a class="dropdown-item text-dark" href="#">Boost Contact</a></li>
-                    <li><a class="dropdown-item text-dark" href="#">Campagne Mail</a></li>
-                    <li><a class="dropdown-item text-dark" href="#">Promotion Affaire</a></li>
-                    <li><a class="dropdown-item text-dark" href="#">Promotions Réseaux Sociaux</a></li>
-                    {# <li><hr class="dropdown-divider"></li> #}
-                </ul>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if app.request.requestUri == path('app_public') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_public')}}">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if app.request.requestUri == path('app_actualite') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_actualite')}}">Actualités</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link text-dark fw-semibold dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown"> 
+                        Services <i class="fas fa-chevron-down align-middle ms-2"></i>
+                    </a>
+                    <ul class="dropdown-menu bg-white border border-2 border-primary">
+                        <li><a class="dropdown-item text-dark" href="#">Boost Contact</a></li>
+                        <li><a class="dropdown-item text-dark" href="#">Campagne Mail</a></li>
+                        <li><a class="dropdown-item text-dark" href="#">Promotion Affaire</a></li>
+                        <li><a class="dropdown-item text-dark" href="#">Promotions Réseaux Sociaux</a></li>
+                        {# <li><hr class="dropdown-divider"></li> #}
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if app.request.requestUri == path('app_actualite') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_contactez_nous')}}">Contacts</a>
+                </li>
             </ul>
 
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a class="nav-link {% if app.request.requestUri == path('app_contactez_nous') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_contactez_nous')}}">Contacts</a>
-            </li>
+                
             </ul>
-            <div class="d-flex ms-3 gap-3">
-            <a href="{{path('app_connexion')}}" class="btn {% if app.request.requestUri == path('app_connexion') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-3 py-2 radius-30"><i class="fas fa-arrow-right-to-bracket me-2"></i>Connexion</a>
-            <a href="{{path('app_inscription')}}" class="btn {% if app.request.requestUri == path('app_inscription') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-3 py-2 radius-30"><i class="fas fa-user-plus me-2"></i>Inscription</a>
+            <div class="d-flex gap-2">
+                <div hidden>
+                    fas fa-moon
+                    fas fa-sun
+                </div>
+                <div class="notifications change-theme">
+                    <i class="fas {% if theme == "dark-theme" %}fa-moon{% else %}fa-sun{% endif %} ici-theme"></i>
+                </div>
+                {% if is_connect == "oui" %}
+                    <a href="{{path('app_private')}}" class="btn btn-success btn-sm px-3 py-2 radius-30"><i class="fas fa-house-user me-2"></i>Dashboard</a>
+                {% else %}
+                    <a href="{{path('app_connexion')}}" class="btn {% if app.request.requestUri == path('app_connexion') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-3 py-2 radius-30"><i class="fas fa-arrow-right-to-bracket me-2"></i>Connexion</a>
+                {% endif %}
+                <a href="{{path('app_inscription')}}" class="btn {% if app.request.requestUri == path('app_inscription') %}btn-primary{% else %}btn-white{% endif %} btn-sm px-3 py-2 radius-30"><i class="fas fa-user-plus me-2"></i>Inscription</a>
             </div>
         </div>
         </div>

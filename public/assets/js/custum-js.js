@@ -8,6 +8,13 @@ $(document).ready(function () {
         var expires = "expires=" + d.toUTCString();
         document.cookie = "uid=" + uid + ";" + expires + ";path=/";
     }
+
+    let setThemeCookie = function (theme) {
+        var d = new Date();
+        d.setTime(d.getTime() + (365*24*60*60*1000)); // 365 jours en millisecondes
+        var expires = "expires=" + d.toUTCString();
+        document.cookie = "theme=" + theme + ";" + expires + ";path=/";
+    }
         
     let traitementContact = function (elementId, option, htmlbtn){ 
         if(option == "debut"){
@@ -2123,7 +2130,7 @@ $(document).ready(function () {
 
     $(document).on("click", ".savedPaysCgoisie", function () {
         $(".savedPaysCgoisie").html("Patientez ... <div class='spinner-border spinner-btn spinner-border-sm' role='status'><span class='visually-hidden'>Loading...</span></div>").attr('disabled', '')
-        
+
         let langUserPhone = 'fr';
         let uid = $("#uid").val();
         let paysChoisies = [];
@@ -2148,6 +2155,25 @@ $(document).ready(function () {
                 }
             }
         });
+    });
+
+    /**
+     * changement de theme
+     */
+    $(document).on("click", ".change-theme", function () {
+        if($(".ici-theme").hasClass("fa-moon")){
+            $(".ici-theme").removeClass("fa-moon");
+            $("html").removeClass("dark-theme");
+            $(".ici-theme").addClass("fa-sun");
+            $("html").addClass("light-theme");
+            setThemeCookie("light-theme")
+        } else {
+            $(".ici-theme").removeClass("fa-sun");
+            $("html").removeClass("light-theme");
+            $(".ici-theme").addClass("fa-moon");
+            $("html").addClass("dark-theme");
+            setThemeCookie("dark-theme")
+        }
     });
 
     /**

@@ -24,6 +24,7 @@ class PrivateController extends AbstractController
 {
     private $em;
     private $env;
+    private $theme;
     private $cookieDS;
     private $traitementsDS;
     private $userRepository;
@@ -35,6 +36,15 @@ class PrivateController extends AbstractController
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
         $this->userRepository = $userRepository;
+        if($this->cookieDS->check("theme")) {
+            if($this->cookieDS->get("theme") == "dark-theme") {
+                $this->theme = "dark-theme";
+            } else {
+                $this->theme = "light-theme";
+            }
+        } else {
+            $this->theme = "light-theme";
+        }
     }
 
     function getUserByUidInCookies(){
@@ -121,6 +131,7 @@ class PrivateController extends AbstractController
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
             if($user){
                 return $this->render('private/index.html.twig', [
+                    'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
