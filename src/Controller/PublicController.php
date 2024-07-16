@@ -24,7 +24,7 @@ class PublicController extends AbstractController
         } else {
             $this->theme = "light-theme";
         }
-        $this->is_connect = $cookieDS->check("theme") ? "oui" : "non";
+        $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
     }
 
     #[Route('/', name: 'app_public')]
