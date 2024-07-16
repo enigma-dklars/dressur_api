@@ -1,3 +1,31 @@
-<div class="bg-danger px-2 py-5 text-center fw-bolder fs-4 rounded">
-    Cette section est en maintenance...
+<div class="row g-3">
+    {% for unBoostContact in lesBoostContact %}
+        <div class="col-md-4">
+            <div class="card mb-0 h-100">
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            {% if unBoostContact.modeNumber == 1 %} <span class="badge bg-success text-white fw-normal"> {{unBoostContact.modeBoostFormule}} </span> {% endif %}
+                            {% if unBoostContact.modeNumber == 2 %} <span class="badge bg-danger text-white fw-normal"> {{unBoostContact.modeBoostFormule}} </span> {% endif %}
+                        </div>
+                        <div class="col-6 text-end">
+                            {% if unBoostContact.statusNumber == 1 %} <span class="badge bg-warning text-white fw-normal"> {{unBoostContact.statutFormule}} </span> {% endif %}
+                            {% if unBoostContact.statusNumber == 2 %} <span class="badge bg-danger text-white fw-normal"> {{unBoostContact.statutFormule}} </span> {% endif %}
+                            {% if unBoostContact.statusNumber == 3 %} <span class="badge bg-success text-white fw-normal"> {{unBoostContact.statutFormule}} </span> {% endif %}
+                        </div>
+                    </div>
+                    <p class="pt-2 mb-0">
+                        {{unBoostContact.nomFormule}} ({{unBoostContact.prixFormule}})
+                    </p>
+                    <p class="small py-1 mb-0">
+                        {{unBoostContact.dateDebutFormule}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Aucun Boost Contact trouvé.
+        </div>
+    {% endfor %}
 </div>

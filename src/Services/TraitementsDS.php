@@ -95,6 +95,7 @@ class TraitementsDS extends AbstractController
             } else {
                 $statut = "En cours";
             }
+            $statusNumber = 1;
 
             if((new DateTime()) > $boost->getDateDebut() and (new DateTime()) < $boost->getDateExp()){
                 $dejaUnBoostEncours++;
@@ -106,6 +107,7 @@ class TraitementsDS extends AbstractController
                 } else {
                     $statut = "Programmé";
                 }
+                $statusNumber = 2;
             }            
 
             if((new DateTime()) > $boost->getDateExp()){
@@ -114,12 +116,15 @@ class TraitementsDS extends AbstractController
                 } else {
                     $statut = "Terminé";
                 }
+                $statusNumber = 3;
             }
 
             if($boost->getMode() == "Gratuit") {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). " Bonus";
+                $modeNumber = 1;
             } else {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
+                $modeNumber = 2;
             }
 
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -135,6 +140,8 @@ class TraitementsDS extends AbstractController
                     'prixFormule' => (string)$prix_boost,
                     'statutFormule' => $statut,
                     'modeBoostFormule' => $boostMode,
+                    'statusNumber' => $statusNumber,
+                    'modeNumber' => $modeNumber,
                 ];
             } else {
                 $unBoost = [
@@ -144,6 +151,8 @@ class TraitementsDS extends AbstractController
                     'prixFormule' => (string)$prix_boost,
                     'statutFormule' => $statut,
                     'modeBoostFormule' => $boost->getMode(),
+                    'statusNumber' => $statusNumber,
+                    'modeNumber' => $modeNumber,
                 ];
             }
             array_push($userBoosts, $unBoost);

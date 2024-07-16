@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller\API\UserController;
+use App\Repository\BoostRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\PromotionRepository;
@@ -268,13 +269,14 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/listeboostcontact', name: 'app_listeboostcontact')]
-    public function listeboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listeboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
     {
         $user = $this->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listeboostcontact.html.twig', [
             'user' => $traitementsDS->infosUser($user),
+            'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user]))
         ]);
 
         return new JsonResponse([
