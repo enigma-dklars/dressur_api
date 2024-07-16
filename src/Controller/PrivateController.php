@@ -335,4 +335,36 @@ class PrivateController extends AbstractController
             'content' => $html,
         ]);
     }
+
+    #[Route('/preferencePays', name: 'app_preferencePays')]
+    public function preferencePays(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/preferencePays.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
+    #[Route('/centreInteret', name: 'app_centreInteret')]
+    public function centreInteret(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
+    {
+        $user = $this->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/centreInteret.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
 }
