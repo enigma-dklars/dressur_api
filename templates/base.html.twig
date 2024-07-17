@@ -1,29 +1,45 @@
 <!doctype html>
-<html lang="fr" class="minimal-theme">
+<html lang="fr" class="{{theme}}">
     <head>
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="assets/images/favicon-32x32.png" type="image/png" />
+        <title>{% block title %}{% endblock %} | Dressur Web</title>
+        {% block referencement %}{% endblock %}
+        <meta name="robots" content="index, follow">
+        <meta name="googlebot" content="index, follow">
+        <link rel="icon" href="assets/images/dressur_logo_blanc.png" type="image/png" />
 
+        <!--plugins-->
+        <link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+        <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+        <link href="assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+        <link href="assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+        <link href="assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
         <!-- Bootstrap CSS -->
         <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
         <link href="assets/css/bootstrap-extended.css" rel="stylesheet" />
         <link href="assets/css/style.css" rel="stylesheet" />
         <link href="assets/css/icons.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&amp;display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="assets/bootstrap-icons150/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="assets/bootstrap-icons191/font/bootstrap-icons.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
         <!-- loader-->
         <link href="assets/css/pace.min.css" rel="stylesheet" />
+
+        <!--Theme Styles-->
+        <link href="assets/css/dark-theme.css" rel="stylesheet" />
+        <link href="assets/css/light-theme.css" rel="stylesheet" />
+        <link href="assets/css/semi-dark.css" rel="stylesheet" />
+        <link href="assets/css/header-colors.css" rel="stylesheet" />
+        <link href="assets/css/preloader.css" rel="stylesheet" />
         <link href="assets/css/my-css.css" rel="stylesheet" />
 
-        <title>{% block title %}{% endblock %} | Dressur Web</title>
         {% block style %}{% endblock %}
     </head>
 
-    <body class="bg-surface">
+    <body class="">
         <!--start wrapper-->
         <div class="wrapper">
             {% include "public/_includes/header_public.html.twig" %}

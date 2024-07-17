@@ -23,6 +23,7 @@ use App\Entity\Transaction as EntityTransaction;
 use App\Entity\User;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
+use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -33,11 +34,13 @@ class PromotionController extends AbstractController
 {
     private $em;
     private $env;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail)
     {
         $this->em = $em;
         $this->env = $env->find(1);
+        $this->sendMail = $sendMail;
     }
 
     #[Route('/newPromotion', name: 'newPromotion', methods: ['POST'])]
@@ -243,7 +246,7 @@ class PromotionController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
+                'message' => "Votre solde bonus est insuffisant.\nFaite une Promotion Payante ou parrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
         
@@ -448,9 +451,25 @@ class PromotionController extends AbstractController
 
             $this->em->flush();
 
-            $token = $transaction->generateToken()->token;
-            $mode = $valueMethodePaiement;
-            $transaction->sendNowWithToken($mode, $token);
+            try {
+                $token = $transaction->generateToken()->token;
+                $mode = $valueMethodePaiement;
+                $transaction->sendNowWithToken($mode, $token);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
 
             return new JsonResponse([
                 'error' => false,

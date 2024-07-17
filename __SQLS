@@ -12,3 +12,7 @@ GROUP BY
 ORDER BY 
   parrain_count DESC;
 
+# connaitre le nombre de user par pays
+SELECT pays, COUNT(*) AS nombre_utilisateurs
+FROM user
+GROUP BY pays ORDER BY nombre_utilisateurs DESC;

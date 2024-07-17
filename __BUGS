@@ -11,3 +11,7 @@ page profil, afficher la vue utilisateur
 page actu, remplacer les retour a la lignes dans l'appercu du texte ecrit par un espace " "
 
 L'appli doit cibler Android 14 (niveau d'API 34) ou une version ultérieure
+
+autoriser la modification du numéro whatsapp si il n'est pas encore confirmer sur l'app mobile
+
+prevoir des try catch dans l'api et senvoyer les erreur par mail

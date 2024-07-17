@@ -17,7 +17,7 @@
                         <p>
                             Motif : {{campagemail.motif}}
                         </p>
-                        <span class="text-success">
+                        <span class="text-success small">
                             Tenez compte du motif de refus pour soumettre une nouvelle demande. Merci...
                         </span>
                     {% endif %}                    
@@ -53,7 +53,7 @@
                                 Prix : {{campagemail.prixFormuleCampagneMail}} Fcfa
                             </div>
                             <div class="mb-2">
-                                <label for="moyen-paiement">Moyen de paiement</label>
+                                <label for="moyen-paiement">Methode de paiement mobile</label>
                                 <select id="moyen-paiement-{{campagemail.id}}" class="form-select getInfo getInfo-{{campagemail.id}}">
                                     <option value="" disabled selected>Choisisez le Moyen de paiement</option>
                                     <option value="airtel_ne">Airtel Niger</option>
@@ -118,6 +118,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Aucune Campagne Mail trouvé.
         </div>
     {% endfor %}
 </div>

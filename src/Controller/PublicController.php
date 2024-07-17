@@ -2,17 +2,38 @@
 
 namespace App\Controller;
 
+use App\Services\CookieDS;
+use App\Services\TraitementsDS;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PublicController extends AbstractController
 {
+    private $is_connect;
+    private $theme;
+    public function __construct(CookieDS $cookieDS)
+    {
+        $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
+        if($cookieDS->check("theme")) {
+            if($cookieDS->get("theme") == "dark-theme") {
+                $this->theme = "dark-theme";
+            } else {
+                $this->theme = "light-theme";
+            }
+        } else {
+            $this->theme = "light-theme";
+        }
+        $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
+    }
+
     #[Route('/', name: 'app_public')]
-    public function index(): Response
+    public function index(TraitementsDS $traitementsDS): Response
     {
         return $this->render('public/index.html.twig', [
-            'controller_name' => 'PublicController',
+            'actus' => $traitementsDS->getTopAffaires(6),
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -21,14 +42,21 @@ class PublicController extends AbstractController
     {
         return $this->render('public/register.html.twig', [
             'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
         ]);
     }
 
     #[Route('/connexion', name: 'app_connexion')]
-    public function connexion(): Response
+    public function connexion(PrivateController $privateController): Response
     {
+        if($privateController->getUserByUidInCookies()){
+            return $this->redirectToRoute('app_private');
+        }
         return $this->render('public/login.html.twig', [
             'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -37,6 +65,28 @@ class PublicController extends AbstractController
     {
         return $this->render('public/passe4get.html.twig', [
             'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/contacts', name: 'app_contactez_nous')]
+    public function contactez_nous(): Response
+    {
+        return $this->render('public/contactez_nous.html.twig', [
+            'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/actualite', name: 'app_actualite')]
+    public function actualite(TraitementsDS $traitementsDS): Response
+    {
+        return $this->render('public/actualite.html.twig', [
+            'actus' => $traitementsDS->getAffaires(),
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
         ]);
     }
 }

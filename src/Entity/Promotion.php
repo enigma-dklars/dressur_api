@@ -60,6 +60,7 @@ class Promotion
     public function __construct()
     {
         $this->status = 1;
+        $this->isFakeVue = false;
         $this->limited = true;
         $this->mode = "Gratuit";
         $this->nombreDeVue = 0;

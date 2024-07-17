@@ -1,0 +1,17 @@
+{% extends 'emails/templates_mail.html.twig' %}
+
+{% block contenu_mail %}
+    <div>
+        <center>BIENVENU SUR DRESSUR BOT</center>
+
+        <p>Nom :  {{nom}}</p>
+
+        <p>Email :  {{email}}</p>
+
+        <p>Numéro WhatsApp :  {{numero}}</p>
+
+        <p>
+            Inscription réussie. Veuillez procéder à l'activation de votre compte Dressur Bot.
+        </p>
+    </div>
+{% endblock %}

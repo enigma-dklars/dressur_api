@@ -1,4 +1,13 @@
 <div class="row g-3">
+    <div class="col-md-6">
+        <p class="h5 mb-0">{{contacts|length}} Contact(s) Dressur</p>
+    </div>
+    <div class="col-md-6 text-end">
+        {% if contacts|length > 0 %}
+            <a href="{{path('app_export_csv')}}" class="btn btn-sm btn-secondary me-1"><i class="fa-solid fa-file-export me-1"></i> Exporter <span class="badge">CSV</span></a>
+            <a href="{{path('app_export_vcf')}}" class="btn btn-sm btn-primary"><i class="fa-solid fa-file-export me-1"></i> Exporter <span class="badge">VCF</span></a>
+        {% endif %}
+    </div>
     {% for contact in contacts %}
         <div class="col-md-4">
             <div class="card mb-0">
@@ -41,16 +50,16 @@
                         <div class="modal-content">
                             <div class="modal-body">
                                 {% if contact.tiktok %}
-                                    <a href="{{contact.tiktok}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-tiktok me-2"></i> TikTok</a>
+                                    <a href="{{contact.tiktok}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-tiktok me-2"></i> TikTok</a>
                                 {% endif %}
                                 {% if contact.instagram %}
-                                    <a href="{{contact.instagram}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-instagram me-2"></i> Instagram</a>
+                                    <a href="{{contact.instagram}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-instagram me-2"></i> Instagram</a>
                                 {% endif %}
                                 {% if contact.facebook %}
-                                    <a href="{{contact.facebook}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-facebook-f me-2"></i> FaceBook</a>
+                                    <a href="{{contact.facebook}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-facebook-f me-2"></i> FaceBook</a>
                                 {% endif %}
                                 {% if contact.youtube %}
-                                    <a href="{{contact.youtube}}" class="btn btn-default w-100 text-start mb-2"><i class="fab fa-youtube me-2"></i> Youtube</a>
+                                    <a href="{{contact.youtube}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-youtube me-2"></i> Youtube</a>
                                 {% endif %}
                                 {% if contact.apropos %}
                                     {{contact.apropos|nl2br}}
@@ -62,6 +71,10 @@
                         </div>
                     </div>
                 </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Vous n'avez pas encore de contact sur Dressur. Faites un Boost Contact pour en avoir.
         </div>
     {% endfor %}
 </div>

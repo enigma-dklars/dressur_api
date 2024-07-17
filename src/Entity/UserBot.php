@@ -1,0 +1,164 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\UserBotRepository;
+use DateTime;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: UserBotRepository::class)]
+class UserBot
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $nom = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $email = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $numero = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $adresseMac = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $uuidMachine = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $diskSerialNumber = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $createdAt = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $expiratedAt = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $typeMachine = null;
+
+    public function __construct()
+    {
+        $this->typeMachine = "pc";
+        $this->createdAt = new DateTime();
+        $this->expiratedAt = new DateTime("-5 minutes");
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getNom(): ?string
+    {
+        return $this->nom;
+    }
+
+    public function setNom(string $nom): static
+    {
+        $this->nom = $nom;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    public function getNumero(): ?string
+    {
+        return $this->numero;
+    }
+
+    public function setNumero(string $numero): static
+    {
+        $this->numero = $numero;
+
+        return $this;
+    }
+
+    public function getAdresseMac(): ?string
+    {
+        return $this->adresseMac;
+    }
+
+    public function setAdresseMac(string $adresseMac): static
+    {
+        $this->adresseMac = $adresseMac;
+
+        return $this;
+    }
+
+    public function getUuidMachine(): ?string
+    {
+        return $this->uuidMachine;
+    }
+
+    public function setUuidMachine(string $uuidMachine): static
+    {
+        $this->uuidMachine = $uuidMachine;
+
+        return $this;
+    }
+
+    public function getDiskSerialNumber(): ?string
+    {
+        return $this->diskSerialNumber;
+    }
+
+    public function setDiskSerialNumber(string $diskSerialNumber): static
+    {
+        $this->diskSerialNumber = $diskSerialNumber;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getExpiratedAt(): ?\DateTimeInterface
+    {
+        return $this->expiratedAt;
+    }
+
+    public function setExpiratedAt(\DateTimeInterface $expiratedAt): static
+    {
+        $this->expiratedAt = $expiratedAt;
+
+        return $this;
+    }
+
+    public function getTypeMachine(): ?string
+    {
+        return $this->typeMachine;
+    }
+
+    public function setTypeMachine(string $typeMachine): static
+    {
+        $this->typeMachine = $typeMachine;
+
+        return $this;
+    }
+}

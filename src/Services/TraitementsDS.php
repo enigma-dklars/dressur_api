@@ -19,6 +19,9 @@ use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Controller\API\UserPreferenceController;
+use App\Repository\FormuleBoostRepository;
+use App\Repository\FormuleDressurBotRepository;
+use App\Repository\FormulePromoReseauRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
@@ -37,8 +40,11 @@ class TraitementsDS extends AbstractController
     private $verifMailRepository;
     private $signalementRepository;
     private $promotionRepository;
+    private $formulePromoReseauRepository;
+    private $formuleBoostRepository;
+    private $formuleDressurBotRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);
@@ -53,6 +59,9 @@ class TraitementsDS extends AbstractController
         $this->verifMailRepository = $verifMailRepository;
         $this->signalementRepository = $signalementRepository;
         $this->promotionRepository = $promotionRepository;
+        $this->formulePromoReseauRepository = $formulePromoReseauRepository;
+        $this->formuleBoostRepository = $formuleBoostRepository;
+        $this->formuleDressurBotRepository = $formuleDressurBotRepository;
     }
 
     public function formatNumber($nbrVue) {
@@ -86,6 +95,7 @@ class TraitementsDS extends AbstractController
             } else {
                 $statut = "En cours";
             }
+            $statusNumber = 1;
 
             if((new DateTime()) > $boost->getDateDebut() and (new DateTime()) < $boost->getDateExp()){
                 $dejaUnBoostEncours++;
@@ -97,6 +107,7 @@ class TraitementsDS extends AbstractController
                 } else {
                     $statut = "Programmé";
                 }
+                $statusNumber = 2;
             }            
 
             if((new DateTime()) > $boost->getDateExp()){
@@ -105,12 +116,15 @@ class TraitementsDS extends AbstractController
                 } else {
                     $statut = "Terminé";
                 }
+                $statusNumber = 3;
             }
 
             if($boost->getMode() == "Gratuit") {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). " Bonus";
+                $modeNumber = 1;
             } else {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
+                $modeNumber = 2;
             }
 
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -126,6 +140,8 @@ class TraitementsDS extends AbstractController
                     'prixFormule' => (string)$prix_boost,
                     'statutFormule' => $statut,
                     'modeBoostFormule' => $boostMode,
+                    'statusNumber' => $statusNumber,
+                    'modeNumber' => $modeNumber,
                 ];
             } else {
                 $unBoost = [
@@ -135,12 +151,27 @@ class TraitementsDS extends AbstractController
                     'prixFormule' => (string)$prix_boost,
                     'statutFormule' => $statut,
                     'modeBoostFormule' => $boost->getMode(),
+                    'statusNumber' => $statusNumber,
+                    'modeNumber' => $modeNumber,
                 ];
             }
             array_push($userBoosts, $unBoost);
         }
         $userBoosts = array_reverse($userBoosts);
         return $userBoosts;
+    }
+
+    public function vuesImpressionsCumulerUserPromos($promos){
+        $countVues = 0;
+        $countImpressions = 0;
+        foreach ($promos as $promo) {
+            $countVues += $promo->getNombreDeVue();
+            $countImpressions += $promo->getNombreImpression();
+        }
+        return [
+            "countVues" => $countVues,
+            "countImpressions" => $countImpressions,
+        ];
     }
 
     public function userPromos($promos){
@@ -195,6 +226,7 @@ class TraitementsDS extends AbstractController
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "description" => $promo->getDescription(),
+                "statusNumber" => $promo->getStatus(),
                 "status" => $statut,
                 "dateDebut" => $promo->getDateDebut() ? ($promo->getDateDebut())->format('d-m-Y à H:i') : "",
                 "dateExp" => $promo->getDateExp() ? ($promo->getDateExp())->format('d-m-Y à H:i') : "",
@@ -207,6 +239,34 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function listeFormulBoost() {
+        $listeFormulBoost = [];
+        foreach ($this->formuleBoostRepository->findAll() as $boost) {
+            array_push($listeFormulBoost, [
+                "id" => $boost->getId(),
+                "value" => $boost->getId(),
+                "label" => $boost->getTitre(),
+                "prix" => intval($boost->getPrix()),
+                "jours" => $boost->getNbrJour(),
+            ]);
+        }
+        return $listeFormulBoost;
+    }
+
+    public function listeFormuleDressurBot() {
+        $listeFormuleDressurBot = [];
+        foreach ($this->formuleDressurBotRepository->findAll() as $boost) {
+            array_push($listeFormuleDressurBot, [
+                "id" => $boost->getId(),
+                // "value" => $boost->getId(),
+                "label" => $boost->getTitre()." : ".$boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours",
+                // "prix" => intval($boost->getPrix()),
+                // "jours" => $boost->getNbrJour(),
+            ]);
+        }
+        return $listeFormuleDressurBot;
     }
 
     public function userPromoReseaus($promos){
@@ -253,6 +313,7 @@ class TraitementsDS extends AbstractController
                 "prixFixer" => $this->separateurMillier($promo->getPrixFixer())." FCFA",
                 "url" => $promo->getUrl(),
                 "reference" => $promo->getIdZefame(),
+                "statusNumber" => $promo->getStatus(),
                 "status" => $statut,
                 "compteurDebut" => $this->separateurMillier($promo->getCompteurDebut()),
                 "compteurRestant" => $this->separateurMillier($promo->getCompteurRestant()),
@@ -326,6 +387,83 @@ class TraitementsDS extends AbstractController
         }
         $userCampagneMail = array_reverse($userCampagneMail);
         return $userCampagneMail;
+    }
+
+    public function listeFormulePromoReseau() {
+        $listeFormulePromoReseau = [];
+        foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
+            $lesFormulesFils = [];
+            foreach ($this->formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.6 * 700;
+                $prix_service_fcfa = round($prix_service_fcfa) + 1;
+                if($this->sessionDS->get("langUserPhone") == 'fr') {
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
+                } else {
+                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\nQuantity Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescriptionEn();
+                }
+                array_push($lesFormulesFils, [
+                    "value" => $formuleFils->getId(),
+                    "label" => $formuleFils->getTitre(),
+                    "id" => $formuleFils->getId(),
+                    "titre" => $formuleFils->getTitre(),
+                    "prix" => $prix_service_fcfa,
+                    "qte" => $formuleFils->getQte(),
+                    "qteMin" => $formuleFils->getQteMin(),
+                    "qteMax" => $formuleFils->getQteMax(),
+                    "description" => $description_service,
+                ]);
+            }
+
+            array_push($listeFormulePromoReseau, [
+                "id" => $formule->getId(),
+                "titre" => $formule->getTitre(),
+                "iconFlutterName" => $formule->getIconFlutterName(),
+                "lesFormulesFils" => $lesFormulesFils,
+            ]);
+        }
+        return $listeFormulePromoReseau;
+    }
+
+    public function getAffaires(){
+        $top_trois_affaires = [];
+        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], 36);
+        foreach ($promos as $promo) {
+            $unePromo = [
+                "uidUser" => $promo->getUser()->getUid(),
+                "id" => $promo->getId(),
+                "image" => $promo->getImage(),
+                "description" => $promo->getDescription(),
+                "whatsappNumber" => $promo->getUser()->getTel(),
+                "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+            ];
+            array_push($top_trois_affaires, $unePromo);            
+        }
+        // Mélanger l'ordre des éléments de manière aléatoire
+        shuffle($top_trois_affaires);
+        return $top_trois_affaires;
+    }
+
+    public function getTopAffaires($limite){
+        $top_trois_affaires = [];
+        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], $limite);
+        foreach ($promos as $promo) {
+            $unePromo = [
+                "uidUser" => $promo->getUser()->getUid(),
+                "id" => $promo->getId(),
+                "image" => $promo->getImage(),
+                "description" => $promo->getDescription(),
+                "whatsappNumber" => $promo->getUser()->getTel(),
+                "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+            ];
+            array_push($top_trois_affaires, $unePromo);            
+        }
+        // Mélanger l'ordre des éléments de manière aléatoire
+        shuffle($top_trois_affaires);
+        return $top_trois_affaires;
     }
 
     public function listePubliciteAffichageAuxUsers($user){

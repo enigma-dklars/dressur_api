@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="fr" class="minimal-theme">
+<html lang="fr" class="{{theme}}">
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" href="assets/images/favicon-32x32.png" type="image/png" />
+    <link rel="icon" href="assets/images/dressur_logo_blanc.png" type="image/png" />
     <!--plugins-->
     <link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
     <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
@@ -140,13 +140,15 @@
     <!--app-->
     <script src="assets/js/app.js"></script>
     <script src="assets/js/index.js"></script>
-    <script src="assets/js/custum-js.js"></script>
-
+    
     <script>
         // new PerfectScrollbar(".wrapper")
-        new PerfectScrollbar(".best-product")
-        new PerfectScrollbar(".top-sellers-list")
+        // new PerfectScrollbar(".best-product")
+        // new PerfectScrollbar(".top-sellers-list")
     </script>
+        
+    {% block script %}{% endblock %}
 
+    <script src="assets/js/custum-js.js"></script>
 </body>
 </html>

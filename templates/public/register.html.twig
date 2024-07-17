@@ -1,19 +1,40 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}S'inscrire{% endblock %}
+{% set description = "Inscrivez-vous dès aujourd'hui sur Dressur pour gérer vos compétences et garantir une grande visibilité. Entrez vos informations essentielles pour créer votre compte." %}
+{% set title = "S'inscrire" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="inscription, Dressur inscription, gérer compétences, visibilité, créer compte, réseau social, marketing digital, Dressur web">
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
 
 {% block body %}
     <div class="authentication-content">
         <div class="container">
             <div class="mt-5">
-                <div class="card rounded-0 overflow-hidden shadow-none bg-white border">
+                <div class="card rounded-0 overflow-hidden shadow-none border">
                     <div class="row g-0">
                         <div class="col-12 order-1 col-xl-3 d-flex align-items-center justify-content-center border-end">
                         <img src="assets/images/error/auth-img-register3.png" class="img-fluid" alt="">
                         </div>
                         <div class="col-12 col-xl-9 order-xl-2">
                         <div class="card-body p-4 p-sm-5">
-                            <h5 class="card-title">Inscription</h5>
+                            <h5 class="card-title fs-3">Inscription</h5>
                             <p class="card-text text-center mb-4">Entrer vos informations primordiales!</p>
                             <form class="form-body">
                                 <div class="row g-3">

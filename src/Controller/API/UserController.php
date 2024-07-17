@@ -1561,11 +1561,11 @@ class UserController extends AbstractController
     }
 
     #[Route('/listBonus/{uid}/{langUserPhone}', name: 'listBonus', methods: ['POST', "GET"])]
-    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository): Response
+    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository): Response
     {
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        return new JsonResponse($traitementsDS->bonusTab($wPBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
+        return new JsonResponse($traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
     }
 
     #[Route('/getAllContactAdmin', name: 'getAllContactAdmin', methods: ['POST'])]
@@ -1710,13 +1710,13 @@ class UserController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "The pattern must contain at least 10 characters",
+                    'message' => "The suggestion must contain at least 10 characters",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Le motif doit contenir au minimum 10 caractères',
+                'message' => 'La suggestion doit contenir au minimum 10 caractères',
             ]);
         }
 

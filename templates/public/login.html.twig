@@ -1,19 +1,40 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Se Connecter{% endblock %}
+{% set description = "Connectez-vous à votre compte Dressur pour accéder à vos compétences et gérer votre profil." %}
+{% set title = "Se Connecter" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="connexion à Dressur, se connecter à son compte, login Dressur, accès au profil Dressur, gestion de compte" />
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
 
 {% block body %}
     <div class="authentication-content">
         <div class="container">
             <div class="mt-5">
-                <div class="card rounded-0 overflow-hidden shadow-none bg-white border">
+                <div class="card rounded-0 overflow-hidden shadow-none border">
                     <div class="row g-0">
                         <div class="col-12 order-1 col-md-7 d-flex align-items-center justify-content-center border-end">
                             <img src="assets/images/error/auth-img-7.png" class="img-fluid" alt="">
                         </div>
                         <div class="col-12 col-md-5 order-md-2">
                             <div class="card-body p-4 p-sm-5">
-                            <h5 class="card-title">Connexion</h5>
+                            <h5 class="card-title fs-3">Connexion</h5>
                             <p class="card-text mb-4 text-center">Renseigner votre adresse email et mot de passe pour accéder à votre compte!</p>
                             <form class="form-body">
                                 
@@ -43,7 +64,7 @@
                                     </div>
                                     </div>
                                     <div class="col-12 text-center">
-                                    <p class="mb-0">Vous n'avez pas encore de compte? <a href="{{path('app_inscription')}}">Inscrivez-vous ici</a></p>
+                                    <p class="mb-0">Vous n'avez pas encore de compte? <br> <a href="{{path('app_inscription')}}">Inscrivez-vous ici</a></p>
                                     </div>
                                 </div>
                             </form>

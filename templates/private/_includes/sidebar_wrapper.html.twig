@@ -13,8 +13,16 @@
     <ul class="metismenu" id="menu">
 
       <li class="">
-        <a href="javascript:;" class="menu-element" url="/private">
-          <div class="parent-icon"><i class="bi bi-house-door"></i>
+        <a href="{{path('app_public')}}">
+          <div class="parent-icon"><i class="fas fa-globe"></i>
+          </div>
+          <div class="menu-title">Public</div>
+        </a>
+      </li>
+
+      <li class="">
+        <a href="/private">
+          <div class="parent-icon"><i class="fas fa-house-user"></i>
           </div>
           <div class="menu-title">Dashboard</div>
         </a>
@@ -22,37 +30,68 @@
 
       <li class="">
         <a href="javascript:;" class="menu-element" url="/actu">
-          <div class="parent-icon"><i class="bi bi-headset"></i></div>
+          <div class="parent-icon"><i class="fas fa-folder-plus"></i></div>
           <div class="menu-title">Actu</div>
         </a>
       </li>
 
       <li class="">
         <a href="javascript:;" class="menu-element" url="/contact">
-          <div class="parent-icon"><i class="bi bi-headset"></i></div>
+          <div class="parent-icon"><i class="fas fa-users"></i></div>
           <div class="menu-title">Contacts</div>
         </a>
       </li>
 
       <li>
         <a href="javascript:;" class="has-arrow">
-          <div class="parent-icon"><i class="bi bi-house-door"></i>
+          <div class="parent-icon"><i class="fab fa-sellsy"></i>
           </div>
           <div class="menu-title">Promo</div>
         </a>
         <ul>
-          <li> <a href="javascript:;" class="menu-element" url="/newcampagemail"><i class="bi bi-arrow-right-short"></i>Campage Mail</a></li>
-          
-          <li> <a href="javascript:;" class="menu-element" url="/listecampagemail"><i class="bi bi-arrow-right-short"></i>Liste Campage Mail</a></li>
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/newboostcontact"><i class="fas fa-square-plus"></i>Boost Contact</a></li>
 
-          <li> <a href="javascript:;"><i class="bi bi-arrow-right-short"></i>Sales</a>
-          </li>
-          <li> <a href="javascript:;"><i class="bi bi-arrow-right-short"></i>Analytics</a>
-          </li>
-          <li> <a href="javascript:;"><i class="bi bi-arrow-right-short"></i>Project Management</a>
-          </li>
-          <li> <a href="javascript:;"><i class="bi bi-arrow-right-short"></i>CMS Dashboard</a>
-          </li>
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/listeboostcontact"><i class="fas fa-align-left"></i>Liste Boost Contact</a></li>
+
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/newcampagemail"><i class="fas fa-square-plus"></i>Campage Mail</a></li>
+          
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/listecampagemail"><i class="fas fa-align-left"></i>Liste Campage Mail</a></li>
+
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/newpromoreseau"><i class="fas fa-square-plus"></i>Promo. Réseau S.</a></li>
+          
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/listepromoreseau"><i class="fas fa-align-left"></i>Liste Promo. Réseau S.</a></li>
+          
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/newpromoaffaire"><i class="fas fa-square-plus"></i>Promo. Affaire</a></li>
+
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/listepromoaffaire"><i class="fas fa-align-left"></i>Liste Promo. Affaire</a></li>
+        </ul>
+      </li>
+
+      <li>
+        <a href="javascript:;" class="has-arrow">
+          <div class="parent-icon"><i class="fas fa-heart"></i>
+          </div>
+          <div class="menu-title">Préférence</div>
+        </a>
+        <ul>
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/preferencePays"><i class="fas fa-arrow-right"></i>Pays</a></li>
+
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/centreInteret"><i class="fas fa-arrow-right"></i>Centre d'intérêt</a></li>
+        </ul>
+      </li>
+
+      <li>
+        <a href="javascript:;" class="has-arrow">
+          <div class="parent-icon"><i class="fa fa-cog"></i>
+          </div>
+          <div class="menu-title">Autres Pages</div>
+        </a>
+        <ul>
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/listeBonusRecu"><i class="fas fa-arrow-right"></i>Liste des Bonus Reçu</a></li>
+
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/addSuggestion"><i class="fas fa-arrow-right"></i>Faire une Suggestion</a></li>
+          
+          <li> <a href="javascript:;" class="menu-element small-fort" url="/signalerUser"><i class="fas fa-arrow-right"></i>Signaler un utilisateur</a></li>
         </ul>
       </li>
     </ul>
