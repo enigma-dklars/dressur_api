@@ -37,11 +37,13 @@ class DressurBotController extends AbstractController
 {
     private $em;
     private $env;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail)
     {
         $this->em = $em;
-        $this->env = $env->find(1); 
+        $this->env = $env->find(1);
+        $this->sendMail = $sendMail;
     }
 
     #[Route('/dressurUserBot', name: 'dressurUserBot')]
@@ -270,9 +272,25 @@ class DressurBotController extends AbstractController
 
         $this->em->flush();
 
-        $token = $transaction->generateToken()->token;
-        $mode = $valueMethodePaiement;
-        $transaction->sendNowWithToken($mode, $token);
+        try {
+            $token = $transaction->generateToken()->token;
+            $mode = $valueMethodePaiement;
+            $transaction->sendNowWithToken($mode, $token);
+        } catch (\Throwable $th) {
+            $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "We encountered an error. You will be contacted by an administrator.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+            ]);
+        }
 
         return new JsonResponse([
             'error' => false,
