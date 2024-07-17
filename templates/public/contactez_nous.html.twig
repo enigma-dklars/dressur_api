@@ -1,6 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Contacts{% endblock %}
+{% set description = "Contactez-nous pour toute question ou demande d'information. Retrouvez nos coordonnées et comment nous joindre facilement." %}
+{% set title = "Contacts" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="contact Dressur, nous joindre, coordonnées Dressur, WhatsApp Dressur, email Dressur, Facebook Dressur, application Dressur, support Dressur" />
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
 
 {% block body %}
     <div class="container mt-3">

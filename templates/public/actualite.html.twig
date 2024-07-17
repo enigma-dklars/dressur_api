@@ -1,6 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Actualités{% endblock %}
+{% set description = "Découvrez les derniers produits, services et propositions des utilisateurs de Dressur. Restez informé sur les nouveautés et les initiatives au sein de notre communauté." %}
+{% set title = "Actualités" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="actualités Dressur, nouveautés Dressur, promotions Dressur, annonces Dressur, communauté Dressur, produits Dressur, services Dressur" />
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
 
 {% block body %}
     <div class="container mt-3">
