@@ -1,0 +1,41 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DeletedDS index{% endblock %}
+
+{% block body %}
+    <h1>DeletedDS index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Motif</th>
+                <th>CreatedAt</th>
+                <th>Tel</th>
+                <th>Mail</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for deleted_d in deleted_ds %}
+            <tr>
+                <td>{{ deleted_d.id }}</td>
+                <td>{{ deleted_d.motif }}</td>
+                <td>{{ deleted_d.createdAt ? deleted_d.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ deleted_d.tel }}</td>
+                <td>{{ deleted_d.mail }}</td>
+                <td>
+                    <a href="{{ path('app_crud_deleted_d_s_show', {'id': deleted_d.id}) }}">show</a>
+                    <a href="{{ path('app_crud_deleted_d_s_edit', {'id': deleted_d.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_deleted_d_s_new') }}">Create new</a>
+{% endblock %}

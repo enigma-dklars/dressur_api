@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Crud;
 
-use App\Entity\User;
-use App\Form\User1Type;
-use App\Repository\UserRepository;
+use App\Entity\Env;
+use App\Form\EnvType;
+use App\Repository\EnvRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,8 +13,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/crud/user')]
-class CrudUserController extends AbstractController
+#[Route('/crud/env')]
+class CrudEnvController extends AbstractController
 {
     private $theme;
     private $cookieDS;
@@ -35,76 +35,76 @@ class CrudUserController extends AbstractController
         }
     }
 
-    #[Route('/', name: 'app_crud_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
+    #[Route('/', name: 'app_crud_env_index', methods: ['GET'])]
+    public function index(EnvRepository $envRepository): Response
     {
-        return $this->render('crud_user/index.html.twig', [
+        return $this->render('crud_env/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findAll(),
+            'envs' => $envRepository->findAll(),
         ]);
     }
 
-    #[Route('/new', name: 'app_crud_user_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_crud_env_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $user = new User();
-        $form = $this->createForm(User1Type::class, $user);
+        $env = new Env();
+        $form = $this->createForm(EnvType::class, $env);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($user);
+            $entityManager->persist($env);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_crud_env_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('crud_user/new.html.twig', [
+        return $this->renderForm('crud_env/new.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user' => $user,
+            'env' => $env,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_crud_user_show', methods: ['GET'])]
-    public function show(User $user): Response
+    #[Route('/{id}', name: 'app_crud_env_show', methods: ['GET'])]
+    public function show(Env $env): Response
     {
-        return $this->render('crud_user/show.html.twig', [
+        return $this->render('crud_env/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user' => $user,
+            'env' => $env,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_crud_user_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/edit', name: 'app_crud_env_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Env $env, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(User1Type::class, $user);
+        $form = $this->createForm(EnvType::class, $env);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_crud_env_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('crud_user/edit.html.twig', [
+        return $this->renderForm('crud_env/edit.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user' => $user,
+            'env' => $env,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_crud_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}', name: 'app_crud_env_delete', methods: ['POST'])]
+    public function delete(Request $request, Env $env, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($user);
+        if ($this->isCsrfTokenValid('delete'.$env->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($env);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_crud_env_index', [], Response::HTTP_SEE_OTHER);
     }
 }

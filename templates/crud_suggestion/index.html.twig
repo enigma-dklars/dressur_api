@@ -1,0 +1,35 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Suggestion index{% endblock %}
+
+{% block body %}
+    <h1>Suggestion index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Suggestion</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for suggestion in suggestions %}
+            <tr>
+                <td>{{ suggestion.id }}</td>
+                <td>{{ suggestion.suggestion }}</td>
+                <td>
+                    <a href="{{ path('app_crud_suggestion_show', {'id': suggestion.id}) }}">show</a>
+                    <a href="{{ path('app_crud_suggestion_edit', {'id': suggestion.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_suggestion_new') }}">Create new</a>
+{% endblock %}

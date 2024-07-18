@@ -1,0 +1,54 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}CampagneMail{% endblock %}
+
+{% block body %}
+    <h1>CampagneMail</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ campagne_mail.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ campagne_mail.titre }}</td>
+            </tr>
+            <tr>
+                <th>Sujet</th>
+                <td>{{ campagne_mail.sujet }}</td>
+            </tr>
+            <tr>
+                <th>Replyto</th>
+                <td>{{ campagne_mail.replyto }}</td>
+            </tr>
+            <tr>
+                <th>Sendto</th>
+                <td>{{ campagne_mail.sendto }}</td>
+            </tr>
+            <tr>
+                <th>Contentmail</th>
+                <td>{{ campagne_mail.contentmail }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ campagne_mail.createdAt ? campagne_mail.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ campagne_mail.status }}</td>
+            </tr>
+            <tr>
+                <th>Motif</th>
+                <td>{{ campagne_mail.motif }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_campagne_mail_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_campagne_mail_edit', {'id': campagne_mail.id}) }}">edit</a>
+
+    {{ include('crud_campagne_mail/_delete_form.html.twig') }}
+{% endblock %}

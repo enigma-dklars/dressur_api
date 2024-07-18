@@ -1,0 +1,39 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DSBonus index{% endblock %}
+
+{% block body %}
+    <h1>DSBonus index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Code</th>
+                <th>Montant</th>
+                <th>DateExp</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for d_s_bonu in d_s_bonuses %}
+            <tr>
+                <td>{{ d_s_bonu.id }}</td>
+                <td>{{ d_s_bonu.code }}</td>
+                <td>{{ d_s_bonu.montant }}</td>
+                <td>{{ d_s_bonu.dateExp ? d_s_bonu.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_crud_d_s_bonus_show', {'id': d_s_bonu.id}) }}">show</a>
+                    <a href="{{ path('app_crud_d_s_bonus_edit', {'id': d_s_bonu.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_d_s_bonus_new') }}">Create new</a>
+{% endblock %}

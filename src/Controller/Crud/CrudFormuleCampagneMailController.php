@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Crud;
 
 use App\Entity\FormuleCampagneMail;
 use App\Form\FormuleCampagneMailType;

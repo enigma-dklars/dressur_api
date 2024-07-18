@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Crud;
 
 use App\Entity\FormuleBoost;
 use App\Form\FormuleBoostType;

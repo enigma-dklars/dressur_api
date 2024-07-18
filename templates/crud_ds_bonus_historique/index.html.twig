@@ -1,0 +1,39 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DSBonusHistorique index{% endblock %}
+
+{% block body %}
+    <h1>DSBonusHistorique index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>CreatedAt</th>
+                <th>Titre</th>
+                <th>Montant</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for d_s_bonus_historique in d_s_bonus_historiques %}
+            <tr>
+                <td>{{ d_s_bonus_historique.id }}</td>
+                <td>{{ d_s_bonus_historique.createdAt ? d_s_bonus_historique.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ d_s_bonus_historique.titre }}</td>
+                <td>{{ d_s_bonus_historique.montant }}</td>
+                <td>
+                    <a href="{{ path('app_crud_d_s_bonus_historique_show', {'id': d_s_bonus_historique.id}) }}">show</a>
+                    <a href="{{ path('app_crud_d_s_bonus_historique_edit', {'id': d_s_bonus_historique.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_d_s_bonus_historique_new') }}">Create new</a>
+{% endblock %}

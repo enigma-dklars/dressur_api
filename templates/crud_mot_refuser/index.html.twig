@@ -1,0 +1,35 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}MotRefuser index{% endblock %}
+
+{% block body %}
+    <h1>MotRefuser index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Mot</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for mot_refuser in mot_refusers %}
+            <tr>
+                <td>{{ mot_refuser.id }}</td>
+                <td>{{ mot_refuser.mot }}</td>
+                <td>
+                    <a href="{{ path('app_crud_mot_refuser_show', {'id': mot_refuser.id}) }}">show</a>
+                    <a href="{{ path('app_crud_mot_refuser_edit', {'id': mot_refuser.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_mot_refuser_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit CampagneMail{% endblock %}
+
+{% block body %}
+    <h1>Edit CampagneMail</h1>
+
+    {{ include('crud_campagne_mail/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_crud_campagne_mail_index') }}">back to list</a>
+
+    {{ include('crud_campagne_mail/_delete_form.html.twig') }}
+{% endblock %}

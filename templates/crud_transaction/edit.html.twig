@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit Transaction{% endblock %}
+
+{% block body %}
+    <h1>Edit Transaction</h1>
+
+    {{ include('crud_transaction/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_crud_transaction_index') }}">back to list</a>
+
+    {{ include('crud_transaction/_delete_form.html.twig') }}
+{% endblock %}

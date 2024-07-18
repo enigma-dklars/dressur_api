@@ -1,0 +1,62 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Transaction{% endblock %}
+
+{% block body %}
+    <h1>Transaction</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ transaction.id }}</td>
+            </tr>
+            <tr>
+                <th>IdTransaction</th>
+                <td>{{ transaction.idTransaction }}</td>
+            </tr>
+            <tr>
+                <th>Reference</th>
+                <td>{{ transaction.reference }}</td>
+            </tr>
+            <tr>
+                <th>Amount</th>
+                <td>{{ transaction.amount }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ transaction.status }}</td>
+            </tr>
+            <tr>
+                <th>CustomerId</th>
+                <td>{{ transaction.customerId }}</td>
+            </tr>
+            <tr>
+                <th>CurrencyId</th>
+                <td>{{ transaction.currencyId }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ transaction.updatedAt ? transaction.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>AnnotherInfo</th>
+                <td>{{ transaction.annotherInfo ? transaction.annotherInfo|join(', ') : '' }}</td>
+            </tr>
+            <tr>
+                <th>TransactionFor</th>
+                <td>{{ transaction.transactionFor }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_transaction_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_transaction_edit', {'id': transaction.id}) }}">edit</a>
+
+    {{ include('crud_transaction/_delete_form.html.twig') }}
+{% endblock %}

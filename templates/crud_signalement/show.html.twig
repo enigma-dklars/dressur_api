@@ -1,0 +1,30 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Signalement{% endblock %}
+
+{% block body %}
+    <h1>Signalement</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ signalement.id }}</td>
+            </tr>
+            <tr>
+                <th>Motif</th>
+                <td>{{ signalement.motif }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ signalement.createdAt ? signalement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_signalement_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_signalement_edit', {'id': signalement.id}) }}">edit</a>
+
+    {{ include('crud_signalement/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit MotRefuser{% endblock %}
+
+{% block body %}
+    <h1>Edit MotRefuser</h1>
+
+    {{ include('crud_mot_refuser/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_crud_mot_refuser_index') }}">back to list</a>
+
+    {{ include('crud_mot_refuser/_delete_form.html.twig') }}
+{% endblock %}

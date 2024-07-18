@@ -1,0 +1,39 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Boost index{% endblock %}
+
+{% block body %}
+    <h1>Boost index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>DateDebut</th>
+                <th>DateExp</th>
+                <th>Mode</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for boost in boosts %}
+            <tr>
+                <td>{{ boost.id }}</td>
+                <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ boost.mode }}</td>
+                <td>
+                    <a href="{{ path('app_crud_boost_show', {'id': boost.id}) }}">show</a>
+                    <a href="{{ path('app_crud_boost_edit', {'id': boost.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_boost_new') }}">Create new</a>
+{% endblock %}

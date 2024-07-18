@@ -1,0 +1,37 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Signalement index{% endblock %}
+
+{% block body %}
+    <h1>Signalement index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Motif</th>
+                <th>CreatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for signalement in signalements %}
+            <tr>
+                <td>{{ signalement.id }}</td>
+                <td>{{ signalement.motif }}</td>
+                <td>{{ signalement.createdAt ? signalement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_crud_signalement_show', {'id': signalement.id}) }}">show</a>
+                    <a href="{{ path('app_crud_signalement_edit', {'id': signalement.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_signalement_new') }}">Create new</a>
+{% endblock %}
