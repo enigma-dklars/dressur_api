@@ -25,7 +25,7 @@
             </tr>
             <tr>
                 <th>UsersTel</th>
-                <td>{{ env.usersTel ? env.usersTel|json_encode : '' }}</td>
+                <td>{{ env.usersTel ? env.usersTel|length : '' }}</td>
             </tr>
             <tr>
                 <th>DoBoostPayant</th>
@@ -38,9 +38,9 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_env_index') }}">back to list</a>
+    {# <a href="{{ path('app_crud_env_index') }}">back to list</a>
 
     <a href="{{ path('app_crud_env_edit', {'id': env.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
-    {{ include('crud_env/_delete_form.html.twig') }}
+    {{ include('crud_env/_delete_form.html.twig') }} #}
 {% endblock %}

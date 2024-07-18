@@ -21,11 +21,11 @@
             </tr>
             <tr>
                 <th>Description</th>
-                <td>{{ formule_promo_reseau.description }}</td>
+                <td>{{ formule_promo_reseau.description|nl2br }}</td>
             </tr>
             <tr>
                 <th>DescriptionEn</th>
-                <td>{{ formule_promo_reseau.descriptionEn }}</td>
+                <td>{{ formule_promo_reseau.descriptionEn|nl2br }}</td>
             </tr>
             <tr>
                 <th>Prix</th>
@@ -50,9 +50,9 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_formule_promo_reseau_index') }}">back to list</a>
+    {# <a href="{{ path('app_crud_formule_promo_reseau_index') }}">back to list</a>
 
     <a href="{{ path('app_crud_formule_promo_reseau_edit', {'id': formule_promo_reseau.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
-    {{ include('crud_formule_promo_reseau/_delete_form.html.twig') }}
+    {{ include('crud_formule_promo_reseau/_delete_form.html.twig') }} #}
 {% endblock %}

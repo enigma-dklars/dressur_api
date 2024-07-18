@@ -18,7 +18,7 @@
         {% for suggestion in suggestions %}
             <tr>
                 <td>{{ suggestion.id }}</td>
-                <td>{{ suggestion.suggestion }}</td>
+                <td>{{ suggestion.suggestion|nl2br }}</td>
                 <td>
                     {% include "crud_suggestion/_delete_form.html.twig" %}
                 </td>

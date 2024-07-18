@@ -11,7 +11,6 @@
             <tr>
                 <th>Id</th>
                 <th>Motif</th>
-                <th>CreatedAt</th>
                 <th>actions</th>
             </tr>
         </thead>
@@ -19,8 +18,7 @@
         {% for signalement in signalements %}
             <tr>
                 <td>{{ signalement.id }}</td>
-                <td>{{ signalement.motif }}</td>
-                <td>{{ signalement.createdAt ? signalement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ signalement.motif|nl2br }}</td>
                 <td>
                     {% include "crud_signalement/_delete_form.html.twig" %}
                 </td>

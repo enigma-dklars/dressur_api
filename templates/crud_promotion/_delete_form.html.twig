@@ -2,5 +2,5 @@
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
     <a href="{{ path('app_crud_promotion_show', {'id': promotion.id}) }}" class="btn btn-sm btn-info">Show</a>
     <a href="{{ path('app_crud_promotion_edit', {'id': promotion.id}) }}" class="btn btn-sm btn-success">Edit</a>
-    <button class="btn btn-sm btn-danger">Delete</button>
+    {# <button class="btn btn-sm btn-danger">Delete</button> #}
 </form>

@@ -12,10 +12,26 @@ class FormuleBoostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('titre')
-            ->add('prix')
-            ->add('nbrJour')
-            ->add('alert')
+            ->add('titre', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('prix', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('nbrJour', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('alert', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 

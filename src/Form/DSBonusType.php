@@ -12,10 +12,26 @@ class DSBonusType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('code')
-            ->add('montant')
-            ->add('dateExp')
-            ->add('user')
+            ->add('user', null, [
+                'attr' => [
+                    'class' => 'form-select mb-2'
+                ],
+            ])
+            ->add('code', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('montant', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('dateExp', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
         ;
     }
 

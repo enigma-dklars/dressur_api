@@ -10,22 +10,22 @@
         <thead>
             <tr>
                 <th>Id</th>
+                <th>User</th>
                 <th>CreatedAt</th>
                 <th>Titre</th>
                 <th>Montant</th>
-                <th>actions</th>
+                {# <th>actions</th> #}
             </tr>
         </thead>
         <tbody>
         {% for d_s_bonus_historique in d_s_bonus_historiques %}
             <tr>
                 <td>{{ d_s_bonus_historique.id }}</td>
+                <td>{{ d_s_bonus_historique.user.pseudo }}</td>
                 <td>{{ d_s_bonus_historique.createdAt ? d_s_bonus_historique.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ d_s_bonus_historique.titre }}</td>
                 <td>{{ d_s_bonus_historique.montant }}</td>
-                <td>
-                    {% include "crud_ds_bonus_historique/_delete_form.html.twig" %}
-                </td>
+                {# <td>{% include "crud_ds_bonus_historique/_delete_form.html.twig" %}</td> #}
             </tr>
         {% else %}
             <tr>

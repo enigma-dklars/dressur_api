@@ -12,7 +12,11 @@ class MotRefuserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('mot')
+            ->add('mot', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
         ;
     }
 

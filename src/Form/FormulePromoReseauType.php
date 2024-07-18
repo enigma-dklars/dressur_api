@@ -12,16 +12,56 @@ class FormulePromoReseauType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('titre')
-            ->add('iconFlutterName')
-            ->add('description')
-            ->add('descriptionEn')
-            ->add('prix')
-            ->add('qte')
-            ->add('qteMin')
-            ->add('qteMax')
-            ->add('available')
-            ->add('parent')
+            ->add('parent', null, [
+                'attr' => [
+                    'class' => 'form-select mb-2'
+                ],
+            ])
+            ->add('titre', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('description', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('descriptionEn', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('prix', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('qte', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('qteMin', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('qteMax', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('iconFlutterName', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('available', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 

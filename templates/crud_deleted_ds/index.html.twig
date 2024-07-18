@@ -29,6 +29,10 @@
                     {% include "crud_deleted_ds/_delete_form.html.twig" %}
                 </td>
             </tr>
+            <tr>
+                <td></td>
+                <td colspan="3">{{ deleted_d.motif|nl2br }}</td>
+            </tr>
         {% else %}
             <tr>
                 <td colspan="6">no records found</td>

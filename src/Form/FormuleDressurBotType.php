@@ -12,9 +12,21 @@ class FormuleDressurBotType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('titre')
-            ->add('prix')
-            ->add('nbrJour')
+            ->add('titre', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('prix', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('nbrJour', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
         ;
     }
 

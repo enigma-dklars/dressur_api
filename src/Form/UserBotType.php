@@ -12,15 +12,60 @@ class UserBotType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('nom')
-            ->add('email')
-            ->add('numero')
-            ->add('adresseMac')
-            ->add('uuidMachine')
-            ->add('diskSerialNumber')
-            ->add('createdAt')
-            ->add('expiratedAt')
-            ->add('typeMachine')
+            ->add('nom', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('email', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('numero', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('adresseMac', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('uuidMachine', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('diskSerialNumber', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('createdAt', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('expiratedAt', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
+            ->add('typeMachine', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+
         ;
     }
 

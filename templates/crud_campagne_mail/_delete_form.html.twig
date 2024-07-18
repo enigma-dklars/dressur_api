@@ -2,5 +2,5 @@
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ campagne_mail.id) }}">
     <a href="{{ path('app_crud_campagne_mail_show', {'id': campagne_mail.id}) }}" class="btn btn-sm btn-info">Show</a>
     <a href="{{ path('app_crud_campagne_mail_edit', {'id': campagne_mail.id}) }}" class="btn btn-sm btn-success">Edit</a>
-    <button class="btn btn-sm btn-danger">Delete</button>
+    {# <button class="btn btn-sm btn-danger">Delete</button> #}
 </form>

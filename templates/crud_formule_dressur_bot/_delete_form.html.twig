@@ -1,6 +1,6 @@
 <form method="post" action="{{ path('app_crud_formule_dressur_bot_delete', {'id': formule_dressur_bot.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formule_dressur_bot.id) }}">
-    <a href="{{ path('app_crud_formule_dressur_bot_show', {'id': formule_dressur_bot.id}) }}" class="btn btn-sm btn-info">Show</a>
+    {# <a href="{{ path('app_crud_formule_dressur_bot_show', {'id': formule_dressur_bot.id}) }}" class="btn btn-sm btn-info">Show</a> #}
     <a href="{{ path('app_crud_formule_dressur_bot_edit', {'id': formule_dressur_bot.id}) }}" class="btn btn-sm btn-success">Edit</a>
     <button class="btn btn-sm btn-danger">Delete</button>
 </form>

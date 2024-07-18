@@ -36,10 +36,6 @@
                 <td>{{ user.tel }}</td>
             </tr>
             <tr>
-                <th>Apropos</th>
-                <td>{{ user.apropos }}</td>
-            </tr>
-            <tr>
                 <th>Password</th>
                 <td>{{ user.password }}</td>
             </tr>
@@ -111,12 +107,16 @@
                 <th>HasReceived</th>
                 <td>{{ user.hasReceived }}</td>
             </tr>
+            <tr>
+                <th>Apropos</th>
+                <td>{{ user.apropos|nl2br }}</td>
+            </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_user_index') }}">back to list</a>
+    {# <a href="{{ path('app_crud_user_index') }}">back to list</a>
 
     <a href="{{ path('app_crud_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
-    {{ include('crud_user/_delete_form.html.twig') }}
+    {{ include('crud_user/_delete_form.html.twig') }} #}
 {% endblock %}

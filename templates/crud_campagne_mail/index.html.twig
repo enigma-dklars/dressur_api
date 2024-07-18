@@ -10,6 +10,7 @@
         <table class="data-table table table-bordered table-striped">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Id</th>
                     <th>User</th>
                     <th>Titre</th>
@@ -20,12 +21,12 @@
                     <th>CreatedAt</th>
                     <th>Status</th>
                     <th>Motif</th>
-                    <th>actions</th>
                 </tr>
             </thead>
             <tbody>
             {% for campagne_mail in campagne_mails %}
                 <tr>
+                    <td>{% include "crud_campagne_mail/_delete_form.html.twig" %}</td>
                     <td>{{ campagne_mail.id }}</td>
                     <td>{{ campagne_mail.user.pseudo }}</td>
                     <td>{{ campagne_mail.titre }}</td>
@@ -36,9 +37,6 @@
                     <td>{{ campagne_mail.createdAt ? campagne_mail.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ campagne_mail.status }}</td>
                     <td>{{ campagne_mail.motif }}</td>
-                    <td>
-                        {% include "crud_campagne_mail/_delete_form.html.twig" %}
-                    </td>
                 </tr>
             {% else %}
                 <tr>

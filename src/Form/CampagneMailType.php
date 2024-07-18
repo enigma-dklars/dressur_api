@@ -12,16 +12,56 @@ class CampagneMailType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('titre')
-            ->add('sujet')
-            ->add('replyto')
-            ->add('sendto')
-            ->add('contentmail')
-            ->add('createdAt')
-            ->add('status')
-            ->add('motif')
-            ->add('user')
-            ->add('formuleCampagneMail')
+            ->add('user', null, [
+                'attr' => [
+                    'class' => 'form-select mb-2'
+                ],
+            ])
+            ->add('formuleCampagneMail', null, [
+                'attr' => [
+                    'class' => 'form-select mb-2'
+                ],
+            ])
+            ->add('titre', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('sujet', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('replyto', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('sendto', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('contentmail', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('createdAt', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('status', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('motif', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
         ;
     }
 
