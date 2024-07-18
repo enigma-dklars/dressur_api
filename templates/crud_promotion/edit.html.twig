@@ -5,9 +5,9 @@
 {% block body %}
     <h1>Edit Promotion</h1>
 
-    {{ include('crud_promotion/_form.html.twig', {'button_label': 'Update'}) }}
-
     <a href="{{ path('app_crud_promotion_index') }}">back to list</a>
 
     {{ include('crud_promotion/_delete_form.html.twig') }}
+
+    {{ include('crud_promotion/_form.html.twig', {'button_label': 'Update'}) }}
 {% endblock %}

@@ -5,7 +5,7 @@
 {% block body %}
     <h1>DeletedDS</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -32,7 +32,7 @@
 
     <a href="{{ path('app_crud_deleted_d_s_index') }}">back to list</a>
 
-    <a href="{{ path('app_crud_deleted_d_s_edit', {'id': deleted_d.id}) }}">edit</a>
+    <a href="{{ path('app_crud_deleted_d_s_edit', {'id': deleted_d.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_deleted_ds/_delete_form.html.twig') }}
 {% endblock %}

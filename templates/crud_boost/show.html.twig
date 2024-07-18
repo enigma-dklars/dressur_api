@@ -5,7 +5,7 @@
 {% block body %}
     <h1>Boost</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -28,7 +28,7 @@
 
     <a href="{{ path('app_crud_boost_index') }}">back to list</a>
 
-    <a href="{{ path('app_crud_boost_edit', {'id': boost.id}) }}">edit</a>
+    <a href="{{ path('app_crud_boost_edit', {'id': boost.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_boost/_delete_form.html.twig') }}
 {% endblock %}

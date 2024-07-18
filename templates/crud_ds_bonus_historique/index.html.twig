@@ -3,9 +3,10 @@
 {% block title %}DSBonusHistorique index{% endblock %}
 
 {% block body %}
-    <h1>DSBonusHistorique index</h1>
+    <p class="h4 me-3">DSBonusHistorique index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_d_s_bonus_historique_new') }}">Create new</a> #}
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -23,8 +24,7 @@
                 <td>{{ d_s_bonus_historique.titre }}</td>
                 <td>{{ d_s_bonus_historique.montant }}</td>
                 <td>
-                    <a href="{{ path('app_crud_d_s_bonus_historique_show', {'id': d_s_bonus_historique.id}) }}">show</a>
-                    <a href="{{ path('app_crud_d_s_bonus_historique_edit', {'id': d_s_bonus_historique.id}) }}">edit</a>
+                    {% include "crud_ds_bonus_historique/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -35,5 +35,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_d_s_bonus_historique_new') }}">Create new</a>
 {% endblock %}

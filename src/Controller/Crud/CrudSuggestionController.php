@@ -41,7 +41,7 @@ class CrudSuggestionController extends AbstractController
         return $this->render('crud_suggestion/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'suggestions' => $suggestionRepository->findAll(),
+            'suggestions' => $suggestionRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

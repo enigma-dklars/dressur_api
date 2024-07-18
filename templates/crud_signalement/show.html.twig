@@ -5,7 +5,7 @@
 {% block body %}
     <h1>Signalement</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -24,7 +24,7 @@
 
     <a href="{{ path('app_crud_signalement_index') }}">back to list</a>
 
-    <a href="{{ path('app_crud_signalement_edit', {'id': signalement.id}) }}">edit</a>
+    <a href="{{ path('app_crud_signalement_edit', {'id': signalement.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_signalement/_delete_form.html.twig') }}
 {% endblock %}

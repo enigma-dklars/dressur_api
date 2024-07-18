@@ -41,7 +41,7 @@ class CrudTransactionController extends AbstractController
         return $this->render('crud_transaction/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'transactions' => $transactionRepository->findAll(),
+            'transactions' => $transactionRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

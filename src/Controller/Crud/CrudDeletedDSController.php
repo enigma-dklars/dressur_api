@@ -41,7 +41,7 @@ class CrudDeletedDSController extends AbstractController
         return $this->render('crud_deleted_ds/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'deleted_ds' => $deletedDSRepository->findAll(),
+            'deleted_ds' => $deletedDSRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

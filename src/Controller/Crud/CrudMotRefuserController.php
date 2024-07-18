@@ -41,7 +41,7 @@ class CrudMotRefuserController extends AbstractController
         return $this->render('crud_mot_refuser/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'mot_refusers' => $motRefuserRepository->findAll(),
+            'mot_refusers' => $motRefuserRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

@@ -41,7 +41,7 @@ class CrudSignalementController extends AbstractController
         return $this->render('crud_signalement/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'signalements' => $signalementRepository->findAll(),
+            'signalements' => $signalementRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

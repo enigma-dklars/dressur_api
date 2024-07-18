@@ -5,7 +5,7 @@
 {% block body %}
     <h1>Transaction</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -56,7 +56,7 @@
 
     <a href="{{ path('app_crud_transaction_index') }}">back to list</a>
 
-    <a href="{{ path('app_crud_transaction_edit', {'id': transaction.id}) }}">edit</a>
+    <a href="{{ path('app_crud_transaction_edit', {'id': transaction.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_transaction/_delete_form.html.twig') }}
 {% endblock %}

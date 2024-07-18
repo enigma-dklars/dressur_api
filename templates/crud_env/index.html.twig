@@ -3,9 +3,10 @@
 {% block title %}Env index{% endblock %}
 
 {% block body %}
-    <h1>Env index</h1>
+    <span class="h4 me-3">Env index</span>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_env_new') }}">Create new</a> #}
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -25,12 +26,12 @@
                 <td>{{ env.commissionBonus }}</td>
                 <td>{{ env.versionApp }}</td>
                 <td>{{ env.importantUpdate ? 'Yes' : 'No' }}</td>
-                <td>{{ env.usersTel ? env.usersTel|json_encode : '' }}</td>
+                <td></td>
+                {# <td>{{ env.usersTel ? env.usersTel|json_encode : '' }}</td> #}
                 <td>{{ env.doBoostPayant ? 'Yes' : 'No' }}</td>
                 <td>{{ env.linkLocalServer }}</td>
                 <td>
-                    <a href="{{ path('app_crud_env_show', {'id': env.id}) }}">show</a>
-                    <a href="{{ path('app_crud_env_edit', {'id': env.id}) }}">edit</a>
+                    {% include "crud_env/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -41,5 +42,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_env_new') }}">Create new</a>
 {% endblock %}

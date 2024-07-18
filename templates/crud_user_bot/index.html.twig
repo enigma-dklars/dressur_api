@@ -3,21 +3,22 @@
 {% block title %}UserBot index{% endblock %}
 
 {% block body %}
-    <h1>UserBot index</h1>
+    <p class="h4 me-3">UserBot index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_bot_new') }}">Create new</a> #}
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Numero</th>
-                <th>AdresseMac</th>
-                <th>UuidMachine</th>
-                <th>DiskSerialNumber</th>
+                {# <th>AdresseMac</th> #}
+                {# <th>UuidMachine</th> #}
+                {# <th>DiskSerialNumber</th> #}
                 <th>CreatedAt</th>
                 <th>ExpiratedAt</th>
-                <th>TypeMachine</th>
+                {# <th>TypeMachine</th> #}
                 <th>actions</th>
             </tr>
         </thead>
@@ -28,15 +29,14 @@
                 <td>{{ user_bot.nom }}</td>
                 <td>{{ user_bot.email }}</td>
                 <td>{{ user_bot.numero }}</td>
-                <td>{{ user_bot.adresseMac }}</td>
-                <td>{{ user_bot.uuidMachine }}</td>
-                <td>{{ user_bot.diskSerialNumber }}</td>
+                {# <td>{{ user_bot.adresseMac }}</td> #}
+                {# <td>{{ user_bot.uuidMachine }}</td> #}
+                {# <td>{{ user_bot.diskSerialNumber }}</td> #}
                 <td>{{ user_bot.createdAt ? user_bot.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ user_bot.expiratedAt ? user_bot.expiratedAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ user_bot.typeMachine }}</td>
+                {# <td>{{ user_bot.typeMachine }}</td> #}
                 <td>
-                    <a href="{{ path('app_crud_user_bot_show', {'id': user_bot.id}) }}">show</a>
-                    <a href="{{ path('app_crud_user_bot_edit', {'id': user_bot.id}) }}">edit</a>
+                    {% include "crud_user_bot/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -47,5 +47,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_user_bot_new') }}">Create new</a>
 {% endblock %}

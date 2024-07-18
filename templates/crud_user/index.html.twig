@@ -3,81 +3,80 @@
 {% block title %}User index{% endblock %}
 
 {% block body %}
-    <h1>User index</h1>
+    <p class="h4 me-3">User index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_new') }}">Create new</a> #}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Uid</th>
-                <th>Pseudo</th>
-                <th>Nom</th>
-                <th>Mail</th>
-                <th>Pays</th>
-                <th>Tel</th>
-                <th>Apropos</th>
-                <th>Password</th>
-                <th>CreatedAt</th>
-                <th>MailIsVerified</th>
-                <th>TelIsVerified</th>
-                <th>SoldeBonus</th>
-                <th>CodeBonus</th>
-                <th>ThemeDark</th>
-                <th>Admin</th>
-                <th>Blocked</th>
-                <th>Tiktok</th>
-                <th>Instagram</th>
-                <th>Facebook</th>
-                <th>Youtube</th>
-                <th>Lang</th>
-                <th>LastLoginTo</th>
-                <th>Avatar</th>
-                <th>Banniere</th>
-                <th>HasReceived</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.uid }}</td>
-                <td>{{ user.pseudo }}</td>
-                <td>{{ user.nom }}</td>
-                <td>{{ user.mail }}</td>
-                <td>{{ user.pays }}</td>
-                <td>{{ user.tel }}</td>
-                <td>{{ user.apropos }}</td>
-                <td>{{ user.password }}</td>
-                <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ user.mailIsVerified ? 'Yes' : 'No' }}</td>
-                <td>{{ user.telIsVerified ? 'Yes' : 'No' }}</td>
-                <td>{{ user.soldeBonus }}</td>
-                <td>{{ user.codeBonus }}</td>
-                <td>{{ user.themeDark ? 'Yes' : 'No' }}</td>
-                <td>{{ user.admin ? 'Yes' : 'No' }}</td>
-                <td>{{ user.blocked ? 'Yes' : 'No' }}</td>
-                <td>{{ user.tiktok }}</td>
-                <td>{{ user.instagram }}</td>
-                <td>{{ user.facebook }}</td>
-                <td>{{ user.youtube }}</td>
-                <td>{{ user.lang }}</td>
-                <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ user.avatar }}</td>
-                <td>{{ user.banniere }}</td>
-                <td>{{ user.hasReceived }}</td>
-                <td>
-                    <a href="{{ path('app_crud_user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('app_crud_user_edit', {'id': user.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="27">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Pseudo</th>
+                    <th>Mail</th>
+                    <th>Tel</th>
+                    <th>Mail V.</th>
+                    <th>Tel V.</th>
+                    <th>Blocked</th>
+                    <th>CreatedAt</th>
+                    <th>LastLoginTo</th>
+                    <th>Uid</th>
+                    <th>Id</th>
+                    <th>actions</th>
+                    {# <th>Nom</th> #}
+                    {# <th>Pays</th> #}
+                    {# <th>Apropos</th> #}
+                    {# <th>Password</th> #}
+                    {# <th>SoldeBonus</th> #}
+                    {# <th>CodeBonus</th> #}
+                    {# <th>ThemeDark</th> #}
+                    {# <th>Admin</th> #}
+                    {# <th>Tiktok</th>
+                    <th>Instagram</th>
+                    <th>Facebook</th>
+                    <th>Youtube</th> #}
+                    {# <th>Lang</th> #}
+                    {# <th>Avatar</th>
+                    <th>Banniere</th> #}
+                    {# <th>HasReceived</th> #}
+                </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.pseudo }}</td>
+                    <td>{{ user.mail }}</td>
+                    <td>{{ user.tel }}</td>
+                    <td>{{ user.mailIsVerified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td>{{ user.telIsVerified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td>{{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}</td>
+                    <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user.uid }}</td>
+                    <td>{{ user.id }}</td>
+                    <td>{% include "crud_user/_delete_form.html.twig" %}</td>
+                    {# <td>{{ user.nom }}</td> #}
+                    {# <td>{{ user.pays }}</td> #}
+                    {# <td>{{ user.apropos }}</td> #}
+                    {# <td>{{ user.password }}</td> #}
+                    {# <td>{{ user.soldeBonus }}</td> #}
+                    {# <td>{{ user.codeBonus }}</td> #}
+                    {# <td>{{ user.themeDark ? 'Yes' : 'No' }}</td> #}
+                    {# <td>{{ user.admin ? 'Yes' : 'No' }}</td> #}
+                    {# <td>{{ user.tiktok }}</td>
+                    <td>{{ user.instagram }}</td>
+                    <td>{{ user.facebook }}</td>
+                    <td>{{ user.youtube }}</td> #}
+                    {# <td>{{ user.lang }}</td> #}
+                    {# <td>{{ user.avatar }}</td>
+                    <td>{{ user.banniere }}</td>
+                    <td>{{ user.hasReceived }}</td> #}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="27">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <a href="{{ path('app_crud_user_new') }}">Create new</a>
 {% endblock %}

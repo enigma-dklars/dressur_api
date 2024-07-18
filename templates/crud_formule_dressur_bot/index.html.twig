@@ -3,9 +3,10 @@
 {% block title %}FormuleDressurBot index{% endblock %}
 
 {% block body %}
-    <h1>FormuleDressurBot index</h1>
+    <span class="h4 me-3">FormuleDressurBot index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_formule_dressur_bot_new') }}">Create new</a>
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -23,8 +24,7 @@
                 <td>{{ formule_dressur_bot.prix }}</td>
                 <td>{{ formule_dressur_bot.nbrJour }}</td>
                 <td>
-                    <a href="{{ path('app_crud_formule_dressur_bot_show', {'id': formule_dressur_bot.id}) }}">show</a>
-                    <a href="{{ path('app_crud_formule_dressur_bot_edit', {'id': formule_dressur_bot.id}) }}">edit</a>
+                    {% include "crud_formule_dressur_bot/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -35,5 +35,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_formule_dressur_bot_new') }}">Create new</a>
 {% endblock %}

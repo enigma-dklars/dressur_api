@@ -3,47 +3,50 @@
 {% block title %}CampagneMail index{% endblock %}
 
 {% block body %}
-    <h1>CampagneMail index</h1>
+    <p class="h4 me-3">CampagneMail index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_campagne_mail_new') }}">Create new</a> #}
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Titre</th>
-                <th>Sujet</th>
-                <th>Replyto</th>
-                <th>Sendto</th>
-                <th>Contentmail</th>
-                <th>CreatedAt</th>
-                <th>Status</th>
-                <th>Motif</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for campagne_mail in campagne_mails %}
-            <tr>
-                <td>{{ campagne_mail.id }}</td>
-                <td>{{ campagne_mail.titre }}</td>
-                <td>{{ campagne_mail.sujet }}</td>
-                <td>{{ campagne_mail.replyto }}</td>
-                <td>{{ campagne_mail.sendto }}</td>
-                <td>{{ campagne_mail.contentmail }}</td>
-                <td>{{ campagne_mail.createdAt ? campagne_mail.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ campagne_mail.status }}</td>
-                <td>{{ campagne_mail.motif }}</td>
-                <td>
-                    <a href="{{ path('app_crud_campagne_mail_show', {'id': campagne_mail.id}) }}">show</a>
-                    <a href="{{ path('app_crud_campagne_mail_edit', {'id': campagne_mail.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="10">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>User</th>
+                    <th>Titre</th>
+                    <th>Sujet</th>
+                    {# <th>Replyto</th> #}
+                    {# <th>Sendto</th> #}
+                    {# <th>Contentmail</th> #}
+                    <th>CreatedAt</th>
+                    <th>Status</th>
+                    <th>Motif</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for campagne_mail in campagne_mails %}
+                <tr>
+                    <td>{{ campagne_mail.id }}</td>
+                    <td>{{ campagne_mail.user.pseudo }}</td>
+                    <td>{{ campagne_mail.titre }}</td>
+                    <td>{{ campagne_mail.sujet }}</td>
+                    {# <td>{{ campagne_mail.replyto }}</td> #}
+                    {# <td>{{ campagne_mail.sendto }}</td> #}
+                    {# <td>{{ campagne_mail.contentmail }}</td> #}
+                    <td>{{ campagne_mail.createdAt ? campagne_mail.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ campagne_mail.status }}</td>
+                    <td>{{ campagne_mail.motif }}</td>
+                    <td>
+                        {% include "crud_campagne_mail/_delete_form.html.twig" %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="10">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <a href="{{ path('app_crud_campagne_mail_new') }}">Create new</a>
 {% endblock %}

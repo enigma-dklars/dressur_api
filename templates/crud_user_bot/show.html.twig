@@ -5,7 +5,7 @@
 {% block body %}
     <h1>UserBot</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -52,7 +52,7 @@
 
     <a href="{{ path('app_crud_user_bot_index') }}">back to list</a>
 
-    <a href="{{ path('app_crud_user_bot_edit', {'id': user_bot.id}) }}">edit</a>
+    <a href="{{ path('app_crud_user_bot_edit', {'id': user_bot.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_user_bot/_delete_form.html.twig') }}
 {% endblock %}

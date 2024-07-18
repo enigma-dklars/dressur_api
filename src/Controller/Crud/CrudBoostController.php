@@ -41,7 +41,7 @@ class CrudBoostController extends AbstractController
         return $this->render('crud_boost/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'boosts' => $boostRepository->findAll(),
+            'boosts' => $boostRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

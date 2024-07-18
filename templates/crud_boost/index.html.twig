@@ -3,12 +3,14 @@
 {% block title %}Boost index{% endblock %}
 
 {% block body %}
-    <h1>Boost index</h1>
+    <p class="h4 me-3">Boost index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_boost_new') }}">Create new</a> #}
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
+                <th>User</th>
                 <th>DateDebut</th>
                 <th>DateExp</th>
                 <th>Mode</th>
@@ -19,12 +21,12 @@
         {% for boost in boosts %}
             <tr>
                 <td>{{ boost.id }}</td>
+                <td>{{ boost.user.pseudo }}</td>
                 <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ boost.mode }}</td>
                 <td>
-                    <a href="{{ path('app_crud_boost_show', {'id': boost.id}) }}">show</a>
-                    <a href="{{ path('app_crud_boost_edit', {'id': boost.id}) }}">edit</a>
+                    {% include "crud_boost/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -34,6 +36,4 @@
         {% endfor %}
         </tbody>
     </table>
-
-    <a href="{{ path('app_crud_boost_new') }}">Create new</a>
 {% endblock %}

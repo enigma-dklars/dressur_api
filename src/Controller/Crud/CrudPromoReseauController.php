@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use DateTime;
 
 #[Route('/crud/promo/reseau')]
 class CrudPromoReseauController extends AbstractController
@@ -41,7 +42,7 @@ class CrudPromoReseauController extends AbstractController
         return $this->render('crud_promo_reseau/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'promo_reseaus' => $promoReseauRepository->findAll(),
+            'promo_reseaus' => $promoReseauRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 
@@ -84,6 +85,7 @@ class CrudPromoReseauController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $promoReseau->setUpdatedAt(new DateTime());
             $entityManager->flush();
 
             return $this->redirectToRoute('app_crud_promo_reseau_index', [], Response::HTTP_SEE_OTHER);

@@ -3,9 +3,8 @@
 {% block title %}New Boost{% endblock %}
 
 {% block body %}
-    <h1>Create new Boost</h1>
+    <span>Create new Boost</span> <a href="{{ path('app_crud_boost_index') }}">back to list</a>
 
     {{ include('crud_boost/_form.html.twig') }}
 
-    <a href="{{ path('app_crud_boost_index') }}">back to list</a>
 {% endblock %}

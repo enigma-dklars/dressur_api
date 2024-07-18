@@ -3,9 +3,10 @@
 {% block title %}DSBonus index{% endblock %}
 
 {% block body %}
-    <h1>DSBonus index</h1>
+    <span class="h4 me-3">DSBonus index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_d_s_bonus_new') }}">Create new</a>
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -23,8 +24,7 @@
                 <td>{{ d_s_bonu.montant }}</td>
                 <td>{{ d_s_bonu.dateExp ? d_s_bonu.dateExp|date('Y-m-d H:i:s') : '' }}</td>
                 <td>
-                    <a href="{{ path('app_crud_d_s_bonus_show', {'id': d_s_bonu.id}) }}">show</a>
-                    <a href="{{ path('app_crud_d_s_bonus_edit', {'id': d_s_bonu.id}) }}">edit</a>
+                    {% include "crud_ds_bonus/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -35,5 +35,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_d_s_bonus_new') }}">Create new</a>
 {% endblock %}

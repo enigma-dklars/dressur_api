@@ -41,7 +41,7 @@ class CrudUserController extends AbstractController
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findAll(),
+            'users' => $userRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

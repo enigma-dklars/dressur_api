@@ -3,9 +3,10 @@
 {% block title %}Signalement index{% endblock %}
 
 {% block body %}
-    <h1>Signalement index</h1>
+    <p class="h4 me-3">Signalement index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_signalement_new') }}">Create new</a> #}
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -21,8 +22,7 @@
                 <td>{{ signalement.motif }}</td>
                 <td>{{ signalement.createdAt ? signalement.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 <td>
-                    <a href="{{ path('app_crud_signalement_show', {'id': signalement.id}) }}">show</a>
-                    <a href="{{ path('app_crud_signalement_edit', {'id': signalement.id}) }}">edit</a>
+                    {% include "crud_signalement/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -33,5 +33,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_signalement_new') }}">Create new</a>
 {% endblock %}

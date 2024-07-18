@@ -5,7 +5,7 @@
 {% block body %}
     <h1>Suggestion</h1>
 
-    <table class="table">
+    <table class="table table-bordered table-striped">
         <tbody>
             <tr>
                 <th>Id</th>
@@ -20,7 +20,7 @@
 
     <a href="{{ path('app_crud_suggestion_index') }}">back to list</a>
 
-    <a href="{{ path('app_crud_suggestion_edit', {'id': suggestion.id}) }}">edit</a>
+    <a href="{{ path('app_crud_suggestion_edit', {'id': suggestion.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_suggestion/_delete_form.html.twig') }}
 {% endblock %}

@@ -41,7 +41,7 @@ class CrudDSBonusHistoriqueController extends AbstractController
         return $this->render('crud_ds_bonus_historique/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'd_s_bonus_historiques' => $dSBonusHistoriqueRepository->findAll(),
+            'd_s_bonus_historiques' => $dSBonusHistoriqueRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

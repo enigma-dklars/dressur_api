@@ -41,7 +41,7 @@ class CrudDSBonusController extends AbstractController
         return $this->render('crud_ds_bonus/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'd_s_bonuses' => $dSBonusRepository->findAll(),
+            'd_s_bonuses' => $dSBonusRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

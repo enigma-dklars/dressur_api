@@ -41,7 +41,7 @@ class CrudPromotionController extends AbstractController
         return $this->render('crud_promotion/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'promotions' => $promotionRepository->findAll(),
+            'promotions' => $promotionRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

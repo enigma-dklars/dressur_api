@@ -3,9 +3,10 @@
 {% block title %}MotRefuser index{% endblock %}
 
 {% block body %}
-    <h1>MotRefuser index</h1>
+    <span class="h4 me-3">MotRefuser index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_mot_refuser_new') }}">Create new</a>
 
-    <table class="table">
+    <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
                 <th>Id</th>
@@ -19,8 +20,7 @@
                 <td>{{ mot_refuser.id }}</td>
                 <td>{{ mot_refuser.mot }}</td>
                 <td>
-                    <a href="{{ path('app_crud_mot_refuser_show', {'id': mot_refuser.id}) }}">show</a>
-                    <a href="{{ path('app_crud_mot_refuser_edit', {'id': mot_refuser.id}) }}">edit</a>
+                    {% include "crud_mot_refuser/_delete_form.html.twig" %}
                 </td>
             </tr>
         {% else %}
@@ -31,5 +31,4 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_crud_mot_refuser_new') }}">Create new</a>
 {% endblock %}

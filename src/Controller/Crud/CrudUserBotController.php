@@ -41,7 +41,7 @@ class CrudUserBotController extends AbstractController
         return $this->render('crud_user_bot/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user_bots' => $userBotRepository->findAll(),
+            'user_bots' => $userBotRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

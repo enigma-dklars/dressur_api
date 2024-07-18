@@ -1,4 +1,6 @@
 <form method="post" action="{{ path('app_crud_deleted_d_s_delete', {'id': deleted_d.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ deleted_d.id) }}">
-    <button class="btn">Delete</button>
+    <a href="{{ path('app_crud_deleted_d_s_show', {'id': deleted_d.id}) }}" class="btn btn-sm btn-info">Show</a>
+    <a href="{{ path('app_crud_deleted_d_s_edit', {'id': deleted_d.id}) }}" class="btn btn-sm btn-success">Edit</a>
+    <button class="btn btn-sm btn-danger">Delete</button>
 </form>
