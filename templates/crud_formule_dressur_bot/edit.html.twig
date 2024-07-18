@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit FormuleDressurBot{% endblock %}
+
+{% block body %}
+    <h1>Edit FormuleDressurBot</h1>
+
+    {{ include('crud_formule_dressur_bot/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_crud_formule_dressur_bot_index') }}">back to list</a>
+
+    {{ include('crud_formule_dressur_bot/_delete_form.html.twig') }}
+{% endblock %}

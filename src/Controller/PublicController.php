@@ -12,8 +12,10 @@ class PublicController extends AbstractController
 {
     private $is_connect;
     private $theme;
-    public function __construct(CookieDS $cookieDS)
+    private $traitementsDS;
+    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
     {
+        $this->traitementsDS = $traitementsDS;
         $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
         if($cookieDS->check("theme")) {
             if($cookieDS->get("theme") == "dark-theme") {
@@ -50,7 +52,7 @@ class PublicController extends AbstractController
     #[Route('/connexion', name: 'app_connexion')]
     public function connexion(PrivateController $privateController): Response
     {
-        if($privateController->getUserByUidInCookies()){
+        if($this->traitementsDS->getUserByUidInCookies()){
             return $this->redirectToRoute('app_private');
         }
         return $this->render('public/login.html.twig', [

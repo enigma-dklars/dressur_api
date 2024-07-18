@@ -1,0 +1,58 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormulePromoReseau{% endblock %}
+
+{% block body %}
+    <h1>FormulePromoReseau</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ formule_promo_reseau.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ formule_promo_reseau.titre }}</td>
+            </tr>
+            <tr>
+                <th>IconFlutterName</th>
+                <td>{{ formule_promo_reseau.iconFlutterName }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ formule_promo_reseau.description }}</td>
+            </tr>
+            <tr>
+                <th>DescriptionEn</th>
+                <td>{{ formule_promo_reseau.descriptionEn }}</td>
+            </tr>
+            <tr>
+                <th>Prix</th>
+                <td>{{ formule_promo_reseau.prix }}</td>
+            </tr>
+            <tr>
+                <th>Qte</th>
+                <td>{{ formule_promo_reseau.qte }}</td>
+            </tr>
+            <tr>
+                <th>QteMin</th>
+                <td>{{ formule_promo_reseau.qteMin }}</td>
+            </tr>
+            <tr>
+                <th>QteMax</th>
+                <td>{{ formule_promo_reseau.qteMax }}</td>
+            </tr>
+            <tr>
+                <th>Available</th>
+                <td>{{ formule_promo_reseau.available ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_formule_promo_reseau_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_formule_promo_reseau_edit', {'id': formule_promo_reseau.id}) }}">edit</a>
+
+    {{ include('crud_formule_promo_reseau/_delete_form.html.twig') }}
+{% endblock %}

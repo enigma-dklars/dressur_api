@@ -43,12 +43,14 @@ class TraitementsDS extends AbstractController
     private $formulePromoReseauRepository;
     private $formuleBoostRepository;
     private $formuleDressurBotRepository;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
-        $this->verificationsDS = $verificationsDS; 
+        $this->cookieDS = $cookieDS;
+        $this->verificationsDS = $verificationsDS;
         $this->wPBonusHistoriqueRepository = $wPBonusHistoriqueRepository;
         $this->boostRepository = $boostRepository;
         $this->wPBonusRepository = $wPBonusRepository;
@@ -62,6 +64,18 @@ class TraitementsDS extends AbstractController
         $this->formulePromoReseauRepository = $formulePromoReseauRepository;
         $this->formuleBoostRepository = $formuleBoostRepository;
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
+    }    
+
+    function getUserByUidInCookies(){
+        if($this->cookieDS->get("uid")){
+            $uid = $this->cookieDS->get("uid");
+            $user = $this->userRepository->findOneBy(['uid' => $uid]);
+            // $user = $this->infosUser($user);
+            if($user){
+                return $user;
+            }
+        }
+        return false;
     }
 
     public function formatNumber($nbrVue) {
@@ -686,6 +700,7 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getInstagram())) == 0 ) { $user->setInstagram(null); }
         if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
+        if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         return [
             "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),

@@ -1,0 +1,39 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormuleDressurBot index{% endblock %}
+
+{% block body %}
+    <h1>FormuleDressurBot index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Prix</th>
+                <th>NbrJour</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for formule_dressur_bot in formule_dressur_bots %}
+            <tr>
+                <td>{{ formule_dressur_bot.id }}</td>
+                <td>{{ formule_dressur_bot.titre }}</td>
+                <td>{{ formule_dressur_bot.prix }}</td>
+                <td>{{ formule_dressur_bot.nbrJour }}</td>
+                <td>
+                    <a href="{{ path('app_crud_formule_dressur_bot_show', {'id': formule_dressur_bot.id}) }}">show</a>
+                    <a href="{{ path('app_crud_formule_dressur_bot_edit', {'id': formule_dressur_bot.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_formule_dressur_bot_new') }}">Create new</a>
+{% endblock %}

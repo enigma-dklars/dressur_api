@@ -1,0 +1,41 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormuleBoost index{% endblock %}
+
+{% block body %}
+    <h1>FormuleBoost index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Prix</th>
+                <th>NbrJour</th>
+                <th>Alert</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for formule_boost in formule_boosts %}
+            <tr>
+                <td>{{ formule_boost.id }}</td>
+                <td>{{ formule_boost.titre }}</td>
+                <td>{{ formule_boost.prix }}</td>
+                <td>{{ formule_boost.nbrJour }}</td>
+                <td>{{ formule_boost.alert ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_crud_formule_boost_show', {'id': formule_boost.id}) }}">show</a>
+                    <a href="{{ path('app_crud_formule_boost_edit', {'id': formule_boost.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_formule_boost_new') }}">Create new</a>
+{% endblock %}

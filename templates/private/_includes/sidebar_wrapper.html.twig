@@ -1,7 +1,7 @@
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
       <div>
-        <img src="assets/images/ds_logo.png" class="logo-icon" alt="logo icon">
+        <img src="/assets/images/ds_logo.png" class="logo-icon" alt="logo icon">
       </div>
       <div>
         <h4 class="logo-text">Dressur</h4>
@@ -11,6 +11,26 @@
     </div>
     <!--navigation-->
     <ul class="metismenu" id="menu">
+
+      {% if user.admin == true %}
+        <li>
+          <a href="javascript:;" class="has-arrow">
+            <div class="parent-icon"><i class="fas fa-shield-dog"></i>
+            </div>
+            <div class="menu-title">ADMINS</div>
+          </a>
+          <ul>
+            <li> <a href="{{path('app_crud_user_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Utilisateurs</a></li>
+            <li> <a href="{{path('app_crud_formule_boost_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Boost</a></li>
+            <li> <a href="{{path('app_crud_formule_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Campagne Mail</a></li>
+            <li> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
+            {% if user.id == 3 %}
+              <li> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Dressur Bot</a></li>
+            {% endif %}
+            <li> <a href="{{path('app_crud_env_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Env</a></li>
+          </ul>
+        </li>
+      {% endif %}
 
       <li class="">
         <a href="{{path('app_public')}}">
