@@ -10,9 +10,10 @@
         <table class="data-table table table-bordered table-striped">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Pseudo</th>
-                    <th>Mail</th>
                     <th>Tel</th>
+                    <th>Mail</th>
                     <th>Mail V.</th>
                     <th>Tel V.</th>
                     <th>Blocked</th>
@@ -20,7 +21,6 @@
                     <th>LastLoginTo</th>
                     <th>Uid</th>
                     <th>Id</th>
-                    <th>actions</th>
                     {# <th>Nom</th> #}
                     {# <th>Pays</th> #}
                     {# <th>Apropos</th> #}
@@ -42,6 +42,7 @@
             <tbody>
             {% for user in users %}
                 <tr>
+                    <td>{% include "crud_user/_delete_form.html.twig" %}</td>
                     <td>{{ user.pseudo }}</td>
                     <td>{{ user.mail }}</td>
                     <td>{{ user.tel }}</td>
@@ -52,7 +53,6 @@
                     <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user.uid }}</td>
                     <td>{{ user.id }}</td>
-                    <td>{% include "crud_user/_delete_form.html.twig" %}</td>
                     {# <td>{{ user.nom }}</td> #}
                     {# <td>{{ user.pays }}</td> #}
                     {# <td>{{ user.apropos }}</td> #}
