@@ -271,11 +271,24 @@ class TraitementsDS extends AbstractController
 
     public function listeFormuleDressurBot() {
         $listeFormuleDressurBot = [];
+        array_push($listeFormuleDressurBot, [
+            "id" => "",
+            "label" => "Cliquez pour choisir...",
+        ]);
         foreach ($this->formuleDressurBotRepository->findAll() as $boost) {
+            $label = $boost->getTitre()." : ";
+            $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
+            if($boost->getSignature() == "oui") {
+                // $label .= "Avec Signature de Message";
+                $label .= "+ Signature";
+            } else {
+                // $label .= "Sans Signature de Message";
+            }
+            
             array_push($listeFormuleDressurBot, [
                 "id" => $boost->getId(),
                 // "value" => $boost->getId(),
-                "label" => $boost->getTitre()." : ".$boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours",
+                "label" => $label,
                 // "prix" => intval($boost->getPrix()),
                 // "jours" => $boost->getNbrJour(),
             ]);

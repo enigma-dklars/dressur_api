@@ -59,13 +59,17 @@ class UserBotType extends AbstractType
                     'class' => 'form-control mb-2'
                 ],
             ])
-
             ->add('typeMachine', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
             ])
-
+            ->add('signature', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2',
+                ],
+                'label' => "Signature oui ou non"
+            ])
         ;
     }
 

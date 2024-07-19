@@ -44,8 +44,8 @@
                 <tr>
                     <td>{% include "crud_user/_delete_form.html.twig" %}</td>
                     <td>{{ user.pseudo }}</td>
-                    <td>{{ user.mail }}</td>
                     <td>{{ user.tel }}</td>
+                    <td>{{ user.mail }}</td>
                     <td>{{ user.mailIsVerified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td>{{ user.telIsVerified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td>{{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}</td>

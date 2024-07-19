@@ -135,7 +135,9 @@ class WebhookController extends AbstractController
                         if ($myTransaction->getTransactionFor() == "dressur_bot_activation") {
                             $formuleDressurBot = $formuleDressurBotRepository->find($myTransaction->getAnnotherInfo()['formulDressurBotId']);
                             $userBot = $myTransaction->getUserBot();
-                            $userBot->setExpiratedAt(new DateTime("+ ".$formuleDressurBot->getNbrJour()."days"));
+                            $userBot->setExpiratedAt(new DateTime("+ ".$formuleDressurBot->getNbrJour()."days"))
+                                ->setSignature($formuleDressurBot->getSignature())
+                            ;
                         }
 
                         $this->em->flush();

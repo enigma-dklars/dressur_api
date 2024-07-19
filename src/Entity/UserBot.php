@@ -42,9 +42,13 @@ class UserBot
     #[ORM\Column(length: 255)]
     private ?string $typeMachine = null;
 
+    #[ORM\Column(length: 4)]
+    private ?string $signature = null;
+
     public function __construct()
     {
         $this->typeMachine = "pc";
+        $this->signature = "oui";
         $this->createdAt = new DateTime();
         $this->expiratedAt = new DateTime("-5 minutes");
     }
@@ -158,6 +162,18 @@ class UserBot
     public function setTypeMachine(string $typeMachine): static
     {
         $this->typeMachine = $typeMachine;
+
+        return $this;
+    }
+
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+
+    public function setSignature(string $signature): static
+    {
+        $this->signature = $signature;
 
         return $this;
     }

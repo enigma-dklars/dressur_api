@@ -22,6 +22,14 @@ class FormuleDressurBot
     #[ORM\Column]
     private ?int $nbrJour = null;
 
+    #[ORM\Column(length: 4)]
+    private ?string $signature = null;
+
+    public function __construct()
+    {
+        $this->signature = "oui";
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +67,18 @@ class FormuleDressurBot
     public function setNbrJour(int $nbrJour): static
     {
         $this->nbrJour = $nbrJour;
+
+        return $this;
+    }
+
+    public function getSignature(): ?string
+    {
+        return $this->signature;
+    }
+
+    public function setSignature(string $signature): static
+    {
+        $this->signature = $signature;
 
         return $this;
     }

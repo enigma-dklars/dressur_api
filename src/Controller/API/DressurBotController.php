@@ -52,6 +52,7 @@ class DressurBotController extends AbstractController
         $nom = $request->get("nom");
         $email = $request->get("email");
         $numero = $request->get("numero");
+        $signature = $request->get("signature");
         $adresseMac = $request->get("adresseMac");
         $uuidMachine = $request->get("uuidMachine");
         $diskSerialNumber = $request->get("diskSerialNumber");
@@ -83,6 +84,7 @@ class DressurBotController extends AbstractController
                         'nom' => $nom,
                         'email' => $email,
                         'numero' => $numero,
+                        'signature' => $userBotFind->getSignature(),
                         'adresseMac' => $adresseMac,
                         'uuidMachine' => $uuidMachine,
                         'diskSerialNumber' => $diskSerialNumber,
@@ -98,6 +100,7 @@ class DressurBotController extends AbstractController
                         'nom' => $nom,
                         'email' => $email,
                         'numero' => $numero,
+                        'signature' => $userBotFind->getSignature(),
                         'adresseMac' => $adresseMac,
                         'uuidMachine' => $uuidMachine,
                         'diskSerialNumber' => $diskSerialNumber,
@@ -140,6 +143,7 @@ class DressurBotController extends AbstractController
                         'nom' => $nom,
                         'email' => $email,
                         'numero' => $numero,
+                        'signature' => $newUserBot->getSignature(),
                         'adresseMac' => $adresseMac,
                         'uuidMachine' => $uuidMachine,
                         'diskSerialNumber' => $diskSerialNumber,
@@ -187,13 +191,13 @@ class DressurBotController extends AbstractController
 
         $idFormulDressurBot = $datas->get('idFormulDressurBot');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
-        $tel = $datas->get('tel');     
-
-        if(!$tel){
+        $tel = $datas->get('tel'); 
+        
+        if(!$idFormulDressurBot){
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Veuillez saisir un numéro de téléphone.',
+                'message' => 'Veuillez choisir une formule.',
             ]);
         }
 
@@ -202,6 +206,14 @@ class DressurBotController extends AbstractController
                 'error' => true,
                 'titre' => 'Attention!',
                 'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+
+        if(!$tel){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez saisir un numéro de téléphone.',
             ]);
         }
 
