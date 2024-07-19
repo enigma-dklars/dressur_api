@@ -349,6 +349,10 @@ class TraitementsDS extends AbstractController
             $statut = "";
             $peutPayer = false;
 
+            if($campagneMail->getStatus() == 3 && $campagneMail->getTraitement() == true && count($campagneMail->getFileAttenteCampagneMails()) == 0){
+                $campagneMail->setStatus(4);
+            }
+
             if ($campagneMail->getStatus() == 0) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Rejected";
@@ -400,6 +404,7 @@ class TraitementsDS extends AbstractController
             array_push($userCampagneMail, $unecampagneMail);
         }
         $userCampagneMail = array_reverse($userCampagneMail);
+        $this->em->flush();
         return $userCampagneMail;
     }
 

@@ -90,6 +90,23 @@ class CampagneMailController extends AbstractController
             ]);
         }
 
+        // compter le nombre d'adresse mail qui doivent recevoir la campagne
+        $nbr_sendto = count(explode(",", str_replace(" ", "", $sendto)));
+        if(!($nbr_sendto <= $formuleCampagneMail->getNombreMail())) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'With this email campaign formula, you cannot exceed '.$formuleCampagneMail->getNombreMail().' recipient email addresses.',
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Avec cette formule de campagne mail, vous ne pouvez pas dépasser '.$formuleCampagneMail->getNombreMail().' adresses mail destinataire.',
+            ]);
+        }
+
         if(!$titre or !$sujet or !$replyto or !$sendto or !$contentmail) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([

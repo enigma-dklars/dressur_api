@@ -18,7 +18,7 @@
                     </div>
                     <div class="col-12">
                         <label for="formule-boost-gratuit">Formule de Boost Gratuit</label>
-                        <select id="formule-boost-gratuit" class="form-select getInfo">
+                        <select id="formule-boost-gratuit" class="form-select getInfo getInfoBoostGratuit">
                             <option value="" disabled selected>Veuillez choisir une formule... </option>
                             {% for formuleBoost in formuleBoosts %}
                                 <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"

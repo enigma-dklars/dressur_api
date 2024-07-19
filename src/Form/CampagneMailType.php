@@ -62,6 +62,11 @@ class CampagneMailType extends AbstractType
                     'class' => 'form-control mb-2'
                 ],
             ])
+            ->add('traitement', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 
