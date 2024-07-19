@@ -279,18 +279,11 @@ class TraitementsDS extends AbstractController
             $label = $boost->getTitre()." : ";
             $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
             if($boost->getSignature() == "oui") {
-                // $label .= "Avec Signature de Message";
                 $label .= "+ Signature";
-            } else {
-                // $label .= "Sans Signature de Message";
-            }
-            
+            }            
             array_push($listeFormuleDressurBot, [
                 "id" => $boost->getId(),
-                // "value" => $boost->getId(),
                 "label" => $label,
-                // "prix" => intval($boost->getPrix()),
-                // "jours" => $boost->getNbrJour(),
             ]);
         }
         return $listeFormuleDressurBot;
