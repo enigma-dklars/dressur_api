@@ -1,0 +1,34 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Boost{% endblock %}
+
+{% block body %}
+    <h1>Boost</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ boost.id }}</td>
+            </tr>
+            <tr>
+                <th>DateDebut</th>
+                <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DateExp</th>
+                <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Mode</th>
+                <td>{{ boost.mode }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_boost_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_boost_edit', {'id': boost.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_boost/_delete_form.html.twig') }}
+{% endblock %}

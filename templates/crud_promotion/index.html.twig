@@ -1,0 +1,58 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Promotion index{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">Promotion index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_promotion_new') }}">Create new</a> #}
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    {# <th>Description</th> #}
+                    {# <th>Image</th> #}
+                    <th>User</th>
+                    <th>DateDebut</th>
+                    <th>DateExp</th>
+                    <th>Status</th>
+                    <th>NombreDeVue</th>
+                    <th>Mode</th>
+                    <th>NombreImpression</th>
+                    <th>Limited</th>
+                    {# <th>WhoSaw</th> #}
+                    <th>Motif</th>
+                    <th>IsFakeVue</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for promotion in promotions %}
+                <tr>
+                    <td>{% include "crud_promotion/_delete_form.html.twig" %}</td>
+                    <td>{{ promotion.id }}</td>
+                    <td>{{ promotion.user.pseudo }}</td>
+                    {# <td>{{ promotion.description }}</td> #}
+                    {# <td>{{ promotion.image }}</td> #}
+                    <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.status }}</td>
+                    <td>{{ promotion.nombreDeVue }}</td>
+                    <td>{{ promotion.mode }}</td>
+                    <td>{{ promotion.nombreImpression }}</td>
+                    <td>{{ promotion.limited ? 'Yes' : 'No' }}</td>
+                    {# <td>{{ promotion.whoSaw ? promotion.whoSaw|json_encode : '' }}</td> #}
+                    <td>{{ promotion.motif }}</td>
+                    <td>{{ promotion.isFakeVue ? 'Yes' : 'No' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="14">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

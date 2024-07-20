@@ -1,0 +1,53 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Transaction index{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">Transaction index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_transaction_new') }}">Create new</a> #}
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>IdTransaction</th>
+                    <th>Reference</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>CustomerId</th>
+                    <th>CurrencyId</th>
+                    <th>CreatedAt</th>
+                    <th>UpdatedAt</th>
+                    <th>AnnotherInfo</th>
+                    <th>TransactionFor</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td>{% include "crud_transaction/_delete_form.html.twig" %}</td>
+                    <td>{{ transaction.id }}</td>
+                    <td>{{ transaction.idTransaction }}</td>
+                    <td>{{ transaction.reference }}</td>
+                    <td>{{ transaction.amount }}</td>
+                    <td>{{ transaction.status }}</td>
+                    <td>{{ transaction.customerId }}</td>
+                    <td>{{ transaction.currencyId }}</td>
+                    <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ transaction.updatedAt ? transaction.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td></td>
+                    {# <td>{{ transaction.annotherInfo ? transaction.annotherInfo|join(', ') : '' }}</td> #}
+                    <td>{{ transaction.transactionFor }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="12">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

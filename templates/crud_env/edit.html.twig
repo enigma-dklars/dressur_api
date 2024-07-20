@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit Env{% endblock %}
+
+{% block body %}
+    <h1>Edit Env</h1>
+
+    <a href="{{ path('app_crud_env_index') }}">back to list</a>
+
+    {{ include('crud_env/_delete_form.html.twig') }}
+
+    {{ include('crud_env/_form.html.twig', {'button_label': 'Update'}) }}
+{% endblock %}

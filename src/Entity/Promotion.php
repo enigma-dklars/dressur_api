@@ -187,6 +187,8 @@ class Promotion
         if($mode == "fakeVue") {
             $this->nombreImpression += rand(5, 10);
             $this->nombreDeVue += rand(1, 5);
+        } else if($mode == "web") {
+            $this->nombreImpression += rand(1, 3);
         } else if($mode == "all" || $mode == "vue" ) {
             if($user->getId() != $this->getUser()->getId()) {
                 if (in_array($user->getId(), $this->whoSaw)) {

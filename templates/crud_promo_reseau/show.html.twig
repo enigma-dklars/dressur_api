@@ -1,0 +1,58 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}PromoReseau{% endblock %}
+
+{% block body %}
+    <h1>PromoReseau</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ promo_reseau.id }}</td>
+            </tr>
+            <tr>
+                <th>QteDemander</th>
+                <td>{{ promo_reseau.qteDemander }}</td>
+            </tr>
+            <tr>
+                <th>PrixFixer</th>
+                <td>{{ promo_reseau.prixFixer }}</td>
+            </tr>
+            <tr>
+                <th>Url</th>
+                <td>{{ promo_reseau.url }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ promo_reseau.status }}</td>
+            </tr>
+            <tr>
+                <th>IdZefame</th>
+                <td>{{ promo_reseau.idZefame }}</td>
+            </tr>
+            <tr>
+                <th>CompteurDebut</th>
+                <td>{{ promo_reseau.compteurDebut }}</td>
+            </tr>
+            <tr>
+                <th>CompteurRestant</th>
+                <td>{{ promo_reseau.compteurRestant }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ promo_reseau.createdAt ? promo_reseau.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ promo_reseau.updatedAt ? promo_reseau.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_promo_reseau_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_promo_reseau_edit', {'id': promo_reseau.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_promo_reseau/_delete_form.html.twig') }}
+{% endblock %}

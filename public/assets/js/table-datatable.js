@@ -2,11 +2,11 @@ $(function() {
 	"use strict";
 
     $(document).ready(function() {
-        $('#example').DataTable();
-      } );
+        $('.data-table').DataTable();
+    });
 
 
-      $(document).ready(function() {
+    $(document).ready(function() {
         var table = $('#example2').DataTable( {
             lengthChange: false,
             buttons: [ 'copy', 'excel', 'pdf', 'print']
@@ -14,7 +14,7 @@ $(function() {
      
         table.buttons().container()
             .appendTo( '#example2_wrapper .col-md-6:eq(0)' );
-    } );
+    });
 
 
 });

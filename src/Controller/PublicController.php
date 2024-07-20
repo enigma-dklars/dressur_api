@@ -12,8 +12,10 @@ class PublicController extends AbstractController
 {
     private $is_connect;
     private $theme;
-    public function __construct(CookieDS $cookieDS)
+    private $traitementsDS;
+    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
     {
+        $this->traitementsDS = $traitementsDS;
         $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
         if($cookieDS->check("theme")) {
             if($cookieDS->get("theme") == "dark-theme") {
@@ -50,7 +52,7 @@ class PublicController extends AbstractController
     #[Route('/connexion', name: 'app_connexion')]
     public function connexion(PrivateController $privateController): Response
     {
-        if($privateController->getUserByUidInCookies()){
+        if($this->traitementsDS->getUserByUidInCookies()){
             return $this->redirectToRoute('app_private');
         }
         return $this->render('public/login.html.twig', [
@@ -84,7 +86,16 @@ class PublicController extends AbstractController
     public function actualite(TraitementsDS $traitementsDS): Response
     {
         return $this->render('public/actualite.html.twig', [
-            'actus' => $traitementsDS->getAffaires(),
+            'actus' => $traitementsDS->getAffaires(90),
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/dressur-bot', name: 'app_dressur_bot')]
+    public function dressur_bot(): Response
+    {
+        return $this->render('public/dressur_bot.html.twig', [
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
         ]);

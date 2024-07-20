@@ -43,12 +43,14 @@ class TraitementsDS extends AbstractController
     private $formulePromoReseauRepository;
     private $formuleBoostRepository;
     private $formuleDressurBotRepository;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
-        $this->verificationsDS = $verificationsDS; 
+        $this->cookieDS = $cookieDS;
+        $this->verificationsDS = $verificationsDS;
         $this->wPBonusHistoriqueRepository = $wPBonusHistoriqueRepository;
         $this->boostRepository = $boostRepository;
         $this->wPBonusRepository = $wPBonusRepository;
@@ -62,6 +64,18 @@ class TraitementsDS extends AbstractController
         $this->formulePromoReseauRepository = $formulePromoReseauRepository;
         $this->formuleBoostRepository = $formuleBoostRepository;
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
+    }    
+
+    function getUserByUidInCookies(){
+        if($this->cookieDS->get("uid")){
+            $uid = $this->cookieDS->get("uid");
+            $user = $this->userRepository->findOneBy(['uid' => $uid]);
+            // $user = $this->infosUser($user);
+            if($user){
+                return $user;
+            }
+        }
+        return false;
     }
 
     public function formatNumber($nbrVue) {
@@ -257,13 +271,19 @@ class TraitementsDS extends AbstractController
 
     public function listeFormuleDressurBot() {
         $listeFormuleDressurBot = [];
+        array_push($listeFormuleDressurBot, [
+            "id" => "",
+            "label" => "Cliquez pour choisir...",
+        ]);
         foreach ($this->formuleDressurBotRepository->findAll() as $boost) {
+            $label = $boost->getTitre()." : ";
+            $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
+            if($boost->getSignature() == "oui") {
+                $label .= "+ Signature";
+            }            
             array_push($listeFormuleDressurBot, [
                 "id" => $boost->getId(),
-                // "value" => $boost->getId(),
-                "label" => $boost->getTitre()." : ".$boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours",
-                // "prix" => intval($boost->getPrix()),
-                // "jours" => $boost->getNbrJour(),
+                "label" => $label,
             ]);
         }
         return $listeFormuleDressurBot;
@@ -335,6 +355,10 @@ class TraitementsDS extends AbstractController
             $statut = "";
             $peutPayer = false;
 
+            if($campagneMail->getStatus() == 3 && $campagneMail->getTraitement() == true && count($campagneMail->getFileAttenteCampagneMails()) == 0){
+                $campagneMail->setStatus(4);
+            }
+
             if ($campagneMail->getStatus() == 0) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
                     $statut = "Rejected";
@@ -386,6 +410,7 @@ class TraitementsDS extends AbstractController
             array_push($userCampagneMail, $unecampagneMail);
         }
         $userCampagneMail = array_reverse($userCampagneMail);
+        $this->em->flush();
         return $userCampagneMail;
     }
 
@@ -424,10 +449,16 @@ class TraitementsDS extends AbstractController
         return $listeFormulePromoReseau;
     }
 
-    public function getAffaires(){
+    public function getAffaires($limit){
         $top_trois_affaires = [];
-        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], 36);
+        $promos = $this->promotionRepository->findBy(
+            [
+                "isFakeVue" => false,
+                "status" => [3, 4],
+            ], ["nombreDeVue" => "DESC"], $limit
+        );
         foreach ($promos as $promo) {
+            $promo->setToWatch(null, "web");
             $unePromo = [
                 "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promo->getId(),
@@ -440,7 +471,7 @@ class TraitementsDS extends AbstractController
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
-        // Mélanger l'ordre des éléments de manière aléatoire
+        $this->em->flush();
         shuffle($top_trois_affaires);
         return $top_trois_affaires;
     }
@@ -530,10 +561,7 @@ class TraitementsDS extends AbstractController
             ]);
         }
         $this->em->flush();
-
-        // Mélanger l'ordre des éléments de manière aléatoire
         shuffle($listePubliciteAffichageAuxUsers);
-        
         return $listePubliciteAffichageAuxUsers;
     }
 
@@ -686,6 +714,7 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getInstagram())) == 0 ) { $user->setInstagram(null); }
         if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
+        if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         return [
             "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),

@@ -55,6 +55,19 @@ $(document).ready(function () {
         });
     }
 
+    function validateEmail(email) {
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+
+    $(document).on('input', '#destinataires', function () {
+        var emails = $(this).val().split(',');
+        var validEmailCount = emails.filter(function(email) {
+            return validateEmail(email.trim());
+        }).length;
+        $('#nbr-mails').text(validEmailCount);
+    });
+
     $(document).on("change", ".form-select", function () {
         elementMsgError = $("#msgError")
         if(elementMsgError.text()){
@@ -593,8 +606,8 @@ $(document).ready(function () {
         let uid = $("#uid").val();
 
         $(".getInfo").each(function() {
-            let titre = $(this).prev().text();
-            if(!titre){ titre = $(this).attr("placeholder"); }
+            let titre = $(this).attr("placeholder");
+            if(!titre){ titre = $(this).prev().text(); }
             let value = $(this).val();
             if(!value){ 
                 if(msgError == "Veuillez renseigner :") {
@@ -1768,7 +1781,7 @@ $(document).ready(function () {
         let formule_boost_gratuit = JSON.parse($("#formule-boost-gratuit").val())
         let uid = $("#uid").val();
 
-        $(".getInfo").each(function() {
+        $(".getInfoBoostGratuit").each(function() {
             let titre = $(this).prev().text();
             if(!titre){ titre = $(this).attr("placeholder"); }
             let value = $(this).val();
@@ -1837,7 +1850,7 @@ $(document).ready(function () {
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     `);
-                    $(".getInfo").val("");
+                    $(".getInfoBoostGratuit").val("");
                     $("#msgErrorBoostGratuit").toggle(800);
                 }
                 traitementContact("newBoostGratuit", "fin", "BOOSTER")

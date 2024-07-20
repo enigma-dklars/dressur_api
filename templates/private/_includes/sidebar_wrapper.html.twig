@@ -1,7 +1,7 @@
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
       <div>
-        <img src="assets/images/ds_logo.png" class="logo-icon" alt="logo icon">
+        <img src="/assets/images/ds_logo.png" class="logo-icon" alt="logo icon">
       </div>
       <div>
         <h4 class="logo-text">Dressur</h4>
@@ -11,6 +11,46 @@
     </div>
     <!--navigation-->
     <ul class="metismenu" id="menu">
+
+      {% if user.admin == true %}
+        <li>
+          <a href="javascript:;" class="has-arrow">
+            <div class="parent-icon"><i class="fas fa-shield-dog"></i>
+            </div>
+            <div class="menu-title">ADMINS</div>
+          </a>
+          <ul>
+            <li> <a href="{{path('app_crud_user_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Utilisateurs</a></li>
+            {% if user.id == 3 or user.id == 7 %}
+            <li> <a href="{{path('app_crud_user_bot_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Users Bot</a></li>
+            {% endif %}
+            <li> <a href="{{path('app_crud_boost_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Boost Contact</a></li>
+            <li> <a href="{{path('app_crud_promotion_index')}}" class="small-fort"><i class="fas fa-align-left"></i>P. Affaire</a></li>
+            <li> <a href="{{path('app_crud_promo_reseau_index')}}" class="small-fort"><i class="fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
+            <li> <a href="{{path('app_crud_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Campagne Mail</a></li>
+
+            <hr class="my-2">
+
+            <li> <a href="{{path('app_crud_formule_boost_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Boost</a></li>
+            <li> <a href="{{path('app_crud_formule_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Campagne Mail</a></li>
+            <li> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
+            {% if user.id == 3 or user.id == 7 %}
+            <li> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Dressur Bot</a></li>
+            {% endif %}
+
+            <hr class="my-2">
+            
+            <li> <a href="{{path('app_crud_env_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Env</a></li>
+            <li> <a href="{{path('app_crud_mot_refuser_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Mot Refuser</a></li>
+            <li> <a href="{{path('app_crud_d_s_bonus_index')}}" class="small-fort"><i class="fas fa-align-left"></i>DS Bonus</a></li>
+            <li> <a href="{{path('app_crud_d_s_bonus_historique_index')}}" class="small-fort"><i class="fas fa-align-left"></i>H. DS Bonus</a></li>
+            <li> <a href="{{path('app_crud_deleted_d_s_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Deleted DS</a></li>
+            <li> <a href="{{path('app_crud_transaction_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Transaction</a></li>
+            <li> <a href="{{path('app_crud_suggestion_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Suggestion</a></li>
+            <li> <a href="{{path('app_crud_signalement_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Signalement</a></li>
+          </ul>
+        </li>
+      {% endif %}
 
       <li class="">
         <a href="{{path('app_public')}}">

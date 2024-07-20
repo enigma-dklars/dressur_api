@@ -47,21 +47,10 @@ class PrivateController extends AbstractController
         }
     }
 
-    function getUserByUidInCookies(){
-        if($this->cookieDS->get("uid")){
-            $uid = $this->cookieDS->get("uid");
-            $user = $this->userRepository->findOneBy(['uid' => $uid]);
-            if($user){
-                return $user;
-            }
-        }
-        return false;
-    }
-
     #[Route('/export_vcf', name: 'app_export_vcf')]
     public function export_vcf(): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $pseudo = str_replace(".", "", $user->getPseudo());
         $contacts = $this->traitementsDS->userContacts($user);
 
@@ -90,7 +79,7 @@ class PrivateController extends AbstractController
     #[Route('/export_csv', name: 'app_export_csv')]
     public function export_csv(): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $pseudo = str_replace(".", "", $user->getPseudo());
         $contacts = $this->traitementsDS->userContacts($user);
 
@@ -147,7 +136,7 @@ class PrivateController extends AbstractController
     #[Route('/actu', name: 'app_actu')]
     public function actu(): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $userinfo = $this->traitementsDS->infosUser($user);
         $html = $this->renderView('private/actu.html.twig', [
             'actus' => json_decode($userinfo['lesPublicites']),
@@ -162,7 +151,7 @@ class PrivateController extends AbstractController
     #[Route('/contact', name: 'app_contact')]
     public function contact(): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $contacts = $this->traitementsDS->userContacts($user);
         $html = $this->renderView('private/contact.html.twig', [
             'contacts' => $contacts,
@@ -177,7 +166,7 @@ class PrivateController extends AbstractController
     #[Route('/newcampagemail', name: 'app_newcampagemail')]
     public function newcampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newcampagemail.html.twig', [
             'formuleCampageMails' => $formuleCampagneMailRepository->findAll(),
@@ -193,7 +182,7 @@ class PrivateController extends AbstractController
     #[Route('/listecampagemail', name: 'app_listecampagemail')]
     public function listecampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         // dd($traitementsDS->userCampagneMail($user->getCampagneMails()));
         $html = $this->renderView('private/listecampagemail.html.twig', [
             'campagemails' => $traitementsDS->userCampagneMail($user->getCampagneMails()),
@@ -209,7 +198,7 @@ class PrivateController extends AbstractController
     #[Route('/newpromoreseau', name: 'app_newpromoreseau')]
     public function newpromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newpromoreseau.html.twig', [
@@ -226,7 +215,7 @@ class PrivateController extends AbstractController
     #[Route('/listepromoreseau', name: 'app_listepromoreseau')]
     public function listepromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listepromoreseau.html.twig', [
@@ -243,7 +232,7 @@ class PrivateController extends AbstractController
     #[Route('/newpromoaffaire', name: 'app_newpromoaffaire')]
     public function newpromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newpromoaffaire.html.twig', [
@@ -259,7 +248,7 @@ class PrivateController extends AbstractController
     #[Route('/listepromoaffaire', name: 'app_listepromoaffaire')]
     public function listepromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listepromoaffaire.html.twig', [
@@ -277,7 +266,7 @@ class PrivateController extends AbstractController
     #[Route('/editprofil', name: 'app_editprofil')]
     public function editprofil(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/editprofil.html.twig', [
@@ -293,7 +282,7 @@ class PrivateController extends AbstractController
     #[Route('/editPassword', name: 'app_editPassword')]
     public function editPassword(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/editPassword.html.twig', [
@@ -309,7 +298,7 @@ class PrivateController extends AbstractController
     #[Route('/invitezVosAmis', name: 'app_invitezVosAmis')]
     public function invitezVosAmis(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/invitezVosAmis.html.twig', [
@@ -325,7 +314,7 @@ class PrivateController extends AbstractController
     #[Route('/newboostcontact', name: 'app_newboostcontact')]
     public function newboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newboostcontact.html.twig', [
@@ -342,7 +331,7 @@ class PrivateController extends AbstractController
     #[Route('/listeboostcontact', name: 'app_listeboostcontact')]
     public function listeboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listeboostcontact.html.twig', [
@@ -359,7 +348,7 @@ class PrivateController extends AbstractController
     #[Route('/listeBonusRecu', name: 'app_listeBonusRecu')]
     public function listeBonusRecu(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listeBonusRecu.html.twig', [
@@ -376,7 +365,7 @@ class PrivateController extends AbstractController
     #[Route('/addSuggestion', name: 'app_addSuggestion')]
     public function addSuggestion(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/addSuggestion.html.twig', [
@@ -392,7 +381,7 @@ class PrivateController extends AbstractController
     #[Route('/signalerUser', name: 'app_signalerUser')]
     public function signalerUser(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/signalerUser.html.twig', [
@@ -408,7 +397,7 @@ class PrivateController extends AbstractController
     #[Route('/preferencePays', name: 'app_preferencePays')]
     public function preferencePays(TraitementsDS $traitementsDS): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $html = $this->renderView('private/preferencePays.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'paysChoisieJson' => $user->getPreference()->getPaysChoisies(),
@@ -657,7 +646,7 @@ class PrivateController extends AbstractController
     #[Route('/centreInteret', name: 'app_centreInteret')]
     public function centreInteret(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
     {
-        $user = $this->getUserByUidInCookies();
+        $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/centreInteret.html.twig', [

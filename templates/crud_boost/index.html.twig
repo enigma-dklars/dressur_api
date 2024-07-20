@@ -1,0 +1,38 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Boost index{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">Boost index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_boost_new') }}">Create new</a> #}
+
+    <table class="data-table table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Id</th>
+                <th>User</th>
+                <th>DateDebut</th>
+                <th>DateExp</th>
+                <th>Mode</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for boost in boosts %}
+            <tr>
+                <td></td>
+                {# <td>{% include "crud_boost/_delete_form.html.twig" %}</td> #}
+                <td>{{ boost.id }}</td>
+                <td>{{ boost.user.pseudo }}</td>
+                <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ boost.mode }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
