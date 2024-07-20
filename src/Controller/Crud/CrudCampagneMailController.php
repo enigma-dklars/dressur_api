@@ -55,20 +55,11 @@ class CrudCampagneMailController extends AbstractController
         set_time_limit(30000);
         ini_set("memory_limit", "-1");
 
-        // $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], null, 25);
-        // $cent_mails_pending = $fileAttenteCampagneMailRepository->createQueryBuilder('c')
-        //     ->orderBy('RAND()')
-        //     ->setMaxResults(25)
-        //     ->getQuery()
-        //     ->getResult()
-        // ;
-        $cent_mails_pending = $fileAttenteCampagneMailRepository->createQueryBuilder('c')
-            ->addSelect('RAND() as HIDDEN rand')
-            ->orderBy('rand')
-            ->setMaxResults(25)
-            ->getQuery()
-            ->getResult()
-        ;
+        if(rand(0, 100000) % 2 == 0) {
+            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'ASC'], 25);
+        } else {
+            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'DESC'], 25);
+        }
         foreach ($cent_mails_pending as $un_mail) {
             try {
                 $sendMail->smtpMail(
