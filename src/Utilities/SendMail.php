@@ -26,9 +26,9 @@ class SendMail {
         ["noreply12.dressur.ds@gmail.com", "lqcndnuyhlszgpxa"],
         ["noreply13.dressur.ds@gmail.com", "gksmtwsrsanndorr"],
         ["noreply14.dressur.ds@gmail.com", "htzremgpiyfvkfdi"],
-        ["noreply15.dressur.ds@gmail.com", "puolmrjnisqxpkhz"],
-        ["noreply16.dressur.ds@gmail.com", "rwyslcjbdzfwlbyx"],
-        ["noreply17.dressur.ds@gmail.com", "ygxrqmdjlbmmcsey"],
+        // ["noreply15.dressur.ds@gmail.com", "puolmrjnisqxpkhz"],
+        // ["noreply16.dressur.ds@gmail.com", "rwyslcjbdzfwlbyx"],
+        // ["noreply17.dressur.ds@gmail.com", "ygxrqmdjlbmmcsey"],
     ];
 
     public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"):bool
