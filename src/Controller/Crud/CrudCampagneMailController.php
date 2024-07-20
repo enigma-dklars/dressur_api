@@ -55,7 +55,7 @@ class CrudCampagneMailController extends AbstractController
         set_time_limit(30000);
         ini_set("memory_limit", "-1");
 
-        $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], null, 15);
+        $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], null, 20);
         foreach ($cent_mails_pending as $un_mail) {
             try {
                 $sendMail->smtpMail(
