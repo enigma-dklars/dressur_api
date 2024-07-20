@@ -86,7 +86,16 @@ class PublicController extends AbstractController
     public function actualite(TraitementsDS $traitementsDS): Response
     {
         return $this->render('public/actualite.html.twig', [
-            'actus' => $traitementsDS->getAffaires(),
+            'actus' => $traitementsDS->getAffaires(90),
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/dressur-bot', name: 'app_dressur_bot')]
+    public function dressur_bot(): Response
+    {
+        return $this->render('public/dressur_bot.html.twig', [
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
         ]);

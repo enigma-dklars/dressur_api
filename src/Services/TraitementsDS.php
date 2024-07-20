@@ -449,10 +449,16 @@ class TraitementsDS extends AbstractController
         return $listeFormulePromoReseau;
     }
 
-    public function getAffaires(){
+    public function getAffaires($limit){
         $top_trois_affaires = [];
-        $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], 36);
+        $promos = $this->promotionRepository->findBy(
+            [
+                "isFakeVue" => false,
+                "status" => [3, 4],
+            ], ["nombreDeVue" => "DESC"], $limit
+        );
         foreach ($promos as $promo) {
+            $promo->setToWatch(null, "web");
             $unePromo = [
                 "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promo->getId(),
@@ -465,7 +471,7 @@ class TraitementsDS extends AbstractController
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
-        // Mélanger l'ordre des éléments de manière aléatoire
+        $this->em->flush();
         shuffle($top_trois_affaires);
         return $top_trois_affaires;
     }
@@ -555,10 +561,7 @@ class TraitementsDS extends AbstractController
             ]);
         }
         $this->em->flush();
-
-        // Mélanger l'ordre des éléments de manière aléatoire
         shuffle($listePubliciteAffichageAuxUsers);
-        
         return $listePubliciteAffichageAuxUsers;
     }
 
