@@ -14,7 +14,7 @@ class DSBonusType extends AbstractType
         $builder
             ->add('user', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-2'
                 ],
             ])
             ->add('code', null, [

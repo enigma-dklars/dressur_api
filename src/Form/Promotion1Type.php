@@ -14,12 +14,12 @@ class Promotion1Type extends AbstractType
         $builder
             ->add('formule_boost', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-2'
                 ],
             ])
             ->add('user', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-2'
                 ],
             ])
             ->add('description', null, [

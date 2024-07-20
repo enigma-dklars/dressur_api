@@ -14,7 +14,7 @@ class User1Type extends AbstractType
         $builder
             ->add('parrain', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-2'
                 ],
             ])
             ->add('pseudo', null, [

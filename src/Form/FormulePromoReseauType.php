@@ -14,7 +14,7 @@ class FormulePromoReseauType extends AbstractType
         $builder
             ->add('parent', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-2'
                 ],
             ])
             ->add('titre', null, [

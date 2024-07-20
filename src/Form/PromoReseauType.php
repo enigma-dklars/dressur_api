@@ -14,12 +14,12 @@ class PromoReseauType extends AbstractType
         $builder
             ->add('user', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-5'
                 ],
             ])
             ->add('formulePromoReseau', null, [
                 'attr' => [
-                    'class' => 'form-select mb-2'
+                    'class' => 'form-select single-select mb-2'
                 ],
             ])
             ->add('status', null, [
