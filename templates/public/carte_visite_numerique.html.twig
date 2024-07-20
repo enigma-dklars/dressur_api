@@ -1,8 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% set description = "Dressur Bot est une application Windows qui automatise l'envoi de messages sur WhatsApp Web et Desktop. Simplifiez vos campagnes de communication en masse en fournissant simplement le texte du message et un fichier VCF contenant les contacts. Idéal pour les entreprises et les professionnels." %}
+{% set description = "Avec le service Carte de Visite Numérique de Dressur, échangez vos contacts facilement en scannant un code QR. Plus besoin d'imprimer des cartes de visite. Disponible uniquement sur l'application mobile Dressur." %}
 
-{% set title = "Dressur Bot" %}
+{% set title = "Carte de visite numérique" %}
 
 {% block referencement %}
     <!-- Open Graph Meta Tags -->
@@ -20,7 +20,7 @@
 
     <!-- Autres balises meta facultatives -->
     <meta name="description" content="{{description}}" />
-    <meta name="keywords" content="Dressur, Dressur Bot, automatisation WhatsApp, envoi de messages WhatsApp, WhatsApp Web, WhatsApp Desktop, fichier VCF, communication en masse, marketing WhatsApp, bot WhatsApp, application Windows">
+    <meta name="keywords" content="Dressur, Carte de Visite Numérique, échange de contacts, code QR, application mobile, contacts professionnels">
 {% endblock %}
 
 {% block title %}{{title}}{% endblock %}
@@ -28,102 +28,91 @@
 {% block body %}
     <div class="container mt-3">
         <div class="mb-3 h6">
-            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Dressur Bot</span>
+            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Carte de visite numérique</span>
         </div>
         <!-- Header -->
         <header class="text-white text-center py-5 rounded" style="background-color: #2a4b9a !important;">
             <div class="container">
-                <h1 class="display-5">Automatisez l'envoi de messages sur WhatsApp</h1>
-                <p class="lead">Avec Dressur Bot, simplifiez vos campagnes de communication en masse sur WhatsApp.</p>
-                <a href="/assets/dressur_bot/dressur_bot.exe" class="btn btn-lg btn-light">Télécharger Dressur Bot</a>
+                <h1 class="display-5">Échangez vos Contacts avec une Carte de Visite Numérique</h1>
+                <p class="lead">Simplifiez l'échange de vos contacts en scannant un code QR. Plus besoin d'imprimer des cartes de visite.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" class="btn btn-light btn-lg mb-3">Télécharger sur Google Play</a>
             </div>
         </header>
 
         <!-- Features Section -->
         <section id="features" class="py-5">
             <div class="container">
-                <h2 class="text-center">Pourquoi choisir Dressur Bot ?</h2>
-                <p class="text-center lead mb-4">Découvrez comment Dressur Bot peut transformer vos communications sur WhatsApp.</p>
+                <h2 class="text-center">Pourquoi utiliser la Carte de Visite Numérique de Dressur ?</h2>
+                <p class="text-center lead mb-4">Découvrez comment notre service peut révolutionner l'échange de vos contacts professionnels.</p>
                 <div class="row g-3">
                     <div class="col-md-4 d-flex align-items-stretch text-center">
                         <div class="card mb-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Automatisation complète</h5>
-                                <p class="card-text mt-3">Envoyez des messages à vos connaissances, clients, prospect etc... sur WhatsApp sans intervention manuelle. Dressur Bot supporte l'action répétitive jusqu'a plus de 1.000.000 de fois sans bug.</p>
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Échange Facile</h5>
+                                <p class="card-text mt-3">Scannez simplement le code QR d'un autre utilisateur pour échanger vos contacts instantanément.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 d-flex align-items-stretch text-center">
                         <div class="card mb-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Compatibilité étendue</h5>
-                                <p class="card-text mt-3">Fonctionne avec WhatsApp Web et WhatsApp Desktop, offrant une flexibilité d'utilisation. Peu importe votre environnement de travail, Dressur Bot s'adapte à vos besoins.</p>
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Gain de Temps</h5>
+                                <p class="card-text mt-3">Plus besoin d'imprimer et de distribuer des cartes de visite. Échangez vos informations de contact en quelques secondes.</p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 d-flex align-items-stretch text-center">
                         <div class="card mb-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Simplicité d'utilisation</h5>
-                                <p class="card-text mt-3">Il suffit de fournir le texte du message et un fichier VCF contenant les contacts. En quelques clics, vos messages sont prêts à être envoyés.</p>
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Économie d'Argent</h5>
+                                <p class="card-text mt-3">Réduisez vos coûts en supprimant la nécessité d'imprimer des cartes de visite.</p>
                             </div>
                         </div>
                     </div>
-                
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                    <div class="col-md-6 d-flex align-items-stretch text-center">
                         <div class="card mb-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Gain de temps significatif</h5>
-                                <p class="card-text mt-3">Éliminez la tâche répétitive d'envoyer des messages individuels à plusieurs contacts. Concentrez-vous sur ce qui compte vraiment pendant que Dressur Bot s'occupe du reste.</p>
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Accessibilité Mobile</h5>
+                                <p class="card-text mt-3">Disponible uniquement sur l'application mobile Dressur, pour un accès rapide et facile où que vous soyez.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                    <div class="col-md-6 d-flex align-items-stretch text-center">
                         <div class="card mb-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Efficacité inégalée</h5>
-                                <p class="card-text mt-3">Idéal pour les campagnes de marketing, les notifications de groupe, et d'autres besoins de communication en masse. Atteignez votre audience cible rapidement et efficacement.</p>
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Écologique</h5>
+                                <p class="card-text mt-3">Contribuez à la protection de l'environnement en réduisant votre consommation de papier.</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Sécurité et confidentialité</h5>
-                                <p class="card-text mt-3">Dressur Bot respecte votre confidentialité et celle de vos contacts. Vos données sont protégées par des protocoles de sécurité avancés.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Video Section -->
-        <section id="video" class="py-4">
-            <div class="container text-center">
-                <h2>Tutoriel Vidéo</h2>
-                <p class="lead mb-4">Regardez notre tutoriel pour apprendre comment utiliser Dressur Bot.</p>
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/your_video_id" allowfullscreen></iframe>
                 </div>
             </div>
         </section>
 
         <!-- Download Section -->
-        <section id="download" class="py-5">
+        <section id="download" class="pb-5">
             <div class="container text-center">
                 <div class="card mb-0">
                     <div class="card-body py-4">
-                        <h2>Télécharger Dressur Bot</h2>
-                        <p class="lead py-3">Commencez à utiliser Dressur Bot dès aujourd'hui en téléchargeant le fichier .exe.</p>
-                        <a href="/assets/dressur_bot/dressur_bot.exe" class="btn btn-primary btn-lg">Télécharger Dressur Bot</a>
+                        <h2>Téléchargez l'Application Mobile Dressur</h2>
+                        <p class="lead py-3">Commencez à utiliser notre service de Carte de Visite Numérique en téléchargeant l'application mobile Dressur.</p>
+                        <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" class="btn btn-primary btn-lg">Télécharger sur Google Play</a>
                     </div>
                 </div>
             </div>
         </section>
 
+        <!-- Availability Notice -->
+        <section id="availability" class="pb-4">
+            <div class="container text-center bg-danger text-white p-3 rounded">
+                <p class="lead mb-0">
+                    Note : Ce service est disponible uniquement sur l'application mobile, car les contacts sont enregistrés automatiquement dans les téléphones.
+                </p>
+            </div>
+        </section>
+
         <section>
-            <div class="container">
+            <div class="container mb-3">
                 <h1 class="fs-4 fw-semibold mb-3"><i class="fs-5 fas fa-play"></i> Autres Services sur Dressur Mobile et Web</h1>
                 <div class="row g-3">
                     <div class="col-md-4 d-flex align-items-stretch">
@@ -144,6 +133,19 @@
                                     <i class="fas fa-clock fs-1 mb-3 text-primary"></i>
                                     <h5>Gagnez du temps</h5>
                                     <p>Les contacts que vous enregistrez sont automatiquement ajoutés à votre téléphone et vos coordonnées sont ajoutées dans celui de votre contact.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fa-brands fa-android fs-1 mb-3 text-primary"></i>
+                                    <h5>Dressur Bot</h5>
+                                    <p>
+                                        Dressur Bot est une application Windows qui permet d'automatiser l'envoi de messages via WhatsApp Web ou WhatsApp Desktop.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -181,7 +183,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 d-flex align-items-stretch">
+                    {# <div class="col-md-4 d-flex align-items-stretch">
                         <div class="card mb-0">
                             <div class="card-body">
                                 <div class="feature-box rounded text-center d-flex flex-column">
@@ -191,24 +193,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="hero">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-2"></div>
-                        <div class="col-md-8">
-                            <div data-aos="zoom-out">
-                                <p class="h5 text-center">Dressé votre mure de compétences et assurez-vous une grande visibilité.</p>
-                                <div class="d-md-flex text-center text-lg-start justify-content-between">
-                                    <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-get-started scrollto mb-2 mb-md-0"> <i class="fs-5 fab fa-google-play me-2"></i> Télécharger sur Google Play</a>
-                                    <a href="{{path('app_inscription')}}" class="btn-get-started scrollto">S'inscrire <i class="fs-5 fas fa-user-plus ms-2"></i> </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </div> #}
                 </div>
             </div>
         </section>

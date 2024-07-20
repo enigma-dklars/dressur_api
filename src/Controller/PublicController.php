@@ -100,4 +100,49 @@ class PublicController extends AbstractController
             'theme' => $this->theme,
         ]);
     }
+
+    #[Route('/boost-contact', name: 'app_boost_contact')]
+    public function boost_contact(): Response
+    {
+        return $this->render('public/boost_contact.html.twig', [
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/campagne-mail', name: 'app_campagne_mail')]
+    public function campagne_mail(): Response
+    {
+        return $this->render('public/campagne_mail.html.twig', [
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/promotion-affaire', name: 'app_promotion_affaire')]
+    public function promotion_affaire(): Response
+    {
+        return $this->render('public/promotion_affaire.html.twig', [
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/carte-visite-numerique', name: 'app_carte_visite_numerique')]
+    public function carte_visite_numerique(): Response
+    {
+        return $this->render('public/carte_visite_numerique.html.twig', [
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
+    public function promotion_reseau_sociaux(): Response
+    {
+        return $this->render('public/promotion_reseaux_sociaux.html.twig', [
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
 }
