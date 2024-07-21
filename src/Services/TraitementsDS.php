@@ -96,6 +96,24 @@ class TraitementsDS extends AbstractController
     public function separateurMillier($nombre) {       
         return number_format($nombre, 0, ',', ' ');;
     }
+
+    function makePseudoWithEmailAdress($email) {
+        // Extract the part before the @
+        $parts = explode('@', $email);
+        $username = $parts[0];
+    
+        // If the username is less than 5 characters, add random digits
+        if (strlen($username) < 5) {
+            $username = str_pad($username, 5, strval(rand(0, 9)));
+        }
+    
+        // If the username is more than 13 characters, take only the first 13 characters
+        if (strlen($username) > 13) {
+            $username = substr($username, 0, 13);
+        }
+    
+        return $username;
+    }
     
     public function userBoosts($boosts) {
         $userBoosts = [];

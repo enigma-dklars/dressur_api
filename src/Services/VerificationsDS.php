@@ -248,20 +248,20 @@ class VerificationsDS extends AbstractController
             $pseudoSansChiffre = str_replace($i, '', $pseudoSansChiffre);
         }
 
-        if(strlen($pseudoSansChiffre) <= 1){
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Your Nickname contains forbidden words...',
-                ];
-            }
-            return [
-                'error' => true,
-                'titre' => 'Refus!',
-                'message' => "Votre Pseudo doit contenir au minimum deux lettres.",
-            ];
-        }
+        // if(strlen($pseudoSansChiffre) <= 1){
+        //     if($this->sessionDS->get("langUserPhone") != "fr") {
+        //         return [
+        //             'error' => true,
+        //             'titre' => 'Attention!',
+        //             'message' => 'Your Nickname contains forbidden words...',
+        //         ];
+        //     }
+        //     return [
+        //         'error' => true,
+        //         'titre' => 'Refus!',
+        //         'message' => "Votre Pseudo doit contenir au minimum deux lettres.",
+        //     ];
+        // }
 
         if(strlen($pseudo) < 3) {
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -278,18 +278,18 @@ class VerificationsDS extends AbstractController
             ];
         }
 
-        if(strlen($pseudo) > 10){
+        if(strlen($pseudo) > 14){
             if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
-                    'message' => 'Nickname too long! 10 characters maximum...',
+                    'message' => 'Nickname too long! 14 characters maximum...',
                 ];
             }
             return [
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Pseudo trop long! 10 caractères maximum...',
+                'message' => 'Pseudo trop long! 14 caractères maximum...',
             ];
         }
 

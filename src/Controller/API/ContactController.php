@@ -157,6 +157,7 @@ class ContactController extends AbstractController
             $contactsUser->setNameTel($contact->nameTel)
                 ->setDisplayNameTel($contact->displayNameTel)
                 ->setNumberTel($contact->numberTel)
+                ->setMailTel(isset($contact->mailTel) ? $contact->mailTel : null)
             ;
             $this->em->persist($contactsUser);
         }

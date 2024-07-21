@@ -1355,6 +1355,7 @@ class UserController extends AbstractController
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $password = $datas->get('password');
         $confirmPassword = $datas->get('confirmPassword');
+        $pseudo = $traitementsDS->makePseudoWithEmailAdress($mail);
 
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
             if($sessionDS->get("langUserPhone") != "fr") {

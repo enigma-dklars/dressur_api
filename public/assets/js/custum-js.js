@@ -108,7 +108,7 @@ $(document).ready(function () {
         let msgError = "Veuillez renseigner :"
         let msgErrorHtml = $("#msgError").text()
 
-        let inputPseudo = $("#inputPseudo").val();
+        // let inputPseudo = $("#inputPseudo").val();
         let inputNumeroWhatsApp = $("#inputNumeroWhatsApp").val();
         let inputEmail = $("#inputEmail").val();
         let inputMotPasse = $("#inputMotPasse").val();
@@ -163,7 +163,7 @@ $(document).ready(function () {
             url: "/api/inscriptionDS",
             data: {
                 langUserPhone : 'fr',
-                pseudo : inputPseudo,
+                // pseudo : inputPseudo,
                 tel : inputNumeroWhatsApp,
                 mail : inputEmail,
                 password : inputMotPasse,
