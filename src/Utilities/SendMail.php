@@ -14,6 +14,11 @@ class SendMail {
     private $smtpSecured = 'tls';
     // private $smtpServer = 'smtp.aol.com';
     private $smtpMails = [
+        // ["noreply1@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        // ["noreply2@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        // ["noreply3@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        // ["noreply4@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        // ["noreply5@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
         ["noreply1.dressur.ds@gmail.com", "maatzpxlfnunewqi"],
         ["noreply2.dressur.ds@gmail.com", "eeufhrlrlbicxdmr"],
         ["noreply3.dressur.ds@gmail.com", "styzjjntshtyhzcr"],
