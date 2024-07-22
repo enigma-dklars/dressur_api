@@ -16,7 +16,7 @@
                     <th>Mail</th>
                     <th>Mail V.</th>
                     <th>Tel V.</th>
-                    <th>Blocked</th>
+                    <th>Lock</th>
                     <th>CreatedAt</th>
                     <th>LastLoginTo</th>
                     <th>Uid</th>
@@ -46,9 +46,23 @@
                     <td>{{ user.pseudo }}</td>
                     <td>{{ user.tel }}</td>
                     <td>{{ user.mail }}</td>
-                    <td>{{ user.mailIsVerified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td>{{ user.telIsVerified ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td>{{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}</td>
+                    <td class="text-center">
+                        {% if user.mailIsVerified == true %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if user.telIsVerified == true %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <a href="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}
+                    </td>
                     <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user.uid }}</td>

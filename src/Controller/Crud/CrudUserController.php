@@ -97,6 +97,22 @@ class CrudUserController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', methods: ['GET', 'POST'])]
+    public function activerMail(User $user, EntityManagerInterface $entityManager): Response
+    {
+        $user->setMailIsVerified(true);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', methods: ['GET', 'POST'])]
+    public function activerTel(User $user, EntityManagerInterface $entityManager): Response
+    {
+        $user->setTelIsVerified(true);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/{id}', name: 'app_crud_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
