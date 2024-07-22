@@ -14,8 +14,8 @@
                     <th>Pseudo</th>
                     <th>Tel</th>
                     <th>Mail</th>
-                    <th>Mail V.</th>
                     <th>Tel V.</th>
+                    <th>Mail V.</th>
                     <th>Lock</th>
                     <th>CreatedAt</th>
                     <th>LastLoginTo</th>
@@ -47,17 +47,17 @@
                     <td>{{ user.tel }}</td>
                     <td>{{ user.mail }}</td>
                     <td class="text-center">
-                        {% if user.mailIsVerified == true %}
-                            <span class="badge bg-success">Yes</span>
-                        {% else %}
-                            <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
                         {% if user.telIsVerified == true %}
                             <span class="badge bg-success">Yes</span>
                         {% else %}
                             <a href="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if user.mailIsVerified == true %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
                         {% endif %}
                     </td>
                     <td class="text-center">
