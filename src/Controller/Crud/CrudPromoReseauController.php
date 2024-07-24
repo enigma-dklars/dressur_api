@@ -85,7 +85,9 @@ class CrudPromoReseauController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $promoReseau->setCompteurRestant(0);
+            if($promoReseau->getStatus() == 3) {
+                $promoReseau->setCompteurRestant(0);
+            }
             $promoReseau->setUpdatedAt(new DateTime());
             $entityManager->flush();
 
