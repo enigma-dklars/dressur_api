@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Controller\API\UserController;
 use App\Repository\BoostRepository;
+use App\Repository\CampagneMailRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleCampagneMailRepository;
+use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
@@ -112,7 +114,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/private', name: 'app_private')]
-    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository): Response
+    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -127,6 +129,14 @@ class PrivateController extends AbstractController
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
                     'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
+                    'nbr_tel_no_conf' => count($userRepository->findBy(['telIsVerified' => false])),
+                    'nbr_mail_no_conf' => count($userRepository->findBy(['mailIsVerified' => false])),
+                    'affaire_valider_sans_payer' => count($promotionRepository->findBy(['status' => 2])),
+                    'valid_promo_affaire' => count($promotionRepository->findBy(['status' => 1])),
+                    'valid_promo_reseau' => count($promoReseauRepository->findBy(['status' => 1])),
+                    'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
+                    'nbr_have_parent' => count($userRepository->findAll()) - count($userRepository->findBy(['parrain' => null])),
+                    'nbr_user' => count($userRepository->findAll()),
                 ]);
             }
         }

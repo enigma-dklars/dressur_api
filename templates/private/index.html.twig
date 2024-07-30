@@ -8,6 +8,131 @@
         <input type="text" id="uid" value="{{user.uid}}">
     </div>
 
+    {% if user.admin == true %}
+        <div class="row g-3 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Users Aléatoires</p>
+                                <h4 class="my-1">{{nbr_user}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Users Aléatoires</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-bars"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Confirmation</p>
+                            <h4 class="my-1">{{nbr_tel_no_conf}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Num. WhatsApp</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fab fa-whatsapp"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Confirmation</p>
+                            <h4 class="my-1">{{nbr_mail_no_conf}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Addr. Mail</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Have Parent</p>
+                                <h4 class="my-1">{{nbr_have_parent}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Have Parent</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-user-tag"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Accepter Sans Suite</p>
+                                <h4 class="my-1">{{affaire_valider_sans_payer}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo. Affaire</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Validation</p>
+                            <h4 class="my-1">{{valid_promo_affaire}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo. Affaire</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Validation</p>
+                            <h4 class="my-1">{{valid_promo_reseau}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo. Réseau</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list-ul"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Validation</p>
+                                <h4 class="my-1">{{valid_camp_mail}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Camp. Mail</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list-ul"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
     <div class="row g-3 mb-3">
         {% if user.telIsVerified == false %}
             <div class="{% if user.mailIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
