@@ -253,6 +253,7 @@ class TraitementsDS extends AbstractController
 
             $unePromo = [
                 "id" => (string)$promo->getId(),
+                "username" => $promo->getUser(),
                 "peutPayer" => $peutPayer,
                 "image" => $promo->getImage(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),

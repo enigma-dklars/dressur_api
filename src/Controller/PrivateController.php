@@ -273,6 +273,24 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/accepterSansSuite', name: 'app_accepterSansSuite')]
+    public function accepterSansSuite(TraitementsDS $traitementsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/accepterSansSuite.html.twig', [
+            'accepterSansSuite' => $traitementsDS->userPromos($promotionRepository->findBy(['status' => 2])),
+            'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
+            'user' => $traitementsDS->infosUser($user),
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
     #[Route('/editprofil', name: 'app_editprofil')]
     public function editprofil(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
