@@ -19,9 +19,14 @@ use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Controller\API\UserPreferenceController;
+use App\Entity\DeletedDS;
+use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\MessageRepository;
+use App\Repository\PromoReseauRepository;
+use App\Repository\SuggestionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
@@ -30,7 +35,7 @@ class TraitementsDS extends AbstractController
     private $em;
     private $env;
     private $verificationsDS;
-    private $wPBonusHistoriqueRepository;
+    private $dSBonusHistoriqueRepository;
     private $boostRepository;
     private $wPBonusRepository;
     private $userRepository;
@@ -44,14 +49,22 @@ class TraitementsDS extends AbstractController
     private $formuleBoostRepository;
     private $formuleDressurBotRepository;
     private $cookieDS;
+    private $campagneMailRepository;
+    private $promoReseauRepository;
+    private $suggestionRepository;
+    private $messageRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository)
     {
+        $this->messageRepository = $messageRepository;
+        $this->suggestionRepository = $suggestionRepository;
+        $this->promoReseauRepository = $promoReseauRepository;
+        $this->campagneMailRepository = $campagneMailRepository;
         $this->em = $em;
         $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->verificationsDS = $verificationsDS;
-        $this->wPBonusHistoriqueRepository = $wPBonusHistoriqueRepository;
+        $this->dSBonusHistoriqueRepository = $dSBonusHistoriqueRepository;
         $this->boostRepository = $boostRepository;
         $this->wPBonusRepository = $wPBonusRepository;
         $this->userRepository = $userRepository;
@@ -784,34 +797,43 @@ class TraitementsDS extends AbstractController
 
     public function execPurge($user){
         foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
-            $element->setParrain($this->userRepository->find(1));
+            $element->setParrain($this->userRepository->find(3));
             $this->em->flush();
         }
 
-        foreach ($this->boostRepository->findBy(['user' => $user]) as $element) {
-            $this->boostRepository->remove($element, true);
-        }
+        foreach ($this->campagneMailRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+                
+        foreach ($this->dSBonusHistoriqueRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->promoReseauRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->promotionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->suggestionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->transactionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->verifMailRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->boostRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->signalementRepository->findBy(['signaler' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->signalementRepository->findBy(['signalant' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->messageRepository->findBy(['emetteur' => $user]) as $element) { $this->em->remove($element); }
+        
+        foreach ($this->messageRepository->findBy(['recepteur' => $user]) as $element) { $this->em->remove($element); }
 
-        foreach ($this->transactionRepository->findBy(['user' => $user]) as $element) {
-            $this->transactionRepository->remove($element, true);
-        }
+        $deletedDS = new DeletedDS();
+        $deletedDS->setMail($user->getMail())
+            ->setTel($user->getTel())
+            ->setMotif("GET OUT BY ADMIN")
+        ;
+        $this->em->persist($deletedDS);
 
-        foreach ($this->verifMailRepository->findBy(['user' => $user]) as $element) {
-            $this->verifMailRepository->remove($element, true);
-        }
+        $this->em->remove($user);
 
-        foreach ($this->wPBonusRepository->findBy(['user' => $user]) as $element) {
-            $this->wPBonusRepository->remove($element, true);
-        }
-
-        foreach ($this->wPBonusHistoriqueRepository->findBy(['user' => $user]) as $element) {
-            $this->wPBonusHistoriqueRepository->remove($element, true);
-        }
-
-        foreach ($this->signalementRepository->findBy(['signaler' => $user]) as $element) {
-            $this->signalementRepository->remove($element, true);
-        }
-
-        $this->userRepository->remove($user, true);
+        $this->em->flush();
     }
 }

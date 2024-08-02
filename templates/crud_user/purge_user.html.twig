@@ -1,0 +1,23 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Purge User{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="h4 me-3">Purge index</p></div>
+        <div class="col-6 text-end"><a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_index') }}">Back To List</a></div>
+    </div>
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="px-3 py-3 rounded bg-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <form action="{{ path('app_crud_user_purge') }}" method="post" class="mt-3">
+        <label for="identifier">Enter User Email or Phone Number :</label>
+        <input type="text" class="form-control my-2" id="identifier" name="identifier" required>
+        <button type="submit" class="btn btn-sm btn-danger my-2">Purge User</button>
+    </form>
+{% endblock %}

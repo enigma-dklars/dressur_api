@@ -3,7 +3,10 @@
 {% block title %}User index{% endblock %}
 
 {% block body %}
-    <p class="h4 me-3">User index</p>
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="h4 me-3">User index</p></div>
+        <div class="col-6 text-end"><a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_user_purge') }}">Purge User</a></div>
+    </div>
     {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_new') }}">Create new</a> #}
 
     <div class="table-responsive">

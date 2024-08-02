@@ -4,7 +4,17 @@ namespace App\Controller\Crud;
 
 use App\Entity\User;
 use App\Form\User1Type;
+use App\Repository\BoostRepository;
+use App\Repository\CampagneMailRepository;
+use App\Repository\DSBonusHistoriqueRepository;
+use App\Repository\MessageRepository;
+use App\Repository\PromoReseauRepository;
+use App\Repository\PromotionRepository;
+use App\Repository\SignalementRepository;
+use App\Repository\SuggestionRepository;
+use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
+use App\Repository\VerifMailRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,6 +74,34 @@ class CrudUserController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'user' => $user,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/purge', name: 'app_crud_user_purge', methods: ['GET', 'POST'])]
+    public function purge(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    {
+        // Process the form submission
+        if ($request->isMethod('POST')) {
+            $input = $request->request->get('identifier');
+            $input = str_replace(" ", "", $input);
+
+            $user = $userRepository->findOneBy(['mail' => $input]) ?? $userRepository->findOneBy(['tel' => $input]);
+            
+            if($user) {                
+                $traitementsDS->execPurge($user);
+                // Add a flash message to confirm deletion
+                $this->addFlash('success', 'User and all related information have been deleted.');
+                
+                return $this->redirectToRoute('app_crud_user_purge');
+            }
+
+            // Add a flash message if user is not found
+            $this->addFlash('danger', 'User not found.');
+        }
+
+        return $this->render('crud_user/purge_user.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
         ]);
     }
 
