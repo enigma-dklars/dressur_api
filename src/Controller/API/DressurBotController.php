@@ -60,7 +60,7 @@ class DressurBotController extends AbstractController
         $userBotFind = $userBotRepository->findOneBy([
             'email' => $email,
             'numero' => $numero,
-            'adresseMac' => $adresseMac,
+            // 'adresseMac' => $adresseMac,
             'uuidMachine' => $uuidMachine,
             'diskSerialNumber' => $diskSerialNumber,
         ]);
@@ -234,7 +234,7 @@ class DressurBotController extends AbstractController
         $userBotFind = $userBotRepository->findOneBy([
             'email' => $email,
             'numero' => $numero,
-            'adresseMac' => $adresseMac,
+            // 'adresseMac' => $adresseMac,
             'uuidMachine' => $uuidMachine,
             'diskSerialNumber' => $diskSerialNumber,
         ]);
