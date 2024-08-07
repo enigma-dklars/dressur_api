@@ -16,39 +16,38 @@
                     <th></th>
                     <th>Pseudo</th>
                     <th>Tel</th>
-                    <th>Mail</th>
                     <th>Tel V.</th>
+                    <th>Mail</th>
                     <th>Mail V.</th>
+                    <th>Invt</th>
+                    <th>Parr</th>
+                    <th>Bonus</th>
+                    <th>N.C</th>
+                    <th>B.C</th>
+                    <th>P.A</th>
+                    <th>P.R</th>
+                    <th>C.M</th>
                     <th>Lock</th>
-                    <th>CreatedAt</th>
                     <th>LastLoginTo</th>
+                    <th>CreatedAt</th>
                     <th>Uid</th>
                     <th>Id</th>
-                    {# <th>Nom</th> #}
-                    {# <th>Pays</th> #}
-                    {# <th>Apropos</th> #}
-                    {# <th>Password</th> #}
-                    {# <th>SoldeBonus</th> #}
-                    {# <th>CodeBonus</th> #}
-                    {# <th>ThemeDark</th> #}
-                    {# <th>Admin</th> #}
-                    {# <th>Tiktok</th>
-                    <th>Instagram</th>
-                    <th>Facebook</th>
-                    <th>Youtube</th> #}
-                    {# <th>Lang</th> #}
-                    {# <th>Avatar</th>
-                    <th>Banniere</th> #}
-                    {# <th>HasReceived</th> #}
                 </tr>
             </thead>
             <tbody>
+            {% set id_users = [] %}
+            
+            {% for user in users %}
+                {% set id_users = id_users | merge([user.id]) %}
+            {% endfor %}
+
             {% for user in users %}
                 <tr>
                     <td>{% include "crud_user/_delete_form.html.twig" %}</td>
-                    <td>{{ user.pseudo }}</td>
+                    <td>
+                        {{ user.pseudo }}
+                    </td>
                     <td>{{ user.tel }}</td>
-                    <td>{{ user.mail }}</td>
                     <td class="text-center">
                         {% if user.telIsVerified == true %}
                             <span class="badge bg-success">Yes</span>
@@ -56,6 +55,7 @@
                             <a href="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
                         {% endif %}
                     </td>
+                    <td class="small">{{ user.mail }}</td>
                     <td class="text-center">
                         {% if user.mailIsVerified == true %}
                             <span class="badge bg-success">Yes</span>
@@ -63,29 +63,44 @@
                             <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
                         {% endif %}
                     </td>
+                    <td class="text-end">{{user.filleuls|length}}</td>
+                    <td class="text-center">
+                        {% if user.parrain %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>                                
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{user.soldeBonus}}</td>
+                    <td class="text-end">
+                        {% set lesContactsDuUser = [] %}
+                        {% for item in user.contact.whoIAdd %}
+                            {% if item in id_users %}
+                                {% if item not in lesContactsDuUser %}
+                                    {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% for item in user.contact.whoAddMe %}
+                            {% if item in id_users %}
+                                {% if item not in lesContactsDuUser %}
+                                    {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {{lesContactsDuUser|length}}
+                    </td>
+                    <td class="text-end">{{user.boosts|length}}</td>
+                    <td class="text-end">{{user.promotions|length}}</td>
+                    <td class="text-end">{{user.promoReseaus|length}}</td>
+                    <td class="text-end">{{user.campagneMails|length}}</td>
                     <td class="text-center">
                         {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}
                     </td>
-                    <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user.uid }}</td>
                     <td>{{ user.id }}</td>
-                    {# <td>{{ user.nom }}</td> #}
-                    {# <td>{{ user.pays }}</td> #}
-                    {# <td>{{ user.apropos }}</td> #}
-                    {# <td>{{ user.password }}</td> #}
-                    {# <td>{{ user.soldeBonus }}</td> #}
-                    {# <td>{{ user.codeBonus }}</td> #}
-                    {# <td>{{ user.themeDark ? 'Yes' : 'No' }}</td> #}
-                    {# <td>{{ user.admin ? 'Yes' : 'No' }}</td> #}
-                    {# <td>{{ user.tiktok }}</td>
-                    <td>{{ user.instagram }}</td>
-                    <td>{{ user.facebook }}</td>
-                    <td>{{ user.youtube }}</td> #}
-                    {# <td>{{ user.lang }}</td> #}
-                    {# <td>{{ user.avatar }}</td>
-                    <td>{{ user.banniere }}</td>
-                    <td>{{ user.hasReceived }}</td> #}
                 </tr>
             {% else %}
                 <tr>
