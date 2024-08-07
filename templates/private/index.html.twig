@@ -31,7 +31,9 @@
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Confirmation</p>
-                            <h4 class="my-1">{{nbr_tel_no_conf}}</h4>
+                            <h4 class="my-1">
+                                <span class="text-danger">{{nbr_tel_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_tel_no_conf}}</span>
+                            </h4>
                             <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Num. WhatsApp</p>
                         </div>
                         <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fab fa-whatsapp"></i>
@@ -46,7 +48,9 @@
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Confirmation</p>
-                            <h4 class="my-1">{{nbr_mail_no_conf}}</h4>
+                            <h4 class="my-1">
+                                <span class="text-danger">{{nbr_mail_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_mail_no_conf}}</span>
+                            </h4>
                             <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Addr. Mail</p>
                         </div>
                         <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-envelope"></i>
@@ -163,6 +167,25 @@
                         </div>
                         <label for="" hidden>Code reçu par mail</label>
                         <input type="text" class="form-control form-control-sm mt-1 mb-2 getInfo getInfoVerifMail" placeholder="Code reçu par mail" id="codeVerifMail">
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-primary me-1" id="envoyerCodeMail">Envoyer le Code</button>
+                            <button class="btn btn-sm btn-primary ms-1" id="validerVerifMail">Valider</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% if user.nombreContactDispo > 0 %}
+            <div class="col-md-12">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-3 text-primary fw-normal fs-4"><i class="fas fa-users-rectangle me-1"></i> ADD DS Disponible</p>
+                        <p class="mt-1 mb-3 fs-6">
+                            {{user.nombreContactDispo}} contact(s) disponible(s) selon vos préférences pays.
+                        </p>
+                        <p class="px-3 py-3 mt-1 mb-2 fs-6 bg-danger rounded ">
+                            Note : Vous utilisez la version web de Dressur. L'enregistrement des contacts ne sera donc pas automatique dans votre téléphone. Pour enregistrer dans votre téléphone les contacts obtenus, veuillez accéder à la page "Liste des contacts" sur Dressur Web et exporter les contacts au format VCF ou CSV, puis les importer dans votre téléphone. Afin de vous assurer de ne manquer aucun nouveau contact, connectez-vous deux fois par jour pour effectuer cette action.
+                        </p>
                         <div class="text-end">
                             <button class="btn btn-sm btn-primary me-1" id="envoyerCodeMail">Envoyer le Code</button>
                             <button class="btn btn-sm btn-primary ms-1" id="validerVerifMail">Valider</button>
