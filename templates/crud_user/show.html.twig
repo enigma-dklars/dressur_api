@@ -8,6 +8,14 @@
     <table class="table table-bordered table-striped">
         <tbody>
             <tr>
+                <th>Parrain</th>
+                <td>
+                    {% if user.parrain %}
+                        {{user.parrain.pseudo}}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
                 <th>Id</th>
                 <td>{{ user.id }}</td>
             </tr>
