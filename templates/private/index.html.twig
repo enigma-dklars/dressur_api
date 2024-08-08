@@ -189,9 +189,15 @@
                             Note : Vous utilisez la version web de Dressur. L'enregistrement des contacts ne sera donc pas automatique dans votre téléphone. Pour enregistrer les contacts obtenus dans votre téléphone, veuillez accéder à la page "Liste des contacts" sur Dressur Web et exporter les contacts au format VCF ou CSV, puis les importer dans votre téléphone. Afin de vous assurer de ne manquer aucun nouveau contact, connectez-vous deux fois par jour pour effectuer cette action.
                         </p>
                         <div class="mt-2 mb-1">
-                            <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts">
-                                Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
-                            </button>
+                            {% if user.telIsVerified == true %}
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts">
+                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
+                                </button>
+                            {% else %}
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="doit_confirmer_le_numéro_whatsapp">
+                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
+                                </button>
+                            {% endif %}
                             <a class="btn btn-md btn-info menu-element" url="/contact">Liste des contacts</a>
                         </div>
                     </div>
@@ -199,6 +205,30 @@
             </div>
         {% endif %}
     </div>
+
+    <div class="modal fade" id="doit_confirmer_le_numéro_whatsapp" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <p class="mb-0 text-secondary"><i class="fab fa-whatsapp me-1"></i> Confirmation du numéro WhatsApp</p>
+                            <p class="mt-1 mb-2">
+                                Assurez-vous de nous envoyer <span class="text-success fw-bold">WhatsApp Confirmation</span> avec le numéro WhatsApp utiliser pour créer votre compte Dressur. 
+                                Cliquez juste sur <span class="mx-1 px-2 rounded bg-success text-white">Demander</span> ci-dessous pour demander la confirmation de votre numéro WhatsApp. 
+                                Les demandes sont traitées le plus tôt possible, ne vous inquiétez pas. 
+                            </p>
+                            <a href="https://wa.me/22964044294??text=WhatsApp Confirmation" target="_blank" class="btn btn-sm btn-success">Demander</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
         <div class="col">
         <div class="card radius-10 mb-0">
