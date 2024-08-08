@@ -57,26 +57,28 @@ class AddController extends AbstractController
         }
         $user = $verificationUser["user"];
         $contactsAdd = [];
-        foreach ($traitementsDS->getAddDisponible($user) as $add) {
-            $userAdd = $userRepository->findOneBy(['tel' => $add['tel']]);
-            if($userAdd){
-                if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
-                    // MOD
-                    $user->getContact()->setNewIAdd($userAdd);
-                    $userAdd->getContact()->setNewAddMe($user);
-                    $this->em->flush();
-                    array_push($contactsAdd, [
-                        "pseudo" => $userAdd->getPseudo(),
-                        "nom" => (string)$userAdd,
-                        "tel" => $userAdd->getTel(),
-                    ]);
-                } else {
-                    return new JsonResponse([
-                        'error' => true,
-                        "contactsAdd" => $contactsAdd,
-                        "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
-                        "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
-                    ]);
+        if ($user->getTelIsVerified() == true) {
+            foreach ($traitementsDS->getAddDisponible($user) as $add) {
+                $userAdd = $userRepository->findOneBy(['tel' => $add['tel']]);
+                if($userAdd){
+                    if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
+                        // MOD
+                        $user->getContact()->setNewIAdd($userAdd);
+                        $userAdd->getContact()->setNewAddMe($user);
+                        $this->em->flush();
+                        array_push($contactsAdd, [
+                            "pseudo" => $userAdd->getPseudo(),
+                            "nom" => (string)$userAdd,
+                            "tel" => $userAdd->getTel(),
+                        ]);
+                    } else {
+                        return new JsonResponse([
+                            'error' => true,
+                            "contactsAdd" => $contactsAdd,
+                            "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
+                            "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
+                        ]);
+                    }
                 }
             }
         }
