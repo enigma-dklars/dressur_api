@@ -307,6 +307,24 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/partagerDressur', name: 'app_partagerDressur')]
+    public function partagerDressur(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        $html = $this->renderView('private/partagerDressur.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+            'codeParrainage' => $user->getCodeBonus(), 
+            'commission' => $this->env->getCommissionBonus(), 
+        ]);
+
+        return new JsonResponse([
+            'error' => false,
+            'content' => $html,
+        ]);
+    }
+
     #[Route('/editPassword', name: 'app_editPassword')]
     public function editPassword(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
