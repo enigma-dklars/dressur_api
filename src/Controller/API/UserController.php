@@ -1509,8 +1509,7 @@ class UserController extends AbstractController
 
         $contact = new Contact();
         $contact->setUser($user);
-        $contact->setNewIAdd($dressur);        
-        $dressur->getContact()->setNewAddMe($user);
+        $contact->setNewIAdd($dressur);
         $this->em->persist($contact);
 
         $verifMail = new VerifMail();
@@ -1526,6 +1525,8 @@ class UserController extends AbstractController
             ])
         );
 
+        $this->em->flush();
+        $dressur->getContact()->setNewAddMe($user);
         $this->em->flush();
 
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
