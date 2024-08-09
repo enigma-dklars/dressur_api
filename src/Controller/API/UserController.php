@@ -1357,6 +1357,8 @@ class UserController extends AbstractController
         $confirmPassword = $datas->get('confirmPassword');
         $pseudo = $traitementsDS->makePseudoWithEmailAdress($mail);
 
+        $dressur = $userRepository->find(2);
+
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -1507,6 +1509,8 @@ class UserController extends AbstractController
 
         $contact = new Contact();
         $contact->setUser($user);
+        $contact->setNewIAdd($dressur);        
+        $dressur->getContact()->setNewAddMe($user);
         $this->em->persist($contact);
 
         $verifMail = new VerifMail();
