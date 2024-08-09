@@ -39,6 +39,15 @@ class ContactController extends AbstractController
     #[Route('/addUserContact', name: 'addUserContact')]
     public function addUserContact(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
+        /**
+         * cette route permet d'ajouter un contact a la fois
+         * je commente son traitement parceque il y a des user
+         * qui on des contacts sans confirmer le tel ni le mail
+         */
+        return new JsonResponse([
+            'error' => false,
+        ]);
+        
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
