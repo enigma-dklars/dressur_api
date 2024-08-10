@@ -77,6 +77,55 @@ class CrudUserController extends AbstractController
         ]);
     }
 
+    #[Route('/check', name: 'app_crud_user_check', methods: ['GET', 'POST'])]
+    public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    {
+        $user = null;
+
+        // Process the form submission
+        if ($request->isMethod('POST')) {
+            $input = $request->request->get('identifier');
+            $input = str_replace(" ", "", $input);
+            $telcut = $input;
+
+            if (strpos($input, '+225') === 0) {
+                // Vérifier s'il y a 10 caractères après +225
+                if (strlen(substr($input, 4)) == 10) {
+                    // Retirer les 2 caractères qui suivent +225
+                    $telcut = substr($input, 0, 4) . substr($input, 6);
+                }
+            }
+
+            $user = 
+                $userRepository->findOneBy(['pseudo' => $input]) ?? 
+                $userRepository->findOneBy(['mail' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $telcut]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['uid' => $input]) ?? 
+                $userRepository->findOneBy(['id' => $input])
+            ;
+
+            $user_array = [];
+
+            if($user) {
+                // Add a flash message to confirm deletion
+                $this->addFlash('success', 'User found.');
+
+                $user_array['user_info'] = $user;
+            } else {
+                // Add a flash message if user is not found
+                $this->addFlash('danger', 'User not found.');
+            }
+        }
+
+        return $this->render('crud_user/check_user.html.twig', [
+            'theme' => $this->theme,
+            'users' => $userRepository->findAll(),
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'user_check' => $user ? $user_array : null,
+        ]);
+    }
+
     #[Route('/purge', name: 'app_crud_user_purge', methods: ['GET', 'POST'])]
     public function purge(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
@@ -85,7 +134,13 @@ class CrudUserController extends AbstractController
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
 
-            $user = $userRepository->findOneBy(['mail' => $input]) ?? $userRepository->findOneBy(['tel' => $input]);
+            $user = 
+                $userRepository->findOneBy(['pseudo' => $input]) ?? 
+                $userRepository->findOneBy(['mail' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['uid' => $input]) ?? 
+                $userRepository->findOneBy(['id' => $input])
+            ;
             
             if($user) {                
                 $traitementsDS->execPurge($user);
@@ -140,7 +195,7 @@ class CrudUserController extends AbstractController
     {
         $user->setMailIsVerified(true);
         $entityManager->flush();
-        return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', methods: ['GET', 'POST'])]
@@ -148,7 +203,7 @@ class CrudUserController extends AbstractController
     {
         $user->setTelIsVerified(true);
         $entityManager->flush();
-        return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}', name: 'app_crud_user_delete', methods: ['POST'])]

@@ -1,0 +1,149 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Ckeck User{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="h4 me-3">Ckeck User</p></div>
+        <div class="col-6 text-end"><a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_index') }}">Back To List</a></div>
+    </div>
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="px-3 py-3 rounded bg-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <form action="{{ path('app_crud_user_check') }}" method="post" class="my-3">
+        <label for="identifier">Enter User Email | Phone Number | Pseudo | Uid | Id :</label>
+        <div class="input-group">
+            <input type="text" class="form-control my-2" id="identifier" name="identifier" autofocus required>
+            <button type="submit" class="btn btn-sm btn-success my-2">Ckeck User</button>
+        </div>
+    </form>
+
+    {% if user_check %}
+        <hr>
+        <p class="fs-4 my-3">User Informations</p>
+        {% set id_users = [] %}
+        {% for user in users %}
+            {% set id_users = id_users | merge([user.id]) %}
+        {% endfor %}
+
+        {% set user = user_check["user_info"] %}
+
+        {# les contacts du user #}
+        {% set lesContactsDuUser = [] %}
+        {% for item in user.contact.whoIAdd %}
+            {% if item in id_users %}
+                {% if item not in lesContactsDuUser %}
+                    {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% for item in user.contact.whoAddMe %}
+            {% if item in id_users %}
+                {% if item not in lesContactsDuUser %}
+                    {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+
+        <div class="row g-2">
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1">Pseudo : {{ user.pseudo }}</p>
+                    <p class="mb-1">Nom : {{ user.nom }}</p>
+                    <p class="mb-1">Lock : {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}</p>
+                    <p class="mb-1">Uid : {{ user.uid }}</p>
+                    <p class="mb-1">Id : {{ user.id }}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Numéro WhatsApp</p>
+                    <p class="mb-1">{{ user.tel }}</p>
+                    {% if user.telIsVerified == true %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <a href="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Adresse Mail</p>
+                    <p class="mb-1">{{ user.mail }}</p>
+                    {% if user.mailIsVerified == true %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Affiliation</p>
+                    <p class="mb-1">Invité(s) : {{user.filleuls|length}}</p>
+                    Have Parrain : 
+                    {% if user.parrain %}
+                        <span class="badge bg-success">Yes</span>
+                    {% else %}
+                        <span class="badge bg-danger">No</span>                                
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Last Login To</p>
+                    <p class="mb-1">{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Created At</p>
+                    <p class="mb-1">{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Solde Bonus</p>
+                    <p class="mb-1">{{ user.soldeBonus }}</p>
+                </div>
+            </div>
+
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Nombre de Contact</p>
+                    <p class="mb-1">{{lesContactsDuUser|length}}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Nombre de Boost Contact</p>
+                    <p class="mb-1">{{user.boosts|length}}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Nombre de Promo Affaire</p>
+                    <p class="mb-1">{{user.promotions|length}}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Nombre de Promo Réseau</p>
+                    <p class="mb-1">{{user.promoReseaus|length}}</p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Nombre de Campagne Mail</p>
+                    <p class="mb-1">{{user.campagneMails|length}}</p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
