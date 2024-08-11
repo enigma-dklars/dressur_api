@@ -81,28 +81,39 @@ class CrudUserController extends AbstractController
     public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         $user = null;
+        $telcut = null;
+        $teladd1 = null;
+        $teladd2 = null;
+        $teladd3 = null;
 
         // Process the form submission
         if ($request->isMethod('POST')) {
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
-            $telcut = $input;
+            $input = str_replace("	", "", $input);
 
             if (strpos($input, '+225') === 0) {
                 // Vérifier s'il y a 10 caractères après +225
                 if (strlen(substr($input, 4)) == 10) {
                     // Retirer les 2 caractères qui suivent +225
                     $telcut = substr($input, 0, 4) . substr($input, 6);
+                } else {
+                    $teladd1 = str_replace("+225", "+22501", $input);
+                    $teladd2 = str_replace("+225", "+22505", $input);
+                    $teladd3 = str_replace("+225", "+22507", $input);
                 }
             }
 
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $telcut]) ?? 
-                $userRepository->findOneBy(['tel' => $input]) ?? 
                 $userRepository->findOneBy(['uid' => $input]) ?? 
-                $userRepository->findOneBy(['id' => $input])
+                $userRepository->findOneBy(['id' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $telcut]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd3])
             ;
 
             $user_array = [];
@@ -129,17 +140,36 @@ class CrudUserController extends AbstractController
     #[Route('/purge', name: 'app_crud_user_purge', methods: ['GET', 'POST'])]
     public function purge(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
+        $telcut = null;
+
         // Process the form submission
         if ($request->isMethod('POST')) {
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
+            $input = str_replace("	", "", $input);
+
+            if (strpos($input, '+225') === 0) {
+                // Vérifier s'il y a 10 caractères après +225
+                if (strlen(substr($input, 4)) == 10) {
+                    // Retirer les 2 caractères qui suivent +225
+                    $telcut = substr($input, 0, 4) . substr($input, 6);
+                } else {
+                    $teladd1 = str_replace("+225", "+22501", $input);
+                    $teladd2 = str_replace("+225", "+22505", $input);
+                    $teladd3 = str_replace("+225", "+22507", $input);
+                }
+            }
 
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input]) ?? 
                 $userRepository->findOneBy(['uid' => $input]) ?? 
-                $userRepository->findOneBy(['id' => $input])
+                $userRepository->findOneBy(['id' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $telcut]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd3])
             ;
             
             if($user) {                
