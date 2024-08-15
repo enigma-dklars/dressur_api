@@ -35,7 +35,7 @@ class SendMail {
 
     public function __construct(LoggerInterface $logger) {
         $this->logger = $logger;
-        $$randomSmtpMail = $this->smtpMails[array_rand($this->smtpMails)];
+        $randomSmtpMail = $this->smtpMails[array_rand($this->smtpMails)];
         $this->from = $randomSmtpMail[0];
         $this->password = $randomSmtpMail[1];
         $this->smtpServer = $randomSmtpMail[2];
