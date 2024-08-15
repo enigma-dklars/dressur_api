@@ -9,43 +9,50 @@ use Psr\Log\LoggerInterface;
 
 class SendMail {
     private $logger;
-    private $smtpServer = 'smtp.gmail.com';
-    private $smtpPort = '587';
-    private $smtpSecured = 'tls';
-    // private $smtpServer = 'smtp.aol.com';
+    private $from;
+    private $password;
+    private $smtpServer;
+    private $smtpPort;
+    private $smtpSecured;
     private $smtpMails = [
-        // ["noreply1@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
-        // ["noreply2@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
-        // ["noreply3@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
-        // ["noreply4@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
-        // ["noreply5@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        ["noreply1@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        ["noreply2@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        ["noreply3@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        ["noreply4@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
+        ["noreply5@dressur.site", "nunewqi_DS3", "smtp.titan.email", "465", "ssl"],
         
-        ["noreply1.dressur.ds@gmail.com", "maatzpxlfnunewqi"],
-        ["noreply2.dressur.ds@gmail.com", "eeufhrlrlbicxdmr"],
-        ["noreply3.dressur.ds@gmail.com", "styzjjntshtyhzcr"],
-        ["noreply4.dressur.ds@gmail.com", "vutvoskfzywhpgjp"],
+        // ["noreply1.dressur.ds@gmail.com", "maatzpxlfnunewqi", "smtp.gmail.com", "587", "tls"],
+        // ["noreply2.dressur.ds@gmail.com", "eeufhrlrlbicxdmr", "smtp.gmail.com", "587", "tls"],
+        // ["noreply3.dressur.ds@gmail.com", "styzjjntshtyhzcr", "smtp.gmail.com", "587", "tls"],
+        // ["noreply4.dressur.ds@gmail.com", "vutvoskfzywhpgjp", "smtp.gmail.com", "587", "tls"],
 
-        ["noreply6.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy"],
-        ["noreply7.dressur.ds@gmail.com", "fkfpukqzwlgueadu"],
-        ["noreply8.dressur.ds@gmail.com", "gsdmjxfqnzjbwpxq"],
-        ["noreply9.dressur.ds@gmail.com", "amjybgcikdvtsrem"],
-        ["noreply10.dressur.ds@gmail.com", "ylmdtwreacsymamc"],
+        // ["noreply6.dressur.ds@gmail.com", "uxfzdpsgqkbzryhy", "smtp.gmail.com", "587", "tls"],
+        // ["noreply7.dressur.ds@gmail.com", "fkfpukqzwlgueadu", "smtp.gmail.com", "587", "tls"],
+        // ["noreply8.dressur.ds@gmail.com", "gsdmjxfqnzjbwpxq", "smtp.gmail.com", "587", "tls"],
+        // ["noreply9.dressur.ds@gmail.com", "amjybgcikdvtsrem", "smtp.gmail.com", "587", "tls"],
+        // ["noreply10.dressur.ds@gmail.com", "ylmdtwreacsymamc", "smtp.gmail.com", "587", "tls"],
     ];
 
     public function __construct(LoggerInterface $logger) {
         $this->logger = $logger;
+        $$randomSmtpMail = $this->smtpMails[array_rand($this->smtpMails)];
+        $this->from = $randomSmtpMail[0];
+        $this->password = $randomSmtpMail[1];
+        $this->smtpServer = $randomSmtpMail[2];
+        $this->smtpPort = $randomSmtpMail[3];
+        $this->smtpSecured = $randomSmtpMail[4];
     }
 
-    private function sendEmail($from, $smtpPasse, $to, $subject, $message, $replyto, $title) {
+    private function sendEmail($to, $subject, $message, $replyto, $title) {
         try {
             $transport = (new Swift_SmtpTransport($this->smtpServer, $this->smtpPort, $this->smtpSecured))
-                ->setUsername($from)
-                ->setPassword($smtpPasse)
+                ->setUsername($this->from)
+                ->setPassword($this->password)
             ;
             $mailer = new Swift_Mailer($transport);
             $content = (new Swift_Message())
                 ->setSubject($subject)
-                ->setFrom([$from => $title])
+                ->setFrom([$this->from => $title])
                 ->setReplyTo($replyto)
                 ->setTo($to)
                 ->setBody($message, 'text/html');
@@ -57,23 +64,13 @@ class SendMail {
     }
 
     public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"): bool {
-        $randomIndex = array_rand($this->smtpMails);
-        $randomSmtpMail = $this->smtpMails[$randomIndex];
-        $from = $randomSmtpMail[0];
-        $smtpPasse = $randomSmtpMail[1];
-
-        return $this->sendEmail($from, $smtpPasse, $to, $subject, $message, $replyto, $title);
+        return $this->sendEmail($to, $subject, $message, $replyto, $title);
     }
 
     public function sendReport(string $subject, string $message): bool {
-        $randomIndex = array_rand($this->smtpMails);
-        $randomSmtpMail = $this->smtpMails[$randomIndex];
-        $from = $randomSmtpMail[0];
-        $smtpPasse = $randomSmtpMail[1];
         $to = "dressur.ds@gmail.com";
         $replyto = "dressur.ds@gmail.com";
         $title = "Dressur Report : " . time();
-
-        return $this->sendEmail($from, $smtpPasse, $to, $subject, $message, $replyto, $title);
+        return $this->sendEmail($to, $subject, $message, $replyto, $title);
     }
 }
