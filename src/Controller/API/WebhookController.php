@@ -119,6 +119,7 @@ class WebhookController extends AbstractController
                             $boost->setFormulePromoReseau($formulePromoReseau)
                                 ->setUser($myTransaction->getUser())
                                 ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
+                                ->setCompteurRestant($myTransaction->getAnnotherInfo()['qteDemander'])
                                 ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
                                 ->setUrl($myTransaction->getAnnotherInfo()['lien'])
                             ;
