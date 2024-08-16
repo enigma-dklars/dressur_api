@@ -83,7 +83,7 @@ class DressurBotController extends AbstractController
         }
 
         if($userBotFind) {
-            $userBotFind->setNbrMsgSent($nbrMsgSent);
+            $userBotFind->setNbrMsgSent((string)$nbrMsgSent);
             $userBotFind->isUpdated();
             $this->em->flush();
             if($userBotFind->getExpiratedAt() > new DateTime()) {
