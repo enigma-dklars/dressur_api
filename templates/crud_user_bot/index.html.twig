@@ -16,12 +16,10 @@
                     <th>Email</th>
                     <th>Numero</th>
                     <th>Signature</th>
-                    {# <th>AdresseMac</th> #}
-                    {# <th>UuidMachine</th> #}
-                    {# <th>DiskSerialNumber</th> #}
-                    <th>CreatedAt</th>
+                    <th>NbrMsg</th>
+                    <th>UpdatedAt</th>
                     <th>ExpiratedAt</th>
-                    {# <th>TypeMachine</th> #}
+                    <th>CreatedAt</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,16 +31,14 @@
                     <td>{{ user_bot.email }}</td>
                     <td>{{ user_bot.numero }}</td>
                     <td>{{ user_bot.signature }}</td>
-                    {# <td>{{ user_bot.adresseMac }}</td> #}
-                    {# <td>{{ user_bot.uuidMachine }}</td> #}
-                    {# <td>{{ user_bot.diskSerialNumber }}</td> #}
-                    <td>{{ user_bot.createdAt ? user_bot.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user_bot.nbrMsgSent }}</td>
+                    <td>{{ user_bot.updatedAt ? user_bot.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user_bot.expiratedAt ? user_bot.expiratedAt|date('Y-m-d H:i:s') : '' }}</td>
-                    {# <td>{{ user_bot.typeMachine }}</td> #}
+                    <td>{{ user_bot.createdAt ? user_bot.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="11">no records found</td>
+                    <td colspan="10">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -45,11 +45,19 @@ class UserBot
     #[ORM\Column(length: 4)]
     private ?string $signature = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $nbrMsgSent = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+
     public function __construct()
     {
+        $this->nbrMsgSent = "0";
         $this->typeMachine = "pc";
         $this->signature = "oui";
         $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
         $this->expiratedAt = new DateTime("-5 minutes");
     }
 
@@ -174,6 +182,37 @@ class UserBot
     public function setSignature(string $signature): static
     {
         $this->signature = $signature;
+
+        return $this;
+    }
+
+    public function getNbrMsgSent(): ?string
+    {
+        return $this->nbrMsgSent;
+    }
+
+    public function setNbrMsgSent(?string $nbrMsgSent): static
+    {
+        $this->nbrMsgSent = $nbrMsgSent;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function isUpdated(): static
+    {
+        $this->updatedAt = new DateTime();
 
         return $this;
     }

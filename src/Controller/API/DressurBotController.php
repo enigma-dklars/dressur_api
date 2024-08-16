@@ -56,11 +56,11 @@ class DressurBotController extends AbstractController
         $adresseMac = $request->get("adresseMac");
         $uuidMachine = $request->get("uuidMachine");
         $diskSerialNumber = $request->get("diskSerialNumber");
+        $nbrMsgSent = $request->get("nbrMsgSent");
 
         $userBotFind = $userBotRepository->findOneBy([
             'email' => $email,
             'numero' => $numero,
-            // 'adresseMac' => $adresseMac,
             'uuidMachine' => $uuidMachine,
             'diskSerialNumber' => $diskSerialNumber,
         ]);
@@ -76,6 +76,9 @@ class DressurBotController extends AbstractController
         }
 
         if($userBotFind) {
+            $userBotFind->setNbrMsgSent($nbrMsgSent);
+            $userBotFind->isUpdated();
+            $this->em->flush();
             if($userBotFind->getExpiratedAt() > new DateTime()) {
                 return new JsonResponse([
                     'error' => false,
@@ -234,7 +237,6 @@ class DressurBotController extends AbstractController
         $userBotFind = $userBotRepository->findOneBy([
             'email' => $email,
             'numero' => $numero,
-            // 'adresseMac' => $adresseMac,
             'uuidMachine' => $uuidMachine,
             'diskSerialNumber' => $diskSerialNumber,
         ]);
