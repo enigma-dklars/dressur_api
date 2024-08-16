@@ -32,6 +32,9 @@ class Env
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $linkLocalServer = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $versionDressurBot = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +108,18 @@ class Env
     public function setLinkLocalServer(?string $linkLocalServer): self
     {
         $this->linkLocalServer = $linkLocalServer;
+
+        return $this;
+    }
+
+    public function getVersionDressurBot(): ?string
+    {
+        return $this->versionDressurBot;
+    }
+
+    public function setVersionDressurBot(?string $versionDressurBot): static
+    {
+        $this->versionDressurBot = $versionDressurBot;
 
         return $this;
     }

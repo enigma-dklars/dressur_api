@@ -15,7 +15,7 @@
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Numero</th>
-                    <th>Signature</th>
+                    <th>Sign.</th>
                     <th>NbrMsg</th>
                     <th>UpdatedAt</th>
                     <th>ExpiratedAt</th>
@@ -30,7 +30,13 @@
                     <td>{{ user_bot.nom }}</td>
                     <td>{{ user_bot.email }}</td>
                     <td>{{ user_bot.numero }}</td>
-                    <td>{{ user_bot.signature }}</td>
+                    <td class="text-center">
+                        {% if user_bot.signature == "oui" %}
+                            <span class="badge bg-success">Oui</span>
+                        {% else %}
+                            <span class="badge bg-danger">Non</span>
+                        {% endif %}
+                    </td>
                     <td>{{ user_bot.nbrMsgSent }}</td>
                     <td>{{ user_bot.updatedAt ? user_bot.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user_bot.expiratedAt ? user_bot.expiratedAt|date('Y-m-d H:i:s') : '' }}</td>

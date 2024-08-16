@@ -27,6 +27,11 @@ class EnvType extends AbstractType
                     'class' => 'ms-2 mb-3 mt-3'
                 ],
             ])
+            ->add('versionDressurBot', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
             ->add('doBoostPayant', null, [
                 'attr' => [
                     'class' => 'ms-2 mb-3 mt-3'

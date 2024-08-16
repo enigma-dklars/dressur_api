@@ -49,6 +49,13 @@ class DressurBotController extends AbstractController
     #[Route('/dressurUserBot', name: 'dressurUserBot')]
     public function dressurUserBot(Request $request, SendMail $sendMail, UserBotRepository $userBotRepository, VerificationsDS $verificationsDS): Response
     {
+        $versionApp = $request->get("versionApp");
+        if(strlen($this->env->getVersionDressurBot()) > 0){
+            if($this->env->getVersionDressurBot() != $versionApp){
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez utiliser la dernière version de Dressur Bot."]);
+            }
+        }
+
         $nom = $request->get("nom");
         $email = $request->get("email");
         $numero = $request->get("numero");

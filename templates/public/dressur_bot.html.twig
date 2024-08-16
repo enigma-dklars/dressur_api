@@ -1,5 +1,8 @@
 {% extends 'base.html.twig' %}
 
+{% set embedLink = "https://www.youtube.com/embed/ID4c7JGo5h4" %}
+{% set youtubeLink = "https://www.youtube.com/watch?v=ID4c7JGo5h4" %}
+
 {% set description = "Dressur Bot est une application Windows qui automatise l'envoi de messages sur WhatsApp Web et Desktop. Simplifiez vos campagnes de communication en masse en fournissant simplement le texte du message et un fichier VCF contenant les contacts. Idéal pour les entreprises et les professionnels." %}
 
 {% set title = "Dressur Bot" %}
@@ -36,6 +39,7 @@
                 <h1 class="display-5">Automatisez l'envoi de messages sur WhatsApp</h1>
                 <p class="lead">Avec Dressur Bot, simplifiez vos campagnes de communication en masse sur WhatsApp.</p>
                 <a href="/assets/dressur_bot/dressur_bot.exe" class="btn btn-lg btn-light">Télécharger Dressur Bot</a>
+                <a href="{{youtubeLink}}" target="_blank" class="btn btn-lg btn-danger">Tutoriel Dressur Bot</a>
             </div>
         </header>
 
@@ -106,7 +110,7 @@
                 <div class="row g-0">
                     <div class="col-md-2"></div>
                     <div class="col-md-8">
-                        <iframe class="w-100" height="350" src="https://www.youtube.com/embed/ID4c7JGo5h4" allowfullscreen></iframe>
+                        <iframe class="w-100" height="350" src="{{embedLink}}" allowfullscreen></iframe>
                     </div>
                     <div class="col-md-2"></div>
                 </div>
