@@ -48,7 +48,7 @@ class UserBot
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $nbrMsgSent = null;
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function __construct()
