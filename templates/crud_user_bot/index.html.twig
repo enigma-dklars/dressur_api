@@ -12,10 +12,11 @@
                 <tr>
                     <th></th>
                     <th>Id</th>
+                    <th>Act.</th>
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Numero</th>
-                    <th>Sign.</th>
+                    <th>Sgn.</th>
                     <th>NbrMsg</th>
                     <th>UpdatedAt</th>
                     <th>ExpiratedAt</th>
@@ -27,6 +28,13 @@
                 <tr>
                     <td>{% include "crud_user_bot/_delete_form.html.twig" %}</td>
                     <td>{{ user_bot.id }}</td>
+                    <td class="text-center">
+                        {% if date() > user_bot.expiratedAt %}
+                            <span class="badge bg-danger">Non</span>
+                        {% else %}
+                            <span class="badge bg-success">Oui</span>
+                        {% endif %}
+                    </td>
                     <td>{{ user_bot.nom }}</td>
                     <td>{{ user_bot.email }}</td>
                     <td>{{ user_bot.numero }}</td>

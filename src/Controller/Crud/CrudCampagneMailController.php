@@ -56,9 +56,9 @@ class CrudCampagneMailController extends AbstractController
         ini_set("memory_limit", "-1");
 
         if(rand(0, 100000) % 2 == 0) {
-            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'ASC'], 30);
+            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'ASC'], 40);
         } else {
-            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'DESC'], 30);
+            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'DESC'], 40);
         }
         foreach ($cent_mails_pending as $un_mail) {
             try {
