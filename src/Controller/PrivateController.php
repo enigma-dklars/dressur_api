@@ -120,6 +120,12 @@ class PrivateController extends AbstractController
             $uid = $cookieDS->get("uid");
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
+
+            $userinfo = $this->traitementsDS->infosUser($user);
+            $actu = $this->renderView('private/actu.html.twig', [
+                'actus' => json_decode($userinfo['lesPublicites']),
+            ]);
+
             if($user){
                 return $this->render('private/index.html.twig', [
                     'theme' => $this->theme,
@@ -137,6 +143,7 @@ class PrivateController extends AbstractController
                     'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
                     'nbr_have_parent' => count($userRepository->findAll()) - count($userRepository->findBy(['parrain' => null])),
                     'nbr_user' => count($userRepository->findAll()),
+                    'actu' => $actu,
                 ]);
             }
         }
