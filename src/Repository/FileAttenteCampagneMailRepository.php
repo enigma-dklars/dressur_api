@@ -21,6 +21,15 @@ class FileAttenteCampagneMailRepository extends ServiceEntityRepository
         parent::__construct($registry, FileAttenteCampagneMail::class);
     }
 
+    public function remove(FileAttenteCampagneMail $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
 //    /**
 //     * @return FileAttenteCampagneMail[] Returns an array of FileAttenteCampagneMail objects
 //     */

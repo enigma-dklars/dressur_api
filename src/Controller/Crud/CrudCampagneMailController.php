@@ -56,9 +56,9 @@ class CrudCampagneMailController extends AbstractController
         ini_set("memory_limit", "-1");
 
         if(rand(0, 100000) % 2 == 0) {
-            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'ASC'], 20);
+            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'ASC'], 30);
         } else {
-            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'DESC'], 20);
+            $cent_mails_pending = $fileAttenteCampagneMailRepository->findBy([], ['id' => 'DESC'], 30);
         }
         foreach ($cent_mails_pending as $un_mail) {
             try {
@@ -69,10 +69,10 @@ class CrudCampagneMailController extends AbstractController
                     $un_mail->getReplyto(),
                     $un_mail->getTitre()
                 );
-                $entityManager->remove($un_mail);
             } catch (\Throwable $th) {
-                $sendMail->sendReport("File Attente Campage Mail", $th);
+                // $sendMail->sendReport("File Attente Campage Mail", $th);
             }
+            $fileAttenteCampagneMailRepository->remove($un_mail);
         }
         $entityManager->flush();
         return $this->redirectToRoute('app_crud_campagne_mail_index', [], Response::HTTP_SEE_OTHER);
