@@ -90,21 +90,6 @@ class BoostController extends AbstractController
             ]);
         }
 
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
-            ]);
-        }
-
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -203,21 +188,6 @@ class BoostController extends AbstractController
                 'error' => true,
                 'titre' => 'Erreur!',
                 'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
-            ]);
-        }
-
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
             ]);
         }
 

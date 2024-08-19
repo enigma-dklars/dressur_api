@@ -92,21 +92,6 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
-            ]);
-        }
-
         // Vérification et traitement de l'image
         if (!$image->isValid()) {
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -144,8 +129,6 @@ class PromotionController extends AbstractController
         ;
         $promotionRepository->save($promotion, true);
 
-        // Enregistrer le chemin de l'image dans la base de données ou effectuer d'autres opérations nécessaires
-        // ...
         if($sessionDS->get("langUserPhone") != "fr") { 
             return new JsonResponse([
                 'error' => false

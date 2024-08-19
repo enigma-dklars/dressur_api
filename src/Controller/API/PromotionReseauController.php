@@ -120,6 +120,21 @@ class PromotionReseauController extends AbstractController
 
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
         $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
         if(!$formulePromoReseau) {
             if($sessionDS->get("langUserPhone") != "fr") {
