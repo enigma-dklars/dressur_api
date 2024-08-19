@@ -891,13 +891,13 @@ class UserController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "Check the sponsorship code entered.",
+                    'message' => "The code you entered is not a Dressur referral code. Please double check the referral code with your sponsor and ask them to direct you.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Vérifiez bien le code de parrainage saisie.",
+                'message' => "Le code saisi n'est pas un code de parrainage Dressur. Vérifiez bien le code parrainage auprès de votre parrain et demandez-lui de vous orienter.",
             ]);
         }
 
@@ -1015,13 +1015,13 @@ class UserController extends AbstractController
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
-                    'message' => "The promo code entered is incorrect. The codes start with DS-. Please write the complete code.",
+                    'message' => "The code entered is not a Dressur promo code. Double check the promo code.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Le code promo saisie est erronée. Les codes commencent par DS-. Veuillez ecrire le code au complet.",
+                'message' => "Le code saisi n'est pas un code promo Dressur. Vérifiez bien le code promo.",
             ]);
         }
 
@@ -1058,9 +1058,9 @@ class UserController extends AbstractController
 
         $DSBH = new DSBonusHistorique();
         if($user->getLang() == "fr") {
-            $DSBH->setTitre("Bonus promo");
+            $DSBH->setTitre("Bonus Promo");
         } else {
-            $DSBH->setTitre("Promo Bonuses");
+            $DSBH->setTitre("Promo Bonus");
         }
         $DSBH->setUser($user)->setWpbonus($DSBonus)->setMontant($DSBonus->getMontant());
         $user->addSoldeBonus($DSBonus->getMontant());
