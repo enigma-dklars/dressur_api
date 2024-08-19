@@ -240,12 +240,13 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/newpromoaffaire', name: 'app_newpromoaffaire')]
-    public function newpromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function newpromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newpromoaffaire.html.twig', [
+            'formuleBoosts' => $formuleBoostRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 

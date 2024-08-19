@@ -1867,6 +1867,15 @@ $(document).ready(function () {
         $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
     });
 
+    $(document).on("change", "#formule-promo-page-new-affaire", function () {
+        let value = JSON.parse($(this).val())
+        let id = value[0];
+        let prix = value[1];
+        let nbrJour = value[2];
+        let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" Bonus ou "+prix+" FCFA."
+        $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
+    });
+
     $(document).on("click", "#newBoostPayant", function () {
         traitementContact("newBoostPayant", "debut", "")
 
