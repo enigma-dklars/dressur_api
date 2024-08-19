@@ -748,6 +748,7 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         return [
+            "myDressurVersion" => $this->env->getVersionApp(),
             "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),
             "uid" => $user->getUid(),
