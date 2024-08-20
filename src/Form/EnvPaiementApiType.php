@@ -33,6 +33,17 @@ class EnvPaiementApiType extends AbstractType
                     'class' => 'ms-2 mb-3 mt-3'
                 ],
             ])
+            ->add('accountName', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('linkPaiement', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2',
+                    'rows' => '1',
+                ],
+            ])
             ->add('aggregator', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'

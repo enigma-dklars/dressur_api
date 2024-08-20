@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EnvPaiementApiRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EnvPaiementApiRepository::class)]
@@ -33,6 +34,12 @@ class EnvPaiementApi
 
     #[ORM\Column(nullable: true)]
     private ?bool $activated = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $accountName = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $linkPaiement = null;
 
     public function __construct()
     {
@@ -127,6 +134,30 @@ class EnvPaiementApi
     public function setActivated(?bool $activated): static
     {
         $this->activated = $activated;
+
+        return $this;
+    }
+
+    public function getAccountName(): ?string
+    {
+        return $this->accountName;
+    }
+
+    public function setAccountName(?string $accountName): static
+    {
+        $this->accountName = $accountName;
+
+        return $this;
+    }
+
+    public function getLinkPaiement(): ?string
+    {
+        return $this->linkPaiement;
+    }
+
+    public function setLinkPaiement(?string $linkPaiement): static
+    {
+        $this->linkPaiement = $linkPaiement;
 
         return $this;
     }
