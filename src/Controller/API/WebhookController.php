@@ -76,12 +76,12 @@ class WebhookController extends AbstractController
         } catch(\UnexpectedValueException $e) {
             // Invalid payload
 
-            http_response_code(400);
+            return 400;
             exit();
         } catch(\FedaPay\Error\SignatureVerification $e) {
             // Invalid signature
 
-            http_response_code(400);
+            return 400;
             exit();
         }
 
@@ -157,7 +157,7 @@ class WebhookController extends AbstractController
                     }
                 }
 
-                http_response_code(200);
+                return 200;
                 exit();            
                 break;
             case 'transaction.canceled':
@@ -168,7 +168,7 @@ class WebhookController extends AbstractController
                 $myTransaction->setStatus($transaction->status)->isUpdated();
                 $this->em->flush();
 
-                http_response_code(200);
+                return 200;
                 exit();
                 break;
             default:
@@ -179,17 +179,18 @@ class WebhookController extends AbstractController
                 $myTransaction->setStatus($transaction->status)->isUpdated();
                 $this->em->flush();
                 
-                http_response_code(200);
+                return 200;
                 exit();
         }
-        http_response_code(200);
+        return 200;
     }
 
     #[Route('/whd/{routeWebhook}', name: 'webhookDressur')]
     public function webhookDressur($routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository)
     {
         $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook]);
-        $this->allWebhookDressur($envPaiementApi);
+        $http_response_code = $this->allWebhookDressur($envPaiementApi);
+        http_response_code($http_response_code);
     }
 
     #[Route('/checkTransaction', name: 'checkTransaction', methods: ['POST'])]
