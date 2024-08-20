@@ -435,9 +435,8 @@ class PromotionController extends AbstractController
             $this->em->flush();
 
             try {
-                $token = $transaction->generateToken()->token;
-                $mode = $valueMethodePaiement;
-                $transaction->sendNowWithToken($mode, $token);
+                $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+                return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 if($sessionDS->get("langUserPhone") != "fr") {

@@ -294,9 +294,8 @@ class DressurBotController extends AbstractController
         $this->em->flush();
 
         try {
-            $token = $transaction->generateToken()->token;
-            $mode = $valueMethodePaiement;
-            $transaction->sendNowWithToken($mode, $token);
+            $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+            return new JsonResponse($resultat);
         } catch (\Throwable $th) {
             $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
             if($sessionDS->get("langUserPhone") != "fr") {

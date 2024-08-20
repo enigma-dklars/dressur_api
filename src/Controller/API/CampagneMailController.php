@@ -341,9 +341,8 @@ class CampagneMailController extends AbstractController
             $this->em->flush();
 
             try {
-                $token = $transaction->generateToken()->token;
-                $mode = $valueMethodePaiement;
-                $transaction->sendNowWithToken($mode, $token);
+                $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+                return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 if($sessionDS->get("langUserPhone") != "fr") {
@@ -368,13 +367,13 @@ class CampagneMailController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Whoops!',
-                'message' => "This promotion has already been started.",
+                'message' => "This campaign has already been started.",
             ]);                
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Oups!',
-            'message' => "Cette promotion est déjà été démarrée.",
+            'message' => "Cette campagne est déjà été démarrée.",
         ]);
     }
 }

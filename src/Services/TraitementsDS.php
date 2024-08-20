@@ -796,6 +796,25 @@ class TraitementsDS extends AbstractController
         return $country;
     }
 
+    public function startPaiement($transaction, $mode) {        
+        if(in_array($mode, ["mtn","moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"])) {
+            $token = $transaction->generateToken()->token;
+            $transaction->sendNowWithToken($mode, $token);
+            return [
+                "error" => false,
+                "direct" => true,
+                "url" => "none",
+            ];
+        } else {
+            $token = $transaction->generateToken()->url;
+            return [
+                "error" => false,
+                "direct" => false,
+                "url" => $token,
+            ];
+        }
+    }
+
     public function execPurge($user){
         foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
             $element->setParrain($this->userRepository->find(3));
