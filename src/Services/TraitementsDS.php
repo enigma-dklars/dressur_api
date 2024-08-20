@@ -797,7 +797,9 @@ class TraitementsDS extends AbstractController
     }
 
     public function startPaiement($transaction, $mode) {
-        if(in_array($mode, ["mtn","moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"])) {
+        $paiementDirect = ["mtn","moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"];
+        $paiementDirect = ["moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"];
+        if(in_array($mode, $paiementDirect)) {
             $token = $transaction->generateToken()->token;
             $transaction->sendNowWithToken($mode, $token);
             return [
