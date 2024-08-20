@@ -41,6 +41,9 @@
             <hr class="my-2">
             
             <li> <a href="{{path('app_crud_env_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Env</a></li>
+            {% if user.id == 3 or user.id == 7 %}
+            <li> <a href="{{path('app_env_paiement_api_index')}}" class="small-fort bg-danger text-white"><i class="fas fa-align-left"></i>Env Paiement Api</a></li>
+            {% endif %}
             <li> <a href="{{path('app_crud_mot_refuser_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Mot Refuser</a></li>
             <li> <a href="{{path('app_crud_d_s_bonus_index')}}" class="small-fort"><i class="fas fa-align-left"></i>DS Bonus</a></li>
             <li> <a href="{{path('app_crud_d_s_bonus_historique_index')}}" class="small-fort"><i class="fas fa-align-left"></i>H. DS Bonus</a></li>

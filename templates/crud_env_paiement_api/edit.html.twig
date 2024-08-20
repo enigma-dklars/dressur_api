@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit EnvPaiementApi{% endblock %}
+
+{% block body %}
+    <h1>Edit EnvPaiementApi</h1>
+
+    {{ include('crud_env_paiement_api/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_env_paiement_api_index') }}">back to list</a>
+
+    {{ include('crud_env_paiement_api/_delete_form.html.twig') }}
+{% endblock %}

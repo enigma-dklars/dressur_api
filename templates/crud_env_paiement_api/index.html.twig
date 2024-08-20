@@ -1,0 +1,54 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}EnvPaiementApi index{% endblock %}
+
+{% block body %}
+    <span class="h4 me-3">EnvPaiementApi index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_env_paiement_api_new') }}">Create new</a>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Count.TA</th>
+                    <th>Activ.</th>
+                    <th>Aggregator</th>
+                    <th>ApiKey</th>
+                    <th>Environment</th>
+                    <th>EndpointSecret</th>
+                    <th>RouteWebhook</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for env_paiement_api in env_paiement_apis %}
+                <tr>
+                    <td>
+                        {% include "crud_env_paiement_api/_delete_form.html.twig" %}
+                    </td>
+                    <td>{{ env_paiement_api.id }}</td>
+                    <td>{{ env_paiement_api.countTransactionApproved }}</td>
+                    <td class="text-center">
+                        {% if env_paiement_api.activated %}
+                            <span class="badge bg-success">Oui</span>
+                        {% else %}
+                            <span class="badge bg-danger">Non</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ env_paiement_api.aggregator }}</td>
+                    <td>{{ env_paiement_api.apiKey }}</td>
+                    <td>{{ env_paiement_api.environment }}</td>
+                    <td>{{ env_paiement_api.endpointSecret }}</td>
+                    <td>{{ env_paiement_api.routeWebhook }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
