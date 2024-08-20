@@ -175,21 +175,6 @@ class PromotionReseauController extends AbstractController
             ]);
         }
 
-        if($valueMethodePaiement == "mtn") {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Payments by MTN from the application are currently experiencing disruptions. Please use Moov or Celtis for your payments if possible. If this is not possible, contact Dressur support by WhatsApp Please. THANKS.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Les paiements par MTN depuis l'application rencontre en ce moment des perturbations. Veuillez si possible utiliser Moov ou Celtis pour vos paiements. Si ce n'est pas possible, contactez l'assistance Dressur par WhatsApp Svp. Merci.",
-            ]);
-        }
-
         $array_create_transaction = [
             "description" => "Dressur :  Boost Réseau Sociaux : ". $formulePromoReseau->getTitre() ." - ". $prixQteDemander ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
             "amount" => $prixQteDemander,

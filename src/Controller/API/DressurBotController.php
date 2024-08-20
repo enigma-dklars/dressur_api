@@ -227,14 +227,6 @@ class DressurBotController extends AbstractController
             ]);
         }
 
-        if($valueMethodePaiement == "mtn") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Les paiements par MTN depuis l'application rencontre en ce moment des perturbations. Veuillez si possible utiliser Moov ou Celtis pour vos paiements. Si ce n'est pas possible, contactez l'assistance Dressur par WhatsApp Svp. Merci.",
-            ]);
-        }
-
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
