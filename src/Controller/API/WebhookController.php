@@ -188,7 +188,9 @@ class WebhookController extends AbstractController
     #[Route('/whd/{routeWebhook}', name: 'webhookDressur')]
     public function webhookDressur($routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository)
     {
+        dump($routeWebhook);
         $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook]);
+        dd($envPaiementApi);
         $http_response_code = $this->allWebhookDressur($envPaiementApi);
         http_response_code($http_response_code);
     }
