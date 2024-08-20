@@ -784,7 +784,7 @@ class TraitementsDS extends AbstractController
         ];
     }
 
-    public function getCountryWithMethodePaiement($valueMethodePaiement){
+    public function getCountryWithMethodePaiement($valueMethodePaiement) {
         if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
         else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci" || $valueMethodePaiement == "moov_ci") { $country = "ci"; }
         else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }

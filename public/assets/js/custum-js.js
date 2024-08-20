@@ -767,6 +767,9 @@ $(document).ready(function () {
                     `);
                     $("#msgError-"+idCampagneMail).toggle(800)
                 } else {
+                    if (response.direct == false) {
+                        window.open(response.url, '_blank');
+                    }
                     msgError = "Après confirmation du paiement, veuillez consulter la liste de vos campagnes mails."
                     $("#msgError-"+idCampagneMail).html(`
                         <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
@@ -867,7 +870,10 @@ $(document).ready(function () {
                     `);
                     $("#msgError").toggle(800)
                 } else {
-                    msgError = "Votre campagne a été enregistrée, vous passerez au paiement si elle est acceptée."
+                    if (response.direct == false) {
+                        window.open(response.url, '_blank');
+                    }
+                    msgError = "Confirmer le paiement pour démarrer votre promotion réseau."
                     $("#msgError").html(`
                         <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
                         <div class="d-flex align-items-center">
@@ -1242,6 +1248,9 @@ $(document).ready(function () {
                     `);
                     $(".msgError-"+idPromoAffaire).toggle(800)
                 } else {
+                    if (response.direct == false) {
+                        window.open(response.url, '_blank');
+                    }
                     msgError = "Après confirmation du paiement, veuillez consulter la liste de vos promotions affaires."
                     $(".msgError-"+idPromoAffaire).html(`
                         <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
@@ -1945,6 +1954,9 @@ $(document).ready(function () {
                     `);
                     $("#msgErrorBoostPayant").toggle(800)
                 } else {
+                    if (response.direct == false) {
+                        window.open(response.url, '_blank');
+                    }
                     msgError = "Votre boost a été enregistrée."
                     $("#msgErrorBoostPayant").html(`
                         <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
