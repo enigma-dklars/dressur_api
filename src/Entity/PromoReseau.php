@@ -55,7 +55,6 @@ class PromoReseau
         $this->status = 1;
         $this->idZefame = "*****";
         $this->compteurDebut = 0;
-        $this->compteurRestant = 0;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
         /**
@@ -104,6 +103,7 @@ class PromoReseau
     public function setQteDemander(int $qteDemander): self
     {
         $this->qteDemander = $qteDemander;
+        $this->compteurRestant = $qteDemander;
 
         return $this;
     }
