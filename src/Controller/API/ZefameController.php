@@ -37,8 +37,11 @@ class ZefameController extends AbstractController
         // $zefameApi->services();
         // $zefameApi->status("3099025");
         // $zefameApi->multiStatus(["3099025", "3098451"]);
-
-        dd($zefameApi->services());
+        // dd($zefameApi->services());
+        foreach ($zefameApi->services() as $unservice) {
+            dump($unservice);
+        }
+        dd("fin");
         // return new JsonResponse();
     }
 }
