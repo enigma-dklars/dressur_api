@@ -3,8 +3,19 @@
 {% block title %}PromoReseau index{% endblock %}
 
 {% block body %}
-    <span class="h4 me-3">PromoReseau index</span>
-    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_promo_reseau_new') }}">Create new</a>
+    <div class="row g-2">
+        <div class="col-8">
+            <span class="h4 me-3">PromoReseau index</span>
+            <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_promo_reseau_new') }}">Create new</a>
+        </div>
+        <div class="col-4 text-end fs-5 
+            {% if soldeZefame <= 5 %}text-danger{% endif %} 
+            {% if soldeZefame > 5 and soldeZefame <= 10 %}text-warning{% endif %}
+            {% if soldeZefame > 10 %}text-success{% endif %}
+        ">
+            Solde : {{soldeZefame}} €
+        </div>
+    </div>
 
     <div class="table-responsive">
         <table class="data-table table table-bordered table-striped">

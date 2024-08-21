@@ -42,6 +42,7 @@ class CrudPromoReseauController extends AbstractController
         $traitementsDS->checkAndUpdateStatusZefame();
         return $this->render('crud_promo_reseau/index.html.twig', [
             'theme' => $this->theme,
+            'soldeZefame' => $traitementsDS->getSoldeZefame(),
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'promo_reseaus' => $promoReseauRepository->findBy([], ['id' => 'DESC']),
         ]);

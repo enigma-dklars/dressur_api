@@ -820,6 +820,10 @@ class TraitementsDS extends AbstractController
         }
     }
 
+    function getSoldeZefame() {
+        return $this->zefameApi->balance()->balance;
+    }
+
     function checkAndUpdateStatusZefame() {
         $promoReseauStatut2 = $this->promoReseauRepository->findBy(['status' => 2]);
         foreach ($promoReseauStatut2 as $unePromoReseau) {
