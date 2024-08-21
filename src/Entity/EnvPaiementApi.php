@@ -126,6 +126,13 @@ class EnvPaiementApi
         return $this;
     }
 
+    public function isUsedApproved(): static
+    {
+        $this->countTransactionApproved++;
+
+        return $this;
+    }
+
     public function isActivated(): ?bool
     {
         return $this->activated;

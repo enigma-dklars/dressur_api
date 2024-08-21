@@ -153,8 +153,12 @@ class WebhookController extends AbstractController
                             ;
                         }
 
+                        $envPaiementApi->isUsedApproved();
                         $this->em->flush();
                     }
+                } else {
+                    $envPaiementApi->isUsedApproved();
+                    $this->em->flush();
                 }
 
                 return 200;
