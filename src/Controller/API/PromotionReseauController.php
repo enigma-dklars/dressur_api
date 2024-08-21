@@ -101,6 +101,20 @@ class PromotionReseauController extends AbstractController
                 'message' => 'Veuillez renseigner toutes les informations demandées dans le formulaire.',
             ]);
         }
+        if($prixQteDemander > 20000){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "For transactions over 20,000 FCFA, please contact Dressur Support.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Pour les transactions de plus de 20.000 FCFA, veuillez svp contacter l'Assistance Dressur.",
+            ]);
+        }
         $url_promo_en_attente = $promoReseauRepository->findBy(['status' => 1, 'url' => $lien]);
         $url_promo_en_cours = $promoReseauRepository->findBy(['status' => 2, 'url' => $lien]);
         if($url_promo_en_attente || $url_promo_en_cours) {

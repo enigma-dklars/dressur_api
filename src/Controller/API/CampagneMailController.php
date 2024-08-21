@@ -248,6 +248,21 @@ class CampagneMailController extends AbstractController
             ]);
         }
 
+        if($campagneMail->getFormuleCampagneMail()->getPrix() > 20000){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "For transactions over 20,000 FCFA, please contact Dressur Support.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Pour les transactions de plus de 20.000 FCFA, veuillez svp contacter l'Assistance Dressur.",
+            ]);
+        }
+
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             if($sessionDS->get("langUserPhone") != "fr") {
