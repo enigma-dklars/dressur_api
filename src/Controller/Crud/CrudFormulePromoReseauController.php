@@ -36,12 +36,13 @@ class CrudFormulePromoReseauController extends AbstractController
     }
 
     #[Route('/', name: 'app_crud_formule_promo_reseau_index', methods: ['GET'])]
-    public function index(FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    public function index(FormulePromoReseauRepository $formulePromoReseauRepository, TraitementsDS $traitementsDS): Response
     {
+        $traitementsDS->majServicesZefame();
         return $this->render('crud_formule_promo_reseau/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'formule_promo_reseaus' => $formulePromoReseauRepository->findAll(),
+            'formule_promo_reseaus' => $formulePromoReseauRepository->findBy(['available' => true]),
         ]);
     }
 

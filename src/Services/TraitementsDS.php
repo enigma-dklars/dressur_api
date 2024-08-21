@@ -820,11 +820,37 @@ class TraitementsDS extends AbstractController
         }
     }
 
-    function getSoldeZefame() {
+    public function getSoldeZefame() {
         return $this->zefameApi->balance()->balance;
     }
 
-    function checkAndUpdateStatusZefame() {
+    public function majServicesZefame() {
+        foreach ($this->formulePromoReseauRepository->findAll() as $uneFormuleReseau) {
+            $uneFormuleReseau->setAvailable(false);
+            if($uneFormuleReseau->getParent() == null) { 
+                $uneFormuleReseau->setAvailable(true)
+                    ->setPrix(null)
+                    ->setQte(null)
+                    ->setQteMin(null)
+                    ->setQteMax(null)
+                ;
+            }
+        }
+        foreach ($this->zefameApi->services() as $unservice) {
+            $uneFR = $this->formulePromoReseauRepository->findOneBy(['idZefame' => $unservice->service]);
+            if($uneFR) {
+                $uneFR->setAvailable(true)
+                    ->setQte(1000)
+                    ->setQteMax($unservice->max)
+                ;
+                if($unservice->min > $uneFR->getQteMin()) { $uneFR->setQteMin($unservice->min); }
+                if($unservice->rate > $uneFR->getPrix()) { $uneFR->setPrix($unservice->rate); }
+            }
+        }
+        $this->em->flush();
+    }
+
+    public function checkAndUpdateStatusZefame() {
         $promoReseauStatut2 = $this->promoReseauRepository->findBy(['status' => 2]);
         foreach ($promoReseauStatut2 as $unePromoReseau) {
             $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
