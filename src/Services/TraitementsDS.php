@@ -27,6 +27,7 @@ use App\Repository\FormulePromoReseauRepository;
 use App\Repository\MessageRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\SuggestionRepository;
+use App\Utilities\ZefameApi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
@@ -53,9 +54,11 @@ class TraitementsDS extends AbstractController
     private $promoReseauRepository;
     private $suggestionRepository;
     private $messageRepository;
+    private $zefameApi;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi)
     {
+        $this->zefameApi = $zefameApi;
         $this->messageRepository = $messageRepository;
         $this->suggestionRepository = $suggestionRepository;
         $this->promoReseauRepository = $promoReseauRepository;
@@ -79,7 +82,7 @@ class TraitementsDS extends AbstractController
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
     }    
 
-    function getUserByUidInCookies(){
+    function getUserByUidInCookies() {
         if($this->cookieDS->get("uid")){
             $uid = $this->cookieDS->get("uid");
             $user = $this->userRepository->findOneBy(['uid' => $uid]);
@@ -815,6 +818,29 @@ class TraitementsDS extends AbstractController
                 "url" => $token,
             ];
         }
+    }
+
+    function checkAndUpdateStatusZefame() {
+        $promoReseauStatut2 = $this->promoReseauRepository->findBy(['status' => 2]);
+        foreach ($promoReseauStatut2 as $unePromoReseau) {
+            $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
+            if(!isset($resultZefame->error)){
+                if($resultZefame->status == "Completed"){
+                    $unePromoReseau->setStatus(3)
+                        ->setCompteurRestant(0)
+                        ->setUpdatedAt(new DateTime())
+                    ;
+                }
+                if($resultZefame->status == "Canceled"){
+                    $unePromoReseau->setStatus(0)
+                        ->setUpdatedAt(new DateTime())
+                    ;
+                }
+                // dump($unePromoReseau);
+                // dd($resultZefame);
+            }
+        }
+        $this->em->flush();
     }
 
     public function execPurge($user){

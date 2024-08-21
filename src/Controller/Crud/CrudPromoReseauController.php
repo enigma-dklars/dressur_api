@@ -37,8 +37,9 @@ class CrudPromoReseauController extends AbstractController
     }
     
     #[Route('/', name: 'app_crud_promo_reseau_index', methods: ['GET'])]
-    public function index(PromoReseauRepository $promoReseauRepository): Response
+    public function index(PromoReseauRepository $promoReseauRepository, TraitementsDS $traitementsDS): Response
     {
+        $traitementsDS->checkAndUpdateStatusZefame();
         return $this->render('crud_promo_reseau/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
