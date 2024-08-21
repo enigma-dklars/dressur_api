@@ -17,6 +17,12 @@ class FormulePromoReseauType extends AbstractType
                     'class' => 'form-select single-select mb-2'
                 ],
             ])
+            ->add('idZefame', null, [
+                'attr' => [
+                    'class' => 'form-select single-select mb-2',
+                    'autofocus' => '',
+                ],
+            ])
             ->add('titre', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'

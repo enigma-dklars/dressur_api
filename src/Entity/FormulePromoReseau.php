@@ -49,6 +49,9 @@ class FormulePromoReseau
     #[ORM\Column]
     private ?bool $available = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $idZefame = null;
+
     public function __construct()
     {
         $this->sonFormulePromoReseaus = new ArrayCollection();
@@ -213,6 +216,18 @@ class FormulePromoReseau
     public function setQte(?int $qte): self
     {
         $this->qte = $qte;
+
+        return $this;
+    }
+
+    public function getIdZefame(): ?int
+    {
+        return $this->idZefame;
+    }
+
+    public function setIdZefame(?int $idZefame): static
+    {
+        $this->idZefame = $idZefame;
 
         return $this;
     }
