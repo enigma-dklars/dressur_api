@@ -30,12 +30,14 @@ class FormulePromoReseauType extends AbstractType
             ])
             ->add('description', null, [
                 'attr' => [
-                    'class' => 'form-control mb-2'
+                    'class' => 'form-control mb-2',
+                    'rows' => '7'
                 ],
             ])
             ->add('descriptionEn', null, [
                 'attr' => [
-                    'class' => 'form-control mb-2'
+                    'class' => 'form-control mb-2',
+                    'rows' => '7'
                 ],
             ])
             ->add('prix', null, [
