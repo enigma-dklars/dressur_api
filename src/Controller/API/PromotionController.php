@@ -252,16 +252,31 @@ class PromotionController extends AbstractController
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
     public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
-        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
-        FedaPay::setEnvironment('live');
-
-        $datas = $request->request;
-        
+        $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
+        $uid = $datas->get('uid');
+
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        if(!$envPaiementApi) {
+            $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Payment error. Please contact the administrators.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+            ]);
+        }
+        FedaPay::setApiKey($envPaiementApi->getApiKey());
+        FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
         $idPromotion = $datas->get('idPromotion');
-        $uid = $datas->get('uid');
         $idFormulBoost = $datas->get('idFormulBoost');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');

@@ -188,10 +188,8 @@ class DressurBotController extends AbstractController
     #[Route('/paiementDressurUserBot', name: 'paiementDressurUserBot', methods: ['POST'])]
     public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository): Response
     {
-        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
-        FedaPay::setEnvironment('live');
-
-        $datas = $request->request;
+        $datas = $request->request;        
+        $sessionDS->set("langUserPhone", "fr");
         
         $email = $request->get("email");
         $numero = $request->get("numero");
@@ -202,6 +200,25 @@ class DressurBotController extends AbstractController
         $idFormulDressurBot = $datas->get('idFormulDressurBot');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel'); 
+
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        if(!$envPaiementApi) {
+            $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Payment error. Please contact the administrators.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+            ]);
+        }
+        FedaPay::setApiKey($envPaiementApi->getApiKey());
+        FedaPay::setEnvironment($envPaiementApi->getEnvironment());
         
         if(!$idFormulDressurBot){
             return new JsonResponse([

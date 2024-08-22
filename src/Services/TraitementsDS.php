@@ -21,6 +21,7 @@ use App\Repository\DSBonusHistoriqueRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\DeletedDS;
 use App\Repository\CampagneMailRepository;
+use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Repository\FormulePromoReseauRepository;
@@ -55,8 +56,9 @@ class TraitementsDS extends AbstractController
     private $suggestionRepository;
     private $messageRepository;
     private $zefameApi;
+    private $envPaiementApiRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController,  BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository,  SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository)
     {
         $this->zefameApi = $zefameApi;
         $this->messageRepository = $messageRepository;
@@ -80,6 +82,7 @@ class TraitementsDS extends AbstractController
         $this->formulePromoReseauRepository = $formulePromoReseauRepository;
         $this->formuleBoostRepository = $formuleBoostRepository;
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
+        $this->envPaiementApiRepository = $envPaiementApiRepository;
     }    
 
     function getUserByUidInCookies() {
@@ -871,6 +874,16 @@ class TraitementsDS extends AbstractController
             }
         }
         $this->em->flush();
+    }
+
+    public function getEnvPaiementApiDisponible() {
+        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true]);
+        foreach ($envPaiementApis as $envPaiementApi) {
+            if($envPaiementApi->getCountTransactionApproved() < 10) {
+                return $envPaiementApi;
+            }
+        }
+        return false;
     }
 
     public function execPurge($user){
