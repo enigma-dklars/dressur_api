@@ -45,6 +45,16 @@ class CrudEnvPaiementApiController extends AbstractController
         ]);
     }
 
+    #[Route('/remise-zero', name: 'app_env_paiement_api_remise_zero', methods: ['GET'])]
+    public function remise_zero(EnvPaiementApiRepository $envPaiementApiRepository, EntityManagerInterface $entityManager): Response
+    {
+        foreach ($envPaiementApiRepository->findBy([], ['id' => 'DESC']) as $unEnvPaiement) {
+            $unEnvPaiement->setCountTransactionApproved(0);
+        }
+        $entityManager->flush();
+        return $this->redirectToRoute('app_env_paiement_api_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/new', name: 'app_env_paiement_api_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {

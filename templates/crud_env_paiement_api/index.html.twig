@@ -3,8 +3,15 @@
 {% block title %}EnvPaiementApi index{% endblock %}
 
 {% block body %}
-    <span class="h4 me-3">EnvPaiementApi index</span>
-    <a class="btn btn-sm btn-primary h4" href="{{ path('app_env_paiement_api_new') }}">Create new</a>
+    <div class="row g-2 mb-2">
+        <div class="col-md-6">
+            <span class="h4 me-3">EnvPaiementApi index</span>
+            <a class="btn btn-sm btn-primary h4" href="{{ path('app_env_paiement_api_new') }}">Create new</a>
+        </div>
+        <div class="col-md-6 text-end">
+            <a class="btn btn-sm btn-danger h4" href="{{ path('app_env_paiement_api_remise_zero') }}">Remise à zéro</a>
+        </div>
+    </div>
 
     <div class="table-responsive">
         <table class="data-table table table-bordered table-striped">
