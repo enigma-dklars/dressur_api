@@ -1,10 +1,10 @@
 {% extends 'basePrivate.html.twig' %}
 
-{% block title %}User index{% endblock %}
+{% block title %}User : {{option}}{% endblock %}
 
 {% block body %}
     <div class="row g-2 mb-2">
-        <div class="col-6"><p class="h4 me-3">User index</p></div>
+        <div class="col-6"><p class="h4 me-3">User : {{option}}</p></div>
     </div>
     {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_new') }}">Create new</a> #}
 

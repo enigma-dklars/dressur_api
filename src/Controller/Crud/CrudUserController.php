@@ -52,6 +52,40 @@ class CrudUserController extends AbstractController
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $userRepository->findBy([], ['id' => 'DESC']),
+            'option' => "All",
+        ]);
+    }
+
+    #[Route('/not-verif-tel', name: 'app_crud_user_not_verif_tel', methods: ['GET'])]
+    public function not_verif_tel(UserRepository $userRepository): Response
+    {
+        return $this->render('crud_user/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'users' => $userRepository->findBy(['telIsVerified' => false], ['id' => 'DESC']),
+            'option' => "Tel Not Verified",
+        ]);
+    }
+
+    #[Route('/not-verif-mail', name: 'app_crud_user_not_verif_mail', methods: ['GET'])]
+    public function not_verif_mail(UserRepository $userRepository): Response
+    {
+        return $this->render('crud_user/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'users' => $userRepository->findBy(['mailIsVerified' => false], ['id' => 'DESC']),
+            'option' => "Mail Not Verified",
+        ]);
+    }
+
+    #[Route('/not-verif-tel-mail', name: 'app_crud_user_not_verif_tel_mail', methods: ['GET'])]
+    public function not_verif_tel_mail(UserRepository $userRepository): Response
+    {
+        return $this->render('crud_user/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'users' => $userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], ['id' => 'DESC']),
+            'option' => "Tel Mail Not Verified",
         ]);
     }
 
