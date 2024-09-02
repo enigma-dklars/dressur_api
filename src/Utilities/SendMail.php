@@ -3,7 +3,6 @@
 namespace App\Utilities;
 
 use App\Repository\EnvMailSenderRepository;
-use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Swift_Mailer;
 use Swift_Message;
