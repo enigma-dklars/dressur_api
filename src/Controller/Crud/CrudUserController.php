@@ -236,6 +236,7 @@ class CrudUserController extends AbstractController
 
         // Process the form submission
         if ($request->isMethod('POST')) {
+            $motif = $request->request->get('motif');
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("	", "", $input);
@@ -267,6 +268,7 @@ class CrudUserController extends AbstractController
             if($user) {
                 $this->env->addUserBanned($user->getTel());
                 $this->env->addUserBanned($user->getMail());
+                $this->env->addUserBanned($motif);
                 $this->em->flush();
                 $traitementsDS->execPurge($user);
                 // Add a flash message to confirm deletion
@@ -280,6 +282,28 @@ class CrudUserController extends AbstractController
         }
 
         return $this->render('crud_user/banned_user.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+        ]);
+    }
+
+    #[Route('/banned-liste', name: 'app_crud_user_banned_liste', methods: ['GET', 'POST'])]
+    public function banned_liste(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    {
+        $indice = count($this->env->getUserBanned()) / 3;
+        $organizedUserBanned = [];
+        for ($i = 0; $i < count($this->env->getUserBanned()); $i += 3) {
+            $bannedInfo = [
+                'indice' => $indice,
+                'tel' => $this->env->getUserBanned()[$i],
+                'mail' => $this->env->getUserBanned()[$i + 1],
+                'motif' => $this->env->getUserBanned()[$i + 2]
+            ];
+            $organizedUserBanned[] = $bannedInfo;
+            $indice--;
+        }
+        return $this->render('crud_user/banned_user_liste.html.twig', [
+            'usersBanned' => $organizedUserBanned,
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
         ]);
