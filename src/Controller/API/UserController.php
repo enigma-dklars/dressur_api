@@ -1451,6 +1451,37 @@ class UserController extends AbstractController
                 'message' => 'Veuillez bien remplir tous les champs!',
             ]);
         }
+        
+
+        if(in_array($tel, $this->env->getUserBanned())) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "This number has been banned from Dressur. Contact support if this is an error.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Ce numéro a été banni de Dressur. Contacter l'assistance s'il s'agit d'une erreur.",
+            ]);
+        }
+
+        if(in_array($mail, $this->env->getUserBanned())) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "This email address has been banned from Dressur. Contact support if this is a mistake.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Cette adresse mail a été banni de Dressur. Contactez l'assistance s'il s'agit d'une erreur.",
+            ]);
+        }
 
         $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
         if($verificationPseudo["error"] == true){
@@ -1557,36 +1588,6 @@ class UserController extends AbstractController
                 'error' => true,
                 'titre' => 'Oups!',
                 'message' => 'Erreur de confirmation du mot de passe!',
-            ]);
-        }
-
-        if(in_array($tel, $this->env->getUserBanned())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "This number has been banned from Dressur. Contact support if this is an error.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Ce numéro a été banni de Dressur. Contacter l'assistance s'il s'agit d'une erreur.",
-            ]);
-        }
-
-        if(in_array($mail, $this->env->getUserBanned())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "This email address has been banned from Dressur. Contact support if this is a mistake.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Cette adresse mail a été banni de Dressur. Contactez l'assistance s'il s'agit d'une erreur.",
             ]);
         }
 

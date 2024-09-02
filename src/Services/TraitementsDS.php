@@ -3,35 +3,38 @@
 namespace App\Services;
 
 use DateTime;
+use App\Entity\DeletedDS;
+use App\Services\CookieDS;
+use App\Services\SessionDS;
+use App\Utilities\ZefameApi;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use App\Repository\DSBonusRepository;
+use App\Repository\MessageRepository;
 use App\Controller\API\BoostController;
 use App\Repository\DeletedDSRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\VerifMailRepository;
+use App\Repository\MotRefuserRepository;
 use App\Repository\PreferenceRepository;
+use App\Repository\SuggestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\API\ContactController;
+use App\Repository\PromoReseauRepository;
 use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
-use App\Repository\DSBonusHistoriqueRepository;
-use App\Controller\API\UserPreferenceController;
-use App\Entity\DeletedDS;
 use App\Repository\CampagneMailRepository;
+use App\Repository\FormuleBoostRepository;
 use App\Repository\EnvMailSenderRepository;
 use App\Repository\EnvPaiementApiRepository;
-use App\Repository\FormuleBoostRepository;
+use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
+use App\Controller\API\UserPreferenceController;
 use App\Repository\FormulePromoReseauRepository;
-use App\Repository\MessageRepository;
-use App\Repository\PromoReseauRepository;
-use App\Repository\SuggestionRepository;
-use App\Utilities\ZefameApi;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
 
 class TraitementsDS extends AbstractController
 {
@@ -59,9 +62,11 @@ class TraitementsDS extends AbstractController
     private $zefameApi;
     private $envPaiementApiRepository;
     private $envMailSenderRepository;
+    private $motRefusers;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository)
     {
+        $this->motRefusers = $motRefuserRepository->findAll();
         $this->zefameApi = $zefameApi;
         $this->messageRepository = $messageRepository;
         $this->suggestionRepository = $suggestionRepository;
@@ -123,13 +128,22 @@ class TraitementsDS extends AbstractController
         // Extract the part before the @
         $parts = explode('@', $email);
         $username = $parts[0];
+
+        $slugger = new AsciiSlugger();
+        $username = strtolower((string)$slugger->slug($username));
+
+        foreach ($this->motRefusers as $mot) {
+            $username = str_replace($mot->getMot(), '', $username);
+        }
+
+        if (strlen($username) == 0) {
+            $username = "ds-id-";
+        }
     
-        // If the username is less than 5 characters, add random digits
         if (strlen($username) < 5) {
             $username = str_pad($username, 5, strval(rand(0, 9)));
         }
     
-        // If the username is more than 13 characters, take only the first 13 characters
         if (strlen($username) > 13) {
             $username = substr($username, 0, 13);
         }
