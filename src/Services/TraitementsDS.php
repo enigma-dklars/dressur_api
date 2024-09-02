@@ -889,16 +889,6 @@ class TraitementsDS extends AbstractController
         return false;
     }
 
-    public function getEnvMailSenderDisponible() {
-        $envMailSenders = $this->envMailSenderRepository->findBy(['activated' => true]);
-        foreach ($envMailSenders as $envMailSender) {
-            if($envMailSender->getCountMailSent() < 200) {
-                return $envMailSender;
-            }
-        }
-        return false;
-    }
-
     public function execPurge($user){
         foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
             $element->setParrain($this->userRepository->find(3));
