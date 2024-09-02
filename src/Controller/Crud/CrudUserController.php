@@ -211,7 +211,7 @@ class CrudUserController extends AbstractController
                 $userRepository->findOneBy(['tel' => $teladd3])
             ;
             
-            if($user) {                
+            if($user) {
                 $traitementsDS->execPurge($user);
                 // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User and all related information have been deleted.');
@@ -268,6 +268,7 @@ class CrudUserController extends AbstractController
                 $this->env->addUserBanned($user->getTel());
                 $this->env->addUserBanned($user->getMail());
                 $this->em->flush();
+                $traitementsDS->execPurge($user);
                 // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User is Banned.');
                 
