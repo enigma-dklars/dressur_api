@@ -66,7 +66,7 @@ class PrivateController extends AbstractController
             foreach ($contacts as $contact) {
                 fwrite($handle, "BEGIN:VCARD\n");
                 fwrite($handle, "VERSION:3.0\n");
-                fwrite($handle, "FN:" . $contact['nom'] . "\n");
+                fwrite($handle, "FN:" . $contact['nom'] . " #DS\n");
                 fwrite($handle, "EMAIL:" . $contact['mail'] . "\n");
                 fwrite($handle, "TEL:" . $contact['tel'] . "\n");
                 fwrite($handle, "END:VCARD\n");
@@ -97,7 +97,10 @@ class PrivateController extends AbstractController
 
             // Données des contacts
             foreach ($contacts as $contact) {
-                fputcsv($handle, [$contact['nom'], $contact['mail'], $contact['tel']]);
+                fputcsv($handle, [
+                    $contact['nom']." #DS", 
+                    $contact['mail'], $contact['tel']
+                ]);
             }
 
             fclose($handle);

@@ -46,7 +46,7 @@ class UserController extends AbstractController
         $this->em = $em;
         $this->env = $env->find(1);
         $this->traitementsDS = $traitementsDS;
-    } 
+    }
 
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST', 'GET'])]
     public function getVersionApp(UserRepository $userRepository): Response
