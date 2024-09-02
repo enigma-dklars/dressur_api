@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/crud/env/paiement/api')]
+#[Route('/crud/env-paiement-api')]
 class CrudEnvPaiementApiController extends AbstractController
 {
     private $theme;
