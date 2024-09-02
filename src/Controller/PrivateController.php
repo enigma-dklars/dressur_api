@@ -47,6 +47,18 @@ class PrivateController extends AbstractController
         } else {
             $this->theme = "light-theme";
         }
+        
+        if($this->env->getUsersParrainer() == NULL){
+            $usersParrainer = [];
+            foreach ($userRepository->findAll() as $user) {
+                if($user->getParrain()) {
+                    array_push($usersParrainer, $user->getTel());
+                    array_push($usersParrainer, $user->getMail());
+                }
+            }
+            $this->env->setUsersParrainer($usersParrainer);
+            $this->em->flush();
+        }
     }
 
     #[Route('/export_vcf', name: 'app_export_vcf')]
