@@ -870,6 +870,36 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
 
+        if(in_array($user->getTel(), $this->env->getUsersParrainer())) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Fraudster!',
+                    'message' => "Fraud attempt failed. This number has already been sponsored once.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Fraudeur!',
+                'message' => "Tentative de fraude échoué. Ce numéro a déjà été parrainé une fois.",
+            ]);
+        }
+
+        if(in_array($user->getMail(), $this->env->getUsersParrainer())) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Fraudster!',
+                    'message' => "Fraud attempt failed. This email address has already been sponsored once.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Fraudeur!',
+                'message' => "Tentative de fraude échoué. Cette adresse mail a déjà été parrainé une fois.",
+            ]);
+        }
+
         if($user->getParrain()){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -997,6 +1027,9 @@ class UserController extends AbstractController
         $user->setParrain($userCodeBonus)->addSoldeBonus($this->env->getCommissionBonus());
         $userCodeBonus->addSoldeBonus($this->env->getCommissionBonus());
         
+        $this->env->addUsersParrainer($user->getTel());
+        $this->env->addUsersParrainer($user->getMail());
+
         $this->em->flush();
 
         if($sessionDS->get("langUserPhone") != "fr") {
@@ -1538,10 +1571,8 @@ class UserController extends AbstractController
         if(in_array($tel, $this->env->getUsersTel())) { 
             $user->setSoldeBonus(0);
         } else { 
-            $arrayUsersTel = $this->env->getUsersTel();
-            array_push($arrayUsersTel, $tel);
             $user->setSoldeBonus($this->env->getCommissionBonus());
-            $this->env->setUsersTel($arrayUsersTel);
+            $this->env->addUsersTel($tel);
         }
         $this->em->persist($user);
 

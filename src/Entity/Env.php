@@ -35,6 +35,9 @@ class Env
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $versionDressurBot = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?array $usersParrainer = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -121,6 +124,34 @@ class Env
     {
         $this->versionDressurBot = $versionDressurBot;
 
+        return $this;
+    }
+
+    public function getUsersParrainer(): ?array
+    {
+        return $this->usersParrainer;
+    }
+
+    public function setUsersParrainer(?array $usersParrainer): static
+    {
+        $this->usersParrainer = $usersParrainer;
+
+        return $this;
+    }
+
+    public function addUsersParrainer($tel_or_mail): self
+    {
+        if (!in_array($tel_or_mail, $this->usersParrainer)) {
+            array_push($this->usersParrainer, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function addUsersTel($tel_or_mail): self
+    {
+        if (!in_array($tel_or_mail, $this->usersParrainer)) {
+            array_push($this->usersParrainer, $tel_or_mail);
+        }
         return $this;
     }
 }
