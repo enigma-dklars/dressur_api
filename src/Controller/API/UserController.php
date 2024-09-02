@@ -870,6 +870,21 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
 
+        if($user->getParrain()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "You already have a sponsor.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Vous avez déja un parrain.",
+            ]);
+        }
+
         if(!$user->getTelIsVerified()){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -882,6 +897,21 @@ class UserController extends AbstractController
                 'error' => true,
                 'titre' => 'Attention!',
                 'message' => "Veuillez d'abord confirmer votre numéro WhatsApp.",
+            ]);
+        }
+
+        if(!$user->getMailIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => "Please confirm your email address first.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Veuillez d'abord confirmer votre adresse Mail.",
             ]);
         }
 
@@ -901,21 +931,6 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($user->getParrain()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "You already have a sponsor.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Vous avez déja un parrain.",
-            ]);
-        }
-
         if($user->getUid() == $userCodeBonus->getUid()){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -928,6 +943,36 @@ class UserController extends AbstractController
                 'error' => true,
                 'titre' => 'Oups!',
                 'message' => "Vous ne pouvez pas vous auto-parrainer.",
+            ]);
+        }
+
+        if(!$userCodeBonus->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => "Your sponsor must first confirm his WhatsApp number.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Votre parrain doit d'abord confirmer son numéro WhatsApp.",
+            ]);
+        }
+
+        if(!$userCodeBonus->getMailIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => "Your sponsor must first confirm their email address.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Votre parrain doit d'abord confirmer son adresse Mail.",
             ]);
         }
 
