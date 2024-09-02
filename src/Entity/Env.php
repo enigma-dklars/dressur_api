@@ -38,6 +38,9 @@ class Env
     #[ORM\Column(nullable: true)]
     private ?array $usersParrainer = [];
 
+    #[ORM\Column(nullable: true)]
+    private ?array $userBanned = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -152,6 +155,29 @@ class Env
         if (!in_array($tel_or_mail, $this->usersParrainer)) {
             array_push($this->usersParrainer, $tel_or_mail);
         }
+        return $this;
+    }
+
+    public function addUserBanned($tel_or_mail): self
+    {
+        if($this->userBanned == Null) {
+            $this->userBanned = [];
+        }
+        if (!in_array($tel_or_mail, $this->userBanned)) {
+            array_push($this->userBanned, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function getUserBanned(): ?array
+    {
+        return $this->userBanned;
+    }
+
+    public function setUserBanned(?array $userBanned): static
+    {
+        $this->userBanned = $userBanned;
+
         return $this;
     }
 }

@@ -4,34 +4,39 @@ namespace App\Controller\Crud;
 
 use App\Entity\User;
 use App\Form\User1Type;
-use App\Repository\BoostRepository;
-use App\Repository\CampagneMailRepository;
-use App\Repository\DSBonusHistoriqueRepository;
-use App\Repository\MessageRepository;
-use App\Repository\PromoReseauRepository;
-use App\Repository\PromotionRepository;
-use App\Repository\SignalementRepository;
-use App\Repository\SuggestionRepository;
-use App\Repository\TransactionRepository;
-use App\Repository\UserRepository;
-use App\Repository\VerifMailRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Repository\EnvRepository;
+use App\Repository\UserRepository;
+use App\Repository\BoostRepository;
+use App\Repository\MessageRepository;
+use App\Repository\PromotionRepository;
+use App\Repository\VerifMailRepository;
+use App\Repository\SuggestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Repository\PromoReseauRepository;
+use App\Repository\SignalementRepository;
+use App\Repository\TransactionRepository;
+use App\Repository\CampagneMailRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Repository\DSBonusHistoriqueRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/crud/user')]
 class CrudUserController extends AbstractController
 {
+    private $em;
+    private $env;
     private $theme;
     private $cookieDS;
     private $traitementsDS;
 
-    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
+    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, EnvRepository $env)
     {
+        $this->em = $em;
+        $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
         if($this->cookieDS->check("theme")) {
@@ -219,6 +224,61 @@ class CrudUserController extends AbstractController
         }
 
         return $this->render('crud_user/purge_user.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+        ]);
+    }
+
+    #[Route('/banned', name: 'app_crud_user_banned', methods: ['GET', 'POST'])]
+    public function banned(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    {
+        $telcut = null;
+
+        // Process the form submission
+        if ($request->isMethod('POST')) {
+            $input = $request->request->get('identifier');
+            $input = str_replace(" ", "", $input);
+            $input = str_replace("	", "", $input);
+
+            if (strpos($input, '+225') === 0) {
+                // Vérifier s'il y a 10 caractères après +225
+                if (strlen(substr($input, 4)) == 10) {
+                    // Retirer les 2 caractères qui suivent +225
+                    $telcut = substr($input, 0, 4) . substr($input, 6);
+                } else {
+                    $teladd1 = str_replace("+225", "+22501", $input);
+                    $teladd2 = str_replace("+225", "+22505", $input);
+                    $teladd3 = str_replace("+225", "+22507", $input);
+                }
+            }
+
+            $user = 
+                $userRepository->findOneBy(['pseudo' => $input]) ?? 
+                $userRepository->findOneBy(['mail' => $input]) ?? 
+                $userRepository->findOneBy(['uid' => $input]) ?? 
+                $userRepository->findOneBy(['id' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $telcut]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd3])
+            ;
+            
+            if($user) {
+                $this->env->addUserBanned($user->getTel());
+                $this->env->addUserBanned($user->getMail());
+                $this->em->flush();
+                // Add a flash message to confirm deletion
+                $this->addFlash('success', 'User is Banned.');
+                
+                return $this->redirectToRoute('app_crud_user_purge');
+            }
+
+            // Add a flash message if user is not found
+            $this->addFlash('danger', 'User not found.');
+        }
+
+        return $this->render('crud_user/banned_user.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
         ]);
