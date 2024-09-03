@@ -12,7 +12,7 @@ class Promotion1Type extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('formule_boost', null, [
+            ->add('formule_promo_affaire', null, [
                 'attr' => [
                     'class' => 'form-select single-select mb-2'
                 ],

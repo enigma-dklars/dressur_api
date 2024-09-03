@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 
-#[Route('/crud/promotion')]
+#[Route('/crud/promotion/affaire')]
 class CrudPromotionController extends AbstractController
 {
     private $theme;
@@ -70,6 +70,7 @@ class CrudPromotionController extends AbstractController
     #[Route('/{id}', name: 'app_crud_promotion_show', methods: ['GET'])]
     public function show(Promotion $promotion): Response
     {
+        dd($promotion);
         return $this->render('crud_promotion/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
