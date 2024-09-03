@@ -1,0 +1,39 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormulePromoAffaire index{% endblock %}
+
+{% block body %}
+    <span class="h4 me-3">FormulePromoAffaire index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_formule_promo_affaire_new') }}">Create new</a>
+
+    <table class="data-table table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Titre</th>
+                <th>Prix</th>
+                <th>NbrJour</th>
+                <th>Alert</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for formule_promo_affaire in formule_promo_affaires %}
+            <tr>
+                <td>{{ formule_promo_affaire.id }}</td>
+                <td>{{ formule_promo_affaire.titre }}</td>
+                <td>{{ formule_promo_affaire.prix }}</td>
+                <td>{{ formule_promo_affaire.nbrJour }}</td>
+                <td>{{ formule_promo_affaire.alert ? 'Yes' : 'No' }}</td>
+                <td>
+                    {{ include('crud_formule_promo_affaire/_delete_form.html.twig') }}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
