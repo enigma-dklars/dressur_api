@@ -38,7 +38,7 @@ class EnvMailSender
     {
         $this->mailAdresse = "noreply1@dressur.site";
         $this->password = "nunewqi_DS3";
-        $this->smtpServer = "smtp.titan.email";
+        $this->smtpServer = "smtp.hostinger.com";
         $this->smtpPort = "465";
         $this->smtpSecured = "ssl";
         $this->activated = true;
