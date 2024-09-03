@@ -6,6 +6,7 @@ use DateTime;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
+use App\Entity\DSBonusHistorique;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
@@ -219,6 +220,15 @@ class PromotionController extends AbstractController
         }
         
         $user->debitSoldeBonus($formulBoost->getPrix());
+
+        $DSBH = new DSBonusHistorique();
+        if($user->getLang() == "fr") {
+            $DSBH->setTitre("Promotion Affaire");
+        } else {
+            $DSBH->setTitre("Business Promotion");
+        }
+        $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
+        $this->em->persist($DSBH);
 
         $promotion = $promotionRepository->find($idPromotion);
 

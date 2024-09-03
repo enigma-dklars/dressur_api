@@ -7,6 +7,7 @@ use App\Entity\User;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
+use App\Entity\DSBonusHistorique;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -122,6 +123,15 @@ class BoostController extends AbstractController
         }
         
         $user->debitSoldeBonus($formulBoost->getPrix());
+
+        $DSBH = new DSBonusHistorique();
+        if($user->getLang() == "fr") {
+            $DSBH->setTitre("Boost Contact");
+        } else {
+            $DSBH->setTitre("Boost Contact");
+        }
+        $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
+        $this->em->persist($DSBH);
 
         $boost = new Boost();
         $boost->setFormuleBoost($formulBoost)
