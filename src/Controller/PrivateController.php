@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Controller\API\UserController;
+use App\Entity\FormulePromoReseau;
 use App\Repository\BoostRepository;
 use App\Repository\CampagneMailRepository;
 use App\Repository\DSBonusHistoriqueRepository;
@@ -10,6 +11,7 @@ use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\FormulePromoAffaireRepository;
+use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
@@ -32,7 +34,7 @@ class PrivateController extends AbstractController
     private $traitementsDS;
     private $userRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);

@@ -32,6 +32,7 @@ use App\Repository\EnvPaiementApiRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
+use App\Entity\FormulePromoReseau;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -95,6 +96,17 @@ class TraitementsDS extends AbstractController
         $this->envPaiementApiRepository = $envPaiementApiRepository;
         $this->envMailSenderRepository = $envMailSenderRepository;
     }    
+
+    function removeMaxSection($string) {
+        // Expression régulière pour capturer " | Max XYZ |"
+        $pattern = '/\s*\|\s*Max\s+\d+[KM]?\s*\|?|\s*MAX\s+\d+[KM]?\s*\♻️?/i';
+        // Remplacer cette section par une chaîne vide
+        $result = preg_replace($pattern, '', $string);
+        $result = str_replace(" | Max 1K |", "", $result);
+        $result = str_replace(" |", "", $result);
+        $result = ucwords($result);
+        return $result;
+    }
 
     function getUserByUidInCookies() {
         if($this->cookieDS->get("uid")){
@@ -514,7 +526,7 @@ class TraitementsDS extends AbstractController
             array_push($listeFormulePromoReseau, [
                 "id" => $formule->getId(),
                 "titre" => $formule->getTitre(),
-                "iconFlutterName" => $formule->getIconFlutterName(),
+                "iconFlutterName" => $formule->getTitre(),
                 "lesFormulesFils" => $lesFormulesFils,
             ]);
         }
@@ -862,6 +874,40 @@ class TraitementsDS extends AbstractController
     }
 
     public function majServicesZefame() {
+        $newFormuleText = "New : ";
+        if(count($this->formulePromoReseauRepository->findAll()) == 0) {
+            // les FormulePromoReseau
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("TikTok")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Instagram")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Twitter")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Youtube")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Facebook")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Telegram")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Twitch")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Spotify")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("Discord")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
+            $this->em->flush();
+        }
+
+        $lesFormulesParent = $this->formulePromoReseauRepository->findBy(['parent' => null]);
         foreach ($this->formulePromoReseauRepository->findAll() as $uneFormuleReseau) {
             $uneFormuleReseau->setAvailable(false);
             if($uneFormuleReseau->getParent() == null) { 
@@ -873,17 +919,53 @@ class TraitementsDS extends AbstractController
                 ;
             }
         }
+
         foreach ($this->zefameApi->services() as $unservice) {
             $uneFR = $this->formulePromoReseauRepository->findOneBy(['idZefame' => $unservice->service]);
             if($uneFR) {
                 $uneFR->setAvailable(true)
                     ->setQte(1000)
                     ->setQteMax($unservice->max)
+                    ->setPrixZefame($unservice->rate)
                 ;
                 if($unservice->min > $uneFR->getQteMin()) { $uneFR->setQteMin($unservice->min); }
                 if($unservice->rate > $uneFR->getPrix()) { $uneFR->setPrix($unservice->rate); }
+            } else {
+                $newFormuleText .= $unservice->name." | <br>";
+                
+                $newFormulePromoReseau = new FormulePromoReseau();
+                $newFormulePromoReseau->setQte(1000)->setAvailable(false)
+                    ->setIdZefame($unservice->service)
+                    ->setTitre($unservice->name)
+                    ->setPrix($unservice->rate)
+                    ->setPrixZefame($unservice->rate)
+                    ->setQteMin($unservice->min)
+                    ->setQteMax($unservice->max)
+                ;
+                foreach ($lesFormulesParent as $unParent) {
+                    $nomTeste = str_replace(strtolower($unParent->getTitre())." ", '', strtolower($unservice->name));
+                    if(strlen($nomTeste) < strlen($unservice->name)) {
+                        $newFormulePromoReseau->setParent($unParent)
+                            ->setTitre($this->removeMaxSection($nomTeste))
+                        ;
+                        break;
+                    }
+                }
+                $nomTeste = str_replace("followers", '', strtolower($unservice->name));
+                $nomTeste = str_replace("subscribe", '', strtolower($nomTeste));
+                if(strlen($nomTeste) < strlen($unservice->name)) {
+                    $newFormulePromoReseau->setQteMin(500);
+                }
+                $this->em->persist($newFormulePromoReseau);
+                // dump($newFormulePromoReseau);
+                // dump($unservice);
             }
         }
+
+        if($newFormuleText != "New : ") {
+            $this->addFlash('danger', $newFormuleText);
+        }
+        // dd("END");
         $this->em->flush();
     }
 
