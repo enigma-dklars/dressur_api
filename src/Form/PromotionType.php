@@ -21,7 +21,7 @@ class PromotionType extends AbstractType
             ->add('mode')
             ->add('nombreImpression')
             ->add('limited')
-            ->add('formule_boost')
+            ->add('formule_promo_affaire')
             ->add('user')
         ;
     }
