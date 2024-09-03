@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\FormulePromoAffaireRepository;
+use App\Repository\PromotionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: FormulePromoAffaireRepository::class)]
+#[ORM\Entity(repositoryClass: PromotionRepository::class)]
 class Promotion
 {
     #[ORM\Id]

@@ -3,7 +3,7 @@
 namespace App\Controller\Crud;
 
 use App\Entity\Promotion;
-use App\Form\Promotion1Type;
+use App\Form\PromotionType;
 use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,7 +49,7 @@ class CrudPromotionController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $promotion = new Promotion();
-        $form = $this->createForm(Promotion1Type::class, $promotion);
+        $form = $this->createForm(PromotionType::class, $promotion);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -70,7 +70,6 @@ class CrudPromotionController extends AbstractController
     #[Route('/{id}', name: 'app_crud_promotion_show', methods: ['GET'])]
     public function show(Promotion $promotion): Response
     {
-        dd($promotion);
         return $this->render('crud_promotion/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
@@ -81,7 +80,7 @@ class CrudPromotionController extends AbstractController
     #[Route('/{id}/edit', name: 'app_crud_promotion_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Promotion $promotion, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(Promotion1Type::class, $promotion);
+        $form = $this->createForm(PromotionType::class, $promotion);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

@@ -3,7 +3,7 @@
 namespace App\Controller\Crud;
 
 use App\Entity\User;
-use App\Form\User1Type;
+use App\Form\UserType;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
@@ -98,7 +98,7 @@ class CrudUserController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $user = new User();
-        $form = $this->createForm(User1Type::class, $user);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -322,7 +322,7 @@ class CrudUserController extends AbstractController
     #[Route('/{id}/edit', name: 'app_crud_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(User1Type::class, $user);
+        $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
