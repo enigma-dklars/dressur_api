@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\FormulePromoReseau;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -23,11 +24,11 @@ class FormulePromoReseauType extends AbstractType
                     'autofocus' => '',
                 ],
             ])
-            ->add('titre', null, [
+            ->add('titre', TextType::class, [
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
-            ])
+            ])            
             ->add('description', null, [
                 'attr' => [
                     'class' => 'form-control mb-2',
@@ -56,11 +57,6 @@ class FormulePromoReseauType extends AbstractType
                 ],
             ])
             ->add('qteMax', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
-            ])
-            ->add('iconFlutterName', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
