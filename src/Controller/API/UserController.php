@@ -655,6 +655,7 @@ class UserController extends AbstractController
             $user->setTel($tel)->setPays($paysTel);
         }
 
+        $this->env->addUsersTel($tel);
         $this->em->flush();
 
         if ($user->getId()) {
@@ -1482,7 +1483,6 @@ class UserController extends AbstractController
             ]);
         }
         
-
         if(in_array($tel, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
