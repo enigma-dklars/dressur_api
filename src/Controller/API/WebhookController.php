@@ -25,6 +25,7 @@ use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
 use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleDressurBotRepository;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +39,7 @@ class WebhookController extends AbstractController
     private $em;
     private $transactionRepository;
     private $formuleBoostRepository;
+    private $formulePromoAffaireRepository;
     private $campagneMailRepository;
     private $promotionRepository;
     private $formulePromoReseauRepository;
@@ -45,11 +47,12 @@ class WebhookController extends AbstractController
     private $boostRepository;
     private $formuleDressurBotRepository;
 
-    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository)
     {
         $this->em = $em;
         $this->transactionRepository = $transactionRepository;
         $this->formuleBoostRepository = $formuleBoostRepository;
+        $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
         $this->campagneMailRepository = $campagneMailRepository;
         $this->promotionRepository = $promotionRepository;
         $this->formulePromoReseauRepository = $formulePromoReseauRepository;
@@ -115,11 +118,11 @@ class WebhookController extends AbstractController
                         }
 
                         if($myTransaction->getTransactionFor() == "boost_affaire") {
-                            $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
                             $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
                             $promotion->setMode("Payant")
                                 ->setDateDebut(new DateTime())
-                                ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
+                                ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
                                 ->setStatus(3)
                             ;
                         }

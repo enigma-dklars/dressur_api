@@ -32,6 +32,7 @@ use App\Repository\EnvPaiementApiRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,9 +64,11 @@ class TraitementsDS extends AbstractController
     private $envPaiementApiRepository;
     private $envMailSenderRepository;
     private $motRefusers;
+    private $formulePromoAffaireRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository)
     {
+        $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
         $this->motRefusers = $motRefuserRepository->findAll();
         $this->zefameApi = $zefameApi;
         $this->messageRepository = $messageRepository;
@@ -299,7 +302,7 @@ class TraitementsDS extends AbstractController
                 "status" => $statut,
                 "dateDebut" => $promo->getDateDebut() ? ($promo->getDateDebut())->format('d-m-Y à H:i') : "",
                 "dateExp" => $promo->getDateExp() ? ($promo->getDateExp())->format('d-m-Y à H:i') : "",
-                "formulePromotion" => $promo->getFormuleBoost() ? $promo->getFormuleBoost()->getTitre() : "",
+                "formulePromotion" => $promo->getFormulePromoAffaire() ? $promo->getFormulePromoAffaire()->getTitre() : "",
                 "motif" => $promo->getMotif() ? $promo->getMotif() : "",
             ];
             array_push($userPromos, $unePromo);
@@ -313,6 +316,20 @@ class TraitementsDS extends AbstractController
     public function listeFormulBoost() {
         $listeFormulBoost = [];
         foreach ($this->formuleBoostRepository->findAll() as $boost) {
+            array_push($listeFormulBoost, [
+                "id" => $boost->getId(),
+                "value" => $boost->getId(),
+                "label" => $boost->getTitre(),
+                "prix" => intval($boost->getPrix()),
+                "jours" => $boost->getNbrJour(),
+            ]);
+        }
+        return $listeFormulBoost;
+    }
+
+    public function listeFormulePromoAffaire() {
+        $listeFormulBoost = [];
+        foreach ($this->formulePromoAffaireRepository->findAll() as $boost) {
             array_push($listeFormulBoost, [
                 "id" => $boost->getId(),
                 "value" => $boost->getId(),

@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\PromotionRepository;
+use App\Repository\FormulePromoAffaireRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PromotionRepository::class)]
+#[ORM\Entity(repositoryClass: FormulePromoAffaireRepository::class)]
 class Promotion
 {
     #[ORM\Id]
@@ -15,7 +15,7 @@ class Promotion
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    private ?FormuleBoost $formule_boost = null;
+    private ?FormulePromoAffaire $formulePromoAffaire = null;
 
     #[ORM\ManyToOne(inversedBy: 'promotions')]
     #[ORM\JoinColumn(nullable: false)]
@@ -81,14 +81,14 @@ class Promotion
         return $this->id;
     }
 
-    public function getFormuleBoost(): ?FormuleBoost
+    public function getFormulePromoAffaire(): ?FormulePromoAffaire
     {
-        return $this->formule_boost;
+        return $this->formulePromoAffaire;
     }
 
-    public function setFormuleBoost(?FormuleBoost $formule_boost): self
+    public function setFormulePromoAffaire(?FormulePromoAffaire $formulePromoAffaire): self
     {
-        $this->formule_boost = $formule_boost;
+        $this->formulePromoAffaire = $formulePromoAffaire;
 
         return $this;
     }

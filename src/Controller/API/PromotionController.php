@@ -16,12 +16,12 @@ use App\Services\VerificationsDS;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
-use App\Repository\FormuleBoostRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Entity\User;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Utilities\SendMail;
@@ -42,6 +42,15 @@ class PromotionController extends AbstractController
         $this->em = $em;
         $this->env = $env->find(1);
         $this->sendMail = $sendMail;
+    }
+
+    #[Route('/listeFormulePromoAffaire', name: 'listeFormulePromoAffaire', methods: ['POST', 'GET'])]
+    public function listeFormulePromoAffaire(TraitementsDS $traitementsDS): Response
+    {
+        return new JsonResponse([
+            'error' => false,
+            'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
+        ]);
     }
 
     #[Route('/newPromotion', name: 'newPromotion', methods: ['POST'])]
@@ -140,7 +149,6 @@ class PromotionController extends AbstractController
         ]);
     }
 
-
     #[Route('/listPromotion/{uid}/{langUserPhone}', name: 'listPromotion', methods: ['POST', "GET"])]
     public function listPromotion(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
@@ -150,7 +158,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromo', name: 'newPromo', methods: ['POST'])]
-    public function newPromo(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    public function newPromo(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
         
@@ -188,7 +196,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        $formulBoost = $formuleBoostRepository->find($idFormulBoost);
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
         if(!$formulBoost){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -233,7 +241,7 @@ class PromotionController extends AbstractController
         $promotion = $promotionRepository->find($idPromotion);
 
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
-            $promotion->setFormuleBoost($formulBoost)
+            $promotion->setFormulePromoAffaire($formulBoost)
                 ->setDateDebut(new DateTime())
                 ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
                 ->setStatus(3)
@@ -260,7 +268,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
-    public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
+    public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
@@ -318,7 +326,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        $formulBoost = $formuleBoostRepository->find($idFormulBoost);
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
         if(!$formulBoost){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -391,7 +399,7 @@ class PromotionController extends AbstractController
         $promotion = $promotionRepository->find($idPromotion);
 
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
-            $promotion->setFormuleBoost($formulBoost);
+            $promotion->setFormulePromoAffaire($formulBoost);
             
             $transaction = Transaction::create($array_create_transaction);
 

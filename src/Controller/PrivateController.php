@@ -9,6 +9,7 @@ use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleCampagneMailRepository;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
@@ -264,13 +265,13 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/newpromoaffaire', name: 'app_newpromoaffaire')]
-    public function newpromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
+    public function newpromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newpromoaffaire.html.twig', [
-            'formuleBoosts' => $formuleBoostRepository->findAll(),
+            'formuleBoosts' => $formulePromoAffaireRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 
@@ -288,7 +289,7 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         $html = $this->renderView('private/listepromoaffaire.html.twig', [
             'listepromoaffaire' => $traitementsDS->userPromos($user->getPromotions()),
-            'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
+            'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 
@@ -306,7 +307,7 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         $html = $this->renderView('private/accepterSansSuite.html.twig', [
             'accepterSansSuite' => $traitementsDS->userPromos($promotionRepository->findBy(['status' => 2])),
-            'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
+            'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
             'user' => $traitementsDS->infosUser($user),
         ]);
 

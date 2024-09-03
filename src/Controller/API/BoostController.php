@@ -45,7 +45,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/listeFormuleBoost', name: 'listeFormuleBoost', methods: ['POST', 'GET'])]
-    public function listeFormuleBoost(FormuleBoostRepository $formuleBoostRepository, TraitementsDS $traitementsDS): Response
+    public function listeFormuleBoost(TraitementsDS $traitementsDS): Response
     {
         return new JsonResponse([
             'error' => false,
@@ -342,23 +342,5 @@ class BoostController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         return new JsonResponse($traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])));
-    }
-
-    #[Route('/fauxBoostTousUser', name: 'fauxBoostTousUser', methods: ['GET'])]
-    public function fauxBoostTousUser(FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository): Response
-    {
-        $formulBoost = $formuleBoostRepository->find(1);
-        $users = $userRepository->findAll();
-        foreach ($users as $user) {
-            $boost = new Boost();
-            $boost->setFormuleBoost($formulBoost)
-                ->setUser($user)
-                ->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
-            ;
-            $this->em->persist($boost);
-        }
-        $this->em->flush();
-        return new Response("OK");
     }
 }
