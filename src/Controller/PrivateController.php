@@ -150,6 +150,8 @@ class PrivateController extends AbstractController
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
                     'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
+                    'nbr_tel_mail_no_conf' => count($userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false])),
+                    'nbr_tel_mail_yes_conf' => count($userRepository->findBy(['telIsVerified' => true, 'mailIsVerified' => true])),
                     'nbr_tel_no_conf' => count($userRepository->findBy(['telIsVerified' => false])),
                     'nbr_mail_no_conf' => count($userRepository->findBy(['mailIsVerified' => false])),
                     'affaire_valider_sans_payer' => count($promotionRepository->findBy(['status' => 2])),
