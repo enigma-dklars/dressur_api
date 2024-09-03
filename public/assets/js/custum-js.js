@@ -1,4 +1,9 @@
 $(document).ready(function () {
+    $("img.lazy").lazyload({
+        placeholder : "/assets/images/placeholder.png", // image à afficher avant le chargement de l'image réelle
+        effect : "fadeIn" // effet de transition lorsque l'image est chargée
+    });
+    
     let network_id;
     let service_network_id;
 
