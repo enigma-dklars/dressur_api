@@ -1607,6 +1607,15 @@ class UserController extends AbstractController
         }
         $this->em->persist($user);
 
+        $DSBH = new DSBonusHistorique();
+        if($user->getLang() == "fr") {
+            $DSBH->setTitre("Bonus de Bienvenu");
+        } else {
+            $DSBH->setTitre("Welcome Bonus");
+        }
+        $DSBH->setUser($user)->setMontant($this->env->getCommissionBonus());
+        $this->em->persist($DSBH);
+
         $preference = new Preference();
         $preference->setUser($user)
             ->setPaysChoisies([(string)$user->getPays()])
