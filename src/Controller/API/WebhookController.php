@@ -36,7 +36,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class WebhookController extends AbstractController
 {
     private $em;
-    private $env;
     private $transactionRepository;
     private $formuleBoostRepository;
     private $campagneMailRepository;
@@ -46,10 +45,9 @@ class WebhookController extends AbstractController
     private $boostRepository;
     private $formuleDressurBotRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository)
     {
         $this->em = $em;
-        $this->env = $env->find(1);
         $this->transactionRepository = $transactionRepository;
         $this->formuleBoostRepository = $formuleBoostRepository;
         $this->campagneMailRepository = $campagneMailRepository;
@@ -170,17 +168,6 @@ class WebhookController extends AbstractController
 
                 return 200;
                 exit();            
-                break;
-            case 'transaction.canceled':
-                // Transaction annulée
-                $idTransaction = $event->entity->id;
-                $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
-                $transaction = Transaction::retrieve($idTransaction);
-                $myTransaction->setStatus($transaction->status)->isUpdated();
-                $this->em->flush();
-
-                return 200;
-                exit();
                 break;
             default:
                 // action par defaut si ce n'est ni approved ni canceled
