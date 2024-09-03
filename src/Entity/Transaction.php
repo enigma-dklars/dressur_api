@@ -18,7 +18,7 @@ class Transaction
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $idTransaction;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $reference;
 
     #[ORM\Column(type: 'integer', nullable: true)]

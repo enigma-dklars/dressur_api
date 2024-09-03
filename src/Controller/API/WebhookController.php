@@ -157,6 +157,13 @@ class WebhookController extends AbstractController
                         $this->em->flush();
                     }
                 } else {
+                    $myTransaction  = new EntityTransaction();
+                    $myTransaction
+                        ->setTransactionFor("paiement_direct")
+                        ->setIdTransaction($idTransaction)
+                        ->setStatus("approved")
+                    ;
+                    $this->em->persist($myTransaction);
                     $envPaiementApi->isUsedApproved();
                     $this->em->flush();
                 }
@@ -195,159 +202,5 @@ class WebhookController extends AbstractController
         $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook]);
         $http_response_code = $this->allWebhookDressur($envPaiementApi);
         http_response_code($http_response_code);
-    }
-
-    #[Route('/checkTransaction', name: 'checkTransaction', methods: ['POST'])]
-    public function checkTransaction(Request $request, VerificationsDS $verificationsDS, TransactionRepository $transactionRepository, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
-    {
-        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
-        FedaPay::setEnvironment('live');
-
-        $datas = $request->request; 
-        
-        $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $uid = $datas->get('uid');
-        $idTransaction = $datas->get('idTransaction');
-
-        $verificationUser = $this->verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
-            ]);
-        }
-        $user = $verificationUser["user"];
-
-        if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
-            ]);
-        }
-
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
-            ]);
-        }
-
-        $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
-        if(!$myTransaction){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-            ]);
-        } else {
-            if($myTransaction->getStatus() != "approved") {
-                $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-
-                $transaction = Transaction::retrieve($idTransaction);
-
-                if($transaction->status == "approved") {
-                    $myTransaction->setStatus($transaction->status)->isUpdated();
-
-                    $boost = new Boost();
-                    $boost->setFormuleBoost($formuleBoost)
-                        ->setMode("Payant")
-                        ->setUser($user)
-                        ->setDateDebut(new DateTime())
-                        ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
-                    ;
-                    $this->em->persist($boost);
-
-                    $this->em->flush();
-
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => false,
-                            'transaction' => true,
-                            'titre' => 'Transaction Validate...',
-                            'message' => "Your Paid Boost is activated...",
-                        ]);
-                    }
-                    return new JsonResponse([
-                        'error' => false,
-                        'transaction' => true,
-                        'titre' => 'Transaction Valider...',
-                        'message' => "Votre Boost Payant est activé...",
-                    ]);
-                } else {
-                    $myTransaction->setStatus($transaction->status)->isUpdated();
-
-                    $this->em->flush();
-
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => "Transaction ($transaction->status) ...?",
-                            'message' => "Please contact Dressur Support by WhatsApp ifthis is an error...",
-                        ]);
-                    }
-                    return new JsonResponse([
-                        'error' => false,
-                        'transaction' => false,
-                        'titre' => "Transaction ($transaction->status) ...?",
-                        'message' => "Veuillez contactez l'Assistance Dressur par WhatsApp s'il s'agit d'une erreur...",
-                    ]);
-                }
-            }
-
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => "Transaction Validate...",
-                    'message' => "Your Paid Boost was already activated...",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => false,
-                'transaction' => true,
-                'titre' => 'Transaction Valider...',
-                'message' => "Votre Boost Payant était déja activé...",
-            ]);
-        }
-
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-            ]);
-        }
-        return new JsonResponse([
-            'error' => true,
-            'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-        ]);
     }
 }
