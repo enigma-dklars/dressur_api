@@ -374,6 +374,7 @@ class TraitementsDS extends AbstractController
     }
 
     public function userPromoReseaus($promos){
+        $this->checkAndUpdateStatusZefame();
         $userPromoReseaus = [];
 
         foreach ($promos as $promo) {
@@ -974,6 +975,12 @@ class TraitementsDS extends AbstractController
         foreach ($promoReseauStatut2 as $unePromoReseau) {
             $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
             if(!isset($resultZefame->error)){
+                if($resultZefame->status == "In progress"){
+                    $unePromoReseau->setCompteurDebut($resultZefame->start_count)
+                        ->setCompteurRestant($resultZefame->remains)
+                        ->setUpdatedAt(new DateTime())
+                    ;
+                }
                 if($resultZefame->status == "Completed"){
                     $unePromoReseau->setStatus(3)
                         ->setCompteurRestant(0)
