@@ -50,6 +50,9 @@ class PromoReseau
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $prixZefame = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -200,6 +203,18 @@ class PromoReseau
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getPrixZefame(): ?float
+    {
+        return $this->prixZefame;
+    }
+
+    public function setPrixZefame(?float $prixZefame): static
+    {
+        $this->prixZefame = $prixZefame;
 
         return $this;
     }

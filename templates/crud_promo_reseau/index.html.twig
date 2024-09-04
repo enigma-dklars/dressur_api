@@ -26,8 +26,9 @@
                     <th>User</th>
                     <th>Qte.</th>
                     <th>Prix</th>
+                    <th>Prix.Zef</th>
                     <th>Status</th>
-                    <th>IdZefame</th>
+                    <th>Id.Zef</th>
                     <th>C.Debut</th>
                     <th>C.Restant</th>
                     <th>Url</th>
@@ -43,6 +44,7 @@
                     <td>{{ promo_reseau.user.pseudo }}</td>
                     <td>{{ promo_reseau.qteDemander }}</td>
                     <td>{{ promo_reseau.prixFixer }}</td>
+                    <td>{{ promo_reseau.prixZefame }}</td>
                     <td class="text-center">
                         {% if promo_reseau.status == 0 %} <span class="badge bg-info text-white fw-normal">Rembour</span> {% endif %}
                         {% if promo_reseau.status == 1 %} <span class="badge bg-warning text-white fw-normal">En.Attent</span> {% endif %}

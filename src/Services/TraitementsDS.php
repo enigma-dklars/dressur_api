@@ -976,7 +976,8 @@ class TraitementsDS extends AbstractController
             $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
             if(!isset($resultZefame->error)){
                 if($resultZefame->status == "In progress"){
-                    $unePromoReseau->setCompteurDebut($resultZefame->start_count)
+                    $unePromoReseau->setPrixZefame($resultZefame->charge)
+                        ->setCompteurDebut($resultZefame->start_count)
                         ->setCompteurRestant($resultZefame->remains)
                         ->setUpdatedAt(new DateTime())
                     ;
