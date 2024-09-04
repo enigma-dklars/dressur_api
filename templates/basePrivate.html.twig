@@ -1,3 +1,16 @@
+{% if app.request.requestUri starts with '/crud' %}
+    {% if user %}
+        {% if user.admin == false %}
+            <script>
+                window.location.href = "{{ path('app_private') }}";
+            </script>
+        {% endif %}
+    {% else %}
+        <script>
+            window.location.href = "{{ path('app_private') }}";
+        </script>
+    {% endif %}
+{% endif %}
 <!doctype html>
 <html lang="fr" class="{{theme}}">
 <head>
@@ -44,7 +57,7 @@
         {% include "private/_includes/sidebar_wrapper.html.twig" %}
 
         <!--start content-->
-            <main class="page-content">
+            <main class="page-content p-3">
                 {% block body %}{% endblock %}
             </main>
         <!--end page main-->
