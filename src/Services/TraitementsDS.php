@@ -794,8 +794,10 @@ class TraitementsDS extends AbstractController
 
     public function infosUser($user){
         $count = $this->vuesImpressionsCumulerUserPromos($user->getPromotions());
-        $totalImpressions = $this->formatNumber($count['countVues']);
-        $totalVues = $this->formatNumber($count['countImpressions']);
+        $totalImpressions = $count['countVues'];
+        $totalVues = $count['countImpressions'];
+        $totalImpressionsText = $this->formatNumber($count['countVues']);
+        $totalVuesText = $this->formatNumber($count['countImpressions']);
         $lesPublicitesArray = $this->listePubliciteAffichageAuxUsers($user);
         $lesPublicites = json_encode($lesPublicitesArray);
         if(strlen(str_replace(" ", "", $user->getTiktok())) == 0 ) { $user->setTiktok(null); }
@@ -806,6 +808,8 @@ class TraitementsDS extends AbstractController
         return [
             "totalImpressions" => $totalImpressions,
             "totalVues" => $totalVues,
+            "totalImpressionsText" => $totalImpressionsText,
+            "totalVuesText" => $totalVuesText,
             "myDressurVersion" => $this->env->getVersionApp(),
             "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),
