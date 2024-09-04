@@ -25,9 +25,13 @@ class FormulePromoAffaire
     #[ORM\Column(type: 'boolean')]
     private $alert;
 
+    #[ORM\Column]
+    private ?bool $referencement = null;
+
     public function __construct()
     {
         $this->alert = false;
+        $this->referencement = false;
     }
 
     public function __toString()
@@ -84,6 +88,18 @@ class FormulePromoAffaire
     public function setAlert(bool $alert): self
     {
         $this->alert = $alert;
+
+        return $this;
+    }
+
+    public function getReferencement(): ?bool
+    {
+        return $this->referencement;
+    }
+
+    public function setReferencement(bool $referencement): static
+    {
+        $this->referencement = $referencement;
 
         return $this;
     }

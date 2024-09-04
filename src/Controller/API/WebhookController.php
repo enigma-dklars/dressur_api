@@ -123,6 +123,7 @@ class WebhookController extends AbstractController
                             $promotion->setMode("Payant")
                                 ->setDateDebut(new DateTime())
                                 ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
+                                ->setReferencement($formulePromoAffaire->getReferencement())
                                 ->setStatus(3)
                             ;
                         }

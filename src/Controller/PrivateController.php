@@ -34,7 +34,7 @@ class PrivateController extends AbstractController
     private $traitementsDS;
     private $userRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);
@@ -52,14 +52,20 @@ class PrivateController extends AbstractController
         }
         
         if($this->env->getUsersParrainer() == NULL){
-            $usersParrainer = [];
             foreach ($userRepository->findAll() as $user) {
                 if($user->getParrain()) {
-                    array_push($usersParrainer, $user->getTel());
-                    array_push($usersParrainer, $user->getMail());
+                    $this->env->addUsersParrainer($user->getTel());
+                    $this->env->addUsersParrainer($user->getMail());
                 }
             }
-            $this->env->setUsersParrainer($usersParrainer);
+            foreach ($dSBonusHistoriqueRepository->findAll() as $dsBH) {
+                $titre = $dsBH->getTitre();
+                $titreReplace = str_replace("+1 filleul ", "", $titre);
+                $titreReplace = str_replace("+1 referral ", "", $titreReplace);
+                if(strlen($titreReplace) != strlen($titre)) {
+                    $this->env->addUsersParrainer($titreReplace);
+                }
+            }
             $this->em->flush();
         }
     }

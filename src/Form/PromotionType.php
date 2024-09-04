@@ -78,6 +78,11 @@ class PromotionType extends AbstractType
                     'class' => 'ms-2 mb-2'
                 ],
             ])
+            ->add('referencement', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 

@@ -9,25 +9,25 @@
     <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
-                <th>Id</th>
+                <th></th>
                 <th>Titre</th>
                 <th>Prix</th>
                 <th>NbrJour</th>
                 <th>Alert</th>
-                <th></th>
+                <th>Ref.</th>
+                <th width="1">Id</th>
             </tr>
         </thead>
         <tbody>
         {% for formule_promo_affaire in formule_promo_affaires %}
             <tr>
-                <td>{{ formule_promo_affaire.id }}</td>
+                <td>{{ include('crud_formule_promo_affaire/_delete_form.html.twig') }}</td>
                 <td>{{ formule_promo_affaire.titre }}</td>
                 <td>{{ formule_promo_affaire.prix }}</td>
                 <td>{{ formule_promo_affaire.nbrJour }}</td>
-                <td>{{ formule_promo_affaire.alert ? 'Yes' : 'No' }}</td>
-                <td>
-                    {{ include('crud_formule_promo_affaire/_delete_form.html.twig') }}
-                </td>
+                <td class="text-center">{{ formule_promo_affaire.alert ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                <td class="text-center">{{ formule_promo_affaire.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                <td>{{ formule_promo_affaire.id }}</td>
             </tr>
         {% else %}
             <tr>

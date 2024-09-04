@@ -43,6 +43,9 @@ class Env
 
     public function addUsersParrainer($tel_or_mail): self
     {
+        if($this->usersParrainer == NULL) {
+            $this->usersParrainer = [];
+        }
         if (!in_array($tel_or_mail, $this->usersParrainer)) {
             array_push($this->usersParrainer, $tel_or_mail);
         }

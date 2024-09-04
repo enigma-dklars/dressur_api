@@ -9,25 +9,23 @@
     <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
-                <th>Id</th>
+                <th></th>
                 <th>Titre</th>
                 <th>Prix</th>
                 <th>NbrJour</th>
                 <th>Alert</th>
-                <th></th>
+                <th width="1">Id</th>
             </tr>
         </thead>
         <tbody>
         {% for formule_boost in formule_boosts %}
             <tr>
-                <td>{{ formule_boost.id }}</td>
+                <td>{% include "crud_formule_boost/_delete_form.html.twig" %}</td>
                 <td>{{ formule_boost.titre }}</td>
                 <td>{{ formule_boost.prix }}</td>
                 <td>{{ formule_boost.nbrJour }}</td>
-                <td>{{ formule_boost.alert ? 'Yes' : 'No' }}</td>
-                <td>
-                    {% include "crud_formule_boost/_delete_form.html.twig" %}
-                </td>
+                <td class="text-center">{{ formule_boost.alert ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                <td>{{ formule_boost.id }}</td>
             </tr>
         {% else %}
             <tr>

@@ -57,9 +57,13 @@ class Promotion
     #[ORM\Column(nullable: true)]
     private ?bool $isFakeVue = null;
 
+    #[ORM\Column]
+    private ?bool $referencement = null;
+
     public function __construct()
     {
         $this->status = 1;
+        $this->referencement = false;
         $this->isFakeVue = false;
         $this->limited = true;
         $this->mode = "Gratuit";
@@ -266,6 +270,18 @@ class Promotion
     public function setIsFakeVue(?bool $isFakeVue): static
     {
         $this->isFakeVue = $isFakeVue;
+
+        return $this;
+    }
+
+    public function getReferencement(): ?bool
+    {
+        return $this->referencement;
+    }
+
+    public function setReferencement(bool $referencement): static
+    {
+        $this->referencement = $referencement;
 
         return $this;
     }

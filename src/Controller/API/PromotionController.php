@@ -244,6 +244,7 @@ class PromotionController extends AbstractController
             $promotion->setFormulePromoAffaire($formulBoost)
                 ->setDateDebut(new DateTime())
                 ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
+                ->setReferencement($formulBoost->getReferencement())
                 ->setStatus(3)
             ;
                 
