@@ -41,6 +41,33 @@ class Env
     #[ORM\Column(nullable: true)]
     private ?array $userBanned = null;
 
+    public function addUsersParrainer($tel_or_mail): self
+    {
+        if (!in_array($tel_or_mail, $this->usersParrainer)) {
+            array_push($this->usersParrainer, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function addUsersTel($tel_or_mail): self
+    {
+        if (!in_array($tel_or_mail, $this->usersTel)) {
+            array_push($this->usersTel, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function addUserBanned($tel_or_mail): self
+    {
+        if($this->userBanned == Null) {
+            $this->userBanned = [];
+        }
+        if (!in_array($tel_or_mail, $this->userBanned)) {
+            array_push($this->userBanned, $tel_or_mail);
+        }
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -139,33 +166,6 @@ class Env
     {
         $this->usersParrainer = $usersParrainer;
 
-        return $this;
-    }
-
-    public function addUsersParrainer($tel_or_mail): self
-    {
-        if (!in_array($tel_or_mail, $this->usersParrainer)) {
-            array_push($this->usersParrainer, $tel_or_mail);
-        }
-        return $this;
-    }
-
-    public function addUsersTel($tel_or_mail): self
-    {
-        if (!in_array($tel_or_mail, $this->usersParrainer)) {
-            array_push($this->usersParrainer, $tel_or_mail);
-        }
-        return $this;
-    }
-
-    public function addUserBanned($tel_or_mail): self
-    {
-        if($this->userBanned == Null) {
-            $this->userBanned = [];
-        }
-        if (!in_array($tel_or_mail, $this->userBanned)) {
-            array_push($this->userBanned, $tel_or_mail);
-        }
         return $this;
     }
 
