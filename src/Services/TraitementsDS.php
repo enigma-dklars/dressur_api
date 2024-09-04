@@ -170,7 +170,6 @@ class TraitementsDS extends AbstractController
         $userBoosts = [];
         $prix_boost = "";
         $statut = "";
-        $dejaUnBoostEncours = 0;
 
         foreach ($boosts as $boost) {
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -179,10 +178,6 @@ class TraitementsDS extends AbstractController
                 $statut = "En cours";
             }
             $statusNumber = 1;
-
-            if((new DateTime()) > $boost->getDateDebut() and (new DateTime()) < $boost->getDateExp()){
-                $dejaUnBoostEncours++;
-            }
 
             if((new DateTime()) < $boost->getDateDebut()){
                 if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -806,6 +801,7 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         return [
+            "boostEnCours" => $this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $user])),
             "totalImpressions" => $totalImpressions,
             "totalVues" => $totalVues,
             "totalImpressionsText" => $totalImpressionsText,
