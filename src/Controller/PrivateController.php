@@ -18,6 +18,7 @@ use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -151,6 +152,8 @@ class PrivateController extends AbstractController
             ]);
 
             if($user){
+                $user->setLastLoginTo(new DateTime());    
+                $this->em->flush();
                 if ($user->getAdmin() == false) {
                     return $this->render('private/index.html.twig', [
                         'theme' => $this->theme,
