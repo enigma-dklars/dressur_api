@@ -705,31 +705,29 @@ class TraitementsDS extends AbstractController
 
     public function getAddDisponible($user){
         $contacts = [];
-        if($user->getId() == 3) {
-            foreach ($user->getPreference()->getPaysChoisies() as $codePays){
-                $boosts = $this->boostRepository->getBoostAndUser($codePays);
-                foreach ($boosts as $boost){
-                    $userBoost = $boost["boost"]->getUser();
+        if($user->getId() == 3 || $user->getId() == 2) {
+            $boosts = $this->boostRepository->findAll();
+            foreach ($boosts as $boost){
+                $userBoost = $boost->getUser();
 
-                    if($userBoost->getLastLoginTo() != Null) {
-                        $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
-                        $hoursDifference = $intervale->h;
-                        if ($intervale->d > 0) {
-                            $hoursDifference += $intervale->d * 24;
-                        }
+                if($userBoost->getLastLoginTo() != Null) {
+                    $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
+                    $hoursDifference = $intervale->h;
+                    if ($intervale->d > 0) {
+                        $hoursDifference += $intervale->d * 24;
+                    }
 
-                        // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
-                        if($hoursDifference <= 48) {
-                            if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
-                                array_push($contacts, [
-                                    'id' => $userBoost->getId(),
-                                    'uid' => $userBoost->getUid(),
-                                    'pseudo' => $userBoost->getPseudo(),
-                                    'pays' => (string)$userBoost->getPays(),
-                                    'nom' => (string)$userBoost,
-                                    'tel' => $userBoost->getTel(),
-                                ]);
-                            }
+                    // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
+                    if($hoursDifference <= 48) {
+                        if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())) {
+                            array_push($contacts, [
+                                'id' => $userBoost->getId(),
+                                'uid' => $userBoost->getUid(),
+                                'pseudo' => $userBoost->getPseudo(),
+                                'pays' => (string)$userBoost->getPays(),
+                                'nom' => (string)$userBoost,
+                                'tel' => $userBoost->getTel(),
+                            ]);
                         }
                     }
                 }
@@ -739,20 +737,31 @@ class TraitementsDS extends AbstractController
                 $boosts = $this->boostRepository->getBoostAndUser($codePays);
                 foreach ($boosts as $boost){
                     $userBoost = $boost["boost"]->getUser();
-                    if($userBoost->getId() != $user->getId()){
-                        $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
-                        $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
-                        if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
-                            if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
-                                if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
-                                    array_push($contacts, [
-                                        'id' => $userBoost->getId(),
-                                        'uid' => $userBoost->getUid(),
-                                        'pseudo' => $userBoost->getPseudo(),
-                                        'pays' => (string)$userBoost->getPays(),
-                                        'nom' => (string)$userBoost,
-                                        'tel' => $userBoost->getTel(),
-                                    ]);
+                    if($userBoost->getLastLoginTo() != Null) {
+                        $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
+                        $hoursDifference = $intervale->h;
+                        if ($intervale->d > 0) {
+                            $hoursDifference += $intervale->d * 24;
+                        }
+
+                        // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
+                        if($hoursDifference <= 48) {
+                            if($userBoost->getId() != $user->getId()){
+                                $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
+                                $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
+                                if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
+                                    if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                                        if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
+                                            array_push($contacts, [
+                                                'id' => $userBoost->getId(),
+                                                'uid' => $userBoost->getUid(),
+                                                'pseudo' => $userBoost->getPseudo(),
+                                                'pays' => (string)$userBoost->getPays(),
+                                                'nom' => (string)$userBoost,
+                                                'tel' => $userBoost->getTel(),
+                                            ]);
+                                        }
+                                    }
                                 }
                             }
                         }
