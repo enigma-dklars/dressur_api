@@ -719,7 +719,7 @@ class TraitementsDS extends AbstractController
 
                     // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
                     if($hoursDifference <= 48) {
-                        if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())) {
+                        if((new DateTime()) >= ($boost->getDateDebut()) and (new DateTime()) <= ($boost->getDateExp())) {
                             array_push($contacts, [
                                 'id' => $userBoost->getId(),
                                 'uid' => $userBoost->getUid(),
