@@ -16,3 +16,15 @@ ORDER BY
 SELECT pays, COUNT(*) AS nombre_utilisateurs
 FROM user
 GROUP BY pays ORDER BY nombre_utilisateurs DESC;
+
+# retirer les espaces dans les numero de tel de la table contacts_user
+UPDATE contacts_user
+SET number_tel = REPLACE(number_tel, ' ', '');
+
+# retirer les + dans les numero de tel de la table contacts_user
+UPDATE contacts_user
+SET number_tel = REPLACE(number_tel, '+', '');
+
+# supprimer les occurence ou le numero a moins de 8 carracteres
+DELETE FROM contacts_user
+WHERE LENGTH(REPLACE(number_tel, ' ', '')) < 8;
