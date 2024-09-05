@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\PromoReseau;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -19,15 +20,25 @@ class PromoReseauType extends AbstractType
             ])
             ->add('formulePromoReseau', null, [
                 'attr' => [
-                    'class' => 'form-select single-select mb-2'
+                    'class' => 'form-select single-select mb-5'
                 ],
             ])
-            ->add('status', null, [
+            ->add('qteDemander', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('url', TextType::class, [
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
             ])
             ->add('idZefame', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('status', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
@@ -42,17 +53,7 @@ class PromoReseauType extends AbstractType
                     'class' => 'form-control mb-2'
                 ],
             ])
-            ->add('qteDemander', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
-            ])
             ->add('prixFixer', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
-            ])
-            ->add('url', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
@@ -63,6 +64,7 @@ class PromoReseauType extends AbstractType
                 ],
             ])
             ->add('updatedAt', null, [
+                // 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],

@@ -61,6 +61,11 @@ class UserBot
         $this->expiratedAt = new DateTime("-5 minutes");
     }
 
+    public function __toString()
+    {
+        return $this->nom;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

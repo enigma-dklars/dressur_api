@@ -90,6 +90,9 @@ class CrudPromoReseauController extends AbstractController
             if($promoReseau->getStatus() == 3) {
                 $promoReseau->setCompteurRestant(0);
             }
+            if($promoReseau->getIdZefame() != "*****") {
+                $promoReseau->setStatus(2);
+            }
             $promoReseau->setUpdatedAt(new DateTime());
             $entityManager->flush();
 

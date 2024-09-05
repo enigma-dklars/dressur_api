@@ -12,18 +12,66 @@ class TransactionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('idTransaction')
-            ->add('reference')
-            ->add('amount')
-            ->add('status')
-            ->add('customerId')
-            ->add('currencyId')
-            ->add('createdAt')
-            ->add('updatedAt')
-            ->add('annotherInfo')
-            ->add('transactionFor')
-            ->add('user')
-            ->add('userBot')
+            ->add('idTransaction', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('reference', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('amount', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('status', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('customerId', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('currencyId', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('createdAt', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('updatedAt', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('annotherInfo', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('transactionFor', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('user', null, [
+                'attr' => [
+                    'class' => 'form-select single-select mb-5'
+                ],
+            ])
+            ->add('userBot', null, [
+                'attr' => [
+                    'class' => 'form-select single-select mb-5'
+                ],
+            ])
         ;
     }
 
