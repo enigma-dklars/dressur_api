@@ -810,10 +810,10 @@ class TraitementsDS extends AbstractController
 
     public function infosUser($user){
         $count = $this->vuesImpressionsCumulerUserPromos($user->getPromotions());
-        $totalImpressions = $count['countVues'];
-        $totalVues = $count['countImpressions'];
-        $totalImpressionsText = $this->formatNumber($count['countVues']);
-        $totalVuesText = $this->formatNumber($count['countImpressions']);
+        $totalImpressions = $count['countImpressions'];
+        $totalVues = $count['countVues'];
+        $totalImpressionsText = $this->formatNumber($count['countImpressions']);
+        $totalVuesText = $this->formatNumber($count['countVues']);
         $lesPublicitesArray = $this->listePubliciteAffichageAuxUsers($user);
         $lesPublicites = json_encode($lesPublicitesArray);
         if(strlen(str_replace(" ", "", $user->getTiktok())) == 0 ) { $user->setTiktok(null); }
