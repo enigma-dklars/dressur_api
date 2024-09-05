@@ -126,6 +126,7 @@ class User
         $this->avatar = "avatar_".rand(1, 10).".png";
         $this->banniere = "banniere_dressur.jpg";
         $this->createdAt = new DateTime();
+        $this->lastLoginTo = new DateTime();
         $this->uid = uniqid();
         $this->codeBonus = $this->codeBonus();
         $this->filleuls = new ArrayCollection();

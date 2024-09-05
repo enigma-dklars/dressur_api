@@ -1447,6 +1447,7 @@ class UserController extends AbstractController
             ->setPassword($password)
             ->setPays($paysTel)
             ->setLang($langUserPhone)
+            ->setLastLoginTo(new DateTime())
         ;
         if(in_array($tel, $this->env->getUsersTel())) { 
             $user->setSoldeBonus(0);

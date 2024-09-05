@@ -710,15 +710,27 @@ class TraitementsDS extends AbstractController
                 $boosts = $this->boostRepository->getBoostAndUser($codePays);
                 foreach ($boosts as $boost){
                     $userBoost = $boost["boost"]->getUser();
-                    if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
-                        array_push($contacts, [
-                            'id' => $userBoost->getId(),
-                            'uid' => $userBoost->getUid(),
-                            'pseudo' => $userBoost->getPseudo(),
-                            'pays' => (string)$userBoost->getPays(),
-                            'nom' => (string)$userBoost,
-                            'tel' => $userBoost->getTel(),
-                        ]);
+
+                    if($userBoost->getLastLoginTo() != Null) {
+                        $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
+                        $hoursDifference = $intervale->h;
+                        if ($intervale->d > 0) {
+                            $hoursDifference += $intervale->d * 24;
+                        }
+
+                        // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
+                        if($hoursDifference <= 48) {
+                            if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                                array_push($contacts, [
+                                    'id' => $userBoost->getId(),
+                                    'uid' => $userBoost->getUid(),
+                                    'pseudo' => $userBoost->getPseudo(),
+                                    'pays' => (string)$userBoost->getPays(),
+                                    'nom' => (string)$userBoost,
+                                    'tel' => $userBoost->getTel(),
+                                ]);
+                            }
+                        }
                     }
                 }
             }
