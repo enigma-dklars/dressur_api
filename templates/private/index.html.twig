@@ -9,6 +9,14 @@
     </div>
     
     <div class="row g-3 mb-3">
+        {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
+            user.telIsVerified == false or
+            user.mailIsVerified == false or
+            user.nom|replace({' ': ''}) == '' or
+            user.nom is null %}
+
+        {% endif %}
+
         {% if user.telIsVerified == false %}
             <div class="{% if user.mailIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
                 <div class="card radius-10 mb-0 h-100">
@@ -24,6 +32,7 @@
                 </div>
             </div>
         {% endif %}
+
         {% if user.mailIsVerified == false %}
             <div class="{% if user.telIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
                 <div class="card radius-10 mb-0 h-100">
@@ -45,6 +54,37 @@
                 </div>
             </div>
         {% endif %}
+
+        {% if user.nom|replace({' ': ''}) == '' or user.nom is null %}
+            <div class="col-12">
+                <a href="javascript:;" class="dropdown-item menu-element" url="/editprofil">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="setting-icon"><i class="fas fa-user fs-4"></i></div>
+                                <div class="setting-text ms-3 fs-6"><span>Compléter votre Profil</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if user.nombreContactDispo <= 0 and user.boostEnCours == false %}
+            <div class="col-12">
+                <a href="javascript:;" class="dropdown-item menu-element" url="/newboostcontact">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="setting-icon"><i class="fas fa-user-plus fs-4"></i></div>
+                                <div class="setting-text ms-3 fs-6"><span>Faire un Boost Contact pour avoir plus de contact</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
         {% if user.nombreContactDispo > 0 %}
             <div class="col-md-12">
                 <div class="card radius-10 mb-0 h-100">
