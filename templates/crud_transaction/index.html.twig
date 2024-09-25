@@ -11,6 +11,7 @@
             <thead>
                 <tr>
                     <th></th>
+                    <th></th>
                     <th>TransactionFor</th>
                     <th>Status</th>
                     <th>IdTransaction</th>
@@ -26,6 +27,7 @@
             <tbody>
             {% for transaction in transactions %}
                 <tr>
+                    <td></td>
                     <td>{% include "crud_transaction/_delete_form.html.twig" %}</td>
                     <td>{{ transaction.transactionFor }}</td>
                     <td>                        
