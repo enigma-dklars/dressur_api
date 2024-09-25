@@ -315,7 +315,7 @@ class CrudUserController extends AbstractController
         return $this->render('crud_user/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user' => $user,
+            'user_show' => $user,
         ]);
     }
 
@@ -334,7 +334,7 @@ class CrudUserController extends AbstractController
         return $this->renderForm('crud_user/edit.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user' => $user,
+            // 'user' => $user,
             'form' => $form,
         ]);
     }
