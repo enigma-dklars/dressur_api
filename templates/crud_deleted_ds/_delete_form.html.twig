@@ -3,4 +3,21 @@
     {# <a href="{{ path('app_crud_deleted_d_s_show', {'id': deleted_d.id}) }}" class="btn btn-sm btn-info">Show</a> #}
     {# <a href="{{ path('app_crud_deleted_d_s_edit', {'id': deleted_d.id}) }}" class="btn btn-sm btn-success">Edit</a> #}
     <button class="btn btn-sm btn-danger">Delete</button>
+    <span data-bs-toggle="modal" data-bs-target="#modal_deleted_d_{{deleted_d.id}}" class="btn btn-sm {% if deleted_d.motif != 'GET OUT BY ADMIN' %}btn-primary{% else %}btn-dark{% endif %}">More</span>
 </form>
+<div class="modal fade" id="modal_deleted_d_{{deleted_d.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="px-3">
+                    <table class="table table-striped table-bordered">
+                        {{ deleted_d.motif|nl2br }}
+                    </table>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

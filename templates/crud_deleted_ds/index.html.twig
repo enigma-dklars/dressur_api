@@ -9,29 +9,25 @@
     <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
+                <th width="0"></th>
+                <th></th>
                 <th>Id</th>
                 <th>Tel</th>
                 <th>Mail</th>
-                {# <th>Motif</th> #}
                 <th>CreatedAt</th>
-                <th>actions</th>
             </tr>
         </thead>
         <tbody>
         {% for deleted_d in deleted_ds %}
             <tr>
-                <td>{{ deleted_d.id }}</td>
-                <td>{{ deleted_d.tel }}</td>
-                <td>{{ deleted_d.mail }}</td>
-                {# <td>{{ deleted_d.motif }}</td> #}
-                <td>{{ deleted_d.createdAt ? deleted_d.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td></td>
                 <td>
                     {% include "crud_deleted_ds/_delete_form.html.twig" %}
                 </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td colspan="3">{{ deleted_d.motif|nl2br }}</td>
+                <td>{{ deleted_d.id }}</td>
+                <td>{{ deleted_d.tel }}</td>
+                <td>{{ deleted_d.mail }}</td>
+                <td>{{ deleted_d.createdAt ? deleted_d.createdAt|date('Y-m-d H:i:s') : '' }}</td>
             </tr>
         {% else %}
             <tr>

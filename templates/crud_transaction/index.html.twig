@@ -11,35 +11,41 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th>Id</th>
-                    <th>IdTransaction</th>
-                    <th>Reference</th>
-                    <th>Amount</th>
+                    <th>TransactionFor</th>
                     <th>Status</th>
+                    <th>IdTransaction</th>
+                    <th>Amount</th>
+                    <th>Reference</th>
                     <th>CustomerId</th>
                     <th>CurrencyId</th>
                     <th>CreatedAt</th>
                     <th>UpdatedAt</th>
-                    <th>AnnotherInfo</th>
-                    <th>TransactionFor</th>
+                    <th>Id</th>
                 </tr>
             </thead>
             <tbody>
             {% for transaction in transactions %}
                 <tr>
                     <td>{% include "crud_transaction/_delete_form.html.twig" %}</td>
-                    <td>{{ transaction.id }}</td>
+                    <td>{{ transaction.transactionFor }}</td>
+                    <td>                        
+                        <span class="badge text-white fw-normal
+                        {% if transaction.status == 'pending' %}bg-warning{% endif %}
+                        {% if transaction.status == 'canceled' %}bg-danger{% endif %}
+                        {% if transaction.status == 'approved' %}bg-success{% endif %}
+                        {% if transaction.status == 'transferred' %}bg-primary{% endif %}
+                        {% if transaction.status == 'expired' %}bg-dark{% endif %}
+                        ">{{ transaction.status }}</span>
+                    </td>
                     <td>{{ transaction.idTransaction }}</td>
-                    <td>{{ transaction.reference }}</td>
                     <td>{{ transaction.amount }}</td>
-                    <td>{{ transaction.status }}</td>
+                    <td>{{ transaction.reference }}</td>
                     <td>{{ transaction.customerId }}</td>
                     <td>{{ transaction.currencyId }}</td>
                     <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ transaction.updatedAt ? transaction.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                    <td></td>
+                    <td>{{ transaction.id }}</td>
                     {# <td>{{ transaction.annotherInfo ? transaction.annotherInfo|join(', ') : '' }}</td> #}
-                    <td>{{ transaction.transactionFor }}</td>
                 </tr>
             {% else %}
                 <tr>
