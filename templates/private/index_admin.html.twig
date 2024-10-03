@@ -156,40 +156,25 @@
                     </div>
                 </div>
             </div>
-        </div>
-    {% endif %}
-    
-    <div class="row g-3 mb-3">
-        {% if user.nombreContactDispo > 0 %}
-            <div class="col-md-12">
-                <div class="card radius-10 mb-0 h-100">
+            <div class="col">
+                <div class="card radius-10 mb-0">
                     <div class="card-body">
-                        <p class="mb-2 text-primary fw-normal fs-4">
-                            <i class="fas fa-users-rectangle me-1"></i> ADD DS Disponible
-                        </p>
-                        <p class="mb-2 fs-6 mb-1">
-                            {{user.nombreContactDispo}} contact(s) disponible(s) selon vos préférences pays.
-                        </p>
-                        <p class="px-3 py-2 mb-2 small bg-danger rounded text-white">
-                            Note : Vous utilisez la version web de Dressur. L'enregistrement des contacts ne sera donc pas automatique dans votre téléphone. Pour enregistrer les contacts obtenus dans votre téléphone, veuillez accéder à la page "Liste des contacts" sur Dressur Web et exporter les contacts au format VCF ou CSV, puis les importer dans votre téléphone. Afin de vous assurer de ne manquer aucun nouveau contact, connectez-vous deux fois par jour pour effectuer cette action.
-                        </p>
-                        <div class="mt-2 mb-1">
-                            {% if user.telIsVerified == true %}
-                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts">
-                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
-                                </button>
-                            {% else %}
-                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#doit_confirmer_le_numéro_whatsapp">
-                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
-                                </button>
-                            {% endif %}
-                            <a class="btn btn-md btn-info menu-element" url="/contact">Liste des contacts</a>
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">En cours</p>
+                                <h4 class="my-1">
+                                    {% if user.nombreContactDispo > 0 %} {{user.nombreContactDispo}} {% else %} 0 {% endif %}
+                                </h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 
     <div class="row g-3 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
         <div class="col">
