@@ -190,6 +190,37 @@ class PrivateController extends AbstractController
         return $this->redirectToRoute('app_connexion');
     }
 
+    #[Route('/vue_user', name: 'app_vue_user')]
+    public function vue_user(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository): Response
+    {
+        if($cookieDS->get("uid")){
+            $uid = $cookieDS->get("uid");
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
+
+            $userinfo = $this->traitementsDS->infosUser($user);
+            $actu = $this->renderView('private/actu.html.twig', [
+                'actus' => json_decode($userinfo['lesPublicites']),
+            ]);
+
+            if($user){
+                $user->setLastLoginTo(new DateTime());    
+                $this->em->flush();
+                return $this->render('private/index.html.twig', [
+                    'theme' => $this->theme,
+                    'user' => $traitementsDS->infosUser($user),
+                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
+                    'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
+                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
+                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
+                    'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
+                    'actu' => $actu,
+                ]);
+            }
+        }
+        return $this->redirectToRoute('app_connexion');
+    }
+
     #[Route('/actu', name: 'app_actu')]
     public function actu(): Response
     {

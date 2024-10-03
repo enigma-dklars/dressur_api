@@ -8,10 +8,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{path('app_private')}}">Dashboard</a>
                 </li>
+                {% if user.admin == true %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{path('app_vue_user')}}">Vue User</a>
+                    </li>
+                {% endif %}
                 {# <li class="nav-item">
-                    <a class="nav-link" href="app-emailbox.html">Email</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="javascript:;">Projects</a>
                 </li>
                 <li class="nav-item d-none d-xxl-block">
