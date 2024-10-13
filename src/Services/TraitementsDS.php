@@ -602,6 +602,8 @@ class TraitementsDS extends AbstractController
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                } else {
+                    $promo->setStatus(4);
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -622,10 +624,11 @@ class TraitementsDS extends AbstractController
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                    } else {
+                        $promo->setStatus(4);
                     }
                 }
             }
-            
         }
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
