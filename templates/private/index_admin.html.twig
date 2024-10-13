@@ -162,9 +162,26 @@
                             <div>
                                 <p class="mb-0 text-secondary">En cours</p>
                                 <h4 class="my-1">
-                                    {% if user.nombreContactDispo > 0 %} {{user.nombreContactDispo}} {% else %} 0 {% endif %}
+                                    {{encour_boost}}
                                 </h4>
                                 <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">En cours</p>
+                                <h4 class="my-1">
+                                    {{encour_affaire}}
+                                </h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo Affaire</p>
                             </div>
                             <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
                             </div>
