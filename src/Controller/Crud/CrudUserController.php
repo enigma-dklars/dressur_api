@@ -356,11 +356,21 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_crud_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, User $user, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($user);
-            $entityManager->flush();
+            // $entityManager->remove($user);
+            // $entityManager->flush();
+            if($user) {
+                $traitementsDS->execPurge($user);
+                // Add a flash message to confirm deletion
+                $this->addFlash('success', 'User and all related information have been deleted.');
+                
+                return $this->redirectToRoute('app_crud_user_purge');
+            }
+
+            // Add a flash message if user is not found
+            $this->addFlash('danger', 'User not found.');
         }
 
         return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
