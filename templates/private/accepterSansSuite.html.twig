@@ -7,6 +7,7 @@
                 {% if promoaffaire.statusNumber == 2 %}{% set bg_badge = "bg-warning" %}{% endif %}
                 {% if promoaffaire.statusNumber == 3 %}{% set bg_badge = "bg-success" %}{% endif %}
                 {% if promoaffaire.statusNumber == 4 %}{% set bg_badge = "bg-success" %}{% endif %}
+                <img src="/promotion/{{promoaffaire.image}}" alt="" class="card-img-top">
                 <div class="card-body">
                     <p class="mb-2">
                         Poster Par : {{promoaffaire.username}}
