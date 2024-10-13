@@ -6,6 +6,7 @@ use App\Controller\API\UserController;
 use App\Entity\FormulePromoReseau;
 use App\Repository\BoostRepository;
 use App\Repository\CampagneMailRepository;
+use App\Repository\DeletedDSRepository;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
@@ -14,6 +15,7 @@ use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
+use App\Repository\UserBotRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\SessionDS;
@@ -139,7 +141,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/private', name: 'app_private')]
-    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository): Response
+    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -183,6 +185,9 @@ class PrivateController extends AbstractController
                         'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
                         'nbr_have_parent' => count($userRepository->findAll()) - count($userRepository->findBy(['parrain' => null])),
                         'nbr_user' => count($userRepository->findAll()),
+                        'nbr_user_bot' => count($userBotRepository->findAll()),
+                        'deleted_users' => count($deletedDSRepository->findAll()),
+                        'banned_users' => count($this->env->getUserBanned()) / 3,
                     ]);
                 }
             }
