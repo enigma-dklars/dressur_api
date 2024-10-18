@@ -18,7 +18,7 @@ class User
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $uid;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -111,9 +111,17 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, orphanRemoval: true)]
     private Collection $suggestions;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatar = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $banniere = null;
+
     public function __construct()
     {
         $this->admin = false;
+        $this->avatar = "avatar_".rand(1, 10).".png";
+        $this->banniere = "banniere_dressur.jpg";
         $this->createdAt = new DateTime();
         $this->uid = uniqid();
         $this->codeBonus = $this->codeBonus();
@@ -655,6 +663,30 @@ class User
                 $suggestion->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): static
+    {
+        $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getBanniere(): ?string
+    {
+        return $this->banniere;
+    }
+
+    public function setBanniere(?string $banniere): static
+    {
+        $this->banniere = $banniere;
 
         return $this;
     }
