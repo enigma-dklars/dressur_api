@@ -3,8 +3,14 @@
 {% block title %}Promotion index{% endblock %}
 
 {% block body %}
-    <p class="h4 me-3">Promotion index</p>
-    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_promotion_new') }}">Create new</a> #}
+    <div class="row g-2">
+        <div class="col-8">
+            <span class="h4 me-3">Promotion index</span>
+        </div>
+        <div class="col-4 text-end fs-5">
+            <a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_promotion_delete_inutiles') }}">Delete Inutiles</a>
+        </div>
+    </div>
 
     <div class="table-responsive">
         <table class="data-table table table-bordered table-striped">

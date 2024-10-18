@@ -45,6 +45,20 @@ class CrudPromotionController extends AbstractController
         ]);
     }
 
+    #[Route('/delete_inutiles', name: 'app_crud_promotion_delete_inutiles', methods: ['GET'])]
+    public function delete_inutiles(PromotionRepository $promotionRepository): Response
+    {
+        foreach ($promotionRepository->findBy(['status' => 0]) as $une_promo) {
+            # code...
+        }
+
+        foreach ($promotionRepository->findBy(['status' => 2]) as $une_promo) {
+            # code...
+        }
+
+        return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/new', name: 'app_crud_promotion_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
