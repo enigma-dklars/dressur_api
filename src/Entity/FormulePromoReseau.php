@@ -22,9 +22,6 @@ class FormulePromoReseau
     #[ORM\Column(type: Types::TEXT)]
     private ?string $titre = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $iconFlutterName = null;
-
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
@@ -48,6 +45,12 @@ class FormulePromoReseau
 
     #[ORM\Column]
     private ?bool $available = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $idZefame = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $prixZefame = null;
 
     public function __construct()
     {
@@ -75,18 +78,6 @@ class FormulePromoReseau
     public function setTitre(string $titre): self
     {
         $this->titre = $titre;
-
-        return $this;
-    }
-
-    public function getIconFlutterName(): ?string
-    {
-        return $this->iconFlutterName;
-    }
-
-    public function setIconFlutterName(?string $iconFlutterName): self
-    {
-        $this->iconFlutterName = $iconFlutterName;
 
         return $this;
     }
@@ -213,6 +204,30 @@ class FormulePromoReseau
     public function setQte(?int $qte): self
     {
         $this->qte = $qte;
+
+        return $this;
+    }
+
+    public function getIdZefame(): ?int
+    {
+        return $this->idZefame;
+    }
+
+    public function setIdZefame(?int $idZefame): static
+    {
+        $this->idZefame = $idZefame;
+
+        return $this;
+    }
+
+    public function getPrixZefame(): ?float
+    {
+        return $this->prixZefame;
+    }
+
+    public function setPrixZefame(?float $prixZefame): static
+    {
+        $this->prixZefame = $prixZefame;
 
         return $this;
     }

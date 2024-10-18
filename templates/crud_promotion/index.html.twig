@@ -1,0 +1,75 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Promotion index{% endblock %}
+
+{% block body %}
+    <div class="row g-2">
+        <div class="col-8">
+            <span class="h4 me-3">Promotion index</span>
+        </div>
+        <div class="col-4 text-end fs-5">
+            <a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_promotion_delete_inutiles') }}">Delete Inutiles</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Limited</th>
+                    <th>Fake</th>
+                    <th>Ref.</th>
+                    <th>Mode</th>
+                    <th>Formule</th>
+                    <th>DateDebut</th>
+                    <th>DateExp</th>
+                    <th>Nbr.Vue</th>
+                    <th>Nbr.Imprs</th>
+                    <th>Motif</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for promotion in promotions %}
+                <tr>
+                    <td>{% include "crud_promotion/_delete_form.html.twig" %}</td>
+                    <td>{{ promotion.id }}</td>
+                    <td>{{ promotion.user.pseudo }}</td>
+                    <td class="text-center">
+                        {% if promotion.status == 0 %}{% set bg_badge = "bg-danger" %} {% set status_name = "Rejeter" %}{% endif %}
+                        {% if promotion.status == 1 %}{% set bg_badge = "bg-warning" %} {% set status_name = "Attente" %}{% endif %}
+                        {% if promotion.status == 2 %}{% set bg_badge = "bg-warning" %} {% set status_name = "Att. Pay" %}{% endif %}
+                        {% if promotion.status == 3 %}{% set bg_badge = "bg-success" %} {% set status_name = "En cours" %}{% endif %}
+                        {% if promotion.status == 4 %}{% set bg_badge = "bg-success" %} {% set status_name = "Terminer" %}{% endif %}
+                        <span class="badge {{bg_badge}} text-white mb-1">{{status_name}}</span>
+                    </td>
+                    <td class="text-center">{{ promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">
+                        {% if promotion.mode == "Gratuit" %}
+                            <span class="badge bg-danger">{{promotion.mode}}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{promotion.mode}}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ promotion.formulePromoAffaire }}</td>
+                    <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.nombreDeVue }}</td>
+                    <td>{{ promotion.nombreImpression }}</td>
+                    <td>{{ promotion.motif }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="14">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

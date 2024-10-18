@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_crud_formule_campagne_mail_delete', {'id': formule_campagne_mail.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ formule_campagne_mail.id) }}">
+    {# <a href="{{ path('app_crud_formule_campagne_mail_show', {'id': formule_campagne_mail.id}) }}" class="btn btn-sm btn-info">Show</a> #}
+    <a href="{{ path('app_crud_formule_campagne_mail_edit', {'id': formule_campagne_mail.id}) }}" class="btn btn-sm btn-success">Edit</a>
+    <button class="btn btn-sm btn-danger">Delete</button>
+</form>

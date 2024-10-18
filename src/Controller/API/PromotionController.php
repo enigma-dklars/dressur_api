@@ -6,6 +6,7 @@ use DateTime;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
+use App\Entity\DSBonusHistorique;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
@@ -15,14 +16,15 @@ use App\Services\VerificationsDS;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
-use App\Repository\FormuleBoostRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Entity\User;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
+use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -33,11 +35,22 @@ class PromotionController extends AbstractController
 {
     private $em;
     private $env;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail)
     {
         $this->em = $em;
         $this->env = $env->find(1);
+        $this->sendMail = $sendMail;
+    }
+
+    #[Route('/listeFormulePromoAffaire', name: 'listeFormulePromoAffaire', methods: ['POST', 'GET'])]
+    public function listeFormulePromoAffaire(TraitementsDS $traitementsDS): Response
+    {
+        return new JsonResponse([
+            'error' => false,
+            'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
+        ]);
     }
 
     #[Route('/newPromotion', name: 'newPromotion', methods: ['POST'])]
@@ -89,21 +102,6 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
-            ]);
-        }
-
         // Vérification et traitement de l'image
         if (!$image->isValid()) {
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -141,8 +139,6 @@ class PromotionController extends AbstractController
         ;
         $promotionRepository->save($promotion, true);
 
-        // Enregistrer le chemin de l'image dans la base de données ou effectuer d'autres opérations nécessaires
-        // ...
         if($sessionDS->get("langUserPhone") != "fr") { 
             return new JsonResponse([
                 'error' => false
@@ -153,7 +149,6 @@ class PromotionController extends AbstractController
         ]);
     }
 
-
     #[Route('/listPromotion/{uid}/{langUserPhone}', name: 'listPromotion', methods: ['POST', "GET"])]
     public function listPromotion(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
@@ -163,7 +158,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromo', name: 'newPromo', methods: ['POST'])]
-    public function newPromo(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    public function newPromo(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
         
@@ -201,22 +196,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
-            ]);
-        }
-
-        $formulBoost = $formuleBoostRepository->find($idFormulBoost);
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
         if(!$formulBoost){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -243,18 +223,28 @@ class PromotionController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
-                'message' => "Votre solde bonus est insuffisant.\nParrainé des utilisateurs pour augmenté votre solde bonus.",
+                'message' => "Votre solde bonus est insuffisant.\nFaite une Promotion Payante ou parrainé des utilisateurs pour augmenté votre solde bonus.",
             ]);
         }
         
         $user->debitSoldeBonus($formulBoost->getPrix());
 
+        $DSBH = new DSBonusHistorique();
+        if($user->getLang() == "fr") {
+            $DSBH->setTitre("Promotion Affaire");
+        } else {
+            $DSBH->setTitre("Business Promotion");
+        }
+        $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
+        $this->em->persist($DSBH);
+
         $promotion = $promotionRepository->find($idPromotion);
 
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
-            $promotion->setFormuleBoost($formulBoost)
+            $promotion->setFormulePromoAffaire($formulBoost)
                 ->setDateDebut(new DateTime())
                 ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
+                ->setReferencement($formulBoost->getReferencement())
                 ->setStatus(3)
             ;
                 
@@ -279,18 +269,33 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
-    public function newPromoPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
+    public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
-        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
-        FedaPay::setEnvironment('live');
-
-        $datas = $request->request;
-        
+        $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
+        $uid = $datas->get('uid');
+
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        if(!$envPaiementApi) {
+            $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Payment error. Please contact the administrators.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+            ]);
+        }
+        FedaPay::setApiKey($envPaiementApi->getApiKey());
+        FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
         $idPromotion = $datas->get('idPromotion');
-        $uid = $datas->get('uid');
         $idFormulBoost = $datas->get('idFormulBoost');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');
@@ -322,22 +327,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please confirm your email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez confirmez votre adresse mail.",
-            ]);
-        }
-
-        $formulBoost = $formuleBoostRepository->find($idFormulBoost);
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
         if(!$formulBoost){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -356,9 +346,9 @@ class PromotionController extends AbstractController
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
             }
-            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
 
@@ -410,7 +400,7 @@ class PromotionController extends AbstractController
         $promotion = $promotionRepository->find($idPromotion);
 
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
-            $promotion->setFormuleBoost($formulBoost);
+            $promotion->setFormulePromoAffaire($formulBoost);
             
             $transaction = Transaction::create($array_create_transaction);
 
@@ -433,9 +423,24 @@ class PromotionController extends AbstractController
 
             $this->em->flush();
 
-            $token = $transaction->generateToken()->token;
-            $mode = $valueMethodePaiement;
-            $transaction->sendNowWithToken($mode, $token);
+            try {
+                $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
 
             return new JsonResponse([
                 'error' => false,

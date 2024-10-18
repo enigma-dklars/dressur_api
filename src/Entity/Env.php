@@ -32,6 +32,45 @@ class Env
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $linkLocalServer = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $versionDressurBot = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $usersParrainer = [];
+
+    #[ORM\Column(nullable: true)]
+    private ?array $userBanned = null;
+
+    public function addUsersParrainer($tel_or_mail): self
+    {
+        if($this->usersParrainer == NULL) {
+            $this->usersParrainer = [];
+        }
+        if (!in_array($tel_or_mail, $this->usersParrainer)) {
+            array_push($this->usersParrainer, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function addUsersTel($tel_or_mail): self
+    {
+        if (!in_array($tel_or_mail, $this->usersTel)) {
+            array_push($this->usersTel, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function addUserBanned($tel_or_mail): self
+    {
+        if($this->userBanned == Null) {
+            $this->userBanned = [];
+        }
+        if (!in_array($tel_or_mail, $this->userBanned)) {
+            array_push($this->userBanned, $tel_or_mail);
+        }
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -105,6 +144,42 @@ class Env
     public function setLinkLocalServer(?string $linkLocalServer): self
     {
         $this->linkLocalServer = $linkLocalServer;
+
+        return $this;
+    }
+
+    public function getVersionDressurBot(): ?string
+    {
+        return $this->versionDressurBot;
+    }
+
+    public function setVersionDressurBot(?string $versionDressurBot): static
+    {
+        $this->versionDressurBot = $versionDressurBot;
+
+        return $this;
+    }
+
+    public function getUsersParrainer(): ?array
+    {
+        return $this->usersParrainer;
+    }
+
+    public function setUsersParrainer(?array $usersParrainer): static
+    {
+        $this->usersParrainer = $usersParrainer;
+
+        return $this;
+    }
+
+    public function getUserBanned(): ?array
+    {
+        return $this->userBanned;
+    }
+
+    public function setUserBanned(?array $userBanned): static
+    {
+        $this->userBanned = $userBanned;
 
         return $this;
     }

@@ -1,0 +1,34 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DSBonus{% endblock %}
+
+{% block body %}
+    <h1>DSBonus</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ d_s_bonu.id }}</td>
+            </tr>
+            <tr>
+                <th>Code</th>
+                <td>{{ d_s_bonu.code }}</td>
+            </tr>
+            <tr>
+                <th>Montant</th>
+                <td>{{ d_s_bonu.montant }}</td>
+            </tr>
+            <tr>
+                <th>DateExp</th>
+                <td>{{ d_s_bonu.dateExp ? d_s_bonu.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_d_s_bonus_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_d_s_bonus_edit', {'id': d_s_bonu.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_ds_bonus/_delete_form.html.twig') }}
+{% endblock %}

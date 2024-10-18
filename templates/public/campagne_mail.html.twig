@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Planifiez des campagnes mail efficaces avec Dressur. Envoyez des emails de 10 à 10 000 destinataires et boostez votre communication sur Dressur Mobile et Web." %}
+
+{% set title = "Campagne Mail" %}
+
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="Dressur, Campagne Mail, email marketing, communication, Dressur Mobile, Dressur Web, automatisation email">
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div class="mb-3 h6">
+            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Campagne Mail</span>
+        </div>
+        <!-- Header -->
+        <header class="text-white text-center py-5 rounded" style="background-color: #2a4b9a !important;">
+            <div class="container">
+                <h1 class="display-5">Planifiez vos Campagnes Mail avec Dressur</h1>
+                <p class="lead">Envoyez des emails à des milliers de destinataires avec facilité.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" class="btn btn-light btn-lg mb-3">Télécharger sur Google Play</a>
+                <a href="{{path('app_inscription')}}" class="btn btn-light btn-lg mb-3">S'inscrire</a>
+            </div>
+        </header>
+
+        <!-- Features Section -->
+        <section id="features" class="py-5">
+            <div class="container">
+                <h2 class="text-center">Pourquoi choisir le service Campagne Mail de Dressur ?</h2>
+                <p class="text-center lead mb-4">Optimisez votre communication par email avec nos fonctionnalités avancées.</p>
+                <div class="row g-3">
+                    <div class="col-md-6 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Grande Capacité</h5>
+                                <p class="card-text mt-3">Planifiez des campagnes avec 10 à 10 000 adresses mails comme destinataires. Adapté à tous vos besoins de communication, petits ou grands.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Simplicité et Efficacité</h5>
+                                <p class="card-text mt-3">Interface intuitive pour créer et envoyer vos campagnes en quelques clics. Gagnez du temps et concentrez-vous sur votre message.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Compatibilité Mobile et Web</h5>
+                                <p class="card-text mt-3">Disponible sur Dressur Mobile et Dressur Web. Planifiez et suivez vos campagnes depuis n'importe où.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Suivi des Performances</h5>
+                                <p class="card-text mt-3">Analysez les résultats de vos campagnes avec des statistiques détaillées. Améliorez vos futurs envois grâce à des données précises.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Download Section -->
+        <section id="download" class="pb-5">
+            <div class="container text-center">
+                <div class="card mb-0">
+                    <div class="card-body py-4">
+                        <h2>Commencez dès aujourd'hui</h2>
+                        <p class="lead py-3">Inscrivez-vous sur Dressur pour accéder à notre service de campagne mail et bien plus encore.</p>
+                        <a href="/inscription" class="btn btn-primary btn-lg">S'inscrire sur Dressur</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container mb-3">
+                <h1 class="fs-4 fw-semibold mb-3"><i class="fs-5 fas fa-play"></i> Autres Services sur Dressur Mobile et Web</h1>
+                <div class="row g-3">
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-users fs-1 mb-3 text-primary"></i>
+                                    <h5>Trouvez de nouveaux contacts</h5>
+                                    <p>Nos algorithmes intelligents vous affichent les contacts en fonction de vos préférences pays et centre d'intérêt.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-clock fs-1 mb-3 text-primary"></i>
+                                    <h5>Gagnez du temps</h5>
+                                    <p>Les contacts que vous enregistrez sont automatiquement ajoutés à votre téléphone et vos coordonnées sont ajoutées dans celui de votre contact.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fa-brands fa-android fs-1 mb-3 text-primary"></i>
+                                    <h5>Dressur Bot</h5>
+                                    <p>
+                                        Dressur Bot est une application Windows qui permet d'automatiser l'envoi de messages via WhatsApp Web ou WhatsApp Desktop.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-bullhorn fs-1 mb-3 text-primary"></i>
+                                    <h5>Promouvez vos produits</h5>
+                                    <p>Faites connaître vos produits, services, événements, etc. avec des promotions ciblées en fonction de vos préférences.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {# <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-envelope fs-1 mb-3 text-primary"></i>
+                                    <h5>Campagnes Mail</h5>
+                                    <p>Lancez des campagnes de mailing vers plus de 10 000 adresses e-mail. Faites la promotion de vos produits, envoyez des newsletters ou des invitations à des événements.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> #}
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-thumbs-up fs-1 mb-3 text-primary"></i>
+                                    <h5>Promotions Réseaux Sociaux</h5>
+                                    <p>Achetez des abonnés, likes, commentaires, partages, etc. sur Facebook, TikTok, Instagram, YouTube et plus encore.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-id-card-alt fs-1 mb-3 text-primary"></i>
+                                    <h5>Carte de Visite Numérique</h5>
+                                    <p>Partagez facilement vos informations de contact avec un QR code moderne et pratique. Plus besoin d'imprimer des centaines de cartes de visite.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}

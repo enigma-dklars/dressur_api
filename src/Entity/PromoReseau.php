@@ -50,12 +50,14 @@ class PromoReseau
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $prixZefame = null;
+
     public function __construct()
     {
         $this->status = 1;
         $this->idZefame = "*****";
         $this->compteurDebut = 0;
-        $this->compteurRestant = 0;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
         /**
@@ -104,6 +106,7 @@ class PromoReseau
     public function setQteDemander(int $qteDemander): self
     {
         $this->qteDemander = $qteDemander;
+        $this->compteurRestant = $qteDemander;
 
         return $this;
     }
@@ -200,6 +203,18 @@ class PromoReseau
     public function setUpdatedAt(\DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getPrixZefame(): ?float
+    {
+        return $this->prixZefame;
+    }
+
+    public function setPrixZefame(?float $prixZefame): static
+    {
+        $this->prixZefame = $prixZefame;
 
         return $this;
     }

@@ -1,0 +1,58 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Boost index{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">Boost index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_boost_new') }}">Create new</a> #}
+
+    <table class="data-table table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Id</th>
+                <th>User</th>
+                <th width="1">Status</th>
+                <th width="1">Mode</th>
+                <th>Formule</th>
+                <th>DateDebut</th>
+                <th>DateExp</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for boost in boosts %}
+            <tr>
+                {# <td></td> #}
+                <td>{% include "crud_boost/_delete_form.html.twig" %}</td>
+                <td>{{ boost.id }}</td>
+                <td>{{ boost.user.pseudo }}</td>
+                <td class="text-center">
+                    {% if date() < boost.dateDebut and date() < boost.dateExp %}
+                        <span class="badge bg-danger">Programmer</span>
+                    {% endif %}
+                    {% if date() > boost.dateDebut and date() < boost.dateExp %}
+                        <span class="badge bg-warning">En cours</span>
+                    {% endif %}
+                    {% if date() > boost.dateDebut and date() > boost.dateExp %}
+                        <span class="badge bg-success">Terminer</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    {% if boost.mode == "Gratuit" %}
+                        <span class="badge bg-danger">{{boost.mode}}</span>
+                    {% else %}
+                        <span class="badge bg-success">{{boost.mode}}</span>
+                    {% endif %}
+                </td>
+                <td>{{ boost.formuleBoost }}</td>
+                <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}New Boost{% endblock %}
+
+{% block body %}
+    <span>Create new Boost</span> <a href="{{ path('app_crud_boost_index') }}">back to list</a>
+
+    {{ include('crud_boost/_form.html.twig') }}
+
+{% endblock %}

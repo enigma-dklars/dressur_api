@@ -1,0 +1,77 @@
+<div class="bg-danger text-white p-3 rounded">
+    NB: Sélectionnez parmi les pays disponibles. Ces pays sélectionnés seront ceux à partir desquels vous recevrez des propositions de contacts et d'actualités, ainsi que vers lesquels seront orientées vos promotions commerciales et vos boosts contacts.
+</div>
+
+<div hidden>
+    <input type="text" value="{{user.uid}}" id="uid">
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <p class="h4 text-center">Choix des Pays</p>
+        <p class="text-center mb-3">Cliquez sur un pays pour selectionner ou déselectionner.</p>
+        <div class="row g-2">
+            <div class="col-12" hidden>
+                <input type="text" id="uid" value="{{user.uid}}">
+            </div>
+            <div class="col-12">
+                <div class="input-group">
+                    <input type="search" class="form-control" id="searchPays" placeholder="Exp : +229 ou Bénin">
+                    <button class="btn btn-primary savedPaysCgoisie" id="savedPaysCgoisie">Enregistrer les Modifications</button>
+                </div>
+            </div>
+            <div class="col-12">
+                <label class="me-2">
+                    <input type="radio" name="filter" value="all" checked> Tous
+                </label>
+                <label class="me-2">
+                    <input type="radio" name="filter" value="chosen"> Pays choisis
+                </label>
+                <label class="me-2">
+                    <input type="radio" name="filter" value="not-chosen"> Pays non choisis
+                </label>
+            </div>
+            {% for indicatif, nomDuPays in countryCodes %}
+                <div class="col-md-3 country-container">
+                    <btn type="button" class="btn {% if indicatif in paysChoisieJson %}btn-success{% else %}btn-light{% endif %} w-100 text-start un-pays" indicatif="{{indicatif}}">
+                        <p class="m-0 indicatif">+{{indicatif}}</p>
+                        <p class="m-0 small nomDuPays">{{nomDuPays}}</p>
+                    </btn>
+                </div>
+            {% endfor %}
+            <div class="col-12">
+                <button class="btn btn-primary savedPaysCgoisie" id="savedPaysCgoisie">Enregistrer les Modifications</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+    function filterCountries() {
+        var searchTerm = $('#searchPays').val().toLowerCase();
+        var filter = $('input[name="filter"]:checked').val();
+
+        $('.country-container').each(function() {
+            var indicatif = $(this).find('.indicatif').text().toLowerCase();
+            var nomDuPays = $(this).find('.nomDuPays').text().toLowerCase();
+            var isChosen = $(this).find('.btn').hasClass('btn-success');
+
+            var matchesSearch = indicatif.includes(searchTerm) || nomDuPays.includes(searchTerm);
+            var matchesFilter = 
+                (filter === 'all') || 
+                (filter === 'chosen' && isChosen) || 
+                (filter === 'not-chosen' && !isChosen);
+
+            if (matchesSearch && matchesFilter) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    }
+
+    $('#searchPays').on('input', filterCountries);
+    $('input[name="filter"]').on('change', filterCountries);
+});
+</script>

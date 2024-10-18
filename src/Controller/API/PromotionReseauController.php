@@ -25,6 +25,7 @@ use App\Entity\User;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
+use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -35,56 +36,27 @@ class PromotionReseauController extends AbstractController
 {
     private $em;
     private $env;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail)
     {
         $this->em = $em;
         $this->env = $env->find(1);
+        $this->sendMail = $sendMail;
     }
 
 
     #[Route('/listeFormulePromoReseau', name: 'listeFormulePromoReseau', methods: ['POST', 'GET'])]
-    public function listeFormulePromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    public function listeFormulePromoReseau(Request $request, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $listeFormulePromoReseau = [];
-        foreach ($formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
-            $lesFormulesFils = [];
-            foreach ($formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.3 * 700;
-                $prix_service_fcfa = round($prix_service_fcfa) + 1;
-                if($langUserPhone == 'fr') {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
-                } else {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\nQuantity Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescriptionEn();
-                }
-                array_push($lesFormulesFils, [
-                    "value" => $formuleFils->getId(),
-                    "label" => $formuleFils->getTitre(),
-                    "id" => $formuleFils->getId(),
-                    "titre" => $formuleFils->getTitre(),
-                    "prix" => $prix_service_fcfa,
-                    "qte" => $formuleFils->getQte(),
-                    "qteMin" => $formuleFils->getQteMin(),
-                    "qteMax" => $formuleFils->getQteMax(),
-                    "description" => $description_service,
-                ]);
-            }
-
-            array_push($listeFormulePromoReseau, [
-                "id" => $formule->getId(),
-                "titre" => $formule->getTitre(),
-                "iconFlutterName" => $formule->getIconFlutterName(),
-                "lesFormulesFils" => $lesFormulesFils,
-            ]);
-        }
+        
         return new JsonResponse([
             'error' => false,
-            'listeFormulePromoReseau' => $listeFormulePromoReseau,
+            'listeFormulePromoReseau' => $traitementsDS->listeFormulePromoReseau(),
         ]);
     }
 
@@ -99,15 +71,30 @@ class PromotionReseauController extends AbstractController
     #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]
     public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository): Response
     {
-        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
-        FedaPay::setEnvironment('live');
-
-        $datas = $request->request;
-        
+        $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-        
         $uid = $datas->get('uid');
+
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        if(!$envPaiementApi) {
+            $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Payment error. Please contact the administrators.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+            ]);
+        }
+        FedaPay::setApiKey($envPaiementApi->getApiKey());
+        FedaPay::setEnvironment($envPaiementApi->getEnvironment());
+        
         $idFormulePromoReseau = $datas->get('idFormulePromoReseau');
         $qteDemander = $datas->get('qteDemander');
         $prixQteDemander = $datas->get('prixQteDemander');
@@ -129,6 +116,20 @@ class PromotionReseauController extends AbstractController
                 'message' => 'Veuillez renseigner toutes les informations demandées dans le formulaire.',
             ]);
         }
+        if($prixQteDemander > 20000){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "For transactions over 20,000 FCFA, please contact Dressur Support.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Pour les transactions de plus de 20.000 FCFA, veuillez svp contacter l'Assistance Dressur.",
+            ]);
+        }
         $url_promo_en_attente = $promoReseauRepository->findBy(['status' => 1, 'url' => $lien]);
         $url_promo_en_cours = $promoReseauRepository->findBy(['status' => 2, 'url' => $lien]);
         if($url_promo_en_attente || $url_promo_en_cours) {
@@ -147,6 +148,21 @@ class PromotionReseauController extends AbstractController
         }
 
         $user = $userRepository->findOneBy(['uid' => $uid]);
+
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
 
         $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
         if(!$formulePromoReseau) {
@@ -167,9 +183,9 @@ class PromotionReseauController extends AbstractController
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
             }
-            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
 
@@ -226,9 +242,24 @@ class PromotionReseauController extends AbstractController
         $this->em->persist($myTransaction);
         $this->em->flush();
 
-        $token = $transaction->generateToken()->token;
-        $mode = $valueMethodePaiement;
-        $transaction->sendNowWithToken($mode, $token);
+        try {
+            $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+            return new JsonResponse($resultat);
+        } catch (\Throwable $th) {
+            $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "We encountered an error. You will be contacted by an administrator.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+            ]);
+        }
 
         return new JsonResponse([
             'error' => false,

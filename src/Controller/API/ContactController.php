@@ -36,60 +36,29 @@ class ContactController extends AbstractController
         return new JsonResponse($traitementsDS->userContacts($user));
     }
 
-    #[Route('/addUserContact', name: 'addUserContact')]
-    public function addUserContact(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    #[Route('/allUserAddDressur', name: 'addUserContact')]
+    public function addUserContact(UserRepository $userRepository, VerificationsDS $verificationsDS): Response
     {
-        $datas = $request->request;
-        
-        $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $uid = $datas->get('uid');
-        $tel = $datas->get('tel');
-
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
-            ]);
-        }
-        $user = $verificationUser["user"];
-
-        $userAdd = $userRepository->findOneBy(['tel' => $tel]);
-        if(!$userAdd){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
+        try {
+            $allUsers = $userRepository->findAll();
+            foreach ($allUsers as $user) {
+                $dressur = $userRepository->find(2);
+                if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
+                    $user->getContact()->setNewIAdd($dressur);
+                    $dressur->getContact()->setNewAddMe($user);
+                }
             }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-            ]);
-        }
-
-        if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
-            // MOD
-            $user->getContact()->setNewIAdd($userAdd);
-            $userAdd->getContact()->setNewAddMe($user);
             $this->em->flush();
             return new JsonResponse([
                 'error' => false,
             ]);
-        }
+        } catch (\Throwable $th) {
+            throw $th;            
 
-        return new JsonResponse([
-            'error' => true,
-            "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
-            "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
-        ]);
+            return new JsonResponse([
+                'error' => true,
+            ]);
+        }
     }
 
     #[Route('/addUserContactAfterScanneQRCode', name: 'addUserContactAfterScanneQRCode')]
@@ -157,6 +126,7 @@ class ContactController extends AbstractController
             $contactsUser->setNameTel($contact->nameTel)
                 ->setDisplayNameTel($contact->displayNameTel)
                 ->setNumberTel($contact->numberTel)
+                ->setMailTel(isset($contact->mailTel) ? $contact->mailTel : null)
             ;
             $this->em->persist($contactsUser);
         }

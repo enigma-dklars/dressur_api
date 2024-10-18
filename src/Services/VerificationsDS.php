@@ -47,16 +47,16 @@ class VerificationsDS extends AbstractController
     public function messageErreurPermissionAdd($nombreContactAdd, $nombreFilleuls, $max){
         $max = $max + 1;
         if($this->sessionDS->get("langUserPhone") != "fr") {
-            return "You have already added $nombreContactAdd contacts DS. You must have at least $max referrals to be able to continue adding new contacts. Currently, you have $nombreFilleuls godson(s).\n\nWhatsPerson is a community and we cannot let you benefit from its advantages without contributing to its evolution.\n\nTo contribute to its evolution, you must bring others people to use the application. Each user/contact you register came through a user.\n\nAs you will not be able to reach the requested number of referrals, do a Paid Contact Boost for users to add you. THANKS.";
+            return "You have already added $nombreContactAdd contacts DS. You must have at least $max referrals to be able to continue adding new contacts. Currently, you have $nombreFilleuls godson(s).\n\nDressur is a community and we cannot let you benefit from its advantages without contributing to its evolution.\n\nTo contribute to its evolution, you must bring others people to use the application. Each user/contact you register came through a user.\n\nAs you will not be able to reach the requested number of referrals, do a Paid Contact Boost for users to add you. THANKS.";
         }
-        return "Vous avez déjà ajouté $nombreContactAdd contacts DS. Il vous faut avoir au minimum $max filleuls pour pouvoir continuer à ajouter les nouveaux contacts. Actuellement, vous avez $nombreFilleuls filleul(s).\n\nWhatsPerson est une communauté et nous ne pouvons pas vous laisser profité de ses avantages sans contribuer à son évolution.\n\nPour contribuer à son évolution, vous devez amener d'autres personnes à utiliser l'application. Chaque utilisateur/contact que vous enregistrez sont venus par le biais d'un utilisateur.\n\nDans la mesure ou vous ne serez pas capable d'atteindre le nombre de filleuls demandé, faite un Boost Contact Payant pour que les utilisateurs vous ajoute. MERCI.";
+        return "Vous avez déjà ajouté $nombreContactAdd contacts DS. Il vous faut avoir au minimum $max filleuls pour pouvoir continuer à ajouter les nouveaux contacts. Actuellement, vous avez $nombreFilleuls filleul(s).\n\nDressur est une communauté et nous ne pouvons pas vous laisser profité de ses avantages sans contribuer à son évolution.\n\nPour contribuer à son évolution, vous devez amener d'autres personnes à utiliser l'application. Chaque utilisateur/contact que vous enregistrez sont venus par le biais d'un utilisateur.\n\nDans la mesure ou vous ne serez pas capable d'atteindre le nombre de filleuls demandé, faite un Boost Contact Payant pour que les utilisateurs vous ajoute. MERCI.";
     }
 
     public function permissionAdd($user)
     {
         return [
             "permissionAdd" => true,
-            "messageErreurPermissionAdd" => "WhatsPerson",
+            "messageErreurPermissionAdd" => "Dressur",
         ];
         
         $nombreFilleuls = count($user->getFilleuls());
@@ -65,7 +65,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 100){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -79,7 +79,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 200){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -93,7 +93,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 300){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -107,7 +107,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 400){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -121,7 +121,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 500){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -135,7 +135,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 600){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -149,7 +149,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 700){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -163,7 +163,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 800){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -177,7 +177,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 900){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -191,7 +191,7 @@ class VerificationsDS extends AbstractController
             if($nombreContactAdd < 1000){
                 return [
                     "permissionAdd" => true,
-                    "messageErreurPermissionAdd" => "WhatsPerson",
+                    "messageErreurPermissionAdd" => "Dressur",
                 ];
             } else {
                 return [
@@ -204,7 +204,7 @@ class VerificationsDS extends AbstractController
         if($nombreFilleuls >= 100 and $nombreFilleuls <= 109){
             return [
                 "permissionAdd" => true,
-                "messageErreurPermissionAdd" => "WhatsPerson",
+                "messageErreurPermissionAdd" => "Dressur",
             ];
         }
 
@@ -248,20 +248,20 @@ class VerificationsDS extends AbstractController
             $pseudoSansChiffre = str_replace($i, '', $pseudoSansChiffre);
         }
 
-        if(strlen($pseudoSansChiffre) <= 1){
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Your Nickname contains forbidden words...',
-                ];
-            }
-            return [
-                'error' => true,
-                'titre' => 'Refus!',
-                'message' => "Votre Pseudo doit contenir au minimum deux lettres.",
-            ];
-        }
+        // if(strlen($pseudoSansChiffre) <= 1){
+        //     if($this->sessionDS->get("langUserPhone") != "fr") {
+        //         return [
+        //             'error' => true,
+        //             'titre' => 'Attention!',
+        //             'message' => 'Your Nickname contains forbidden words...',
+        //         ];
+        //     }
+        //     return [
+        //         'error' => true,
+        //         'titre' => 'Refus!',
+        //         'message' => "Votre Pseudo doit contenir au minimum deux lettres.",
+        //     ];
+        // }
 
         if(strlen($pseudo) < 3) {
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -278,18 +278,18 @@ class VerificationsDS extends AbstractController
             ];
         }
 
-        if(strlen($pseudo) > 10){
+        if(strlen($pseudo) > 14){
             if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
-                    'message' => 'Nickname too long! 10 characters maximum...',
+                    'message' => 'Nickname too long! 14 characters maximum...',
                 ];
             }
             return [
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Pseudo trop long! 10 caractères maximum...',
+                'message' => 'Pseudo trop long! 14 caractères maximum...',
             ];
         }
 
@@ -345,7 +345,7 @@ class VerificationsDS extends AbstractController
                     'deleted' => false,
                     'blocked' => true,
                     'titre' => 'Mistake!',
-                    'message' => 'This account has been blocked after several reports.\nIf this is an error, please contact WhatsPerson Support by WhatsApp.',
+                    'message' => 'This account has been blocked.\nIf this is an error, please contact Dressur Support by WhatsApp.',
                 ];
             }
             return [
@@ -353,7 +353,7 @@ class VerificationsDS extends AbstractController
                 'deleted' => false,
                 'blocked' => true,
                 'titre' => 'Erreur!',
-                'message' => "Ce compte à été bloquer après plusieurs signalements.\nS'il s'agit d'une erreur, veuillez contactez l'Assistance par WhatsApp.",
+                'message' => "Ce compte à été bloquer.\nS'il s'agit d'une erreur, veuillez contactez l'Assistance Dressur par WhatsApp.",
             ];
         }
 

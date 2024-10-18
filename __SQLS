@@ -1,0 +1,30 @@
+# connaitre le nombre de parrainer par user
+SELECT 
+  u.id AS user_id,
+  u.pseudo AS user_pseudo,
+  COUNT(p.id) AS parrain_count
+FROM 
+  user u
+LEFT JOIN 
+  user p ON u.id = p.parrain_id
+GROUP BY 
+  u.id, u.pseudo
+ORDER BY 
+  parrain_count DESC;
+
+# connaitre le nombre de user par pays
+SELECT pays, COUNT(*) AS nombre_utilisateurs
+FROM user
+GROUP BY pays ORDER BY nombre_utilisateurs DESC;
+
+# retirer les espaces dans les numero de tel de la table contacts_user
+UPDATE contacts_user
+SET number_tel = REPLACE(number_tel, ' ', '');
+
+# retirer les + dans les numero de tel de la table contacts_user
+UPDATE contacts_user
+SET number_tel = REPLACE(number_tel, '+', '');
+
+# supprimer les occurence ou le numero a moins de 8 carracteres
+DELETE FROM contacts_user
+WHERE LENGTH(REPLACE(number_tel, ' ', '')) < 8;

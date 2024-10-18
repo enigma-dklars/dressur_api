@@ -20,6 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleCampagneMailRepository;
+use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -29,11 +30,13 @@ class CampagneMailController extends AbstractController
 {
     private $em;
     private $env;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail)
     {
         $this->em = $em;
-        $this->env = $env->find(1); 
+        $this->env = $env->find(1);
+        $this->sendMail = $sendMail;
     }    
 
     #[Route('/listeFormuleCampagneMail', name: 'listeFormuleCampagneMail', methods: ['POST', 'GET'])]
@@ -87,6 +90,23 @@ class CampagneMailController extends AbstractController
             ]);
         }
 
+        // compter le nombre d'adresse mail qui doivent recevoir la campagne
+        $nbr_sendto = count(explode(",", str_replace(" ", "", $sendto)));
+        if(!($nbr_sendto <= $formuleCampagneMail->getNombreMail())) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'With this email campaign formula, you cannot exceed '.$formuleCampagneMail->getNombreMail().' recipient email addresses.',
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Avec cette formule de campagne mail, vous ne pouvez pas dépasser '.$formuleCampagneMail->getNombreMail().' adresses mail destinataire.',
+            ]);
+        }
+
         if(!$titre or !$sujet or !$replyto or !$sendto or !$contentmail) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -113,21 +133,6 @@ class CampagneMailController extends AbstractController
             ]);
         }
         $user = $verificationUser["user"];
-
-        if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
-            ]);
-        }
 
         if(!$user->getMailIsVerified()){
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -172,15 +177,30 @@ class CampagneMailController extends AbstractController
     #[Route('/newCampageMailPayant/paiement', name: 'newCampageMailPayant', methods: ['POST'])]
     public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, TraitementsDS $traitementsDS): Response
     {
-        FedaPay::setApiKey("sk_live_4Q00INMNKwiJcdt17fNJyOUo");
-        FedaPay::setEnvironment('live');
-
-        $datas = $request->request;
-        
+        $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-
         $uid = $datas->get('uid');
+
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        if(!$envPaiementApi) {
+            $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Payment error. Please contact the administrators.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+            ]);
+        }
+        FedaPay::setApiKey($envPaiementApi->getApiKey());
+        FedaPay::setEnvironment($envPaiementApi->getEnvironment());
+
         $idCampagneMail = $datas->get('idCampagneMail');
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel');
@@ -196,21 +216,6 @@ class CampagneMailController extends AbstractController
             ]);
         }
         $user = $verificationUser["user"];
-
-        if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
-            ]);
-        }
 
         if(!$user->getMailIsVerified()){
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -243,12 +248,27 @@ class CampagneMailController extends AbstractController
             ]);
         }
 
+        if($campagneMail->getFormuleCampagneMail()->getPrix() > 20000){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "For transactions over 20,000 FCFA, please contact Dressur Support.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Pour les transactions de plus de 20.000 FCFA, veuillez svp contacter l'Assistance Dressur.",
+            ]);
+        }
+
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix Exp(+229 62005500)."]);
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
             }
-            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix Exp(+229 62005500)."]);
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
 
@@ -320,9 +340,24 @@ class CampagneMailController extends AbstractController
 
             $this->em->flush();
 
-            $token = $transaction->generateToken()->token;
-            $mode = $valueMethodePaiement;
-            $transaction->sendNowWithToken($mode, $token);
+            try {
+                $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
 
             return new JsonResponse([
                 'error' => false,
@@ -332,13 +367,13 @@ class CampagneMailController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Whoops!',
-                'message' => "This promotion has already been started.",
+                'message' => "This campaign has already been started.",
             ]);                
         }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Oups!',
-            'message' => "Cette promotion est déjà été démarrée.",
+            'message' => "Cette campagne est déjà été démarrée.",
         ]);
     }
 }

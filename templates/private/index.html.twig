@@ -1,0 +1,268 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DASHBOARD{% endblock %}
+
+{% block body %}
+
+    <div hidden>
+        <input type="text" id="uid" value="{{user.uid}}">
+    </div>
+    
+    <div class="row g-3 mb-3">
+        {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
+            user.telIsVerified == false or
+            user.mailIsVerified == false or
+            user.nom|replace({' ': ''}) == '' or
+            user.nom is null %}
+
+        {% endif %}
+
+        {% if user.telIsVerified == false %}
+            <div class="{% if user.mailIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-0 text-secondary"><i class="fab fa-whatsapp me-1"></i> Confirmation du numéro WhatsApp</p>
+                        <p class="mt-1 mb-2">
+                            Assurez-vous de nous envoyer <span class="text-success fw-bold">WhatsApp Confirmation</span> avec le numéro WhatsApp utiliser pour créer votre compte Dressur. 
+                            Cliquez juste sur <span class="mx-1 px-2 rounded bg-success text-white">Demander</span> ci-dessous pour demander la confirmation de votre numéro WhatsApp. 
+                            Les demandes sont traitées le plus tôt possible, ne vous inquiétez pas. 
+                        </p>
+                        <a href="https://wa.me/22964044294??text=WhatsApp Confirmation" target="_blank" class="btn btn-sm btn-success">Demander</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if user.mailIsVerified == false %}
+            <div class="{% if user.telIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-0 text-secondary"><i class="fas fa-envelope me-1"></i> Confirmation de l'adresse mail</p>
+                        <p class="mt-1 mb-2">
+                            Cliquez sur <span class="mx-1 px-2 rounded bg-primary text-white">Envoyer le code</span> pour recevoir un nouveau code de confirmation de votre adresse mail (<span class="mx-1 px-2 rounded bg-primary text-white">{{user.mail}}</span>). Contactez simplement l'Assistance Dressur après 2H d'attente...
+                        </p>
+                        <div class="mb-0">
+                            <div class="mt-0 mb-0 msgError" id="msgErrorValideMail" style="display: none;"></div>
+                        </div>
+                        <label for="" hidden>Code reçu par mail</label>
+                        <input type="text" class="form-control form-control-sm mt-1 mb-2 getInfo getInfoVerifMail" placeholder="Code reçu par mail" id="codeVerifMail">
+                        <div class="text-end">
+                            <button class="btn btn-sm btn-primary me-1" id="envoyerCodeMail">Envoyer le Code</button>
+                            <button class="btn btn-sm btn-primary ms-1" id="validerVerifMail">Valider</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if user.nom|replace({' ': ''}) == '' or user.nom is null %}
+            <div class="col-12">
+                <a href="javascript:;" class="dropdown-item menu-element" url="/editprofil">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="setting-icon"><i class="fas fa-user fs-4"></i></div>
+                                <div class="setting-text ms-3 fs-6"><span>Compléter votre Profil</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if user.nombreContactDispo <= 0 and user.boostEnCours == false %}
+            <div class="col-12">
+                <a href="javascript:;" class="dropdown-item menu-element" url="/newboostcontact">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="setting-icon"><i class="fas fa-user-plus fs-4"></i></div>
+                                <div class="setting-text ms-3 fs-6"><span>Faire un Boost Contact pour avoir plus de contact</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if user.nombreContactDispo > 0 %}
+            <div class="col-md-12">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-2 text-primary fw-normal fs-4">
+                            <i class="fas fa-users-rectangle me-1"></i> ADD DS Disponible
+                        </p>
+                        <p class="mb-2 fs-6 mb-1">
+                            {{user.nombreContactDispo}} contact(s) disponible(s) selon vos préférences pays.
+                        </p>
+                        <p class="px-3 py-2 mb-2 small bg-danger rounded text-white">
+                            Note : Vous utilisez la version web de Dressur. L'enregistrement des contacts ne sera donc pas automatique dans votre téléphone. Pour enregistrer les contacts obtenus dans votre téléphone, veuillez accéder à la page "Liste des contacts" sur Dressur Web et exporter les contacts au format VCF ou CSV, puis les importer dans votre téléphone. Afin de vous assurer de ne manquer aucun nouveau contact, connectez-vous deux fois par jour pour effectuer cette action.
+                        </p>
+                        <div class="mt-2 mb-1">
+                            {% if user.telIsVerified == true %}
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts">
+                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
+                                </button>
+                            {% else %}
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#doit_confirmer_le_numéro_whatsapp">
+                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
+                                </button>
+                            {% endif %}
+                            <a class="btn btn-md btn-info menu-element" url="/contact">Liste des contacts</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal fade" id="doit_confirmer_le_numéro_whatsapp" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <p class="mb-0 text-secondary"><i class="fab fa-whatsapp me-1"></i> Confirmation du numéro WhatsApp</p>
+                            <p class="mt-1 mb-2">
+                                Assurez-vous de nous envoyer <span class="text-success fw-bold">WhatsApp Confirmation</span> avec le numéro WhatsApp utiliser pour créer votre compte Dressur. 
+                                Cliquez juste sur <span class="mx-1 px-2 rounded bg-success text-white">Demander</span> ci-dessous pour demander la confirmation de votre numéro WhatsApp. 
+                                Les demandes sont traitées le plus tôt possible, ne vous inquiétez pas. 
+                            </p>
+                            <a href="https://wa.me/22964044294??text=WhatsApp Confirmation" target="_blank" class="btn btn-sm btn-success">Demander</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
+        <div class="col">
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Impressions</p>
+                        <h4 class="my-1">{{countImpressions}}</h4>
+                        <p class="mb-0 font-13 text-purple"><i class="bi bi-caret-up-fill"></i> Cumuler Affaires</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-purple text-white ms-auto"><i class="bi bi-basket2-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Bonus</p>
+                        <h4 class="my-1">{{bonus_user}}</h4>
+                        <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Points Bonus</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="bi bi-currency-exchange"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Contacts</p>
+                        <h4 class="my-1">{{contacts_user}}</h4>
+                        <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Depuis Dressur</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Vues</p>
+                        <h4 class="my-1">{{countVues}}</h4>
+                        <p class="mb-0 font-13 text-info"><i class="bi bi-caret-up-fill"></i> Cumuler Affaires</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-info text-white ms-auto"><i class="bi bi-bar-chart-line-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div><!--end row-->
+
+    <div class="mb-3">
+        {{actu|raw}}
+    </div>
+
+    <div class="card radius-10 mb-3">
+        <div class="card-header bg-transparent py-3">
+            <h5 class="mb-0">Top 3 Affaires</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                {% for actu in top_trois_affaires %}
+                    <div class="col-md-4">
+                        <div class="card mb-0 shadow">
+                            <img src="/promotion/{{actu.image}}" class="card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                            <div class="card-body">
+                                <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                                    {{actu.description}}
+                                </p>
+                                <div class="row">
+                                    <div class="col-7">
+                                        <div class="row g-3">
+                                            <div class="col-auto"> <i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
+                                            <div class="col-auto"> <i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-5 text-end">
+                                        <button class="btn btn-light px-1 btn-sm shar-actu p-0 border-0" pseudoAnnonceur="{{actu.pseudoAnnonceur}}" description="{{actu.description}}" whatsappNumber="{{actu.whatsappNumber}}" image="{{actu.image}}">
+                                            <i class="fas fa-share-nodes me-1"></i> Partager
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            
+                        {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
+            
+                        {% set encodedText = text|url_encode %}
+            
+                        {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
+            
+                        <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-body p-0">
+                                        <img src="/promotion/{{actu.image}}" class="card-img-top" alt="...">
+                                        <p class="text-end px-3 pt-3 mb-0">
+                                            <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm mb-3 rounded-5">Contacter l'annonceur</a>
+                                        </p>
+                                        <p class="px-3">
+                                            {{actu.description|nl2br}}
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

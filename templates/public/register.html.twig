@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Inscrivez-vous dès aujourd'hui sur Dressur pour gérer vos compétences et garantir une grande visibilité. Entrez vos informations essentielles pour créer votre compte." %}
+{% set title = "S'inscrire" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="inscription, Dressur inscription, gérer compétences, visibilité, créer compte, réseau social, marketing digital, Dressur web">
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+<br>
+    <div class="authentication-content">
+        <div class="container">
+            <div class="mt-5">
+                <div class="card rounded-0 overflow-hidden shadow-none border">
+                    <div class="row g-0">
+                        <div class="col-12 order-1 col-xl-5 d-flex align-items-center justify-content-center border-end">
+                        <img src="/assets/images/placeholder.png" data-original="assets/images/error/auth-img-register3.png" class="lazy img-fluid" alt="">
+                        </div>
+                        <div class="col-12 col-xl-7 order-xl-2">
+                        <div class="card-body p-4 p-sm-5">
+                            <h5 class="card-title fs-3">Inscription</h5>
+                            <p class="card-text text-center mb-4">Entrer vos informations primordiales!</p>
+                            <form class="form-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="mt-0" id="msgError" style="display: none;"></div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="row g-2">
+                                            {# <div class="col-md-3">
+                                                <label for="inputPseudo" class="form-label">Pseudo</label>
+                                                <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-person-circle fs-6"></i></div>
+                                                <input type="email" class="form-control getInfo radius-30 ps-5" id="inputPseudo" placeholder="Pseudo">
+                                                </div>
+                                            </div> #}
+                                            <div class="col-md-6">
+                                                <label for="inputNumeroWhatsApp" class="form-label">Numéro WhatsApp</label>
+                                                <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-person-circle fs-6"></i></div>
+                                                <input type="email" class="form-control getInfo radius-30 ps-5" id="inputNumeroWhatsApp" placeholder="Numéro WhatsApp">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="inputEmail" class="form-label">E-mail</label>
+                                                <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-envelope-fill fs-6"></i></div>
+                                                <input type="email" class="form-control getInfo radius-30 ps-5" id="inputEmail" placeholder="E-mail">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <label for="inputMotPasse" class="form-label">Mot de passe</label>
+                                                <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-lock-fill fs-6"></i></div>
+                                                <input type="password" class="form-control getInfo radius-30 ps-5" id="inputMotPasse" placeholder="Mot de passe">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="inputConfirmerMotPasse" class="form-label">Confirmer le mot de passe</label>
+                                                <div class="ms-auto position-relative">
+                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-lock-fill fs-6"></i></div>
+                                                <input type="password" class="form-control getInfo radius-30 ps-5" id="inputConfirmerMotPasse" placeholder="Confirmation du mot de passe">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="row g-2">
+                                            <div class="col-md-6 text-center order-1">
+                                                <p></p>
+                                                <p class="mb-0">Vous avez déjà un compte? <a href="{{path('app_connexion')}}">Se connecter ici</a></p>
+                                            </div>
+                                            <div class="col-md-6 order-xl-2">
+                                                <div class="d-grid">
+                                                    <button type="button" class="btn btn-primary radius-30" id="inscription">INSCRIPTION</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br><br><br><br>
+{% endblock %}

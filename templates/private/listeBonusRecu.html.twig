@@ -1,0 +1,17 @@
+<div class="row g-3">
+    {% for unBonus in lesBonus %}
+        <div class="col-md-4">
+            <div class="card mb-0 h-100">
+                <div class="card-body">
+                    <p class="text-end">{{unBonus.montant}}</p>
+                    <p class="pt-2 mb-0">{{unBonus.titre}}</p>
+                    <p class="pt-2 mb-0">{{unBonus.date}}</p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Vous n'avez pas encore parrainer un utilisateur.
+        </div>
+    {% endfor %}
+</div>

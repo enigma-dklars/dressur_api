@@ -23,6 +23,7 @@ use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\UserRepository;
+use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -39,13 +40,59 @@ class AdminController extends AbstractController
         $this->env = $env->find(1); 
     }
 
+    #[Route('/sendMailToDressur', name: 'sendMailToDressur')]
+    public function sendMailToDressur(Request $request, SendMail $sendMail): Response
+    {
+        $objet = $request->get("objet");
+        $name = $request->get("name");
+        $email = $request->get("email");
+        $message = $request->get("message");
+
+        if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return new Response("<b>$email</b> n'est pas une adresse e-mail valide.");
+        }
+
+        $html = $this->renderView('emails/contactMail.html.twig',[
+            "objet" => $objet,
+            "name" => $name,
+            "email" => $email,
+            "message" => $message,
+        ]);
+
+        try {
+            $sendMail->smtpMail(
+                "dressur.ds@gmail.com", 
+                "Page Contact Web Dressur",
+                $html,
+                $email,
+                "Message From Web No ".time(), 
+            );
+            
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Mail non envoyer.",
+            ]);
+        }
+
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Erreur!',
+            'message' => "Erreur de traitement.",
+        ]);
+    }
+
     #[Route('/traitementAdmin', name: 'traitementAdmin', methods: ['POST', "GET"])]
     public function traitementAdmin(CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, UserRepository $userRepository): Response
     {
         $traitementAdmin = [];
         if(count($campagneMailRepository->findBy(['status' => 1])) >= 1) { array_push($traitementAdmin, "Campage Mail En Attente");}
         if(count($promotionRepository->findBy(['status' => 1])) >= 1) { array_push($traitementAdmin, "Promotion Affaire En Attente");}
-        if(count($userRepository->findBy(['telIsVerified' => false])) >= 1) { array_push($traitementAdmin, "Validation Numéro En Attente");}
+        if(count($userRepository->findBy(['telIsVerified' => false, 'blocked' => false])) >= 1) { array_push($traitementAdmin, "Validation Numéro En Attente");}
         return new JsonResponse($traitementAdmin);
     }
 
@@ -99,7 +146,7 @@ class AdminController extends AbstractController
     public function adminNumWhatsApp(TraitementsDS $traitementsDS, SessionDS $sessionDS, UserRepository $userRepository): Response
     {
         $sessionDS->set("langUserPhone", "fr");        
-        return new JsonResponse($traitementsDS->adminListeContacts($userRepository->findBy(['telIsVerified' => false], ["id" => 'DESC'])));
+        return new JsonResponse($traitementsDS->adminListeContacts($userRepository->findBy(['telIsVerified' => false, 'blocked' => false], ["id" => 'DESC'])));
     }
 
     #[Route('/adminNumWhatsApp/accepter/{uid}', name: 'adminNumWhatsAppAccepter', methods: ['POST', "GET"])]

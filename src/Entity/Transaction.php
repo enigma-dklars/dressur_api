@@ -18,7 +18,7 @@ class Transaction
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $idTransaction;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $reference;
 
     #[ORM\Column(type: 'integer', nullable: true)]
@@ -47,6 +47,9 @@ class Transaction
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $transactionFor = null;
+
+    #[ORM\ManyToOne]
+    private ?UserBot $userBot = null;
 
     public function __construct()
     {
@@ -183,6 +186,18 @@ class Transaction
     public function setTransactionFor(?string $transactionFor): self
     {
         $this->transactionFor = $transactionFor;
+        return $this;
+    }
+
+    public function getUserBot(): ?UserBot
+    {
+        return $this->userBot;
+    }
+
+    public function setUserBot(?UserBot $userBot): static
+    {
+        $this->userBot = $userBot;
+
         return $this;
     }
 }

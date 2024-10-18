@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_crud_d_s_bonus_historique_delete', {'id': d_s_bonus_historique.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ d_s_bonus_historique.id) }}">
+    <a href="{{ path('app_crud_d_s_bonus_historique_show', {'id': d_s_bonus_historique.id}) }}" class="btn btn-sm btn-info">Show</a>
+    <a href="{{ path('app_crud_d_s_bonus_historique_edit', {'id': d_s_bonus_historique.id}) }}" class="btn btn-sm btn-success">Edit</a>
+    <button class="btn btn-sm btn-danger">Delete</button>
+</form>
