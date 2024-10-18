@@ -63,17 +63,17 @@ class PromotionController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
-        $text = $datas->get('text');
-
-        $image = $files->get('image');
-
-        if ($text === null || $image === null) {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => "Erreur",
-                'message' => "Veuillez fournir un texte et une image.",
-            ]);
-        }
+        $titre_demande_poste_rechercher = $datas->get('titre_demande_poste_rechercher');
+        $description_profil_demandeur = $datas->get('description_profil_demandeur');
+        $competence_qualification = $datas->get('competence_qualification');
+        $niveau_experience = $datas->get('niveau_experience');
+        $secteur_activite_rechercher = $datas->get('secteur_activite_rechercher');
+        $type_contrat_rechercher = $datas->get('type_contrat_rechercher');
+        $localisation_souhaite = $datas->get('localisation_souhaite');
+        $salaire_souhaite = $datas->get('salaire_souhaite');
+        $langues_parle = $datas->get('langues_parle');
+        $lien_portfolio = $datas->get('lien_portfolio');
+        $coordonne_demandeur = $datas->get('coordonne_demandeur');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -102,40 +102,38 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        // Vérification et traitement de l'image
-        if (!$image->isValid()) {
+        if(!$titre_demande_poste_rechercher || !$description_profil_demandeur || !$competence_qualification|| !$niveau_experience|| !$secteur_activite_rechercher|| !$type_contrat_rechercher|| !$localisation_souhaite|| !$salaire_souhaite|| !$langues_parle|| !$lien_portfolio|| !$coordonne_demandeur){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
-                    'message' => "Error during image processing.",
+                    'message' => "Please fill in all fields...",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Erreur lors du traitement de l'image.",
-            ]);
-        }
-
-        // Générer un nom de fichier unique
-        $fileName = "dressur_pro_".time().'.'.$image->getClientOriginalExtension();
-
-        // Déplacer l'image vers le dossier de promotion dans le dossier public
-        try {
-            $image->move($this->getParameter('promotion_directory'), $fileName);
-        } catch (FileException $e) {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => $e->getMessage(),
+                'message' => "Veuillez svp renseigner tous les champs...",
             ]);
         }
 
         $promotion = new Promotion();
         $promotion->setUser($user)
-            ->setImage($fileName)
-            ->setDescription($text)
+            ->setTypePromotionAffaire("dmd_emploi")
+            ->setImage("dmd_emploi.jpg")
+            ->setAnnotherInfo([
+                'titre_demande_poste_rechercher' => $titre_demande_poste_rechercher,
+                'description_profil_demandeur' => $description_profil_demandeur,
+                'competence_qualification' => $competence_qualification,
+                'niveau_experience' => $niveau_experience,
+                'secteur_activite_rechercher' => $secteur_activite_rechercher,
+                'type_contrat_rechercher' => $type_contrat_rechercher,
+                'localisation_souhaite' => $localisation_souhaite,
+                'salaire_souhaite' => $salaire_souhaite,
+                'langues_parle' => $langues_parle,
+                'lien_portfolio' => $lien_portfolio,
+                'coordonne_demandeur' => $coordonne_demandeur,
+            ])
         ;
         $promotionRepository->save($promotion, true);
 
