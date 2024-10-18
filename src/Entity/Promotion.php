@@ -21,10 +21,10 @@ class Promotion
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $image = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -39,7 +39,7 @@ class Promotion
     #[ORM\Column]
     private ?int $nombreDeVue = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $mode = null;
 
     #[ORM\Column(nullable: true)]
@@ -60,6 +60,12 @@ class Promotion
     #[ORM\Column]
     private ?bool $referencement = null;
 
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    private ?array $annotherInfo = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $typePromotionAffaire = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -70,6 +76,7 @@ class Promotion
         $this->nombreDeVue = 0;
         $this->nombreImpression = 0;
         $this->whoSaw = [];
+        $this->typePromotionAffaire = "produit_service";
         /**
          * status values description
          * 0 : rejeter
@@ -77,6 +84,13 @@ class Promotion
          * 2 : accepter et en attente de paiement
          * 3 : accepter et en cours
          * 4 : terminer
+         */
+
+        /**
+         * typePromotionAffaire description
+         * produit_service
+         * dmd_emploi
+         * offre_emploi
          */
     }
 
@@ -282,6 +296,30 @@ class Promotion
     public function setReferencement(bool $referencement): static
     {
         $this->referencement = $referencement;
+
+        return $this;
+    }
+
+    public function getAnnotherInfo(): ?array
+    {
+        return $this->annotherInfo;
+    }
+
+    public function setAnnotherInfo(?array $annotherInfo): static
+    {
+        $this->annotherInfo = $annotherInfo;
+
+        return $this;
+    }
+
+    public function getTypePromotionAffaire(): ?string
+    {
+        return $this->typePromotionAffaire;
+    }
+
+    public function setTypePromotionAffaire(?string $typePromotionAffaire): static
+    {
+        $this->typePromotionAffaire = $typePromotionAffaire;
 
         return $this;
     }
