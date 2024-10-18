@@ -53,6 +53,102 @@ class PromotionController extends AbstractController
         ]);
     }
 
+    #[Route('/newDmdEmploi', name: 'newDmdEmploi', methods: ['POST'])]
+    public function newDmdEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    {
+        $datas = $request->request;
+        $files = $request->files;
+
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $text = $datas->get('text');
+
+        $image = $files->get('image');
+
+        if ($text === null || $image === null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Erreur",
+                'message' => "Veuillez fournir un texte et une image.",
+            ]);
+        }
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
+        // Vérification et traitement de l'image
+        if (!$image->isValid()) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Error during image processing.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur lors du traitement de l'image.",
+            ]);
+        }
+
+        // Générer un nom de fichier unique
+        $fileName = "dressur_pro_".time().'.'.$image->getClientOriginalExtension();
+
+        // Déplacer l'image vers le dossier de promotion dans le dossier public
+        try {
+            $image->move($this->getParameter('promotion_directory'), $fileName);
+        } catch (FileException $e) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        $promotion = new Promotion();
+        $promotion->setUser($user)
+            ->setImage($fileName)
+            ->setDescription($text)
+        ;
+        $promotionRepository->save($promotion, true);
+
+        if($sessionDS->get("langUserPhone") != "fr") { 
+            return new JsonResponse([
+                'error' => false
+            ]); 
+        }
+        return new JsonResponse([
+            'error' => false
+        ]);
+    }
+
     #[Route('/newPromotion', name: 'newPromotion', methods: ['POST'])]
     public function newPromotion(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
