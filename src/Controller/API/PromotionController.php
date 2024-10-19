@@ -57,7 +57,6 @@ class PromotionController extends AbstractController
     public function newDmdEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
-        $files = $request->files;
 
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
@@ -133,6 +132,103 @@ class PromotionController extends AbstractController
                 'langues_parle' => $langues_parle,
                 'lien_portfolio' => $lien_portfolio,
                 'coordonne_demandeur' => $coordonne_demandeur,
+            ])
+        ;
+        $promotionRepository->save($promotion, true);
+
+        if($sessionDS->get("langUserPhone") != "fr") { 
+            return new JsonResponse([
+                'error' => false
+            ]); 
+        }
+        return new JsonResponse([
+            'error' => false
+        ]);
+    }
+
+    #[Route('/newOffreEmploi', name: 'newOffreEmploi', methods: ['POST'])]
+    public function newOffreEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    {
+        $datas = $request->request;
+
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $titre_poste = $datas->get('titre_poste');
+        $description_poste = $datas->get('description_poste');
+        $competences_requises = $datas->get('competences_requises');
+        $type_contrat = $datas->get('type_contrat');
+        $lieu_travail = $datas->get('lieu_travail');
+        $salaire = $datas->get('salaire');
+        $niveau_experience = $datas->get('niveau_experience');
+        $horaire_travail = $datas->get('horaire_travail');
+        $avantages = $datas->get('avantages');
+        $dure_contrat_not_cdi = $datas->get('dure_contrat_not_cdi');
+        $contact_emploiyeur = $datas->get('contact_emploiyeur');
+        $date_limite_candidature = $datas->get('date_limite_candidature');
+        $Lien_information_otionel = $datas->get('Lien_information_otionel');
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
+        if(!$titre_poste || !$description_poste || !$competences_requises|| !$type_contrat|| !$lieu_travail|| !$salaire|| !$niveau_experience|| !$horaire_travail|| !$avantages|| !$dure_contrat_not_cdi|| !$contact_emploiyeur|| !$date_limite_candidature|| !$Lien_information_otionel){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Please fill in all fields...",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Veuillez svp renseigner tous les champs...",
+            ]);
+        }
+
+        $promotion = new Promotion();
+        $promotion->setUser($user)
+            ->setTypePromotionAffaire("offre_emploi")
+            ->setImage("offre_emploi.jpg")
+            ->setAnnotherInfo([
+                'titre_demande_poste_rechercher' => $titre_poste,
+                'description_poste' => $description_poste,
+                'competences_requises' => $competences_requises,
+                'type_contrat' => $type_contrat,
+                'lieu_travail' => $lieu_travail,
+                'salaire' => $salaire,
+                'niveau_experience' => $niveau_experience,
+                'horaire_travail' => $horaire_travail,
+                'avantages' => $avantages,
+                'dure_contrat_not_cdi' => $dure_contrat_not_cdi,
+                'contact_emploiyeur' => $contact_emploiyeur,
+                'date_limite_candidature' => $date_limite_candidature,
+                'Lien_information_otionel' => $Lien_information_otionel,
             ])
         ;
         $promotionRepository->save($promotion, true);
