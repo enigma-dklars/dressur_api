@@ -54,49 +54,52 @@
 
         <div id="dmd_emploi" class="type_promo_affaire mt-3" hidden>
             <div class="row g-2">
+                <div class="col-12">
+                    <div class="mt-0 msgError" id="msgError" style="display: none;"></div>
+                </div>
                 <div class="col-md-4">
                     <label for="titre_demande_poste_rechercher" class="form-label">Titre de la demande ou poste recherché</label>
-                    <input type="text" class="form-control getInfo" id="titre_demande_poste_rechercher">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="titre_demande_poste_rechercher">
                 </div>
                 <div class="col-md-5">
                     <label for="niveau_experience" class="form-label">Niveau d'experience (Nombres d'année d'expérience)</label>
-                    <input type="text" class="form-control getInfo" id="niveau_experience">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="niveau_experience">
                 </div>
                 <div class="col-md-3">
                     <label for="secteur_activite_rechercher" class="form-label">Secteur d'activté rechercher</label>
-                    <input type="text" class="form-control getInfo" id="secteur_activite_rechercher">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="secteur_activite_rechercher">
                 </div>
                 <div class="col-md-3">
                     <label for="type_contrat_rechercher" class="form-label">Type de contrat rechercher</label>
-                    <input type="text" class="form-control getInfo" id="type_contrat_rechercher">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="type_contrat_rechercher">
                 </div>
                 <div class="col-md-3">
                     <label for="localisation_souhaite" class="form-label">Localisation souhaité</label>
-                    <input type="text" class="form-control getInfo" id="localisation_souhaite">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="localisation_souhaite">
                 </div>
                 <div class="col-md-3">
                     <label for="salaire_souhaite" class="form-label">Salaire souhaité</label>
-                    <input type="text" class="form-control getInfo" id="salaire_souhaite">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="salaire_souhaite">
                 </div>
                 <div class="col-md-3">
                     <label for="lien_portfolio" class="form-label">Lien vers votre portfolio ou cv</label>
-                    <input type="text" class="form-control getInfo" id="lien_portfolio">
+                    <input type="text" class="form-control getInfo getInfoDmdEmploi" id="lien_portfolio">
                 </div>
                 <div class="col-md-6">
                     <label for="description_profil_demandeur" class="form-label">Description du profil du demandeur</label>
-                    <textarea class="form-control getInfo" id="description_profil_demandeur" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoDmdEmploi" id="description_profil_demandeur" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="competence_qualification" class="form-label">Compétences et qualification (listes)</label>
-                    <textarea class="form-control getInfo" id="competence_qualification" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoDmdEmploi" id="competence_qualification" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="langues_parle" class="form-label">Langues parlées (listes)</label>
-                    <textarea class="form-control getInfo" id="langues_parle" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoDmdEmploi" id="langues_parle" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="coordonne_demandeur" class="form-label">Coordonnées du demandeur</label>
-                    <textarea class="form-control getInfo" id="coordonne_demandeur" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoDmdEmploi" id="coordonne_demandeur" rows="3"></textarea>
                 </div>
                 <div class="col-12">
                     <button type="button" class="btn btn-primary" id="add_dmd_emploi">Envoyer</button>
@@ -106,64 +109,67 @@
 
         <div id="offre_emploi" class="type_promo_affaire mt-3" hidden>
             <div class="row g-2">
+                <div class="col-12">
+                    <div class="mt-0 msgError" id="msgError" style="display: none;"></div>
+                </div>
                 <div class="col-md-6">
                     <label for="titre_poste" class="form-label">Titre du poste</label>
-                    <input type="text" class="form-control getInfo" id="titre_poste">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="titre_poste">
                 </div>
                 <div class="col-md-3">
                     <label for="type_contrat" class="form-label">Type de contrat</label>
-                    <input type="text" class="form-control getInfo" id="type_contrat">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="type_contrat">
                 </div>
                 <div class="col-md-3">
                     <label for="lieu_travail" class="form-label">Lieu de travail</label>
-                    <input type="text" class="form-control getInfo" id="lieu_travail">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="lieu_travail">
                 </div>
                 <div class="col-md-3">
                     <label for="salaire" class="form-label">Salaire</label>
-                    <input type="text" class="form-control getInfo" id="salaire">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="salaire">
                 </div>
                 <div class="col-md-3">
                     <label for="niveau_experience" class="form-label">Niveau d'expériences</label>
-                    <input type="text" class="form-control getInfo" id="niveau_experience">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="niveau_experience">
                 </div>
                 <div class="col-md-3">
                     <label for="description" class="form-label">Salaire souhaité</label>
-                    <input type="text" class="form-control getInfo" id="salaire_souhaite">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="salaire_souhaite">
                 </div>
                 <div class="col-md-3">
                     <label for="dure_contrat_not_cdi" class="form-label">Durée du contrat si ce n'est pas CDI</label>
-                    <input type="text" class="form-control getInfo" id="dure_contrat_not_cdi">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="dure_contrat_not_cdi">
                 </div>
                 <div class="col-md-3">
                     <label for="date_limite_candidature" class="form-label">Date limite de la candidature</label>
-                    <input type="datetime-local" class="form-control getInfo" id="date_limite_candidature">
+                    <input type="datetime-local" class="form-control getInfo getInfoOffreEmploi" id="date_limite_candidature">
                 </div>
                 <div class="col-md-3">
                     <label for="lien_information_otionel" class="form-label">Lien vers plus d'information</label>
-                    <input type="text" class="form-control getInfo" id="lien_information_otionel">
+                    <input type="text" class="form-control getInfo getInfoOffreEmploi" id="lien_information_otionel">
                 </div>
                 <div class="col-md-12">
                     <label for="description_poste" class="form-label">Description du poste</label>
-                    <textarea class="form-control getInfo" id="description_poste" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoOffreEmploi" id="description_poste" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="competences_requises" class="form-label">Compétences requises (listes)</label>
-                    <textarea class="form-control getInfo" id="competences_requises" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoOffreEmploi" id="competences_requises" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="avantages" class="form-label">Avantages (listes)</label>
-                    <textarea class="form-control getInfo" id="avantages" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoOffreEmploi" id="avantages" rows="3"></textarea>
                 </div>
                 <div class="col-md-6">
                     <label for="horaire_travail" class="form-label">Horaires de travail</label>
-                    <textarea class="form-control getInfo" id="horaire_travail" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoOffreEmploi" id="horaire_travail" rows="3"></textarea>
                 </div>                
                 <div class="col-md-6">
                     <label for="contact_emploiyeur" class="form-label">Contacts de l'emploiyeur</label>
-                    <textarea class="form-control getInfo" id="contact_emploiyeur" rows="3"></textarea>
+                    <textarea class="form-control getInfo getInfoOffreEmploi" id="contact_emploiyeur" rows="3"></textarea>
                 </div>
                 <div class="col-12">
-                    <button type="button" class="btn btn-primary" id="add_dmd_emploi">Envoyer</button>
+                    <button type="button" class="btn btn-primary" id="add_offre_emploi">Envoyer</button>
                 </div>
             </div>
         </div>
