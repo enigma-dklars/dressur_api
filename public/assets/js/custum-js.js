@@ -922,7 +922,7 @@ $(document).ready(function () {
 
         let message = '';
 
-        if (!description || !imageInput) {
+        if (!description || !imageInput || !imageInput.size) {
             message = 'Attention !!!. Veuillez entrer un texte et sélectionner une image.';
         }
 
@@ -1888,6 +1888,13 @@ $(document).ready(function () {
         let nbrJour = value[2];
         let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" Bonus ou "+prix+" FCFA."
         $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
+    });
+
+    $(document).on("change", "#type-promo-affaire", function () {
+        let value = $(this).val();
+        console.log(value);
+        $(".type_promo_affaire").attr("hidden", "");
+        $("#"+value).removeAttr("hidden");
     });
 
     $(document).on("click", "#newBoostPayant", function () {

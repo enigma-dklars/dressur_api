@@ -1,44 +1,171 @@
 <div class="bg-danger text-white p-3 rounded">
     NB: Après avoir rempli et envoyé votre promotion, elle sera analysée par les administrateurs de Dressur. Si votre promotion est acceptée, vous passerez au paiement et ainsi votre promotion sera visible par des milliers d'utilisateurs correspondant à vos préférences pays.
 </div>
+
 <div class="card mt-3">
     <div class="card-body">
         <p class="h4 text-center pb-3">Nouvelle Promotion Affaire</p>
 
-        <form id="promotionForm" enctype="multipart/form-data" class="row g-3">
-            <div class="col-12" hidden>
-                <input type="text" id="uid" value="{{user.uid}}">
-            </div>
-            <div class="col-12">
-                <div class="mt-0" id="msgError" style="display: none;"></div>
-            </div>
-            <div class="col-12">
-                <label for="formule-promo-page-new-affaire">Formule de Promotion Affaire</label>
-                <select id="formule-promo-page-new-affaire" class="form-select">
-                    <option value="" disabled selected>Veuillez choisir une formule... </option>
-                    {% for formuleBoost in formuleBoosts %}
-                        <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
-                        prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-12">
-                <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-payant">
-                    Veuillez choisir une formule...
+        <label for="type-promo-affaire">Type de Promotion Affaire</label>
+        <select id="type-promo-affaire" class="form-select">
+            <option value="" disabled selected>Veuillez choisir un type de promotion affaire... </option>
+            <option value="produit_service">Produits et Services</option>
+            <option value="dmd_emploi">Demandes d'emploi</option>
+            <option value="offre_emploi">Offres d'emploi</option>
+        </select>
+
+        <div id="produit_service" class="type_promo_affaire mt-3" hidden>
+            <form id="promotionForm" enctype="multipart/form-data" class="row g-3">
+                <div class="col-12" hidden>
+                    <input type="text" id="uid" value="{{user.uid}}">
+                </div>
+                <div class="col-12">
+                    <div class="mt-0" id="msgError" style="display: none;"></div>
+                </div>
+                <div class="col-12">
+                    <label for="formule-promo-page-new-affaire">Formule de Promotion Affaire</label>
+                    <select id="formule-promo-page-new-affaire" class="form-select">
+                        <option value="" disabled selected>Veuillez choisir une formule... </option>
+                        {% for formuleBoost in formuleBoosts %}
+                            <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
+                            prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-12">
+                    <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-payant">
+                        Veuillez choisir une formule...
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label for="image" class="form-label">Sélectionner une image</label>
+                    <input type="file" class="form-control getInfo" id="image" accept="image/*">
+                    <div id="imagePreview" class="mt-3"></div>
+                </div>
+                <div class="col-md-6">
+                    <label for="description" class="form-label">Description de la promotion</label>
+                    <textarea class="form-control getInfo" id="description" rows="15"></textarea>
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary" id="btn-promotionForm">Envoyer</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="dmd_emploi" class="type_promo_affaire mt-3" hidden>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label for="titre_demande_poste_rechercher" class="form-label">Titre de la demande ou poste recherché</label>
+                    <input type="text" class="form-control getInfo" id="titre_demande_poste_rechercher">
+                </div>
+                <div class="col-md-5">
+                    <label for="niveau_experience" class="form-label">Niveau d'experience (Nombres d'année d'expérience)</label>
+                    <input type="text" class="form-control getInfo" id="niveau_experience">
+                </div>
+                <div class="col-md-3">
+                    <label for="secteur_activite_rechercher" class="form-label">Secteur d'activté rechercher</label>
+                    <input type="text" class="form-control getInfo" id="secteur_activite_rechercher">
+                </div>
+                <div class="col-md-3">
+                    <label for="type_contrat_rechercher" class="form-label">Type de contrat rechercher</label>
+                    <input type="text" class="form-control getInfo" id="type_contrat_rechercher">
+                </div>
+                <div class="col-md-3">
+                    <label for="localisation_souhaite" class="form-label">Localisation souhaité</label>
+                    <input type="text" class="form-control getInfo" id="localisation_souhaite">
+                </div>
+                <div class="col-md-3">
+                    <label for="salaire_souhaite" class="form-label">Salaire souhaité</label>
+                    <input type="text" class="form-control getInfo" id="salaire_souhaite">
+                </div>
+                <div class="col-md-3">
+                    <label for="lien_portfolio" class="form-label">Lien vers votre portfolio ou cv</label>
+                    <input type="text" class="form-control getInfo" id="lien_portfolio">
+                </div>
+                <div class="col-md-6">
+                    <label for="description_profil_demandeur" class="form-label">Description du profil du demandeur</label>
+                    <textarea class="form-control getInfo" id="description_profil_demandeur" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="competence_qualification" class="form-label">Compétences et qualification (listes)</label>
+                    <textarea class="form-control getInfo" id="competence_qualification" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="langues_parle" class="form-label">Langues parlées (listes)</label>
+                    <textarea class="form-control getInfo" id="langues_parle" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="coordonne_demandeur" class="form-label">Coordonnées du demandeur</label>
+                    <textarea class="form-control getInfo" id="coordonne_demandeur" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary" id="add_dmd_emploi">Envoyer</button>
                 </div>
             </div>
-            <div class="col-md-6">
-                <label for="image" class="form-label">Sélectionner une image</label>
-                <input type="file" class="form-control getInfo" id="image" accept="image/*">
-                <div id="imagePreview" class="mt-3"></div>
+        </div>
+
+        <div id="offre_emploi" class="type_promo_affaire mt-3" hidden>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <label for="titre_poste" class="form-label">Titre du poste</label>
+                    <input type="text" class="form-control getInfo" id="titre_poste">
+                </div>
+                <div class="col-md-3">
+                    <label for="type_contrat" class="form-label">Type de contrat</label>
+                    <input type="text" class="form-control getInfo" id="type_contrat">
+                </div>
+                <div class="col-md-3">
+                    <label for="lieu_travail" class="form-label">Lieu de travail</label>
+                    <input type="text" class="form-control getInfo" id="lieu_travail">
+                </div>
+                <div class="col-md-3">
+                    <label for="salaire" class="form-label">Salaire</label>
+                    <input type="text" class="form-control getInfo" id="salaire">
+                </div>
+                <div class="col-md-3">
+                    <label for="niveau_experience" class="form-label">Niveau d'expériences</label>
+                    <input type="text" class="form-control getInfo" id="niveau_experience">
+                </div>
+                <div class="col-md-3">
+                    <label for="description" class="form-label">Salaire souhaité</label>
+                    <input type="text" class="form-control getInfo" id="salaire_souhaite">
+                </div>
+                <div class="col-md-3">
+                    <label for="dure_contrat_not_cdi" class="form-label">Durée du contrat si ce n'est pas CDI</label>
+                    <input type="text" class="form-control getInfo" id="dure_contrat_not_cdi">
+                </div>
+                <div class="col-md-3">
+                    <label for="date_limite_candidature" class="form-label">Date limite de la candidature</label>
+                    <input type="datetime-local" class="form-control getInfo" id="date_limite_candidature">
+                </div>
+                <div class="col-md-3">
+                    <label for="lien_information_otionel" class="form-label">Lien vers plus d'information</label>
+                    <input type="text" class="form-control getInfo" id="lien_information_otionel">
+                </div>
+                <div class="col-md-12">
+                    <label for="description_poste" class="form-label">Description du poste</label>
+                    <textarea class="form-control getInfo" id="description_poste" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="competences_requises" class="form-label">Compétences requises (listes)</label>
+                    <textarea class="form-control getInfo" id="competences_requises" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="avantages" class="form-label">Avantages (listes)</label>
+                    <textarea class="form-control getInfo" id="avantages" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="horaire_travail" class="form-label">Horaires de travail</label>
+                    <textarea class="form-control getInfo" id="horaire_travail" rows="3"></textarea>
+                </div>                
+                <div class="col-md-6">
+                    <label for="contact_emploiyeur" class="form-label">Contacts de l'emploiyeur</label>
+                    <textarea class="form-control getInfo" id="contact_emploiyeur" rows="3"></textarea>
+                </div>
+                <div class="col-12">
+                    <button type="button" class="btn btn-primary" id="add_dmd_emploi">Envoyer</button>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label for="description" class="form-label">Description de la promotion</label>
-                <textarea class="form-control getInfo" id="description" rows="15"></textarea>
-            </div>
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary" id="btn-promotionForm">Envoyer</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
