@@ -904,12 +904,25 @@ $(document).ready(function () {
         if (imageInput) {
             const reader = new FileReader();
             reader.onload = function (e) {
-                $('#imagePreview').html('<img src="' + e.target.result + '" class="card-img-top" />');
+                $('#imagePreview').html('<img src="' + e.target.result + '" class="card-img-top" style="height: 325px; object-fit: cover;" />');
             };
             reader.readAsDataURL(imageInput);
         } else {
             $('#imagePreview').empty();
         }
+    });
+
+    $(document).on('change', '#flexSwitchCheckCheckedDanger', function () {
+        if ($(this).is(':checked')) {
+            $(this).removeClass('bg-success').addClass('bg-danger'); // Rouge quand coché
+        } else {
+            $(this).removeClass('bg-danger').addClass('bg-success'); // Vert quand décoché
+        }
+        if ($(this).is(':checked')) {
+        $('#parti_paiement').removeAttr('hidden'); // Affiche la div paiement
+    } else {
+        $('#parti_paiement').attr('hidden', true); // Cache la div paiement
+    }
     });
 
     $(document).on('submit', '#promotionForm', function (event) {
@@ -1158,6 +1171,7 @@ $(document).ready(function () {
     $(document).on("click", "#add_offre_emploi", function () {
         traitementContact("add_offre_emploi", "debut", "")
 
+        $(".msgError").html("");
         let msgError = "Veuillez renseigner tous les champs..."
         let msgErrorHtml = $(".msgError").text()
 
@@ -1168,7 +1182,7 @@ $(document).ready(function () {
         let type_contrat = $("#type_contrat").val();
         let lieu_travail = $("#lieu_travail").val();
         let salaire = $("#salaire").val();
-        let niveau_experience = $("#niveau_experience").val();
+        let niveau_experience = $("#niveau_experience_offre").val();
         let horaire_travail = $("#horaire_travail").val();
         let avantages = $("#avantages").val();
         let dure_contrat_not_cdi = $("#dure_contrat_not_cdi").val();
@@ -1176,22 +1190,22 @@ $(document).ready(function () {
         let date_limite_candidature = $("#date_limite_candidature").val();
         let lien_information_otionel = $("#lien_information_otionel").val();
 
+        console.log(uid, titre_poste, description_poste, competences_requises, type_contrat, lieu_travail, salaire, niveau_experience, horaire_travail, avantages, dure_contrat_not_cdi, contact_emploiyeur, date_limite_candidature, lien_information_otionel);
+        
+
         if(!titre_poste || !description_poste || !competences_requises || !type_contrat || !lieu_travail || !salaire || !niveau_experience || !horaire_travail || !avantages || !dure_contrat_not_cdi || !contact_emploiyeur || !date_limite_candidature || !lien_information_otionel){
-            if(!msgErrorHtml){
-                $(".msgError").html(`
-                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                    <div class="d-flex align-items-center">
-                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                    </div>
-                    <div class="ms-3">
-                        <div class="text-danger">`+msgError+`</div>
-                    </div>
-                    </div>
-                    </div>
-                `);
-                $('html, body').animate({ scrollTop: 0 }, 1000);
-                $(".msgError").toggle(800)
-            }
+            $(".msgError").html(`
+                <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                <div class="d-flex align-items-center">
+                <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                </div>
+                <div class="ms-3">
+                    <div class="text-danger">`+msgError+`</div>
+                </div>
+                </div>
+                </div>
+            `);
+            $('html, body').animate({ scrollTop: 0 }, 1000);
             traitementContact("add_offre_emploi", "fin", "Envoyer")
             return 0;
         }
@@ -1231,7 +1245,6 @@ $(document).ready(function () {
                         </div>
                     `);
                     $('html, body').animate({ scrollTop: 0 }, 1000);
-                    $(".msgError").toggle(800)
                 } else {
                     msgError = "Votre offre d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
                     $(".msgError").html(`
@@ -1247,7 +1260,6 @@ $(document).ready(function () {
                         </div>
                     `);
                     $('html, body').animate({ scrollTop: 0 }, 1000);
-                    $(".msgError").toggle(800);
                 }
                 traitementContact("add_offre_emploi", "fin", "Envoyer")
             }

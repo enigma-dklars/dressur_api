@@ -145,7 +145,7 @@ class PromotionController extends AbstractController
             'error' => false
         ]);
     }
-
+    
     #[Route('/newOffreEmploi', name: 'newOffreEmploi', methods: ['POST'])]
     public function newOffreEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
