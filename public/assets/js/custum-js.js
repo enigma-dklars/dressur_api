@@ -922,7 +922,7 @@ $(document).ready(function () {
 
         let message = '';
 
-        if (!description || !imageInput) {
+        if (!description || !imageInput || !imageInput.size) {
             message = 'Attention !!!. Veuillez entrer un texte et sélectionner une image.';
         }
 
@@ -1057,6 +1057,200 @@ $(document).ready(function () {
             $("#msgError").toggle(800);
             traitementContact("btn-promotionForm", "fin", "Envoyer")
             return;
+        });
+    });
+
+    $(document).on("click", "#add_dmd_emploi", function () {
+        traitementContact("add_dmd_emploi", "debut", "")
+
+        let msgError = "Veuillez renseigner tous les champs..."
+        let msgErrorHtml = $(".msgError").text()
+
+        let uid = $("#uid").val();
+        let titre_demande_poste_rechercher = $("#titre_demande_poste_rechercher").val();
+        let niveau_experience = $("#niveau_experience").val();
+        let secteur_activite_rechercher = $("#secteur_activite_rechercher").val();
+        let type_contrat_rechercher = $("#type_contrat_rechercher").val();
+        let localisation_souhaite = $("#localisation_souhaite").val();
+        let salaire_souhaite = $("#salaire_souhaite").val();
+        let lien_portfolio = $("#lien_portfolio").val();
+        let description_profil_demandeur = $("#description_profil_demandeur").val();
+        let competence_qualification = $("#competence_qualification").val();
+        let langues_parle = $("#langues_parle").val();
+        let coordonne_demandeur = $("#coordonne_demandeur").val();
+
+        if(!titre_demande_poste_rechercher || !niveau_experience || !secteur_activite_rechercher || !type_contrat_rechercher || !localisation_souhaite || !salaire_souhaite || !lien_portfolio || !description_profil_demandeur || !competence_qualification || !langues_parle || !coordonne_demandeur){
+            if(!msgErrorHtml){
+                $(".msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $('html, body').animate({ scrollTop: 0 }, 1000);
+                $(".msgError").toggle(800)
+            }
+            traitementContact("add_dmd_emploi", "fin", "Envoyer")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newDmdEmploi",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                titre_demande_poste_rechercher : titre_demande_poste_rechercher,
+                niveau_experience : niveau_experience,
+                secteur_activite_rechercher : secteur_activite_rechercher,
+                type_contrat_rechercher : type_contrat_rechercher,
+                localisation_souhaite : localisation_souhaite,
+                salaire_souhaite : salaire_souhaite,
+                lien_portfolio : lien_portfolio,
+                description_profil_demandeur : description_profil_demandeur,
+                competence_qualification : competence_qualification,
+                langues_parle : langues_parle,
+                coordonne_demandeur : coordonne_demandeur,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $(".msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                    $(".msgError").toggle(800)
+                } else {
+                    msgError = "Votre demande d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
+                    $(".msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                    $(".msgError").toggle(800);
+                }
+                traitementContact("add_dmd_emploi", "fin", "Envoyer")
+            }
+        });
+    });
+
+    $(document).on("click", "#add_offre_emploi", function () {
+        traitementContact("add_offre_emploi", "debut", "")
+
+        let msgError = "Veuillez renseigner tous les champs..."
+        let msgErrorHtml = $(".msgError").text()
+
+        let uid = $("#uid").val();
+        let titre_poste = $("#titre_poste").val();
+        let description_poste = $("#description_poste").val();
+        let competences_requises = $("#competences_requises").val();
+        let type_contrat = $("#type_contrat").val();
+        let lieu_travail = $("#lieu_travail").val();
+        let salaire = $("#salaire").val();
+        let niveau_experience = $("#niveau_experience").val();
+        let horaire_travail = $("#horaire_travail").val();
+        let avantages = $("#avantages").val();
+        let dure_contrat_not_cdi = $("#dure_contrat_not_cdi").val();
+        let contact_emploiyeur = $("#contact_emploiyeur").val();
+        let date_limite_candidature = $("#date_limite_candidature").val();
+        let lien_information_otionel = $("#lien_information_otionel").val();
+
+        if(!titre_poste || !description_poste || !competences_requises || !type_contrat || !lieu_travail || !salaire || !niveau_experience || !horaire_travail || !avantages || !dure_contrat_not_cdi || !contact_emploiyeur || !date_limite_candidature || !lien_information_otionel){
+            if(!msgErrorHtml){
+                $(".msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                    <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                    </div>
+                    <div class="ms-3">
+                        <div class="text-danger">`+msgError+`</div>
+                    </div>
+                    </div>
+                    </div>
+                `);
+                $('html, body').animate({ scrollTop: 0 }, 1000);
+                $(".msgError").toggle(800)
+            }
+            traitementContact("add_offre_emploi", "fin", "Envoyer")
+            return 0;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/api/newOffreEmploi",
+            data: {
+                uid : uid,
+                langUserPhone : 'fr',
+                titre_poste : titre_poste,
+                description_poste : description_poste,
+                competences_requises : competences_requises,
+                type_contrat : type_contrat,
+                lieu_travail : lieu_travail,
+                salaire : salaire,
+                niveau_experience : niveau_experience,
+                horaire_travail : horaire_travail,
+                avantages : avantages,
+                dure_contrat_not_cdi : dure_contrat_not_cdi,
+                contact_emploiyeur : contact_emploiyeur,
+                date_limite_candidature : date_limite_candidature,
+                lien_information_otionel : lien_information_otionel,
+            },
+            success: function (response) {
+                if(response.error == true){
+                    $(".msgError").html(`
+                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-danger">`+response.message+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                    $(".msgError").toggle(800)
+                } else {
+                    msgError = "Votre offre d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
+                    $(".msgError").html(`
+                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div class="ms-3">
+                            <div class="text-success">`+msgError+`</div>
+                        </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `);
+                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                    $(".msgError").toggle(800);
+                }
+                traitementContact("add_offre_emploi", "fin", "Envoyer")
+            }
         });
     });
 
@@ -1888,6 +2082,13 @@ $(document).ready(function () {
         let nbrJour = value[2];
         let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" Bonus ou "+prix+" FCFA."
         $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
+    });
+
+    $(document).on("change", "#type-promo-affaire", function () {
+        let value = $(this).val();
+        console.log(value);
+        $(".type_promo_affaire").attr("hidden", "");
+        $("#"+value).removeAttr("hidden");
     });
 
     $(document).on("click", "#newBoostPayant", function () {

@@ -167,7 +167,7 @@ class PromotionController extends AbstractController
         $dure_contrat_not_cdi = $datas->get('dure_contrat_not_cdi');
         $contact_emploiyeur = $datas->get('contact_emploiyeur');
         $date_limite_candidature = $datas->get('date_limite_candidature');
-        $Lien_information_otionel = $datas->get('Lien_information_otionel');
+        $lien_information_otionel = $datas->get('lien_information_otionel');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -196,7 +196,7 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if(!$titre_poste || !$description_poste || !$competences_requises|| !$type_contrat|| !$lieu_travail|| !$salaire|| !$niveau_experience|| !$horaire_travail|| !$avantages|| !$dure_contrat_not_cdi|| !$contact_emploiyeur|| !$date_limite_candidature|| !$Lien_information_otionel){
+        if(!$titre_poste || !$description_poste || !$competences_requises|| !$type_contrat|| !$lieu_travail|| !$salaire|| !$niveau_experience|| !$horaire_travail|| !$avantages|| !$dure_contrat_not_cdi|| !$contact_emploiyeur|| !$date_limite_candidature|| !$lien_information_otionel){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -228,7 +228,7 @@ class PromotionController extends AbstractController
                 'dure_contrat_not_cdi' => $dure_contrat_not_cdi,
                 'contact_emploiyeur' => $contact_emploiyeur,
                 'date_limite_candidature' => $date_limite_candidature,
-                'Lien_information_otionel' => $Lien_information_otionel,
+                'lien_information_otionel' => $lien_information_otionel,
             ])
         ;
         $promotionRepository->save($promotion, true);
