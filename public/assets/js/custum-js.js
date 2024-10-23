@@ -1036,7 +1036,7 @@ $(document).ready(function () {
                         traitementContact("btn-promotionForm", "fin", "Envoyer")
                         return;
                     } else {
-                        msgError = "Good. Votre demande de promotion a été enregistrée, vous passerez au paiement si elle est acceptée.";
+                        msgError = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
                         $("#msgError").html(`
                             <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
                             <div class="d-flex align-items-center">
