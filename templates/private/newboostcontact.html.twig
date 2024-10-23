@@ -10,85 +10,103 @@
             <div class="col-12" hidden>
                 <input type="text" id="uid" value="{{user.uid}}">
             </div>
-            <div class="col-md-6">
-                <div class="row g-2">
-                    <div class="col-12 text-center"><span class="h5 bg-success text-white fw-bold px-2 py-1 rounded">Boost Gratuit</span></div>
-                    <div class="col-12">
-                        <div class="mt-0 msgError" id="msgErrorBoostGratuit" style="display: none;"></div>
-                    </div>
-                    <div class="col-12">
-                        <label for="formule-boost-gratuit">Formule de Boost Gratuit</label>
-                        <select id="formule-boost-gratuit" class="form-select getInfo getInfoBoostGratuit">
-                            <option value="" disabled selected>Veuillez choisir une formule... </option>
-                            {% for formuleBoost in formuleBoosts %}
-                                <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
-                                prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-gratuit">
-                            Veuillez choisir une formule gratuite...
+            <div class="col-12 fs-5 mb-3">
+                <div class="d-flex justify-content-center">
+                    <div class="fw-bold text-success">Gratuit</div>
+                    <div class="mx-3">
+                        <div class="form-check-danger form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="modeBoostContact">
+                            <label class="form-check-label" for="modeBoostContact"></label>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <button class="btn btn-primary" id="newBoostGratuit">BOOSTER</button>
+                    <div class="fw-bold text-danger">Payant</div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="row g-2">
+                    <div class="col-12" id="boostContactGratuit">
+                        <div class="row g-2">
+                            <div class="col-12 text-center"><span class="h5 bg-success text-white fw-bold px-2 py-1 rounded">Boost Gratuit</span></div>
+                            <div class="col-12">
+                                <div class="mt-0 msgError" id="msgErrorBoostGratuit" style="display: none;"></div>
+                            </div>
+                            <div class="col-12">
+                                <label for="formule-boost-gratuit">Formule de Boost Gratuit</label>
+                                <select id="formule-boost-gratuit" class="form-select getInfo getInfoBoostGratuit">
+                                    <option value="" disabled selected>Veuillez choisir une formule... </option>
+                                    {% for formuleBoost in formuleBoosts %}
+                                        <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
+                                        prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-gratuit">
+                                    Veuillez choisir une formule gratuite...
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="newBoostGratuit">BOOSTER</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12" id="boostContactPayant" hidden>
+                        <div class="row g-2">
+                            <div class="col-12 text-center"><span class="h5 bg-danger text-white fw-bold px-2 py-1 rounded">Boost Payant</span></div>
+                            <div class="col-12">
+                                <div class="mt-0 msgError" id="msgErrorBoostPayant" style="display: none;"></div>
+                            </div>
+                            <div class="col-12">
+                                <label for="formule-boost-payant">Formule de Boost Payant</label>
+                                <select id="formule-boost-payant" class="form-select getInfo getInfoPayant">
+                                    <option value="" disabled selected>Veuillez choisir une formule... </option>
+                                    {% for formuleBoost in formuleBoosts %}
+                                        <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
+                                        prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-payant">
+                                    Veuillez choisir une formule payante...
+                                </div>
+                            </div>
+        
+                            <div class="col-12">
+                                <label for="paymentMethod" class="">Methode de paiement mobile</label>
+                                <select id="paymentMethod" class="form-select getInfo getInfoPayant">
+                                    <option value="" disabled selected>Choisisez le Moyen de paiement</option>
+                                    <option value="airtel_ne">Airtel Niger</option>
+                                    <option value="sbin">Celtis Cash</option>
+                                    <option value="free_sn">Free Sénégal</option>
+                                    <option value="moov">MOOV Flooz Bénin</option>
+                                    <option value="moov_bf">MOOV Burkina Faso</option>
+                                    <option value="moov_ci">MOOV Côte d'Ivoire</option>
+                                    <option value="moov_tg">MOOV Flooz Togo</option>
+                                    <option value="mtn">MTN Mobile Money Bénin</option>
+                                    <option value="mtn_ci">MTN Mobile Money Côte d'Ivoire</option>
+                                    <option value="mtn_open_gn">MTN Mobile Money Guinée</option>
+                                    <option value="orange_bf">Orange Burkina Faso</option>
+                                    <option value="orange_ci">Orange Côte d'Ivoire</option>
+                                    <option value="orange_ml">Orange Mali</option>
+                                    <option value="orange_sn">Orange Sénégal</option>
+                                    <option value="togocel">TOGOCEL T-Money</option>
+                                </select>
+                            </div>
+                    
+                            <div class="col-12">
+                                <label for="tel" class="">Indicatif + Numéro de paiement</label>
+                                <input type="tel" class="form-control getInfo getInfoPayant" id="tel">
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="newBoostPayant">PAYER & BOOSTER</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="row g-2">
-                    <div class="col-12 text-center"><span class="h5 bg-danger text-white fw-bold px-2 py-1 rounded">Boost Payant</span></div>
-                    <div class="col-12">
-                        <div class="mt-0 msgError" id="msgErrorBoostPayant" style="display: none;"></div>
-                    </div>
-                    <div class="col-12">
-                        <label for="formule-boost-payant">Formule de Boost Payant</label>
-                        <select id="formule-boost-payant" class="form-select getInfo getInfoPayant">
-                            <option value="" disabled selected>Veuillez choisir une formule... </option>
-                            {% for formuleBoost in formuleBoosts %}
-                                <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
-                                prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="col-12">
-                        <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-payant">
-                            Veuillez choisir une formule payante...
-                        </div>
-                    </div>
-
-                    <div class="col-12">
-                        <label for="paymentMethod" class="">Methode de paiement mobile</label>
-                        <select id="paymentMethod" class="form-select getInfo getInfoPayant">
-                            <option value="" disabled selected>Choisisez le Moyen de paiement</option>
-                            <option value="airtel_ne">Airtel Niger</option>
-                            <option value="sbin">Celtis Cash</option>
-                            <option value="free_sn">Free Sénégal</option>
-                            <option value="moov">MOOV Flooz Bénin</option>
-                            <option value="moov_bf">MOOV Burkina Faso</option>
-                            <option value="moov_ci">MOOV Côte d'Ivoire</option>
-                            <option value="moov_tg">MOOV Flooz Togo</option>
-                            <option value="mtn">MTN Mobile Money Bénin</option>
-                            <option value="mtn_ci">MTN Mobile Money Côte d'Ivoire</option>
-                            <option value="mtn_open_gn">MTN Mobile Money Guinée</option>
-                            <option value="orange_bf">Orange Burkina Faso</option>
-                            <option value="orange_ci">Orange Côte d'Ivoire</option>
-                            <option value="orange_ml">Orange Mali</option>
-                            <option value="orange_sn">Orange Sénégal</option>
-                            <option value="togocel">TOGOCEL T-Money</option>
-                        </select>
-                    </div>
-            
-                    <div class="col-12">
-                        <label for="tel" class="">Indicatif + Numéro de paiement</label>
-                        <input type="tel" class="form-control getInfo getInfoPayant" id="tel">
-                    </div>
-                    <div class="col-12">
-                        <button class="btn btn-primary" id="newBoostPayant">PAYER & BOOSTER</button>
-                    </div>
-                </div>
-            </div>
+            <div class="col-md-3"></div>
         </div>
     </div>
 </div>

@@ -244,7 +244,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/addProduitService', name: 'addProduitService', methods: ['POST'])]
-    public function addProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    public function addProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
     {
         $datas = $request->request;
         $files = $request->files;
@@ -252,6 +252,7 @@ class PromotionController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
+        $idFormulePromoAffaire = $datas->get('idFormulePromoAffaire');
         $uid = $datas->get('uid');
         $text = $datas->get('text');
         $mode = $datas->get('mode');
@@ -292,6 +293,22 @@ class PromotionController extends AbstractController
                     'message' => "Veuillez choisir une methode de paiement et renseigner le numéro du paiement...",
                 ]);
             }
+        }
+
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulePromoAffaire);
+        if(!$formulBoost){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
         }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -336,12 +353,47 @@ class PromotionController extends AbstractController
         }
 
         if($mode == "gratuit") {
+            if($user->getSoldeBonus() < $formulBoost->getPrix()){
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Whoops!',
+                        'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
+                    ]);                
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Oups!',
+                    'message' => "Votre solde bonus est insuffisant.\nFaite une Promotion Payante ou parrainé des utilisateurs pour augmenté votre solde bonus.",
+                ]);
+            }
+
+            $user->debitSoldeBonus($formulBoost->getPrix());
+
+            $DSBH = new DSBonusHistorique();
+            if($user->getLang() == "fr") {
+                $DSBH->setTitre("Promotion Affaire");
+            } else {
+                $DSBH->setTitre("Business Promotion");
+            }
+            $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
+            $this->em->persist($DSBH);
+
             $promotion = new Promotion();
             $promotion->setUser($user)
                 ->setImage($fileName)
                 ->setDescription($text)
             ;
             $promotionRepository->save($promotion, true);
+            
+            if($sessionDS->get("langUserPhone") != "fr") { 
+                return new JsonResponse([
+                    'error' => false
+                ]); 
+            }
+            return new JsonResponse([
+                'error' => false
+            ]);
         } else {
 
         }
