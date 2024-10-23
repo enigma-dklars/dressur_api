@@ -295,20 +295,28 @@ class PromotionController extends AbstractController
             }
         }
 
-        $formulBoost = $formulePromoAffaireRepository->find($idFormulePromoAffaire);
-        if(!$formulBoost){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
+        if(!$idFormulePromoAffaire) {
             return new JsonResponse([
                 'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+                'titre' => "Erreur",
+                'message' => "Veuillez choisir une formule de promotion affaire.",
             ]);
+        } else {
+            $formulBoost = $formulePromoAffaireRepository->find($idFormulePromoAffaire);
+            if(!$formulBoost){
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Mistake!',
+                        'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+                ]);
+            }
         }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -385,7 +393,7 @@ class PromotionController extends AbstractController
                 ->setDescription($text)
             ;
             $promotionRepository->save($promotion, true);
-            
+
             if($sessionDS->get("langUserPhone") != "fr") { 
                 return new JsonResponse([
                     'error' => false
