@@ -904,11 +904,23 @@ $(document).ready(function () {
         if (imageInput) {
             const reader = new FileReader();
             reader.onload = function (e) {
-                $('#imagePreview').html('<img src="' + e.target.result + '" class="card-img-top" style="height: 325px; object-fit: cover;" />');
+                $('#imagePreview').html('<img src="' + e.target.result + '" class="card-img-top" style="height: 325px; object-fit: contain;" />');
             };
             reader.readAsDataURL(imageInput);
         } else {
             $('#imagePreview').empty();
+        }
+    });
+
+    $(document).on('change', '#modeBoostContact', function () {
+        if ($(this).is(':checked')) {
+            $(this).removeClass('bg-success').addClass('bg-danger');
+            $("#boostContactPayant").removeAttr("hidden");
+            $('#boostContactGratuit').attr('hidden', true);
+        } else {
+            $(this).removeClass('bg-danger').addClass('bg-success');
+            $("#boostContactGratuit").removeAttr("hidden");
+            $('#boostContactPayant').attr('hidden', true);
         }
     });
 
