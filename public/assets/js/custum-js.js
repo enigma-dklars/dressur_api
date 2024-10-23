@@ -951,6 +951,7 @@ $(document).ready(function () {
         const imageInput = $('#image')[0].files[0];
         const description = $('#description').val();
         const uid = $('#uid').val();
+        const idFormulePromoAffaire = $('#formule-promo-page-new-affaire').val();
 
         let message = '';
 
@@ -1002,6 +1003,7 @@ $(document).ready(function () {
             }
 
             const formData = new FormData();
+            formData.append('idFormulePromoAffaire', idFormulePromoAffaire);
             formData.append('text', description);
             formData.append('uid', uid);
             formData.append('langUserPhone', "fr");
