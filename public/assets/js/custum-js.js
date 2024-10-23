@@ -915,19 +915,26 @@ $(document).ready(function () {
     $(document).on('change', '#flexSwitchCheckCheckedDanger', function () {
         if ($(this).is(':checked')) {
             $(this).removeClass('bg-success').addClass('bg-danger'); // Rouge quand coché
+            $("#parti_paiement").removeAttr("hidden");
         } else {
             $(this).removeClass('bg-danger').addClass('bg-success'); // Vert quand décoché
+            $('#parti_paiement').attr('hidden', true); // Cache la div paiement
         }
-        if ($(this).is(':checked')) {
-        $('#parti_paiement').removeAttr('hidden'); // Affiche la div paiement
-    } else {
-        $('#parti_paiement').attr('hidden', true); // Cache la div paiement
-    }
     });
 
     $(document).on('submit', '#promotionForm', function (event) {
         event.preventDefault();
         traitementContact("btn-promotionForm", "debut", "")
+
+        if ($("#flexSwitchCheckCheckedDanger").is(':checked')) {
+            let mode = "payant";
+            let paymentMethod = $("#paymentMethod").val();
+            let tel = $("#tel").val();
+        } else {
+            let mode = "gratuit";
+            let paymentMethod = "";
+            let tel = "";
+        }
 
         const imageInput = $('#image')[0].files[0];
         const description = $('#description').val();
@@ -987,9 +994,12 @@ $(document).ready(function () {
             formData.append('uid', uid);
             formData.append('langUserPhone', "fr");
             formData.append('image', imageInput);
+            formData.append('mode', mode);
+            formData.append('paymentMethod', paymentMethod);
+            formData.append('tel', tel);
 
             $.ajax({
-                url: '/api/newPromotion',
+                url: '/api/addProduitService',
                 method: 'POST',
                 data: formData,
                 processData: false,
