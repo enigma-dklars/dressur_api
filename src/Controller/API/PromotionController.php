@@ -145,7 +145,7 @@ class PromotionController extends AbstractController
             'error' => false
         ]);
     }
-
+    
     #[Route('/newOffreEmploi', name: 'newOffreEmploi', methods: ['POST'])]
     public function newOffreEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
@@ -243,8 +243,8 @@ class PromotionController extends AbstractController
         ]);
     }
 
-    #[Route('/newPromotion', name: 'newPromotion', methods: ['POST'])]
-    public function newPromotion(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    #[Route('/addProduitService', name: 'addProduitService', methods: ['POST'])]
+    public function addProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
         $files = $request->files;
@@ -254,6 +254,9 @@ class PromotionController extends AbstractController
 
         $uid = $datas->get('uid');
         $text = $datas->get('text');
+        $mode = $datas->get('mode');
+        $paymentMethod = $datas->get('paymentMethod');
+        $tel = $datas->get('tel');
 
         $image = $files->get('image');
 
@@ -263,6 +266,32 @@ class PromotionController extends AbstractController
                 'titre' => "Erreur",
                 'message' => "Veuillez fournir un texte et une image.",
             ]);
+        }
+
+        // Vérification et traitement de l'image
+        if (!$image->isValid()) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Error during image processing.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur lors du traitement de l'image.",
+            ]);
+        }
+
+        if($mode == "payant"){
+            if ($paymentMethod === null || $tel === null) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => "Erreur",
+                    'message' => "Veuillez choisir une methode de paiement et renseigner le numéro du paiement...",
+                ]);
+            }
         }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -292,22 +321,6 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        // Vérification et traitement de l'image
-        if (!$image->isValid()) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Error during image processing.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Erreur lors du traitement de l'image.",
-            ]);
-        }
-
         // Générer un nom de fichier unique
         $fileName = "dressur_pro_".time().'.'.$image->getClientOriginalExtension();
 
@@ -322,12 +335,16 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        $promotion = new Promotion();
-        $promotion->setUser($user)
-            ->setImage($fileName)
-            ->setDescription($text)
-        ;
-        $promotionRepository->save($promotion, true);
+        if($mode == "gratuit") {
+            $promotion = new Promotion();
+            $promotion->setUser($user)
+                ->setImage($fileName)
+                ->setDescription($text)
+            ;
+            $promotionRepository->save($promotion, true);
+        } else {
+
+        }
 
         if($sessionDS->get("langUserPhone") != "fr") { 
             return new JsonResponse([
