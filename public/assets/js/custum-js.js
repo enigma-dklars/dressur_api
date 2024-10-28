@@ -937,21 +937,24 @@ $(document).ready(function () {
     $(document).on('submit', '#promotionForm', function (event) {
         event.preventDefault();
         traitementContact("btn-promotionForm", "debut", "")
+        let mode = "gratuit";
+        let paymentMethod = "";
+        let tel = "";
 
         if ($("#flexSwitchCheckCheckedDanger").is(':checked')) {
-            let mode = "payant";
-            let paymentMethod = $("#paymentMethod").val();
-            let tel = $("#tel").val();
+            mode = "payant";
+            paymentMethod = $("#paymentMethod").val();
+            tel = $("#tel").val();
         } else {
-            let mode = "gratuit";
-            let paymentMethod = "";
-            let tel = "";
+            mode = "gratuit";
+            paymentMethod = "";
+            tel = "";
         }
 
         const imageInput = $('#image')[0].files[0];
         const description = $('#description').val();
         const uid = $('#uid').val();
-        const idFormulePromoAffaire = $('#formule-promo-page-new-affaire').val();
+        const idFormulePromoAffaire = JSON.parse($('#formule-promo-page-new-affaire').val());
 
         let message = '';
 
@@ -969,132 +972,137 @@ $(document).ready(function () {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.src = URL.createObjectURL(imageFile);
+                
                 img.onload = () => {
                     const width = img.width;
                     const height = img.height;
                     const aspectRatio = width / height;
                     resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
                 };
-                img.onerror = reject;
+                
+                img.onerror = () => {
+                    reject(new Error("Erreur lors du chargement de l'image. Assurez-vous que l'image est valide."));
+                };
             });
         }
-
-        isImageSquare(imageInput).then(isSquare => {
-            if (!isSquare) {
-                message = "Attention !!! L'image doit être proche d'un carré.";
-            }
-
-            if (message) {
-                $("#msgError").html(`
-                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                    <div class="d-flex align-items-center">
-                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                    <div class="ms-3">
-                        <div class="text-danger">` + message + `</div>
-                    </div>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                `);
-                $('html, body').animate({ scrollTop: 0 }, 1000);
-                $("#msgError").toggle(800);
-                traitementContact("btn-promotionForm", "fin", "Envoyer")
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('idFormulePromoAffaire', idFormulePromoAffaire);
-            formData.append('text', description);
-            formData.append('uid', uid);
-            formData.append('langUserPhone', "fr");
-            formData.append('image', imageInput);
-            formData.append('mode', mode);
-            formData.append('paymentMethod', paymentMethod);
-            formData.append('tel', tel);
-
-            $.ajax({
-                url: '/api/addProduitService',
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.error) {
-                        $("#msgError").html(`
-                            <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                            <div class="d-flex align-items-center">
-                            <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                            <div class="ms-3">
-                                <div class="text-danger">` + response.titre + ` ` + response.message + `</div>
-                            </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `);
-                        $('html, body').animate({ scrollTop: 0 }, 1000);
-                        $("#msgError").toggle(800);
-                        traitementContact("btn-promotionForm", "fin", "Envoyer")
-                        return;
-                    } else {
-                        msgError = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
-                        $("#msgError").html(`
-                            <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                            <div class="d-flex align-items-center">
-                            <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
-                            </div>
-                            <div class="ms-3">
-                                <div class="text-success">`+msgError+`</div>
-                            </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `);
-                        $('html, body').animate({ scrollTop: 0 }, 1000);
-                        $("#msgError").toggle(800);
-                        traitementContact("btn-promotionForm", "fin", "Envoyer")
-                        $('#description').val('');
-                        $('#image').val('');
-                        $('#imagePreview').empty();
-                        return;
-                    }
-                },
-                error: function (error) {
-                    message = "Attention !!! Erreur : " + error.status;
+        
+        // Utilisation
+        isImageSquare(imageInput)
+            .then(isSquare => {
+                let message = "";
+                if (!isSquare) {
+                    message = "Attention !!! L'image doit être proche d'un carré.";
+                }
+        
+                if (message) {
                     $("#msgError").html(`
                         <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                        <div class="ms-3">
-                            <div class="text-danger">` + message + `</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <div class="d-flex align-items-center">
+                                <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                                <div class="ms-3">
+                                    <div class="text-danger">` + message + `</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     `);
                     $('html, body').animate({ scrollTop: 0 }, 1000);
                     $("#msgError").toggle(800);
-                    traitementContact("btn-promotionForm", "fin", "Envoyer")
+                    traitementContact("btn-promotionForm", "fin", "Envoyer");
                     return;
                 }
+        
+                // Si l'image est carrée, poursuivre avec l'envoi du formulaire
+                const formData = new FormData();
+                formData.append('idFormulePromoAffaire', idFormulePromoAffaire[0]);
+                formData.append('text', description);
+                formData.append('uid', uid);
+                formData.append('langUserPhone', "fr");
+                formData.append('image', imageInput);
+                formData.append('mode', mode);
+                formData.append('paymentMethod', paymentMethod);
+                formData.append('tel', tel);
+        
+                $.ajax({
+                    url: '/api/addProduitService',
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.error) {
+                            $("#msgError").html(`
+                                <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                                        <div class="ms-3">
+                                            <div class="text-danger">` + response.titre + ` ` + response.message + `</div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `);
+                            $('html, body').animate({ scrollTop: 0 }, 1000);
+                            $("#msgError").toggle(800);
+                            traitementContact("btn-promotionForm", "fin", "Envoyer");
+                        } else {
+                            const successMessage = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
+                            $("#msgError").html(`
+                                <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                                    <div class="d-flex align-items-center">
+                                        <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                                        <div class="ms-3">
+                                            <div class="text-success">` + successMessage + `</div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `);
+                            $('html, body').animate({ scrollTop: 0 }, 1000);
+                            $("#msgError").toggle(800);
+                            traitementContact("btn-promotionForm", "fin", "Envoyer");
+                            $('#description').val('');
+                            $('#image').val('');
+                            $('#imagePreview').empty();
+                        }
+                    },
+                    error: function (error) {
+                        const message = "Attention !!! Erreur : " + error.status;
+                        $("#msgError").html(`
+                            <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                                    <div class="ms-3">
+                                        <div class="text-danger">` + message + `</div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `);
+                        $('html, body').animate({ scrollTop: 0 }, 1000);
+                        $("#msgError").toggle(800);
+                        traitementContact("btn-promotionForm", "fin", "Envoyer");
+                    }
+                });
+            })
+            .catch(error => {
+                const message = "Attention !!! Erreur lors de la vérification de l'image : " + error.message;
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                            <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                            <div class="ms-3">
+                                <div class="text-danger">` + message + `</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `);
+                $('html, body').animate({ scrollTop: 0 }, 1000);
+                $("#msgError").toggle(800);
+                traitementContact("btn-promotionForm", "fin", "Envoyer");
             });
-        }).catch(() => {
-            message = "Attention !!! Erreur lors de la vérification de l'image.";
-            $("#msgError").html(`
-                <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                <div class="d-flex align-items-center">
-                <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                <div class="ms-3">
-                    <div class="text-danger">` + message + `</div>
-                </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `);
-            $('html, body').animate({ scrollTop: 0 }, 1000);
-            $("#msgError").toggle(800);
-            traitementContact("btn-promotionForm", "fin", "Envoyer")
-            return;
-        });
+        
     });
 
     $(document).on("click", "#add_dmd_emploi", function () {
