@@ -256,6 +256,8 @@ class PromotionController extends AbstractController
         $uid = $datas->get('uid');
         $text = $datas->get('text');
         $mode = $datas->get('mode');
+        if($mode == "oui") { $mode = true; }
+        if($mode == "no") { $mode = false; }
         $paymentMethod = $datas->get('paymentMethod');
         $tel = $datas->get('tel');
 
