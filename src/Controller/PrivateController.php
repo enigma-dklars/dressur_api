@@ -329,7 +329,6 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
-        // dd($formuleCampageMails);
         $html = $this->renderView('private/newpromoaffaire.html.twig', [
             'formuleBoosts' => $formulePromoAffaireRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
