@@ -280,32 +280,51 @@ class DressurBotController extends AbstractController
                 ]
             ]
         ];
-            
-        $transaction = Transaction::create($array_create_transaction);
-
-        $myTransaction  = new EntityTransaction();
-        $myTransaction
-            ->setUserBot($userBotFind)
-            ->setTransactionFor("dressur_bot_activation")
-            ->setIdTransaction($transaction["id"])
-            ->setReference($transaction["reference"])
-            ->setAmount($transaction["amount"])
-            ->setStatus($transaction["status"])
-            ->setCustomerId($transaction["customer_id"])
-            ->setCurrencyId($transaction["currency_id"])
-            ->setAnnotherInfo([
-                'formulDressurBotId' => $formulDressurBot->getId(),
-                'userBot' => $userBotFind->getId(),
-            ])
-        ;
-        $this->em->persist($myTransaction);
-
-        $this->em->flush();
 
         try {
+            $transaction = Transaction::create($array_create_transaction);
+    
+            $myTransaction  = new EntityTransaction();
+            $myTransaction
+                ->setUserBot($userBotFind)
+                ->setTransactionFor("dressur_bot_activation")
+                ->setIdTransaction($transaction["id"])
+                ->setReference($transaction["reference"])
+                ->setAmount($transaction["amount"])
+                ->setStatus($transaction["status"])
+                ->setCustomerId($transaction["customer_id"])
+                ->setCurrencyId($transaction["currency_id"])
+                ->setAnnotherInfo([
+                    'formulDressurBotId' => $formulDressurBot->getId(),
+                    'userBot' => $userBotFind->getId(),
+                ])
+            ;
+            $this->em->persist($myTransaction);
+    
+            $this->em->flush();
+    
             $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
             return new JsonResponse($resultat);
         } catch (\Throwable $th) {
+            $msgError = (string)$th;
+            if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                $envPaiementApi->setCountTransactionApproved(10);
+                $this->em->flush();
+
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excuse us please!',
+                        'message' => "Please submit the form again. Thank you.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Excusez-nous svp!',
+                    'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                ]);
+            }
+
             $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
