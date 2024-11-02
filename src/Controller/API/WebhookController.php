@@ -8,6 +8,7 @@ use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
 use App\Entity\PromoReseau;
+use App\Entity\Promotion;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -118,14 +119,15 @@ class WebhookController extends AbstractController
                         }
 
                         if($myTransaction->getTransactionFor() == "boost_affaire") {
-                            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-                            $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
-                            $promotion->setMode("Payant")
-                                ->setDateDebut(new DateTime())
-                                ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
-                                ->setReferencement($formulePromoAffaire->getReferencement())
-                                ->setStatus(3)
+                            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
+                            $promotion = new Promotion();
+                            $promotion
+                                ->setUser($myTransaction->getUser())
+                                ->setFormulePromoAffaire($formulePromoAffaire)
+                                ->setImage($myTransaction->getAnnotherInfo()['image'])
+                                ->setDescription($myTransaction->getAnnotherInfo()['description'])
                             ;
+                            $this->em->persist($promotion);
                         }
 
                         if($myTransaction->getTransactionFor() == "boost_reseau_sociaux") {
@@ -166,6 +168,7 @@ class WebhookController extends AbstractController
                         ->setStatus("approved")
                     ;
                     $this->em->persist($myTransaction);
+                    
                     $envPaiementApi->isUsedApproved();
                     $this->em->flush();
                 }

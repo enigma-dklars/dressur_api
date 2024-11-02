@@ -1046,7 +1046,10 @@ $(document).ready(function () {
                             $("#msgError").toggle(800);
                             traitementContact("btn-promotionForm", "fin", "Envoyer");
                         } else {
-                            const successMessage = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
+                            if (response.direct == false) {
+                                window.open(response.url, '_blank');
+                            }
+                            let successMessage = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
                             $("#msgError").html(`
                                 <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
                                     <div class="d-flex align-items-center">
