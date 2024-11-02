@@ -2,13 +2,28 @@
     {% for promoaffaire in listepromoaffaire %}
         <div class="col-md-4">
             <div class="card mb-0 h-100">
-                {% if promoaffaire.statusNumber == 0 %}{% set bg_badge = "bg-danger" %}{% endif %}
-                {% if promoaffaire.statusNumber == 1 %}{% set bg_badge = "bg-warning" %}{% endif %}
-                {% if promoaffaire.statusNumber == 2 %}{% set bg_badge = "bg-warning" %}{% endif %}
-                {% if promoaffaire.statusNumber == 3 %}{% set bg_badge = "bg-success" %}{% endif %}
-                {% if promoaffaire.statusNumber == 4 %}{% set bg_badge = "bg-success" %}{% endif %}
                 <div class="card-body">
-                    <span class="badge {{bg_badge}} text-white mb-1">{{promoaffaire.status}}</span>
+                    {% if promoaffaire.typePromotionAffaire == "produit_service" %}
+                        {% set bg_badge = "bg-success" %}
+                        {% set tpa = "Produit Service" %}
+                    {% else %}
+                        {% if promoaffaire.typePromotionAffaire == "offre_emploi" %}
+                            {% set bg_badge = "bg-warning" %}
+                            {% set tpa = "Offre Emploi" %}
+                        {% else %}
+                            {% set bg_badge = "bg-danger" %}
+                            {% set tpa = "Demande Emploi" %}
+                        {% endif %}
+                    {% endif %}
+                    <span class="badge {{bg_badge}} text-white mb-1">{{ tpa }}</span>
+                    
+                    {% if promoaffaire.statusNumber == 0 %}{% set bg_badge = "bg-danger" %}{% endif %}
+                    {% if promoaffaire.statusNumber == 1 %}{% set bg_badge = "bg-warning" %}{% endif %}
+                    {% if promoaffaire.statusNumber == 2 %}{% set bg_badge = "bg-warning" %}{% endif %}
+                    {% if promoaffaire.statusNumber == 3 %}{% set bg_badge = "bg-success" %}{% endif %}
+                    {% if promoaffaire.statusNumber == 4 %}{% set bg_badge = "bg-success" %}{% endif %}
+                    <span class="badge {{bg_badge}} text-white mb-1 mx-1">{{promoaffaire.status}}</span> 
+                    
                     {% if promoaffaire.statusNumber == 0 %}
                         <p>
                             Motif : {{promoaffaire.motif}}
@@ -147,6 +162,15 @@
                             <p class="px-3">
                                 {{promoaffaire.description|nl2br}}
                             </p>
+                            <div class="px-3">
+                                {% for key, value in promoaffaire.annotherInfo %}
+                                    <div class="mb-1">
+                                        <div class="fw-bolder text-primary fs-6">{{ key | replace({'_': ' '}) | capitalize }} : </div>
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ value|nl2br }}</div>
+                                        <hr>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>

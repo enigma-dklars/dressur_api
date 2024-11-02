@@ -1108,6 +1108,62 @@ $(document).ready(function () {
         
     });
 
+    $(document).on("click", ".accepterPromoAffaire", function () {
+        let id_promo_affaire = $(this).attr("id_promo_affaire");
+        let route_accepter = $("#accepter_"+id_promo_affaire).val();
+
+        Swal.fire({
+            title: "Etes-vous sûre ?",
+            text: "Acceptez-vous vraiment cette promotion affaire ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#0c971a",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Oui, Accepter!",
+            cancelButtonText: "Non"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = route_accepter
+            }
+        });
+    });
+
+    $(document).on("click", ".refuserPromoAffaire", function () {
+        let id_promo_affaire = $(this).attr("id_promo_affaire");
+        let route_accepter = $("#refuser_"+id_promo_affaire).val();
+        console.log(this, id_promo_affaire, route_accepter);
+
+        Swal.fire({
+            title: "Etes-vous sûre ?",
+            text: "Refusez-vous vraiment cette promotion affaire ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#0c971a",
+            confirmButtonText: "Oui, Refuser!",
+            cancelButtonText: "Non"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const { value: text } = await Swal.fire({
+                    input: "textarea",
+                    inputLabel: "Motif de refus",
+                    inputPlaceholder: "Ecrivez le motif de refus ici...",
+                    inputAttributes: {
+                      "aria-label": "Ecrivez le motif de refus ici"
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#0c971a",
+                    confirmButtonText: "Valider le Refus!",
+                    cancelButtonText: "Annuler"
+                });
+                if (text) {
+                    window.location.href = route_accepter+"/"+text
+                }
+            }
+        });
+    });
+
     $(document).on("click", "#add_dmd_emploi", function () {
         traitementContact("add_dmd_emploi", "debut", "")
 

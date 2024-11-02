@@ -311,6 +311,8 @@ class TraitementsDS extends AbstractController
                 "dateExp" => $promo->getDateExp() ? ($promo->getDateExp())->format('d-m-Y à H:i') : "",
                 "formulePromotion" => $promo->getFormulePromoAffaire() ? $promo->getFormulePromoAffaire()->getTitre() : "",
                 "motif" => $promo->getMotif() ? $promo->getMotif() : "",
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ];
             array_push($userPromos, $unePromo);
         }

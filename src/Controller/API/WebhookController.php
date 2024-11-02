@@ -125,6 +125,7 @@ class WebhookController extends AbstractController
                             $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
                             $promotion = new Promotion();
                             $promotion
+                                ->setMode("Payant")
                                 ->setUser($myTransaction->getUser())
                                 ->setFormulePromoAffaire($formulePromoAffaire)
                                 ->setImage($myTransaction->getAnnotherInfo()['image'])

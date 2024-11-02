@@ -214,7 +214,7 @@ class PromotionController extends AbstractController
         $promotion = new Promotion();
         $promotion->setUser($user)
             ->setTypePromotionAffaire("offre_emploi")
-            ->setImage("offre_emploi.jpg")
+            ->setImage("offre_emploi.png")
             ->setAnnotherInfo([
                 'titre_demande_poste_rechercher' => $titre_poste,
                 'description_poste' => $description_poste,
