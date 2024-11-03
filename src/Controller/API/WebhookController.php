@@ -134,6 +134,17 @@ class WebhookController extends AbstractController
                             $this->em->persist($promotion);
                         }
 
+                        if($myTransaction->getTransactionFor() == "re_boost_affaire") {
+                            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                            $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+                            $promotion->setMode("Payant")
+                                ->setDateDebut(new DateTime())
+                                ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
+                                ->setReferencement($formulePromoAffaire->getReferencement())
+                                ->setStatus(3)
+                            ;
+                        }
+
                         if($myTransaction->getTransactionFor() == "boost_reseau_sociaux") {
                             $formulePromoReseau = $this->formulePromoReseauRepository->find($myTransaction->getAnnotherInfo()['idFormulePromoReseau']);
                             $boost = new PromoReseau();
