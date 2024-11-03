@@ -1050,7 +1050,7 @@ $(document).ready(function () {
                             window.open(response.url, '_blank');
                         }
                         let successMessage = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
-                        Swal.fire({icon: "error", title: "Good...", text: successMessage,});
+                        Swal.fire({icon: "success", title: "Good...", text: successMessage,});
                         traitementContact("btn-promotionForm", "fin", "Envoyer");
                         $('#description').val('');
                         $('#image').val('');
