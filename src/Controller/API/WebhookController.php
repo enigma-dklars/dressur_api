@@ -8,6 +8,7 @@ use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
 use App\Entity\PromoReseau;
+use App\Entity\Promotion;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -28,6 +29,7 @@ use App\Repository\FormuleDressurBotRepository;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
+use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -46,8 +48,9 @@ class WebhookController extends AbstractController
     private $verificationsDS;
     private $boostRepository;
     private $formuleDressurBotRepository;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail)
     {
         $this->em = $em;
         $this->transactionRepository = $transactionRepository;
@@ -59,6 +62,7 @@ class WebhookController extends AbstractController
         $this->verificationsDS = $verificationsDS;
         $this->boostRepository = $boostRepository;
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
+        $this->sendMail = $sendMail;
     }
 
     public function allWebhookDressur($envPaiementApi) {
@@ -93,7 +97,7 @@ class WebhookController extends AbstractController
                 $idTransaction = $event->entity->id;
                 $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
                 if($myTransaction){
-                    if($myTransaction->getStatus() != "approved") {
+                    if($myTransaction->getStatus() == "pending") {
                         $transaction = Transaction::retrieve($idTransaction);
                         $myTransaction->setStatus($transaction->status)->isUpdated();
                         
@@ -118,6 +122,19 @@ class WebhookController extends AbstractController
                         }
 
                         if($myTransaction->getTransactionFor() == "boost_affaire") {
+                            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
+                            $promotion = new Promotion();
+                            $promotion
+                                ->setMode("Payant")
+                                ->setUser($myTransaction->getUser())
+                                ->setFormulePromoAffaire($formulePromoAffaire)
+                                ->setImage($myTransaction->getAnnotherInfo()['image'])
+                                ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                            ;
+                            $this->em->persist($promotion);
+                        }
+
+                        if($myTransaction->getTransactionFor() == "re_boost_affaire") {
                             $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
                             $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
                             $promotion->setMode("Payant")
@@ -166,6 +183,7 @@ class WebhookController extends AbstractController
                         ->setStatus("approved")
                     ;
                     $this->em->persist($myTransaction);
+                    
                     $envPaiementApi->isUsedApproved();
                     $this->em->flush();
                 }
@@ -188,10 +206,20 @@ class WebhookController extends AbstractController
     }
 
     #[Route('/whd/{routeWebhook}', name: 'webhookDressur')]
-    public function webhookDressur($routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository)
+    public function webhookDressur($routeWebhook, Request $request, EnvPaiementApiRepository $envPaiementApiRepository)
     {
-        $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook]);
-        $http_response_code = $this->allWebhookDressur($envPaiementApi);
-        http_response_code($http_response_code);
+        try {
+            $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook]);
+            $http_response_code = $this->allWebhookDressur($envPaiementApi);
+            http_response_code($http_response_code);
+        } catch (\Throwable $th) {
+            $this->sendMail->sendReport("Error webhookDressur : ".$routeWebhook, $th."<br><br><br>LE CONTENU DE REQUESTE<br><br><br>".dump($request));
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                'messageError' => (string)$th,
+            ]);
+        }
     }
 }

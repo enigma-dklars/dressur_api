@@ -4,6 +4,7 @@ namespace App\Controller\Crud;
 
 use App\Entity\Promotion;
 use App\Form\PromotionType;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use DateTime;
 
 #[Route('/crud/promotion/affaire')]
 class CrudPromotionController extends AbstractController
@@ -42,6 +44,16 @@ class CrudPromotionController extends AbstractController
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'promotions' => $promotionRepository->findBy([], ['id' => 'DESC']),
+        ]);
+    }
+
+    #[Route('/promo_en_attente', name: 'app_crud_promotion_promo_en_attente', methods: ['GET'])]
+    public function promo_en_attente(PromotionRepository $promotionRepository): Response
+    {
+        return $this->render('crud_promotion/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'promotions' => $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']),
         ]);
     }
 
@@ -111,11 +123,49 @@ class CrudPromotionController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/accepter', name: 'app_crud_promotion_accepter', methods: ['GET', 'POST'])]
+    public function accepter(Request $request, Promotion $promotion, EntityManagerInterface $entityManager, FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
+    {
+        if($promotion->getTypePromotionAffaire() == "produit_service") {
+            $promotion
+                ->setDateExp(new DateTime("+ ".$promotion->getFormulePromoAffaire()->getNbrJour()."days"))
+            ;
+        }
+
+        if($promotion->getTypePromotionAffaire() == "dmd_emploi") {
+            $promotion
+                ->setFormulePromoAffaire($formulePromoAffaireRepository->find(4))
+                ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
+            ;
+        }
+
+        if($promotion->getTypePromotionAffaire() == "offre_emploi") {
+            $promotion
+                ->setFormulePromoAffaire($formulePromoAffaireRepository->find(4))
+                ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
+            ;
+        }
+
+        $promotion->setMotif("")->setStatus(3)->setDateDebut(new DateTime());
+        $entityManager->flush();
+        return $this->redirectToRoute('app_crud_promotion_promo_en_attente', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/refuser/{motif?}', name: 'app_crud_promotion_refuser', methods: ['GET', 'POST'])]
+    public function refuser(Request $request, Promotion $promotion, $motif, EntityManagerInterface $entityManager): Response
+    {
+        $promotion->setMotif($motif)->setStatus(0);
+        $entityManager->flush();
+        return $this->redirectToRoute('app_crud_promotion_promo_en_attente', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/{id}', name: 'app_crud_promotion_delete', methods: ['POST'])]
     public function delete(Request $request, Promotion $promotion, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$promotion->getId(), $request->request->get('_token'))) {
-            unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
+            if(str_starts_with($promotion->getImage(), 'dressur_pro_')) {
+                unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
+            }
             $entityManager->remove($promotion);
             $entityManager->flush();
         }

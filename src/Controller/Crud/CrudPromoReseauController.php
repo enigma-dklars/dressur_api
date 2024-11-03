@@ -48,6 +48,18 @@ class CrudPromoReseauController extends AbstractController
         ]);
     }
 
+    #[Route('/promo_reseau_en_attente', name: 'app_crud_promo_reseau_promo_reseau_en_attente', methods: ['GET'])]
+    public function promo_reseau_en_attente(PromoReseauRepository $promoReseauRepository, TraitementsDS $traitementsDS): Response
+    {
+        $traitementsDS->checkAndUpdateStatusZefame();
+        return $this->render('crud_promo_reseau/index.html.twig', [
+            'theme' => $this->theme,
+            'soldeZefame' => $traitementsDS->getSoldeZefame(),
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'promo_reseaus' => $promoReseauRepository->findBy(['status' => 1], ['id' => 'DESC']),
+        ]);
+    }
+
     #[Route('/new', name: 'app_crud_promo_reseau_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {

@@ -17,8 +17,10 @@
             <thead>
                 <tr>
                     <th></th>
+                    <th></th>
                     <th>Id</th>
                     <th>User</th>
+                    <th>Type P.A</th>
                     <th>Status</th>
                     <th>Limited</th>
                     <th>Fake</th>
@@ -29,15 +31,30 @@
                     <th>DateExp</th>
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
-                    <th>Motif</th>
                 </tr>
             </thead>
             <tbody>
             {% for promotion in promotions %}
                 <tr>
+                    <td></td>
                     <td>{% include "crud_promotion/_delete_form.html.twig" %}</td>
                     <td>{{ promotion.id }}</td>
                     <td>{{ promotion.user.pseudo }}</td>
+                    <td class="text-center">
+                        {% if promotion.typePromotionAffaire == "produit_service" %}
+                            {% set bg_badge = "bg-success" %}
+                            {% set tpa = "Produit Service" %}
+                        {% else %}
+                            {% if promotion.typePromotionAffaire == "offre_emploi" %}
+                                {% set bg_badge = "bg-warning" %}
+                                {% set tpa = "Offre Emploi" %}
+                            {% else %}
+                                {% set bg_badge = "bg-danger" %}
+                                {% set tpa = "Demande Emploi" %}
+                            {% endif %}
+                        {% endif %}
+                        <span class="badge {{bg_badge}} text-white mb-1">{{ tpa }}</span>
+                    </td>
                     <td class="text-center">
                         {% if promotion.status == 0 %}{% set bg_badge = "bg-danger" %} {% set status_name = "Rejeter" %}{% endif %}
                         {% if promotion.status == 1 %}{% set bg_badge = "bg-warning" %} {% set status_name = "Attente" %}{% endif %}
@@ -61,7 +78,6 @@
                     <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promotion.nombreDeVue }}</td>
                     <td>{{ promotion.nombreImpression }}</td>
-                    <td>{{ promotion.motif }}</td>
                 </tr>
             {% else %}
                 <tr>
