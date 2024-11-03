@@ -613,6 +613,328 @@ class PromotionController extends AbstractController
         ]);
     }
 
+    #[Route('/newPromo', name: 'newPromo', methods: ['POST'])]
+    public function newPromo(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    {
+        $datas = $request->request;
+        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $uid = $datas->get('uid');
+        $idFormulBoost = $datas->get('idFormulBoost');
+        $idPromotion = $datas->get('idPromotion');
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
+        if(!$formulBoost){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        }
+
+        if($user->getSoldeBonus() < $formulBoost->getPrix()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Whoops!',
+                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
+                ]);                
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Oups!',
+                'message' => "Votre solde bonus est insuffisant.\nFaite une Promotion Payante ou parrainé des utilisateurs pour augmenté votre solde bonus.",
+            ]);
+        }
+        
+        $user->debitSoldeBonus($formulBoost->getPrix());
+
+        $DSBH = new DSBonusHistorique();
+        if($user->getLang() == "fr") {
+            $DSBH->setTitre("Promotion Affaire");
+        } else {
+            $DSBH->setTitre("Business Promotion");
+        }
+        $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
+        $this->em->persist($DSBH);
+
+        $promotion = $promotionRepository->find($idPromotion);
+
+        if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
+            $promotion->setFormulePromoAffaire($formulBoost)
+                ->setDateDebut(new DateTime())
+                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
+                ->setReferencement($formulBoost->getReferencement())
+                ->setStatus(3)
+            ;
+                
+            $this->em->flush();
+
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        }
+        if($sessionDS->get("langUserPhone") != "fr") {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Whoops!',
+                'message' => "This promotion has already been started.",
+            ]);                
+        }
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Oups!',
+            'message' => "Cette promotion est déjà été démarrée.",
+        ]);      
+    }
+
+    #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
+    public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
+    {
+        $datas = $request->request;        
+        $langUserPhone = $datas->get('langUserPhone');
+        $sessionDS->set("langUserPhone", $langUserPhone);
+        $uid = $datas->get('uid');
+
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        if(!$envPaiementApi) {
+            $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Payment error. Please contact the administrators.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+            ]);
+        }
+        FedaPay::setApiKey($envPaiementApi->getApiKey());
+        FedaPay::setEnvironment($envPaiementApi->getEnvironment());
+
+        $idPromotion = $datas->get('idPromotion');
+        $idFormulBoost = $datas->get('idFormulBoost');
+        $valueMethodePaiement = $datas->get('valueMethodePaiement');
+        $tel = $datas->get('tel');
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if($verificationUser["error"] == true){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if(!$user->getTelIsVerified()){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
+        $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
+        if(!$formulBoost){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
+        }
+
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
+        if($verificationNumTel["error"] == true){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
+            }
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
+        }
+        $tel = $verificationNumTel["e164"];
+
+        if(!$tel){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Please enter a phone number.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez saisir un numéro de téléphone.',
+            ]);
+        }
+
+        if(!$valueMethodePaiement){
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Please choose a Payment Method...",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+
+        $array_create_transaction = [
+            "description" => "Dressur :  Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
+            "amount" => $formulBoost->getPrix(),
+            "currency" => ["iso" => "XOF"],
+            "customer" => [
+                "firstname" => $user->getPseudo(),
+                "lastname" => $user,
+                "email" => $user->getMail(),
+                "phone_number" => [
+                    "number" => $tel,
+                    "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                ]
+            ]
+        ];
+
+        $promotion = $promotionRepository->find($idPromotion);
+
+        if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
+            $promotion->setFormulePromoAffaire($formulBoost);
+            
+            try {
+                $transaction = Transaction::create($array_create_transaction);
+    
+                $myTransaction  = new EntityTransaction();
+                $myTransaction
+                    ->setUser($user)
+                    ->setTransactionFor("re_boost_affaire")
+                    ->setIdTransaction($transaction["id"])
+                    ->setReference($transaction["reference"])
+                    ->setAmount($transaction["amount"])
+                    ->setStatus($transaction["status"])
+                    ->setCustomerId($transaction["customer_id"])
+                    ->setCurrencyId($transaction["currency_id"])
+                    ->setAnnotherInfo([
+                        'formulBoostId' => $formulBoost->getId(),
+                        'promotionId' => $promotion->getId(),
+                    ])
+                ;
+                $this->em->persist($myTransaction);
+    
+                $this->em->flush();
+    
+                $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $msgError = (string)$th;
+                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                    $envPaiementApi->setCountTransactionApproved(10);
+                    $this->em->flush();
+    
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Excuse us please!',
+                            'message' => "Please submit the form again. Thank you.",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excusez-nous svp!',
+                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                    ]);
+                }
+    
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        }
+        if($sessionDS->get("langUserPhone") != "fr") {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Whoops!',
+                'message' => "This promotion has already been started.",
+            ]);                
+        }
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Oups!',
+            'message' => "Cette promotion est déjà été démarrée.",
+        ]);
+    }
+
     #[Route('/listPromotion/{uid}/{langUserPhone}', name: 'listPromotion', methods: ['POST', "GET"])]
     public function listPromotion(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
