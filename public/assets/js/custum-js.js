@@ -990,11 +990,18 @@ $(document).ready(function () {
 
         let message = '';
 
+        if (!idFormulePromoAffaire) {
+            message = 'Attention !!!. Veuillez choisir une formule de promotion.';
+            Swal.fire({icon: "error", title: "Oops...", text: message,});
+            traitementContact("btn-promotionForm", "fin", "Envoyer");
+            return 0;
+        }
+
         if (!description || !imageInput || !imageInput.size) {
             message = 'Attention !!!. Veuillez entrer un texte et sélectionner une image.';
             Swal.fire({icon: "error", title: "Oops...", text: message,});
             traitementContact("btn-promotionForm", "fin", "Envoyer");
-            return;
+            return 0;
         }
 
         const fileSizeInMB = imageInput.size / (1024 * 1024);
@@ -1003,7 +1010,7 @@ $(document).ready(function () {
             message = "Attention !!! La taille de l'image ne peut pas dépasser 1 Mo.";
             Swal.fire({icon: "error", title: "Oops...", text: message,});
             traitementContact("btn-promotionForm", "fin", "Envoyer");
-            return;
+            return 0;
         }
         
         // Utilisation
@@ -1014,7 +1021,7 @@ $(document).ready(function () {
                 message = "Attention !!! L'image doit être proche d'un carré.";
                 Swal.fire({icon: "error", title: "Oops...", text: message,});
                 traitementContact("btn-promotionForm", "fin", "Envoyer");
-                return;
+                return 0;
             }
     
             // Si l'image est carrée, poursuivre avec l'envoi du formulaire
