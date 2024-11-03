@@ -47,6 +47,16 @@ class CrudPromotionController extends AbstractController
         ]);
     }
 
+    #[Route('/promo_en_attente', name: 'app_crud_promotion_promo_en_attente', methods: ['GET'])]
+    public function promo_en_attente(PromotionRepository $promotionRepository): Response
+    {
+        return $this->render('crud_promotion/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'promotions' => $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']),
+        ]);
+    }
+
     #[Route('/delete_inutiles', name: 'app_crud_promotion_delete_inutiles', methods: ['GET'])]
     public function delete_inutiles(PromotionRepository $promotionRepository): Response
     {
@@ -138,7 +148,7 @@ class CrudPromotionController extends AbstractController
 
         $promotion->setMotif("")->setStatus(3)->setDateDebut(new DateTime());
         $entityManager->flush();
-        return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_crud_promotion_promo_en_attente', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}/refuser/{motif?}', name: 'app_crud_promotion_refuser', methods: ['GET', 'POST'])]
@@ -146,7 +156,7 @@ class CrudPromotionController extends AbstractController
     {
         $promotion->setMotif($motif)->setStatus(0);
         $entityManager->flush();
-        return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_crud_promotion_promo_en_attente', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}', name: 'app_crud_promotion_delete', methods: ['POST'])]
