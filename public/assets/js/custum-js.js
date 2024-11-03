@@ -912,6 +912,20 @@ $(document).ready(function () {
         }
     });
 
+    $(document).on('change', '.imagePromoServiceProduit', function () {
+        let id_promo_affaire = $(this).attr("id_promo_affaire");
+        const imageInput = this.files[0];
+        if (imageInput) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                $('#imagePreview_'+id_promo_affaire).html('<img src="' + e.target.result + '" class="card-img-top" style="height: 325px; object-fit: contain;" />');
+            };
+            reader.readAsDataURL(imageInput);
+        } else {
+            $('#imagePreview_'+id_promo_affaire).empty();
+        }
+    });
+
     $(document).on('change', '#modeBoostContact', function () {
         if ($(this).is(':checked')) {
             $(this).removeClass('bg-success').addClass('bg-danger');
@@ -1160,6 +1174,112 @@ $(document).ready(function () {
                 if (text) {
                     window.location.href = route_accepter+"/"+text
                 }
+            }
+        });
+    });
+
+    $(document).on("click", ".modifierpromoaffaire", function (event) {
+        event.preventDefault();
+        let id_promo_affaire = $(this).attr("id_promo_affaire");
+
+        traitementContact("modifierpromoaffaire-"+id_promo_affaire, "debut", "")
+
+        const imageInput = $('#image_'+id_promo_affaire)[0].files[0];
+        const description = $('#description_'+id_promo_affaire).val();
+        const uid = $('#uid').val();
+
+        function isImageSquare(imageFile) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = URL.createObjectURL(imageFile);
+                
+                img.onload = () => {
+                    const width = img.width;
+                    const height = img.height;
+                    const aspectRatio = width / height;
+                    resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
+                };
+                
+                img.onerror = () => {
+                    reject(new Error("Erreur lors du chargement de l'image. Assurez-vous que l'image est valide."));
+                };
+            });
+        }
+
+        let message = '';
+
+        if (!description) {
+            message = 'Attention !!!. Veuillez entrer la description de la promotion.';
+        }
+
+        if (imageInput != null) {
+            const fileSizeInMB = imageInput.size / (1024 * 1024);
+
+            if (fileSizeInMB > 1) {
+                message = "Attention !!! La taille de l'image ne peut pas dépasser 1 Mo.";
+            }
+
+            isImageSquare(imageInput)
+            .then(isSquare => {
+                let message = "";
+                if (!isSquare) {
+                    message = "Attention !!! L'image doit être proche d'un carré.";
+                }
+            })
+            .catch(error => {
+                const message = "Attention !!! Erreur lors de la vérification de l'image : " + error.message;
+                $("#msgError").html(`
+                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                        <div class="d-flex align-items-center">
+                            <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                            <div class="ms-3">
+                                <div class="text-danger">` + message + `</div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `);
+                $('html, body').animate({ scrollTop: 0 }, 1000);
+                $("#msgError").toggle(800);
+                traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
+            });
+        }
+
+        if (message) {
+            Swal.fire({icon: "error", title: "Oops...", text: message,});
+            traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('idPromoAffaire', id_promo_affaire);
+        formData.append('text', description);
+        formData.append('uid', uid);
+        formData.append('langUserPhone', "fr");
+        formData.append('image', imageInput);
+
+        $.ajax({
+            url: '/api/editProduitService',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (response) {
+                if (response.error) {
+                    Swal.fire({icon: "error", title: "Oops...", text: response.titre + ` ` + response.message,});
+                    traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
+                } else {
+                    let successMessage = "Votre promotion a été modifiée";
+                    Swal.fire({icon: "success", title: "Good...", text: successMessage,});
+                    traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
+                    $("#modal_modifier_promoaffaire_"+id_promo_affaire).modal("hide");
+                    actualiseContent("/listepromoaffaire")
+                }
+            },
+            error: function (error) {
+                let messageErrorNow = "Attention !!! Erreur : " + error.status;
+                Swal.fire({icon: "error", title: "Oops...", text: messageErrorNow,});
+                traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
             }
         });
     });

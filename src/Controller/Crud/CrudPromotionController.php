@@ -153,7 +153,9 @@ class CrudPromotionController extends AbstractController
     public function delete(Request $request, Promotion $promotion, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$promotion->getId(), $request->request->get('_token'))) {
-            unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
+            if(str_starts_with($promotion->getImage(), 'dressur_pro_')) {
+                unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
+            }
             $entityManager->remove($promotion);
             $entityManager->flush();
         }
