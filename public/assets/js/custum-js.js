@@ -1264,6 +1264,18 @@ $(document).ready(function () {
                 } else {
                     msgError = "Votre demande d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
                     Swal.fire({icon: "success", title: "Good...", text: msgError,});
+
+                    $("#titre_demande_poste_rechercher").val("");
+                    $("#niveau_experience").val("");
+                    $("#secteur_activite_rechercher").val("");
+                    $("#type_contrat_rechercher").val("");
+                    $("#localisation_souhaite").val("");
+                    $("#salaire_souhaite").val("");
+                    $("#lien_portfolio").val("");
+                    $("#description_profil_demandeur").val("");
+                    $("#competence_qualification").val("");
+                    $("#langues_parle").val("");
+                    $("#coordonne_demandeur").val("");
                 }
                 traitementContact("add_dmd_emploi", "fin", "Envoyer")
             }
@@ -1324,6 +1336,20 @@ $(document).ready(function () {
                 } else {
                     msgError = "Votre offre d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
                     Swal.fire({icon: "success", title: "Good...", text: msgError,});
+
+                    $("#titre_poste").val("");
+                    $("#description_poste").val("");
+                    $("#competences_requises").val("");
+                    $("#type_contrat").val("");
+                    $("#lieu_travail").val("");
+                    $("#salaire").val("");
+                    $("#niveau_experience_offre").val("");
+                    $("#horaire_travail").val("");
+                    $("#avantages").val("");
+                    $("#dure_contrat_not_cdi").val("");
+                    $("#contact_emploiyeur").val("");
+                    $("#date_limite_candidature").val("");
+                    $("#lien_information_otionel").val("");
                 }
                 traitementContact("add_offre_emploi", "fin", "Envoyer")
             }
