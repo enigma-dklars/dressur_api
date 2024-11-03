@@ -65,6 +65,24 @@ $(document).ready(function () {
         return re.test(email);
     }
 
+    function isImageSquare(imageFile) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.src = URL.createObjectURL(imageFile);
+            
+            img.onload = () => {
+                const width = img.width;
+                const height = img.height;
+                const aspectRatio = width / height;
+                resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
+            };
+            
+            img.onerror = () => {
+                reject(new Error("Erreur lors du chargement de l'image. Assurez-vous que l'image est valide."));
+            };
+        });
+    }
+
     $(document).on('input', '#destinataires', function () {
         var emails = $(this).val().split(',');
         var validEmailCount = emails.filter(function(email) {
@@ -974,152 +992,76 @@ $(document).ready(function () {
 
         if (!description || !imageInput || !imageInput.size) {
             message = 'Attention !!!. Veuillez entrer un texte et sélectionner une image.';
+            Swal.fire({icon: "error", title: "Oops...", text: message,});
+            traitementContact("btn-promotionForm", "fin", "Envoyer");
+            return;
         }
 
         const fileSizeInMB = imageInput.size / (1024 * 1024);
 
         if (fileSizeInMB > 1) {
             message = "Attention !!! La taille de l'image ne peut pas dépasser 1 Mo.";
-        }
-
-        function isImageSquare(imageFile) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(imageFile);
-                
-                img.onload = () => {
-                    const width = img.width;
-                    const height = img.height;
-                    const aspectRatio = width / height;
-                    resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
-                };
-                
-                img.onerror = () => {
-                    reject(new Error("Erreur lors du chargement de l'image. Assurez-vous que l'image est valide."));
-                };
-            });
+            Swal.fire({icon: "error", title: "Oops...", text: message,});
+            traitementContact("btn-promotionForm", "fin", "Envoyer");
+            return;
         }
         
         // Utilisation
         isImageSquare(imageInput)
-            .then(isSquare => {
-                let message = "";
-                if (!isSquare) {
-                    message = "Attention !!! L'image doit être proche d'un carré.";
-                }
-        
-                if (message) {
-                    $("#msgError").html(`
-                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                            <div class="d-flex align-items-center">
-                                <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                                <div class="ms-3">
-                                    <div class="text-danger">` + message + `</div>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
-                    $("#msgError").toggle(800);
-                    traitementContact("btn-promotionForm", "fin", "Envoyer");
-                    return;
-                }
-        
-                // Si l'image est carrée, poursuivre avec l'envoi du formulaire
-                const formData = new FormData();
-                formData.append('idFormulePromoAffaire', idFormulePromoAffaire[0]);
-                formData.append('text', description);
-                formData.append('uid', uid);
-                formData.append('langUserPhone', "fr");
-                formData.append('image', imageInput);
-                formData.append('mode', mode);
-                formData.append('paymentMethod', paymentMethod);
-                formData.append('tel', tel);
-        
-                $.ajax({
-                    url: '/api/addProduitService',
-                    method: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    success: function (response) {
-                        if (response.error) {
-                            $("#msgError").html(`
-                                <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                                        <div class="ms-3">
-                                            <div class="text-danger">` + response.titre + ` ` + response.message + `</div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `);
-                            $('html, body').animate({ scrollTop: 0 }, 1000);
-                            $("#msgError").toggle(800);
-                            traitementContact("btn-promotionForm", "fin", "Envoyer");
-                        } else {
-                            if (response.direct == false) {
-                                window.open(response.url, '_blank');
-                            }
-                            let successMessage = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
-                            $("#msgError").html(`
-                                <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                                    <div class="d-flex align-items-center">
-                                        <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
-                                        <div class="ms-3">
-                                            <div class="text-success">` + successMessage + `</div>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            `);
-                            $('html, body').animate({ scrollTop: 0 }, 1000);
-                            $("#msgError").toggle(800);
-                            traitementContact("btn-promotionForm", "fin", "Envoyer");
-                            $('#description').val('');
-                            $('#image').val('');
-                            $('#imagePreview').empty();
-                        }
-                    },
-                    error: function (error) {
-                        const message = "Attention !!! Erreur : " + error.status;
-                        $("#msgError").html(`
-                            <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                                    <div class="ms-3">
-                                        <div class="text-danger">` + message + `</div>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `);
-                        $('html, body').animate({ scrollTop: 0 }, 1000);
-                        $("#msgError").toggle(800);
-                        traitementContact("btn-promotionForm", "fin", "Envoyer");
-                    }
-                });
-            })
-            .catch(error => {
-                const message = "Attention !!! Erreur lors de la vérification de l'image : " + error.message;
-                $("#msgError").html(`
-                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                            <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                            <div class="ms-3">
-                                <div class="text-danger">` + message + `</div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                `);
-                $('html, body').animate({ scrollTop: 0 }, 1000);
-                $("#msgError").toggle(800);
+        .then(isSquare => {
+            let message = "";
+            if (!isSquare) {
+                message = "Attention !!! L'image doit être proche d'un carré.";
+                Swal.fire({icon: "error", title: "Oops...", text: message,});
                 traitementContact("btn-promotionForm", "fin", "Envoyer");
+                return;
+            }
+    
+            // Si l'image est carrée, poursuivre avec l'envoi du formulaire
+            const formData = new FormData();
+            formData.append('idFormulePromoAffaire', idFormulePromoAffaire[0]);
+            formData.append('text', description);
+            formData.append('uid', uid);
+            formData.append('langUserPhone', "fr");
+            formData.append('image', imageInput);
+            formData.append('mode', mode);
+            formData.append('paymentMethod', paymentMethod);
+            formData.append('tel', tel);
+    
+            $.ajax({
+                url: '/api/addProduitService',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.error) {
+                        Swal.fire({icon: "error", title: "Oops...", text: response.titre + ` ` + response.message,});
+                        traitementContact("btn-promotionForm", "fin", "Envoyer");
+                    } else {
+                        if (response.direct == false) {
+                            window.open(response.url, '_blank');
+                        }
+                        let successMessage = "Good. Votre demande de promotion a été enregistrée. Elle sera diffusée si elle est acceptée par un administrateur. Dans le cas contraire, vous devrez la modifier en tenant compte des remarques.";
+                        Swal.fire({icon: "error", title: "Good...", text: successMessage,});
+                        traitementContact("btn-promotionForm", "fin", "Envoyer");
+                        $('#description').val('');
+                        $('#image').val('');
+                        $('#imagePreview').empty();
+                    }
+                },
+                error: function (error) {
+                    message = "Attention !!! Erreur : " + error.status;
+                    Swal.fire({icon: "error", title: "Oops...", text: message,});
+                    traitementContact("btn-promotionForm", "fin", "Envoyer");
+                }
             });
-        
+        })
+        .catch(error => {
+            message = "Attention !!! Erreur lors de la vérification de l'image : " + error.message;
+            Swal.fire({icon: "error", title: "Oops...", text: message,});
+            traitementContact("btn-promotionForm", "fin", "Envoyer");
+        });
     });
 
     $(document).on("click", ".accepterPromoAffaire", function () {
@@ -1187,24 +1129,6 @@ $(document).ready(function () {
         const imageInput = $('#image_'+id_promo_affaire)[0].files[0];
         const description = $('#description_'+id_promo_affaire).val();
         const uid = $('#uid').val();
-
-        function isImageSquare(imageFile) {
-            return new Promise((resolve, reject) => {
-                const img = new Image();
-                img.src = URL.createObjectURL(imageFile);
-                
-                img.onload = () => {
-                    const width = img.width;
-                    const height = img.height;
-                    const aspectRatio = width / height;
-                    resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
-                };
-                
-                img.onerror = () => {
-                    reject(new Error("Erreur lors du chargement de l'image. Assurez-vous que l'image est valide."));
-                };
-            });
-        }
 
         let message = '';
 
@@ -1304,21 +1228,7 @@ $(document).ready(function () {
         let coordonne_demandeur = $("#coordonne_demandeur").val();
 
         if(!titre_demande_poste_rechercher || !niveau_experience || !secteur_activite_rechercher || !type_contrat_rechercher || !localisation_souhaite || !salaire_souhaite || !lien_portfolio || !description_profil_demandeur || !competence_qualification || !langues_parle || !coordonne_demandeur){
-            if(!msgErrorHtml){
-                $(".msgError").html(`
-                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                    <div class="d-flex align-items-center">
-                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                    </div>
-                    <div class="ms-3">
-                        <div class="text-danger">`+msgError+`</div>
-                    </div>
-                    </div>
-                    </div>
-                `);
-                $('html, body').animate({ scrollTop: 0 }, 1000);
-                $(".msgError").toggle(800)
-            }
+            Swal.fire({icon: "error", title: "Oops...", text: msgError,});
             traitementContact("add_dmd_emploi", "fin", "Envoyer")
             return 0;
         }
@@ -1342,37 +1252,11 @@ $(document).ready(function () {
                 coordonne_demandeur : coordonne_demandeur,
             },
             success: function (response) {
-                if(response.error == true){
-                    $(".msgError").html(`
-                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-danger">`+response.message+`</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
-                    $(".msgError").toggle(800)
+                if(response.error == true){                    
+                    Swal.fire({icon: "error", title: "Oops...", text: response.message,});
                 } else {
                     msgError = "Votre demande d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
-                    $(".msgError").html(`
-                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-success">`+msgError+`</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
-                    $(".msgError").toggle(800);
+                    Swal.fire({icon: "success", title: "Good...", text: msgError,});
                 }
                 traitementContact("add_dmd_emploi", "fin", "Envoyer")
             }
@@ -1399,24 +1283,10 @@ $(document).ready(function () {
         let dure_contrat_not_cdi = $("#dure_contrat_not_cdi").val();
         let contact_emploiyeur = $("#contact_emploiyeur").val();
         let date_limite_candidature = $("#date_limite_candidature").val();
-        let lien_information_otionel = $("#lien_information_otionel").val();
-
-        console.log(uid, titre_poste, description_poste, competences_requises, type_contrat, lieu_travail, salaire, niveau_experience, horaire_travail, avantages, dure_contrat_not_cdi, contact_emploiyeur, date_limite_candidature, lien_information_otionel);
-        
+        let lien_information_otionel = $("#lien_information_otionel").val();        
 
         if(!titre_poste || !description_poste || !competences_requises || !type_contrat || !lieu_travail || !salaire || !niveau_experience || !horaire_travail || !avantages || !dure_contrat_not_cdi || !contact_emploiyeur || !date_limite_candidature || !lien_information_otionel){
-            $(".msgError").html(`
-                <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                <div class="d-flex align-items-center">
-                <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                </div>
-                <div class="ms-3">
-                    <div class="text-danger">`+msgError+`</div>
-                </div>
-                </div>
-                </div>
-            `);
-            $('html, body').animate({ scrollTop: 0 }, 1000);
+            Swal.fire({icon: "error", title: "Oops...", text: msgError,});
             traitementContact("add_offre_emploi", "fin", "Envoyer")
             return 0;
         }
@@ -1443,34 +1313,10 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if(response.error == true){
-                    $(".msgError").html(`
-                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-danger">`+response.message+`</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                    Swal.fire({icon: "error", title: "Oops...", text: response.message,});
                 } else {
                     msgError = "Votre offre d'emploi a été enregistrée et sera publiée après accord d'un des administrateurs de Dressur."
-                    $(".msgError").html(`
-                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-success">`+msgError+`</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $('html, body').animate({ scrollTop: 0 }, 1000);
+                    Swal.fire({icon: "success", title: "Good...", text: msgError,});
                 }
                 traitementContact("add_offre_emploi", "fin", "Envoyer")
             }
