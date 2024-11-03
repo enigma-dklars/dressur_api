@@ -295,8 +295,8 @@ class DressurBotController extends AbstractController
                 ->setCustomerId($transaction["customer_id"])
                 ->setCurrencyId($transaction["currency_id"])
                 ->setAnnotherInfo([
+                    'userBotId' => $userBotFind->getId(),
                     'formulDressurBotId' => $formulDressurBot->getId(),
-                    'userBot' => $userBotFind->getId(),
                 ])
             ;
             $this->em->persist($myTransaction);

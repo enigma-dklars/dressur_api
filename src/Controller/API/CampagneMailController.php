@@ -333,7 +333,9 @@ class CampagneMailController extends AbstractController
                     ->setCustomerId($transaction["customer_id"])
                     ->setCurrencyId($transaction["currency_id"])
                     ->setAnnotherInfo([
-                        'idCampagneMail' => $idCampagneMail
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
+                        'idCampagneMail' => $idCampagneMail,
                     ])
                 ;
                 $this->em->persist($myTransaction);

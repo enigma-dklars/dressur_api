@@ -454,6 +454,7 @@ class PromotionController extends AbstractController
                     ->setCurrencyId($transaction["currency_id"])
                     ->setAnnotherInfo([
                         'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
                         'formulePromoAffaire' => $formulBoost->getId(),
                         'image' => $fileName,
                         'description' => $text,
@@ -872,6 +873,8 @@ class PromotionController extends AbstractController
                     ->setCustomerId($transaction["customer_id"])
                     ->setCurrencyId($transaction["currency_id"])
                     ->setAnnotherInfo([
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
                         'formulBoostId' => $formulBoost->getId(),
                         'promotionId' => $promotion->getId(),
                     ])

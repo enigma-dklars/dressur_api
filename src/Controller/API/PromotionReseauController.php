@@ -233,6 +233,8 @@ class PromotionReseauController extends AbstractController
                 ->setCustomerId($transaction["customer_id"])
                 ->setCurrencyId($transaction["currency_id"])
                 ->setAnnotherInfo([
+                    'userId' => $user->getId(),
+                    'userUid' => $user->getUid(),
                     'idFormulePromoReseau' => $idFormulePromoReseau,
                     'qteDemander' => $qteDemander,
                     'prixQteDemander' => $prixQteDemander,
