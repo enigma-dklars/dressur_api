@@ -198,7 +198,6 @@ class CrudPromotionController extends AbstractController
             $entityManager->remove($promotion);
             $entityManager->flush();
         }
-
         return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
     }
 }
