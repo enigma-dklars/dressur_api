@@ -1072,6 +1072,7 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".accepterPromoAffaire", function () {
+        thisElement = $(this)
         let id_promo_affaire = $(this).attr("id_promo_affaire");
         let route_accepter = $("#accepter_"+id_promo_affaire).val();
 
@@ -1086,12 +1087,24 @@ $(document).ready(function () {
             cancelButtonText: "Non"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = route_accepter
+                thisElement.parent().parent().parent().addClass("bg-warning");
+                $.ajax({
+                    type: "GET",
+                    url: route_accepter,
+                    success: function (response) {
+                        if(response == "Yes") {
+                            thisElement.parent().parent().parent().remove()
+                        } else {
+                            Swal.fire({icon: "error", title: "Oops...", text: response,});
+                        }
+                    }
+                });
             }
         });
     });
 
     $(document).on("click", ".refuserPromoAffaire", function () {
+        thisElement = $(this)
         let id_promo_affaire = $(this).attr("id_promo_affaire");
         let route_accepter = $("#refuser_"+id_promo_affaire).val();
         console.log(this, id_promo_affaire, route_accepter);
@@ -1121,7 +1134,18 @@ $(document).ready(function () {
                     cancelButtonText: "Annuler"
                 });
                 if (text) {
-                    window.location.href = route_accepter+"/"+text
+                    thisElement.parent().parent().parent().addClass("bg-warning");
+                    $.ajax({
+                        type: "GET",
+                        url: route_accepter+"/"+text,
+                        success: function (response) {
+                            if(response == "Yes") {
+                                thisElement.parent().parent().parent().remove()
+                            } else {
+                                Swal.fire({icon: "error", title: "Oops...", text: response,});
+                            }
+                        }
+                    });
                 }
             }
         });

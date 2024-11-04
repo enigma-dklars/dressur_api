@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use DateTime;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/crud/promotion/affaire')]
 class CrudPromotionController extends AbstractController
@@ -126,37 +127,47 @@ class CrudPromotionController extends AbstractController
     #[Route('/{id}/accepter', name: 'app_crud_promotion_accepter', methods: ['GET', 'POST'])]
     public function accepter(Request $request, Promotion $promotion, EntityManagerInterface $entityManager, FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
     {
-        if($promotion->getTypePromotionAffaire() == "produit_service") {
-            $promotion
-                ->setDateExp(new DateTime("+ ".$promotion->getFormulePromoAffaire()->getNbrJour()."days"))
-            ;
+        try {
+            if($promotion->getTypePromotionAffaire() == "produit_service") {
+                $promotion
+                    ->setDateExp(new DateTime("+ ".$promotion->getFormulePromoAffaire()->getNbrJour()."days"))
+                ;
+            }
+    
+            if($promotion->getTypePromotionAffaire() == "dmd_emploi") {
+                $promotion
+                    ->setFormulePromoAffaire($formulePromoAffaireRepository->find(4))
+                    ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
+                ;
+            }
+    
+            if($promotion->getTypePromotionAffaire() == "offre_emploi") {
+                $promotion
+                    ->setFormulePromoAffaire($formulePromoAffaireRepository->find(4))
+                    ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
+                ;
+            }
+    
+            $promotion->setMotif("")->setStatus(3)->setDateDebut(new DateTime());
+            $entityManager->flush();
+            return new JsonResponse("Yes");
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse("No. ".(string)$th);
         }
-
-        if($promotion->getTypePromotionAffaire() == "dmd_emploi") {
-            $promotion
-                ->setFormulePromoAffaire($formulePromoAffaireRepository->find(4))
-                ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
-            ;
-        }
-
-        if($promotion->getTypePromotionAffaire() == "offre_emploi") {
-            $promotion
-                ->setFormulePromoAffaire($formulePromoAffaireRepository->find(4))
-                ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
-            ;
-        }
-
-        $promotion->setMotif("")->setStatus(3)->setDateDebut(new DateTime());
-        $entityManager->flush();
-        return $this->redirectToRoute('app_crud_promotion_promo_en_attente', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}/refuser/{motif?}', name: 'app_crud_promotion_refuser', methods: ['GET', 'POST'])]
     public function refuser(Request $request, Promotion $promotion, $motif, EntityManagerInterface $entityManager): Response
     {
-        $promotion->setMotif($motif)->setStatus(0);
-        $entityManager->flush();
-        return $this->redirectToRoute('app_crud_promotion_promo_en_attente', [], Response::HTTP_SEE_OTHER);
+        try {
+            $promotion->setMotif($motif)->setStatus(0);
+            $entityManager->flush();
+            return new JsonResponse("Yes");
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse("No. ".(string)$th);
+        }
     }
 
     #[Route('/{id}', name: 'app_crud_promotion_delete', methods: ['POST'])]
