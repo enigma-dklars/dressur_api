@@ -61,14 +61,30 @@ class CrudPromotionController extends AbstractController
     #[Route('/delete_images_no_use', name: 'app_crud_promotion_delete_images_no_use', methods: ['GET'])]
     public function delete_images_no_use(PromotionRepository $promotionRepository): Response
     {
-        /**
-         * $this->getParameter('promotion_directory')
-         * le dossier où se trouve les images de promotion affaire
-         * les images de promotion affaire commence tous par "dressur_pro_"
-         */
+        // Récupère le chemin du dossier promotion
+        $promotionDirectory = $this->getParameter('promotion_directory');
 
+        // Vérifie si le dossier existe
+        if (!is_dir($promotionDirectory)) {
+            throw new \Exception("Le dossier promotion n'existe pas.");
+        }
+
+        // Parcourt les fichiers dans le dossier promotion
+        $files = scandir($promotionDirectory);
+
+        foreach ($files as $file) {
+            // Vérifie si le fichier commence par "dressur_pro_"
+            if (strpos($file, 'dressur_pro_') === 0) {
+                if (!$promotionRepository->findOneBy(['image' => $file])) {
+                    unlink($promotionDirectory . '/' . $file);
+                }
+            }
+        }
+
+        // Redirige vers l'index des promotions
         return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
     }
+
 
     #[Route('/new', name: 'app_crud_promotion_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
