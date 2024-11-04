@@ -28,8 +28,10 @@
                             <div>
                                 Vues : <strong>{{promoaffaire.nombreDeVues}}</strong>
                             </div>
-                        </div>
-                        <div class="actu-small-description mb-1">{{promoaffaire.description}}</div>
+                        </div>                        
+                        {% if promoaffaire.typePromotionAffaire == "produit_service" %} <div class="actu-small-description mb-1"> {{promoaffaire.description}} </div> {% endif %}
+                        {% if promoaffaire.typePromotionAffaire == "offre_emploi" %} <div class="actu-small-description mb-1"> {{promoaffaire.annotherInfo.description_poste}} </div> {% endif %}
+                        {% if promoaffaire.typePromotionAffaire == "dmd_emploi" %} <div class="actu-small-description mb-1"> {{promoaffaire.annotherInfo.description_profil_demandeur}} </div> {% endif %}
                     {% endif %}
                     
                     <div class="{% if promoaffaire.statusNumber == 2 %}d-flex justify-content-between{% else %}text-end{% endif %} mt-2">

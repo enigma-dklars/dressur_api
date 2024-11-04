@@ -5,7 +5,9 @@
                 <img src="/promotion/{{actu.image}}" class="card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
                 <div class="card-body">
                     <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
-                        {{actu.description}}
+                        {% if actu.typePromotionAffaire == "produit_service" %} <div class="actu-small-description mb-1"> {{actu.description}} </div> {% endif %}
+                        {% if actu.typePromotionAffaire == "offre_emploi" %} <div class="actu-small-description mb-1"> {{actu.annotherInfo.description_poste}} </div> {% endif %}
+                        {% if actu.typePromotionAffaire == "dmd_emploi" %} <div class="actu-small-description mb-1"> {{actu.annotherInfo.description_profil_demandeur}} </div> {% endif %}
                     </p>
                     <div class="row">
                         <div class="col-7">
@@ -38,8 +40,19 @@
                                 <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm mb-3 rounded-5">Contacter l'annonceur</a>
                             </p>
                             <p class="px-3">
-                                {{actu.description|nl2br}}
+                                {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description|nl2br}} {% endif %}
+                                {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste|nl2br}} {% endif %}
+                                {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur|nl2br}} {% endif %}
                             </p>
+                            <div class="px-3">
+                                {% for key, value in actu.annotherInfo %}
+                                    <div class="mb-1">
+                                        <div class="fw-bolder text-primary fs-6">{{ key | replace({'_': ' '}) | capitalize }} : </div>
+                                        <div style="word-wrap: break-word; white-space: normal;">{{ value|nl2br }}</div>
+                                        <hr>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>

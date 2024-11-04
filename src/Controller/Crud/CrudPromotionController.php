@@ -58,16 +58,14 @@ class CrudPromotionController extends AbstractController
         ]);
     }
 
-    #[Route('/delete_inutiles', name: 'app_crud_promotion_delete_inutiles', methods: ['GET'])]
-    public function delete_inutiles(PromotionRepository $promotionRepository): Response
+    #[Route('/delete_images_no_use', name: 'app_crud_promotion_delete_images_no_use', methods: ['GET'])]
+    public function delete_images_no_use(PromotionRepository $promotionRepository): Response
     {
-        foreach ($promotionRepository->findBy(['status' => 0]) as $une_promo) {
-            # code...
-        }
-
-        foreach ($promotionRepository->findBy(['status' => 2]) as $une_promo) {
-            # code...
-        }
+        /**
+         * $this->getParameter('promotion_directory')
+         * le dossier où se trouve les images de promotion affaire
+         * les images de promotion affaire commence tous par "dressur_pro_"
+         */
 
         return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
     }

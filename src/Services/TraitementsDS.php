@@ -550,6 +550,8 @@ class TraitementsDS extends AbstractController
                 "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -571,6 +573,8 @@ class TraitementsDS extends AbstractController
                 "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -602,6 +606,8 @@ class TraitementsDS extends AbstractController
                         "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                         "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                        "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                        "annotherInfo" => $promo->getAnnotherInfo(),
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
@@ -624,6 +630,8 @@ class TraitementsDS extends AbstractController
                             "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                             "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                            "annotherInfo" => $promo->getAnnotherInfo(),
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
@@ -643,6 +651,8 @@ class TraitementsDS extends AbstractController
                 "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ]);
         }
         $this->em->flush();
