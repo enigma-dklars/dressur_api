@@ -189,12 +189,15 @@ class CrudPromotionController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete'.$promotion->getId(), $request->request->get('_token'))) {
             if(str_starts_with($promotion->getImage(), 'dressur_pro_')) {
-                unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
+                try {
+                    unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
             $entityManager->remove($promotion);
             $entityManager->flush();
         }
-
         return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
     }
 }
