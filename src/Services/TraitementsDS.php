@@ -639,7 +639,7 @@ class TraitementsDS extends AbstractController
                         "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                         "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
-                        "annotherInfo" => $promo->getAnnotherInfo(),
+                        "annotherInfo" => $promo->getAnnotherInfo() != NULL ? $promo->getAnnotherInfo() : [],
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
