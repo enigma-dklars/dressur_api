@@ -61,6 +61,17 @@ class CrudUserController extends AbstractController
         ]);
     }
 
+    #[Route('/users-inutiles', name: 'app_crud_user_inutiles', methods: ['GET'])]
+    public function inutiles(UserRepository $userRepository): Response
+    {
+        return $this->render('crud_user/users-inutiles.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'users' => $userRepository->findBy([], ['id' => 'DESC']),
+            'option' => "Users Inutiles",
+        ]);
+    }
+
     #[Route('/not-verif-tel', name: 'app_crud_user_not_verif_tel', methods: ['GET'])]
     public function not_verif_tel(UserRepository $userRepository): Response
     {
