@@ -41,7 +41,22 @@
             {% endfor %}
 
             {% for user in users %}
-                {% if user.boosts|length == 0 and user.promotions|length == 0 and user.promoReseaus|length == 0 and user.campagneMails|length == 0 and user.mailIsVerified == false %}
+                {% set lesContactsDuUser = [] %}
+                {% for item in user.contact.whoIAdd %}
+                    {% if item in id_users %}
+                        {% if item not in lesContactsDuUser %}
+                            {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% for item in user.contact.whoAddMe %}
+                    {% if item in id_users %}
+                        {% if item not in lesContactsDuUser %}
+                            {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if user.boosts|length == 0 and user.promotions|length == 0 and user.promoReseaus|length == 0 and user.campagneMails|length == 0 and user.mailIsVerified == false and lesContactsDuUser|length < 2 %}
                     <tr>
                         <td>{% include "crud_user/_delete_form.html.twig" %}</td>
                         <td>
@@ -73,21 +88,6 @@
                         </td>
                         <td class="text-end">{{user.soldeBonus}}</td>
                         <td class="text-end">
-                            {% set lesContactsDuUser = [] %}
-                            {% for item in user.contact.whoIAdd %}
-                                {% if item in id_users %}
-                                    {% if item not in lesContactsDuUser %}
-                                        {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                            {% for item in user.contact.whoAddMe %}
-                                {% if item in id_users %}
-                                    {% if item not in lesContactsDuUser %}
-                                        {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
                             {{lesContactsDuUser|length}}
                         </td>
                         <td class="text-end">{{user.boosts|length}}</td>
