@@ -33,8 +33,10 @@ use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
+use App\Entity\MethodePaiement;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\MethodePaiementRepository;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -66,9 +68,11 @@ class TraitementsDS extends AbstractController
     private $envMailSenderRepository;
     private $motRefusers;
     private $formulePromoAffaireRepository;
+    private $methodePaiementRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository)
     {
+        $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
         $this->motRefusers = $motRefuserRepository->findAll();
         $this->zefameApi = $zefameApi;
@@ -328,6 +332,34 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function listeMethodePaiement() {
+        $listeMethodePaiement = [];
+        foreach ($this->methodePaiementRepository->findAll() as $methode) {
+            if(!$this->methodePaiementRepository->findOneBy(['autreMethodeUn' => $methode])) {
+                if($methode->isActivated()){
+                    array_push($listeMethodePaiement, [
+                        "id" => $methode->getId(),
+                        "code" => $methode->getCode(),
+                        "pays" => $methode->getPays(),
+                        "titre" => $methode->getTitre(),
+                        "aggregator" => $methode->getAggregator(),
+                    ]);
+                } else if($methode->getAutreMethodeUn()) {
+                    if($methode->getAutreMethodeUn()->isActivated()){
+                        array_push($listeMethodePaiement, [
+                            "id" => $methode->getAutreMethodeUn()->getId(),
+                            "code" => $methode->getAutreMethodeUn()->getCode(),
+                            "pays" => $methode->getAutreMethodeUn()->getPays(),
+                            "titre" => $methode->getAutreMethodeUn()->getTitre(),
+                            "aggregator" => $methode->getAutreMethodeUn()->getAggregator(),
+                        ]);
+                    }
+                }
+            }
+        }
+        return $listeMethodePaiement;
     }
 
     public function listeFormulBoost() {
