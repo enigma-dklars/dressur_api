@@ -35,6 +35,9 @@ class MethodePaiement
     #[ORM\OneToOne(targetEntity: self::class, cascade: ['persist', 'remove'])]
     private ?self $autreMethodeUn = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $requires = null;
+
     public function __toString()
     {
         return $this->pays." ".$this->titre;
@@ -125,6 +128,18 @@ class MethodePaiement
     public function setAutreMethodeUn(?self $autreMethodeUn): static
     {
         $this->autreMethodeUn = $autreMethodeUn;
+
+        return $this;
+    }
+
+    public function getRequires(): ?string
+    {
+        return $this->requires;
+    }
+
+    public function setRequires(?string $requires): static
+    {
+        $this->requires = $requires;
 
         return $this;
     }

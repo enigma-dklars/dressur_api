@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\MethodePaiement;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -41,6 +41,11 @@ class MethodePaiementType extends AbstractType
             ->add('isdirect', null, [
                 'attr' => [
                     'class' => 'mx-3 mb-2'
+                ],
+            ])
+            ->add('requires', TextType::class, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
                 ],
             ])
             ->add('autreMethodeUn', null, [
