@@ -1,0 +1,50 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}MethodePaiement{% endblock %}
+
+{% block body %}
+    <h1>MethodePaiement</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ methode_paiement.id }}</td>
+            </tr>
+            <tr>
+                <th>Aggregator</th>
+                <td>{{ methode_paiement.aggregator }}</td>
+            </tr>
+            <tr>
+                <th>Pays</th>
+                <td>{{ methode_paiement.pays }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ methode_paiement.titre }}</td>
+            </tr>
+            <tr>
+                <th>Code</th>
+                <td>{{ methode_paiement.code }}</td>
+            </tr>
+            <tr>
+                <th>Activated</th>
+                <td>{{ methode_paiement.activated ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Isdirect</th>
+                <td>{{ methode_paiement.isdirect ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Requires</th>
+                <td>{{ methode_paiement.requires ? methode_paiement.requires|join(', ') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_methode_paiement_index') }}">back to list</a>
+
+    <a href="{{ path('app_methode_paiement_edit', {'id': methode_paiement.id}) }}">edit</a>
+
+    {{ include('methode_paiement/_delete_form.html.twig') }}
+{% endblock %}

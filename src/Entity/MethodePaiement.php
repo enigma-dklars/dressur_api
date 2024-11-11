@@ -32,11 +32,13 @@ class MethodePaiement
     #[ORM\Column]
     private ?bool $isdirect = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
-    private array $requires = [];
-
     #[ORM\OneToOne(targetEntity: self::class, cascade: ['persist', 'remove'])]
     private ?self $autreMethodeUn = null;
+
+    public function __toString()
+    {
+        return $this->pays." ".$this->titre;
+    }
 
     public function getId(): ?int
     {
@@ -111,18 +113,6 @@ class MethodePaiement
     public function setIsdirect(bool $isdirect): static
     {
         $this->isdirect = $isdirect;
-
-        return $this;
-    }
-
-    public function getRequires(): array
-    {
-        return $this->requires;
-    }
-
-    public function setRequires(array $requires): static
-    {
-        $this->requires = $requires;
 
         return $this;
     }
