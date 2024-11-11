@@ -4,8 +4,8 @@ namespace App\Controller\Crud;
 
 use App\Services\CookieDS;
 use App\Entity\MethodePaiement;
-use App\Services\TraitementsDS;
 use App\Form\MethodePaiementType;
+use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\MethodePaiementRepository;
