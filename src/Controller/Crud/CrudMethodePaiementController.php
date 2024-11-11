@@ -14,8 +14,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/methode/paiement')]
-class MethodePaiementController extends AbstractController
+#[Route('/crud/methode/paiement')]
+class CrudMethodePaiementController extends AbstractController
 {
     private $em;
     private $env;
@@ -43,7 +43,7 @@ class MethodePaiementController extends AbstractController
     #[Route('/', name: 'app_methode_paiement_index', methods: ['GET'])]
     public function index(MethodePaiementRepository $methodePaiementRepository): Response
     {
-        return $this->render('methode_paiement/index.html.twig', [
+        return $this->render('crud_methode_paiement/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'methode_paiements' => $methodePaiementRepository->findAll(),
@@ -64,7 +64,7 @@ class MethodePaiementController extends AbstractController
             return $this->redirectToRoute('app_methode_paiement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('methode_paiement/new.html.twig', [
+        return $this->renderForm('crud_methode_paiement/new.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'methode_paiement' => $methodePaiement,
@@ -75,7 +75,7 @@ class MethodePaiementController extends AbstractController
     #[Route('/{id}', name: 'app_methode_paiement_show', methods: ['GET'])]
     public function show(MethodePaiement $methodePaiement): Response
     {
-        return $this->render('methode_paiement/show.html.twig', [
+        return $this->render('crud_methode_paiement/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'methode_paiement' => $methodePaiement,
@@ -94,7 +94,7 @@ class MethodePaiementController extends AbstractController
             return $this->redirectToRoute('app_methode_paiement_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('methode_paiement/edit.html.twig', [
+        return $this->renderForm('crud_methode_paiement/edit.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'methode_paiement' => $methodePaiement,
