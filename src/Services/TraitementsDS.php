@@ -297,6 +297,14 @@ class TraitementsDS extends AbstractController
                 }
             }
 
+            $descp_promo = $promo->getDescription();
+            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            }
+            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            }
+
             $unePromo = [
                 "id" => (string)$promo->getId(),
                 "username" => $promo->getUser(),
@@ -304,7 +312,7 @@ class TraitementsDS extends AbstractController
                 "image" => $promo->getImage(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
-                "description" => $promo->getDescription(),
+                "description" => $descp_promo,
                 "statusNumber" => $promo->getStatus(),
                 "status" => $statut,
                 "dateDebut" => $promo->getDateDebut() ? ($promo->getDateDebut())->format('d-m-Y à H:i') : "",
@@ -541,15 +549,24 @@ class TraitementsDS extends AbstractController
         );
         foreach ($promos as $promo) {
             $promo->setToWatch(null, "web");
+            $descp_promo = $promo->getDescription();
+            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            }
+            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            }
             $unePromo = [
                 "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promo->getId(),
                 "image" => $promo->getImage(),
-                "description" => $promo->getDescription(),
+                "description" => $descp_promo,
                 "whatsappNumber" => $promo->getUser()->getTel(),
                 "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -561,16 +578,26 @@ class TraitementsDS extends AbstractController
     public function getTopAffaires($limite){
         $top_trois_affaires = [];
         $promos = $this->promotionRepository->findBy([ "isFakeVue" => false ], ["nombreDeVue" => "DESC"], $limite);
+
         foreach ($promos as $promo) {
+            $descp_promo = $promo->getDescription();
+            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            }
+            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            }
             $unePromo = [
                 "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promo->getId(),
                 "image" => $promo->getImage(),
-                "description" => $promo->getDescription(),
+                "description" => $descp_promo,
                 "whatsappNumber" => $promo->getUser()->getTel(),
                 "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -593,15 +620,26 @@ class TraitementsDS extends AbstractController
                     } else {
                         $promo->setToWatch($user, "all");
                     }
+
+                    $descp_promo = $promo->getDescription();
+                    if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                        $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+                    }
+                    if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                        $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+                    }
+
                     $unePromo = [
                         "uidUser" => $promo->getUser()->getUid(),
                         "id" => $promo->getId(),
                         "image" => $promo->getImage(),
-                        "description" => $promo->getDescription(),
+                        "description" => $descp_promo,
                         "whatsappNumber" => $promo->getUser()->getTel(),
                         "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                         "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                        "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                        "annotherInfo" => $promo->getAnnotherInfo(),
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
@@ -615,15 +653,26 @@ class TraitementsDS extends AbstractController
                         } else {
                             $promo->setToWatch($user, "all");
                         }
+
+                        $descp_promo = $promo->getDescription();
+                        if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                            $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+                        }
+                        if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                            $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+                        }
+
                         $unePromo = [
                             "uidUser" => $promo->getUser()->getUid(),
                             "id" => $promo->getId(),
                             "image" => $promo->getImage(),
-                            "description" => $promo->getDescription(),
+                            "description" => $descp_promo,
                             "whatsappNumber" => $promo->getUser()->getTel(),
                             "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
                             "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                            "annotherInfo" => $promo->getAnnotherInfo(),
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
@@ -634,15 +683,25 @@ class TraitementsDS extends AbstractController
         }
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
+            $descp_promo = $promo->getDescription();
+            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            }
+            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            }
+
             array_push($listePubliciteAffichageAuxUsers, [
                 "uidUser" => $promo->getUser()->getUid(),
                 "id" => $promoVIP->getId(),
                 "image" => $promoVIP->getImage(),
-                "description" => $promoVIP->getDescription(),
+                "description" => $descp_promo,
                 "whatsappNumber" => $promoVIP->getUser()->getTel(),
                 "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
                 "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
             ]);
         }
         $this->em->flush();
