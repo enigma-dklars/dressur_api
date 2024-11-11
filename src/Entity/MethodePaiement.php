@@ -40,7 +40,7 @@ class MethodePaiement
 
     public function __toString()
     {
-        return $this->pays." ".$this->titre;
+        return $this->pays." ".$this->titre." de ".$this->aggregator;
     }
 
     public function getId(): ?int
