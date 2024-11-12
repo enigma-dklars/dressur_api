@@ -99,7 +99,7 @@ class PromotionReseauController extends AbstractController
         $qteDemander = $datas->get('qteDemander');
         $prixQteDemander = $datas->get('prixQteDemander');
         $lien = $datas->get('lien');
-        $valueMethodePaiement = $datas->get('valueMethodePaiement');
+        $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
         $tel = $datas->get('tel');
         
         if(!$idFormulePromoReseau || !$qteDemander || !$prixQteDemander || !$lien || !$valueMethodePaiement || !$tel){

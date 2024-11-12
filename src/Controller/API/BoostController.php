@@ -186,7 +186,7 @@ class BoostController extends AbstractController
         FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
         $idFormulBoost = $datas->get('idFormulBoost');
-        $valueMethodePaiement = $datas->get('valueMethodePaiement');
+        $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
         $tel = $datas->get('tel');
 
         $verificationUser = $verificationsDS->verifUSer($uid);

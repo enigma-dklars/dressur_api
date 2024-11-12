@@ -34,7 +34,7 @@ class MethodePaiementController extends AbstractController
     {
         return new JsonResponse([
             'error' => false,
-            'listeMethodePaiement' => $traitementsDS->listeMethodePaiement(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 }

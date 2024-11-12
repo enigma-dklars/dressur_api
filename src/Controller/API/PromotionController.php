@@ -256,7 +256,7 @@ class PromotionController extends AbstractController
         $uid = $datas->get('uid');
         $text = $datas->get('text');
         $mode = $datas->get('mode');
-        $paymentMethod = $datas->get('paymentMethod');
+        $paymentMethod = $datas->get('paymentMethod'); // mon_argent
         $tel = $datas->get('tel');
 
         $image = $files->get('image');
@@ -754,7 +754,7 @@ class PromotionController extends AbstractController
 
         $idPromotion = $datas->get('idPromotion');
         $idFormulBoost = $datas->get('idFormulBoost');
-        $valueMethodePaiement = $datas->get('valueMethodePaiement');
+        $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
         $tel = $datas->get('tel');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
