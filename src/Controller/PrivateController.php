@@ -280,6 +280,7 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         // dd($traitementsDS->userCampagneMail($user->getCampagneMails()));
         $html = $this->renderView('private/listecampagemail.html.twig', [
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'campagemails' => $traitementsDS->userCampagneMail($user->getCampagneMails()),
             'user' => $traitementsDS->infosUser($user),
         ]);
@@ -297,6 +298,7 @@ class PrivateController extends AbstractController
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newpromoreseau.html.twig', [
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'listSocialNetworks' => $traitementsDS->listeFormulePromoReseau(),
             'user' => $traitementsDS->infosUser($user),
         ]);
@@ -347,6 +349,7 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         $html = $this->renderView('private/listepromoaffaire.html.twig', [
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'listepromoaffaire' => $traitementsDS->userPromos($user->getPromotions()),
             'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
             'user' => $traitementsDS->infosUser($user),
