@@ -341,18 +341,20 @@ class TraitementsDS extends AbstractController
                 if($methode->isActivated()){
                     array_push($listeMethodePaiement, [
                         "id" => $methode->getId(),
+                        "value" => $methode->getId(),
+                        "titre" => $methode->getPays()." - ".$methode->getTitre(),
                         "code" => $methode->getCode(),
                         "pays" => $methode->getPays(),
-                        "titre" => $methode->getTitre(),
                         "aggregator" => $methode->getAggregator(),
                     ]);
                 } else if($methode->getAutreMethodeUn()) {
-                    if($methode->getAutreMethodeUn()->isActivated()){
+                    if($methode->getAutreMethodeUn()->isActivated()) {
                         array_push($listeMethodePaiement, [
                             "id" => $methode->getAutreMethodeUn()->getId(),
+                            "value" => $methode->getAutreMethodeUn()->getId(),
+                            "titre" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
                             "code" => $methode->getAutreMethodeUn()->getCode(),
                             "pays" => $methode->getAutreMethodeUn()->getPays(),
-                            "titre" => $methode->getAutreMethodeUn()->getTitre(),
                             "aggregator" => $methode->getAutreMethodeUn()->getAggregator(),
                         ]);
                     }
