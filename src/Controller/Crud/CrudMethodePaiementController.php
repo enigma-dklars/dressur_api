@@ -46,7 +46,7 @@ class CrudMethodePaiementController extends AbstractController
         return $this->render('crud_methode_paiement/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'methode_paiements' => $methodePaiementRepository->findAll(),
+            'methode_paiements' => $methodePaiementRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 
