@@ -261,7 +261,7 @@ class PromotionReseauController extends AbstractController
                 $this->em->persist($myTransaction);
                 $this->em->flush();
         
-                $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
+                $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $msgError = (string)$th;

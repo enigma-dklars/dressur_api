@@ -973,12 +973,10 @@ class TraitementsDS extends AbstractController
         return $country;
     }
 
-    public function startPaiement($transaction, $mode) {
-        $paiementDirect = ["mtn","moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"];
-        $paiementDirect = ["moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"];
-        if(in_array($mode, $paiementDirect)) {
+    public function startPaiement($transaction, $methodePaiementEntity) {
+        if($methodePaiementEntity->isIsdirect()) {
             $token = $transaction->generateToken()->token;
-            $transaction->sendNowWithToken($mode, $token);
+            $transaction->sendNowWithToken($methodePaiementEntity->getCode(), $token);
             return [
                 "error" => false,
                 "direct" => true,
