@@ -405,6 +405,21 @@ class PromotionController extends AbstractController
                 'error' => false
             ]);
         } else {
+            if(!$paymentMethod){
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Mistake!',
+                        'message' => "Please choose a Payment Method...",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'Veuillez choisir une Methode de Paiement...',
+                ]);
+            }
+
             $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
