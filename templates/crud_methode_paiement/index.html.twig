@@ -28,13 +28,20 @@
             {% for methode_paiement in methode_paiements %}
                 <tr>
                     <td>
-                        {{ include('methode_paiement/_delete_form.html.twig') }}
+                        {{ include('crud_methode_paiement/_delete_form.html.twig') }}
                     </td>
                     <td>{{ methode_paiement.id }}</td>
                     <td>{{ methode_paiement.pays }}</td>
                     <td>{{ methode_paiement.titre }}</td>
                     <td>{{ methode_paiement.code }}</td>
-                    <td>{{ methode_paiement.aggregator }}</td>
+                    <td class="text-center">
+                        {% if methode_paiement.aggregator == "FeexPay" %}
+                            <span class="badge bg-orange">FeexPay</span>
+                        {% endif %}
+                        {% if methode_paiement.aggregator == "FedaPay" %}
+                            <span class="badge bg-primary">FedaPay</span>
+                        {% endif %}
+                    </td>
                     <td class="text-center">
                         {% if methode_paiement.activated == true %}
                             <span class="badge bg-success">Yes</span>

@@ -33,8 +33,10 @@ use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
+use App\Entity\MethodePaiement;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\MethodePaiementRepository;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -66,9 +68,11 @@ class TraitementsDS extends AbstractController
     private $envMailSenderRepository;
     private $motRefusers;
     private $formulePromoAffaireRepository;
+    private $methodePaiementRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository)
     {
+        $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
         $this->motRefusers = $motRefuserRepository->findAll();
         $this->zefameApi = $zefameApi;
@@ -328,6 +332,36 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
+    }
+
+    public function listeMethodePaiements() {
+        $listeMethodePaiement = [];
+        foreach ($this->methodePaiementRepository->findAll() as $methode) {
+            if(!$this->methodePaiementRepository->findOneBy(['autreMethodeUn' => $methode])) {
+                if($methode->isActivated()){
+                    array_push($listeMethodePaiement, [
+                        "id" => $methode->getId(),
+                        "value" => $methode->getId(),
+                        "titre" => $methode->getPays()." - ".$methode->getTitre(),
+                        "code" => $methode->getCode(),
+                        "pays" => $methode->getPays(),
+                        "aggregator" => $methode->getAggregator(),
+                    ]);
+                } else if($methode->getAutreMethodeUn()) {
+                    if($methode->getAutreMethodeUn()->isActivated()) {
+                        array_push($listeMethodePaiement, [
+                            "id" => $methode->getAutreMethodeUn()->getId(),
+                            "value" => $methode->getAutreMethodeUn()->getId(),
+                            "titre" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
+                            "code" => $methode->getAutreMethodeUn()->getCode(),
+                            "pays" => $methode->getAutreMethodeUn()->getPays(),
+                            "aggregator" => $methode->getAutreMethodeUn()->getAggregator(),
+                        ]);
+                    }
+                }
+            }
+        }
+        return $listeMethodePaiement;
     }
 
     public function listeFormulBoost() {
@@ -939,12 +973,10 @@ class TraitementsDS extends AbstractController
         return $country;
     }
 
-    public function startPaiement($transaction, $mode) {
-        $paiementDirect = ["mtn","moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"];
-        $paiementDirect = ["moov","mtn_ci","moov_tg","mtn_open","airtel_ne","free_sn","togocel","mtn_ecw"];
-        if(in_array($mode, $paiementDirect)) {
+    public function startPaiement($transaction, $methodePaiementEntity) {
+        if($methodePaiementEntity->isIsdirect()) {
             $token = $transaction->generateToken()->token;
-            $transaction->sendNowWithToken($mode, $token);
+            $transaction->sendNowWithToken($methodePaiementEntity->getCode(), $token);
             return [
                 "error" => false,
                 "direct" => true,

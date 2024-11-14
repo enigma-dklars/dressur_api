@@ -100,24 +100,12 @@
                                 </select>
                             </div>
                             <div class="mb-2">
-                                <label for="moyen-paiement">Methode de paiement mobile</label>
+                                <label for="moyen-paiement">Moyen de paiement mobile ou par carte</label>
                                 <select id="moyen-paiement-{{promoaffaire.id}}" class="form-select getInfo getInfoBoostPayant-{{promoaffaire.id}} moyenPaiementPayant-{{promoaffaire.id}}">
-                                    <option value="" disabled selected>Choisisez le Moyen de paiement</option>
-                                    <option value="airtel_ne">Airtel Niger</option>
-                                    <option value="sbin">Celtis Cash</option>
-                                    <option value="free_sn">Free Sénégal</option>
-                                    <option value="moov">MOOV Flooz Bénin</option>
-                                    <option value="moov_bf">MOOV Burkina Faso</option>
-                                    <option value="moov_ci">MOOV Côte d'Ivoire</option>
-                                    <option value="moov_tg">MOOV Flooz Togo</option>
-                                    <option value="mtn">MTN Mobile Money Bénin</option>
-                                    <option value="mtn_ci">MTN Mobile Money Côte d'Ivoire</option>
-                                    <option value="mtn_open_gn">MTN Mobile Money Guinée</option>
-                                    <option value="orange_bf">Orange Burkina Faso</option>
-                                    <option value="orange_ci">Orange Côte d'Ivoire</option>
-                                    <option value="orange_ml">Orange Mali</option>
-                                    <option value="orange_sn">Orange Sénégal</option>
-                                    <option value="togocel">TOGOCEL T-Money</option>
+                                    <option value="" disabled selected>Choisisez le Moyen de paiement mobile ou par carte</option>
+                                    {% for uneMethodePaiement in listeMethodePaiements %}
+                                        <option value="{{uneMethodePaiement.value}}">{{uneMethodePaiement.titre}}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div>
