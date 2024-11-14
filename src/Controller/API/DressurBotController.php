@@ -23,6 +23,7 @@ use App\Entity\UserBot;
 use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\FormuleDressurBotRepository;
+use App\Repository\MethodePaiementRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\UserBotRepository;
 use App\Repository\UserRepository;
@@ -186,7 +187,7 @@ class DressurBotController extends AbstractController
     }
 
     #[Route('/paiementDressurUserBot', name: 'paiementDressurUserBot', methods: ['POST'])]
-    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository): Response
+    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
         $sessionDS->set("langUserPhone", "fr");
@@ -228,14 +229,6 @@ class DressurBotController extends AbstractController
             ]);
         }
 
-        if(!$valueMethodePaiement){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => 'Veuillez choisir une Methode de Paiement...',
-            ]);
-        }
-
         if(!$tel){
             return new JsonResponse([
                 'error' => true,
@@ -266,59 +259,123 @@ class DressurBotController extends AbstractController
             ]);
         }
 
-        $array_create_transaction = [
-            "description" => "DressurBot : Activation : ". $formulDressurBot->getTitre() ." - ". $formulDressurBot->getPrix() ."FCFA : Transaction for ". $userBotFind->getNom() ." ".$userBotFind->getEmail(),
-            "amount" => $formulDressurBot->getPrix(),
-            "currency" => ["iso" => "XOF"],
-            "customer" => [
-                "firstname" => $userBotFind->getNom(),
-                "lastname" => $userBotFind->getNom(),
-                "email" => $userBotFind->getEmail(),
-                "phone_number" => [
-                    "number" => $tel,
-                    "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
-                ]
-            ]
-        ];
-            
-        $transaction = Transaction::create($array_create_transaction);
-
-        $myTransaction  = new EntityTransaction();
-        $myTransaction
-            ->setUserBot($userBotFind)
-            ->setTransactionFor("dressur_bot_activation")
-            ->setIdTransaction($transaction["id"])
-            ->setReference($transaction["reference"])
-            ->setAmount($transaction["amount"])
-            ->setStatus($transaction["status"])
-            ->setCustomerId($transaction["customer_id"])
-            ->setCurrencyId($transaction["currency_id"])
-            ->setAnnotherInfo([
-                'formulDressurBotId' => $formulDressurBot->getId(),
-                'userBot' => $userBotFind->getId(),
-            ])
-        ;
-        $this->em->persist($myTransaction);
-
-        $this->em->flush();
-
-        try {
-            $resultat = $traitementsDS->startPaiement($transaction, $valueMethodePaiement);
-            return new JsonResponse($resultat);
-        } catch (\Throwable $th) {
-            $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
+        if(!$valueMethodePaiement){
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+        $methodePaiementEntity = $methodePaiementRepository->find($valueMethodePaiement);
+        if(!$methodePaiementEntity) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "We encountered an error. You will be contacted by an administrator.",
+                    'titre' => 'Mistake!',
+                    'message' => "Please choose a valide Payment Method...",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement valide...',
             ]);
+        }
+        if($methodePaiementEntity->getAggregator() == "FedaPay"){
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Payment error. Please contact the administrators.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+            FedaPay::setApiKey($envPaiementApi->getApiKey());
+            FedaPay::setEnvironment($envPaiementApi->getEnvironment());
+
+            $array_create_transaction = [
+                "description" => "DressurBot : Activation : ". $formulDressurBot->getTitre() ." - ". $formulDressurBot->getPrix() ."FCFA : Transaction for ". $userBotFind->getNom() ." ".$userBotFind->getEmail(),
+                "amount" => $formulDressurBot->getPrix(),
+                "currency" => ["iso" => "XOF"],
+                "customer" => [
+                    "firstname" => $userBotFind->getNom(),
+                    "lastname" => $userBotFind->getNom(),
+                    "email" => $userBotFind->getEmail(),
+                    "phone_number" => [
+                        "number" => $tel,
+                        "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                    ]
+                ]
+            ];
+    
+            try {
+                $transaction = Transaction::create($array_create_transaction);
+        
+                $myTransaction  = new EntityTransaction();
+                $myTransaction
+                    ->setUserBot($userBotFind)
+                    ->setTransactionFor("dressur_bot_activation")
+                    ->setIdTransaction($transaction["id"])
+                    ->setReference($transaction["reference"])
+                    ->setAmount($transaction["amount"])
+                    ->setStatus($transaction["status"])
+                    ->setCustomerId($transaction["customer_id"])
+                    ->setCurrencyId($transaction["currency_id"])
+                    ->setAnnotherInfo([
+                        'userBotId' => $userBotFind->getId(),
+                        'formulDressurBotId' => $formulDressurBot->getId(),
+                    ])
+                ;
+                $this->em->persist($myTransaction);
+        
+                $this->em->flush();
+        
+                $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $msgError = (string)$th;
+                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                    $envPaiementApi->setCountTransactionApproved(10);
+                    $this->em->flush();
+    
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Excuse us please!',
+                            'message' => "Please submit the form again. Thank you.",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excusez-nous svp!',
+                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                    ]);
+                }
+    
+                $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } else {
+            // logique de paiement FeexPay
         }
 
         return new JsonResponse([

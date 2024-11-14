@@ -26,6 +26,22 @@
                 </div>
             </div>
             <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">U. Inutile</p>
+                                <h4 class="my-1">**** <span class="text-warning">|</span> ****</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Inutile</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                                <a href="{{path('app_crud_user_inutiles')}}" class="text-white"><i class="fas fa-bars"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
@@ -119,7 +135,8 @@
                             <h4 class="my-1">{{valid_promo_affaire}}</h4>
                             <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Affaire</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list"></i>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_promotion_promo_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
                         </div>
                     </div>
                 </div>
@@ -134,7 +151,8 @@
                             <h4 class="my-1">{{valid_promo_reseau}}</h4>
                             <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Réseau</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list-ul"></i>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_promo_reseau_promo_reseau_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
                         </div>
                     </div>
                 </div>

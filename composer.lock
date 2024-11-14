@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "71bafe9c01404a7e03c567180306f3ae",
+    "content-hash": "2eec08f8876437f0234697bf5e281a3f",
     "packages": [
         {
             "name": "amphp/amp",
@@ -2495,6 +2495,46 @@
                 "source": "https://github.com/fedapay/fedapay-php/tree/0.3.12"
             },
             "time": "2022-07-03T21:34:04+00:00"
+        },
+        {
+            "name": "feexpay/feexpay-php",
+            "version": "1.0.12",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/La-Vedette-Media/feexpay-php-sdk.git",
+                "reference": "5cf7399a5a9363777ba83d16ca8bb9a53b8ebda0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/La-Vedette-Media/feexpay-php-sdk/zipball/5cf7399a5a9363777ba83d16ca8bb9a53b8ebda0",
+                "reference": "5cf7399a5a9363777ba83d16ca8bb9a53b8ebda0",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "version": "1.0.12"
+            },
+            "autoload": {
+                "psr-4": {
+                    "Feexpay\\FeexpayPhp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "LOUGBEGNON",
+                    "email": "amedeelougbegnon3@gmail.com"
+                }
+            ],
+            "description": "Php sdk of Feexpay - Online payment solution by credit card and mobile money\"",
+            "support": {
+                "issues": "https://github.com/La-Vedette-Media/feexpay-php-sdk/issues",
+                "source": "https://github.com/La-Vedette-Media/feexpay-php-sdk/tree/1.0.12"
+            },
+            "time": "2024-07-24T15:30:57+00:00"
         },
         {
             "name": "friendsofphp/proxy-manager-lts",
@@ -11330,7 +11370,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -11338,6 +11378,6 @@
         "ext-ctype": "*",
         "ext-iconv": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

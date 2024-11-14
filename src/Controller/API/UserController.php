@@ -1540,42 +1540,6 @@ class UserController extends AbstractController
         return new JsonResponse($traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
     }
 
-    #[Route('/getAllContactAdmin', name: 'getAllContactAdmin', methods: ['POST'])]
-    public function getAllContactAdmin(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
-    {
-        $datas = $request->request;
-        
-        $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $uid = $datas->get('uid');
-
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
-            ]);
-        }
-        $user = $verificationUser["user"];
-
-        if($user->getAdmin() == false){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'OK OOOH',
-                'message' => "Je te vois ha ha ha ha ha ha.....................",
-            ]);
-        }
-
-        return new JsonResponse([
-            'error' => false,
-            'contactAddsAdmain' => $this->traitementsDS->generateUserContactAddAdmin($userRepository->findAll()),
-        ]);
-    }
-
     #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]
     public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository): Response
     {
