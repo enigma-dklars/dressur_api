@@ -70,7 +70,7 @@
                     </td>
                     <td class="text-center">
                         {% if methode_paiement.autreMethodeUn is not null %}
-                            <span class="badge bg-success">Yes</span> | {{methode_paiement.autreMethodeUn.id}}
+                            <span class="badge bg-success">Yes</span> | <span class="badge bg-success"> {{methode_paiement.autreMethodeUn.id}} </span>
                         {% else %}
                             <span class="badge bg-danger">No</span>
                         {% endif %}
