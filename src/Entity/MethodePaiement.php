@@ -32,7 +32,7 @@ class MethodePaiement
     #[ORM\Column]
     private ?bool $isdirect = null;
 
-    #[ORM\OneToOne(targetEntity: self::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(targetEntity: self::class, cascade: ['persist'])]
     private ?self $autreMethodeUn = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -40,7 +40,7 @@ class MethodePaiement
 
     public function __toString()
     {
-        return $this->pays." ".$this->titre;
+        return $this->pays." ".$this->titre." de ".$this->aggregator;
     }
 
     public function getId(): ?int

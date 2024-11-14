@@ -5,9 +5,9 @@
 {% block body %}
     <h1>Edit MethodePaiement</h1>
 
-    {{ include('methode_paiement/_form.html.twig', {'button_label': 'Update'}) }}
+    {{ include('crud_methode_paiement/_form.html.twig', {'button_label': 'Update'}) }}
 
     <a href="{{ path('app_methode_paiement_index') }}">back to list</a>
 
-    {{ include('methode_paiement/_delete_form.html.twig') }}
+    {{ include('crud_methode_paiement/_delete_form.html.twig') }}
 {% endblock %}
