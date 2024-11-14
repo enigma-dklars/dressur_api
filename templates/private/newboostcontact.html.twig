@@ -1,0 +1,100 @@
+<div class="bg-danger text-white p-3 rounded">
+    NB: Pour une meilleure efficacité de ce service, veuillez utiliser Dressur Mobile pour que les numéros soient enregistrés automatiquement sur votre téléphone. Les Boosts Gratuit sont beaucoup plus mis en avant! Il est donc conseillé de faire des Boosts Gratuit plutôt que Payant. Il n'est pas possible de connaitre à l'avance le nombre de contacts après boost ni la tranche rapproché. Vous pouvez programmer plusieurs Boosts Gratuit ou Payant. Parrainé des utilisateurs pour avoir des bonus et ainsi faire des Boosts Gratuit. Votre Boost Contact Devient Inactif si votre dernière connexion remonte à plus de 48H. Connectez-vous donc au minimum une fois par jour pour récupérer les contacts obtenus.
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <p class="h4 text-center ">Nouveau Boost Contact</p>
+        <p class="text-center pb-3">Après BOOST, votre numéro sera visible dans les pays que vous avez choisie au niveau de vos préférences pendant un certain temps.</p>
+        <div class="row g-2">
+            <div class="col-12" hidden>
+                <input type="text" id="uid" value="{{user.uid}}">
+            </div>
+            <div class="col-12 fs-5 mb-3">
+                <div class="d-flex justify-content-center">
+                    <div class="fw-bold text-success">Gratuit</div>
+                    <div class="mx-3">
+                        <div class="form-check-danger form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="modeBoostContact">
+                            <label class="form-check-label" for="modeBoostContact"></label>
+                        </div>
+                    </div>
+                    <div class="fw-bold text-danger">Payant</div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div class="row g-2">
+                    <div class="col-12" id="boostContactGratuit">
+                        <div class="row g-2">
+                            <div class="col-12 text-center"><span class="h5 bg-success text-white fw-bold px-2 py-1 rounded">Boost Gratuit</span></div>
+                            <div class="col-12">
+                                <div class="mt-0 msgError" id="msgErrorBoostGratuit" style="display: none;"></div>
+                            </div>
+                            <div class="col-12">
+                                <label for="formule-boost-gratuit">Formule de Boost Gratuit</label>
+                                <select id="formule-boost-gratuit" class="form-select getInfo getInfoBoostGratuit">
+                                    <option value="" disabled selected>Veuillez choisir une formule... </option>
+                                    {% for formuleBoost in formuleBoosts %}
+                                        <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
+                                        prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-gratuit">
+                                    Veuillez choisir une formule gratuite...
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="newBoostGratuit">BOOSTER</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12" id="boostContactPayant" hidden>
+                        <div class="row g-2">
+                            <div class="col-12 text-center"><span class="h5 bg-danger text-white fw-bold px-2 py-1 rounded">Boost Payant</span></div>
+                            <div class="col-12">
+                                <div class="mt-0 msgError" id="msgErrorBoostPayant" style="display: none;"></div>
+                            </div>
+                            <div class="col-12">
+                                <label for="formule-boost-payant">Formule de Boost Payant</label>
+                                <select id="formule-boost-payant" class="form-select getInfo getInfoPayant">
+                                    <option value="" disabled selected>Veuillez choisir une formule... </option>
+                                    {% for formuleBoost in formuleBoosts %}
+                                        <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
+                                        prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-payant">
+                                    Veuillez choisir une formule payante...
+                                </div>
+                            </div>
+        
+                            <div class="col-12">
+                                <label for="paymentMethod" class="">Moyen de paiement mobile ou par carte</label>
+                                <select id="paymentMethod" class="form-select getInfo getInfoPayant">
+                                    <option value="" disabled selected>Choisisez le Moyen de paiement mobile ou par carte</option>
+                                    {% for uneMethodePaiement in listeMethodePaiements %}
+                                        <option value="{{uneMethodePaiement.value}}">{{uneMethodePaiement.titre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                    
+                            <div class="col-12">
+                                <label for="tel" class="">Indicatif + Numéro de paiement</label>
+                                <input type="tel" class="form-control getInfo getInfoPayant" id="tel">
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary" id="newBoostPayant">PAYER & BOOSTER</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+</div>

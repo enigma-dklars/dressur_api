@@ -1,0 +1,68 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormulePromoReseau index{% endblock %}
+
+{% block body %}
+    <span class="h4 me-3">FormulePromoReseau index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_formule_promo_reseau_new') }}">Create new</a>
+
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }}">
+            {% for message in messages %}
+                <p>{{ message|raw }}</p>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id.Zef</th>
+                    <th>Titre</th>
+                    {# <th>IconFlutterName</th> #}
+                    {# <th>Description</th> #}
+                    {# <th>DescriptionEn</th> #}
+                    <th>Prix DS</th>
+                    <th>Qte</th>
+                    <th>QteMin</th>
+                    <th>QteMax</th>
+                    <th>Prix.Zef</th>
+                    <th>Activ.</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for formule_promo_reseau in formule_promo_reseaus %}
+                <tr>
+                    <td>{% include "crud_formule_promo_reseau/_delete_form.html.twig" %}</td>
+                    <td>{{ formule_promo_reseau.idZefame }}</td>
+                    <td>
+                        {% if formule_promo_reseau.parent %}
+                        {{formule_promo_reseau.parent.titre}} 
+                        {% endif %}
+                        {{ formule_promo_reseau.titre }}
+                    </td>
+                    {# <td>{{ formule_promo_reseau.iconFlutterName }}</td> #}
+                    {# <td>{{ formule_promo_reseau.description|nl2br }}</td> #}
+                    {# <td>{{ formule_promo_reseau.descriptionEn|nl2br }}</td> #}
+                    <td>{{ formule_promo_reseau.prix }}</td>
+                    <td>{{ formule_promo_reseau.qte }}</td>
+                    <td>{{ formule_promo_reseau.qteMin }}</td>
+                    <td>{{ formule_promo_reseau.qteMax }}</td>
+                    <td>{{ formule_promo_reseau.prixZefame }}</td>
+                    <td class="text-center">{{ formule_promo_reseau.available ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td>{{ formule_promo_reseau.id }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="11">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

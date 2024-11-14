@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Contactez-nous pour toute question ou demande d'information. Retrouvez nos coordonnées et comment nous joindre facilement." %}
+{% set title = "Contacts" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="contact Dressur, nous joindre, coordonnées Dressur, WhatsApp Dressur, email Dressur, Facebook Dressur, application Dressur, support Dressur" />
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div class="mb-3 h6">
+            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Contacts</span>
+        </div>
+        <div class="row g-5">
+            <div class="col-md-8">
+                <h1 class="fw-bolder display-4">Contactez-nous</h1>
+                <p class="fs-5">
+                    N'hésitez pas à nous contacter ! Vous pouvez nous joindre sur WhatsApp, par appel direct, ou en remplissant le formulaire. Nous vous répondrons dans les plus brefs délais.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <p>
+                            <span class="me-5"></span> Pour nous contacter, cliquez sur les liens ci-dessous. Vous pouvez aussi télécharger notre application sur le Play Store.
+                        </p>
+                        <table class="table table-striped table-borderless">
+                            <tr>
+                                <td class="p-3" width="10"><i class="fs-5 fas fa-phone"></i></td>
+                                <td class="p-3"><a class="nav-link" target="_blank" href="tel:+229 64 04 42 94">+229 64 04 42 94 <span class="text-primary">(Cliquez ici)</span></a></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3" width="10"><i class="fs-5 fab fa-whatsapp"></i></td>
+                                <td class="p-3"><a class="nav-link" target="_blank" href="https://wa.me/+22964044294">WhatsApp <span class="text-primary">(Cliquez ici)</span></a></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3" width="10"><i class="fs-5 fas fa-envelope"></i></td>
+                                <td class="p-3"><a class="nav-link" target="_blank" href="mailto:dressur.ds@gmail.com">dressur.ds@gmail.com <span class="text-primary">(Cliquez ici)</span></a></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3" width="10"><i class="fs-5 fab fa-facebook"></i></td>
+                                <td class="p-3"><a class="nav-link" target="_blank" href="https://www.facebook.com/dressurds">FaceBook <span class="text-primary">(Cliquez ici)</span></a></td>
+                            </tr>
+                            <tr>
+                                <td class="p-3" width="10"><i class="fs-5 fab fa-google-play"></i></td>
+                                <td class="p-3"><a class="nav-link" target="_blank" href="https://play.google.com/store/apps/details?id=com.dressur.ds">Play Store <span class="text-primary">(Cliquez ici)</span></a></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-12">
+                            <div class="mt-0" id="msgError" style="display: none;"></div>
+                        </div>
+                        <label class="mb-1" for="nom-prenom">Nom & Prénom(s)</label>
+                        <input type="text" class="form-control getInfo mb-2" id="nom-prenom">
+                        <label class="mb-1" for="e-mail">E-mail</label>
+                        <input type="text" class="form-control getInfo mb-2" id="e-mail">
+                        <label class="mb-1" for="objet">Objet</label>
+                        <input type="text" class="form-control getInfo mb-2" id="objet">
+                        <label class="mb-1" for="message">Message</label>
+                        <textarea name="" id="message" rows="5" class="form-control getInfo mb-3"></textarea>
+                        <div class="text-end">
+                            <button class="btn btn-primary" id="envoyer">Envoyer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

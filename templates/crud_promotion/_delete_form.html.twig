@@ -1,0 +1,89 @@
+<form method="post" action="{{ path('app_crud_promotion_delete', {'id': promotion.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ promotion.id) }}">
+    <input type="hidden" value="{{ path('app_crud_promotion_accepter', {'id': promotion.id}) }}" id="accepter_{{promotion.id}}">
+    <input type="hidden" value="{{ path('app_crud_promotion_refuser', {'id': promotion.id}) }}" id="refuser_{{promotion.id}}">
+
+    <a href="{{ path('app_crud_promotion_show', {'id': promotion.id}) }}" class="btn btn-sm btn-info">Show</a>
+    <a href="{{ path('app_crud_promotion_edit', {'id': promotion.id}) }}" class="btn btn-sm btn-success">Edit</a>
+    <button class="btn btn-sm btn-danger">Delete</button>
+    <span data-bs-toggle="modal" data-bs-target="#modal_promotion_{{promotion.id}}" class="btn btn-sm btn-primary">More</span>
+    {% if promotion.status == 1 %}
+        <span type="button" class="btn btn-sm btn-success accepterPromoAffaire" id_promo_affaire="{{promotion.id}}">Accepter</span>
+        <span type="button" class="btn btn-sm btn-danger refuserPromoAffaire" id_promo_affaire="{{promotion.id}}">Refuser</span>
+    {% endif %}
+</form>
+
+<div class="modal fade" id="modal_promotion_{{promotion.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <!-- Utiliser `table-responsive` pour la table -->
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <td width="1">Motif</td>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.motif }}</td>
+                        </tr>
+                        <tr>
+                            <th>Id</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.id }}</td>
+                        </tr>
+                        <tr>
+                            <th>Image</th>
+                            <td style="word-wrap: break-word; white-space: normal;"><img src="/promotion/{{ promotion.image }}" class="card-img-top" alt="" srcset=""></td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.description|nl2br }}</td>
+                        </tr>
+                        <tr>
+                            <th>DateDebut</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>DateExp</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Status</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.status }}</td>
+                        </tr>
+                        <tr>
+                            <th>NombreDeVue</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.nombreDeVue }}</td>
+                        </tr>
+                        <tr>
+                            <th>Mode</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.mode }}</td>
+                        </tr>
+                        <tr>
+                            <th>NombreImpression</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.nombreImpression }}</td>
+                        </tr>
+                        <tr>
+                            <th>Limited</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.limited ? 'Yes' : 'No' }}</td>
+                        </tr>
+                        <tr>
+                            <th>WhoSaw</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.whoSaw ? promotion.whoSaw|length : '' }}</td>
+                        </tr>
+                        <tr>
+                            <th>IsFakeVue</th>
+                            <td style="word-wrap: break-word; white-space: normal;">{{ promotion.isFakeVue ? 'Yes' : 'No' }}</td>
+                        </tr>
+                        {% for key, value in promotion.annotherInfo %}
+                            <tr>
+                                <td width="1">{{ key }}</td>
+                                <td style="word-wrap: break-word; white-space: normal;">{{ value|nl2br }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,34 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormuleDressurBot{% endblock %}
+
+{% block body %}
+    <h1>FormuleDressurBot</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ formule_dressur_bot.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ formule_dressur_bot.titre }}</td>
+            </tr>
+            <tr>
+                <th>Prix</th>
+                <td>{{ formule_dressur_bot.prix }}</td>
+            </tr>
+            <tr>
+                <th>NbrJour</th>
+                <td>{{ formule_dressur_bot.nbrJour }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_formule_dressur_bot_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_formule_dressur_bot_edit', {'id': formule_dressur_bot.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_formule_dressur_bot/_delete_form.html.twig') }}
+{% endblock %}

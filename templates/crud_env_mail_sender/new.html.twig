@@ -1,0 +1,11 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}New EnvMailSender{% endblock %}
+
+{% block body %}
+    <h1>Create new EnvMailSender</h1>
+
+    {{ include('crud_env_mail_sender/_form.html.twig') }}
+
+    <a href="{{ path('app_crud_env_mail_sender_index') }}">back to list</a>
+{% endblock %}

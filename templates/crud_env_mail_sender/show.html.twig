@@ -1,0 +1,50 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}EnvMailSender{% endblock %}
+
+{% block body %}
+    <h1>EnvMailSender</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ env_mail_sender.id }}</td>
+            </tr>
+            <tr>
+                <th>MailAdresse</th>
+                <td>{{ env_mail_sender.mailAdresse }}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>{{ env_mail_sender.password }}</td>
+            </tr>
+            <tr>
+                <th>SmtpServer</th>
+                <td>{{ env_mail_sender.smtpServer }}</td>
+            </tr>
+            <tr>
+                <th>SmtpPort</th>
+                <td>{{ env_mail_sender.smtpPort }}</td>
+            </tr>
+            <tr>
+                <th>SmtpSecured</th>
+                <td>{{ env_mail_sender.smtpSecured }}</td>
+            </tr>
+            <tr>
+                <th>Activated</th>
+                <td>{{ env_mail_sender.activated ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>CountMailSent</th>
+                <td>{{ env_mail_sender.countMailSent }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_env_mail_sender_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_env_mail_sender_edit', {'id': env_mail_sender.id}) }}">edit</a>
+
+    {{ include('crud_env_mail_sender/_delete_form.html.twig') }}
+{% endblock %}

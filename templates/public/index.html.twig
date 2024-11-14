@@ -1,0 +1,386 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Découvrez Dressur, la solution mobile et web qui vous permet de gérer vos compétences et de garantir une grande visibilité. Téléchargez l'application et inscrivez-vous dès aujourd'hui !" %}
+
+{% set title = "Accueil" %}
+
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="Dressur, actualités Dressur, produits Dressur, services Dressur, promotions, annonces utilisateurs, gestion compétences, visibilité, réseau social, marketing digital">
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+    <section id="hero" class="my-4">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-lg-7 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center">
+                    <div data-aos="zoom-out">
+                        <h1>Dressur <span>Mobile & Web</span></h1>
+                        <h2>Dressé votre mure de compétences et assurez-vous une grande visibilité.</h2>
+                        <div class="d-md-flex text-center text-lg-start justify-content-between">
+                            <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-get-started scrollto mb-2 mb-md-0"> <i class="fs-5 fab fa-google-play me-2"></i> Télécharger sur Google Play</a>
+                            <a href="{{path('app_inscription')}}" class="btn-get-started scrollto">S'inscrire <i class="fs-5 fas fa-user-plus ms-2"></i> </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="300">
+                    <img src="/assets/img/hero.jpg" class="img-fluid animated rounded" alt="">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section>
+        <div class="card mb-0 rounded-0 shadow">
+            <div class="card-body">
+                <div class="container mb-3">
+                    <h1 class="fs-4 fw-semibold mb-3"><i class="fs-5 fas fa-play"></i> Services Principaux</h1>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fa-brands fa-android fs-1 mb-3 text-primary"></i>
+                                <h5>Dressur Bot</h5>
+                                <p>
+                                    Dressur Bot est une application Windows qui permet d'automatiser l'envoi de messages via WhatsApp Web ou WhatsApp Desktop. Avec Dressur Bot, il suffit de fournir le message à envoyer ainsi qu'un fichier VCF contenant les contacts à joindre. Cette solution est idéale pour les entreprises, les professionnels et les particuliers qui souhaitent envoyer des messages en masse de manière efficace et sans effort.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fas fa-users fs-1 mb-3 text-primary"></i>
+                                <h5>Trouvez de nouveaux contacts</h5>
+                                <p>Nos algorithmes intelligents vous affichent les contacts en fonction de vos préférences pays et centre d'intérêt.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fas fa-clock fs-1 mb-3 text-primary"></i>
+                                <h5>Gagnez du temps</h5>
+                                <p>Les contacts que vous enregistrez sont automatiquement ajoutés à votre téléphone et vos coordonnées sont ajoutées dans celui de votre contact.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fas fa-bullhorn fs-1 mb-3 text-primary"></i>
+                                <h5>Promouvez vos produits</h5>
+                                <p>Faites connaître vos produits, services, événements, etc. avec des promotions ciblées en fonction de vos préférences.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fas fa-envelope fs-1 mb-3 text-primary"></i>
+                                <h5>Campagnes Mail</h5>
+                                <p>Lancez des campagnes de mailing vers plus de 10 000 adresses e-mail. Faites la promotion de vos produits, envoyez des newsletters ou des invitations à des événements.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fas fa-thumbs-up fs-1 mb-3 text-primary"></i>
+                                <h5>Promotions Réseaux Sociaux</h5>
+                                <p>Achetez des abonnés, likes, commentaires, partages, etc. sur Facebook, TikTok, Instagram, YouTube et plus encore.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-stretch">
+                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
+                                <i class="fas fa-id-card-alt fs-1 mb-3 text-primary"></i>
+                                <h5>Carte de Visite Numérique</h5>
+                                <p>Partagez facilement vos informations de contact avec un QR code moderne et pratique. Plus besoin d'imprimer des centaines de cartes de visite.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="social-carousel" class="py-5">
+        <div class="container">
+            <div id="carouselSocial" class="carousel slide carousel-zoom" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fab fa-facebook fa-3x text-primary"></i>
+                                {# <p>Facebook</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-instagram fa-3x text-danger"></i>
+                                {# <p>Instagram</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-twitter fa-3x text-info"></i>
+                                {# <p>Twitter</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-linkedin fa-3x text-primary"></i>
+                                {# <p>LinkedIn</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-youtube fa-3x text-danger"></i>
+                                {# <p>YouTube</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fab fa-tiktok fa-3x"></i>
+                                {# <p>TikTok</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-pinterest fa-3x text-danger"></i>
+                                {# <p>Pinterest</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-snapchat fa-3x text-warning"></i>
+                                {# <p>Snapchat</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-reddit fa-3x text-orange"></i>
+                                {# <p>Reddit</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-tumblr fa-3x"></i>
+                                {# <p>Tumblr</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fab fa-quora fa-3x text-maroon"></i>
+                                {# <p>Quora</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-whatsapp fa-3x text-success"></i>
+                                {# <p>WhatsApp</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-discord fa-3x text-purple"></i>
+                                {# <p>Discord</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-medium fa-3x text-black"></i>
+                                {# <p>Medium</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-github fa-3x"></i>
+                                {# <p>GitHub</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fas fa-eye fa-3x text-success"></i>
+                                {# <p>Visibilité</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-chart-line fa-3x text-info"></i>
+                                {# <p>Statistiques</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-address-card fa-3x text-primary"></i>
+                                {# <p>Carte de visite</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-map-marker-alt fa-3x text-danger"></i>
+                                {# <p>Localisation</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-users fa-3x text-warning"></i>
+                                {# <p>Communauté</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fas fa-envelope fa-3x text-primary"></i>
+                                {# <p>Mail</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-sms fa-3x text-warning"></i>
+                                {# <p>SMS</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-share-alt fa-3x text-info"></i>
+                                {# <p>Partage</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-phone fa-3x text-success"></i>
+                                {# <p>Appel</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-question-circle fa-3x text-secondary"></i>
+                                {# <p>Aide</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fas fa-heart fa-3x text-danger"></i>
+                                {# <p>Favori</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-retweet fa-3x text-info"></i>
+                                {# <p>Republication</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-thumbs-up fa-3x text-success"></i>
+                                {# <p>Like</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-thumbs-down fa-3x text-danger"></i>
+                                {# <p>Dislike</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-comment fa-3x text-primary"></i>
+                                {# <p>Commentaire</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fab fa-google fa-3x text-danger"></i>
+                                {# <p>Google</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-google-drive fa-3x text-success"></i>
+                                {# <p>Google Drive</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-google-plus fa-3x text-danger"></i>
+                                {# <p>Google Plus</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-google-pay fa-3x text-primary"></i>
+                                {# <p>Google Pay</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fab fa-google-play fa-3x text-warning"></i>
+                                {# <p>Google Play</p> #}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="row justify-content-center">
+                            <div class="col-2 text-center">
+                                <i class="fas fa-robot fa-3x text-secondary"></i>
+                                {# <p>Bot</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-cogs fa-3x text-warning"></i>
+                                {# <p>Automatisation</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-cloud fa-3x text-primary"></i>
+                                {# <p>Cloud</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-server fa-3x text-success"></i>
+                                {# <p>Serveur</p> #}
+                            </div>
+                            <div class="col-2 text-center">
+                                <i class="fas fa-code fa-3x text-info"></i>
+                                {# <p>Code</p> #}
+                            </div>
+                        </div>
+                    </div>
+                      
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="card mb-0 rounded-0 shadow">
+            <div class="card-body">
+                <div class="container mb-3">
+                    <h1 class="fs-4 fw-semibolder mb-3"><i class="fs-5 fas fa-play"></i> Top 6 des Promotions Affaires</h1>
+            
+                    <div class="row g-3">
+                        {% for actu in actus %}
+                            {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
+                            {% set encodedText = text|url_encode %}
+                            {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
+            
+                            <div class="col-md-4">
+                                <div class="card mb-0 shadow">
+                                    <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                                    <div class="card-body">
+                                        <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                                            {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description}} {% endif %}
+                                            {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste}} {% endif %}
+                                            {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur}} {% endif %}
+                                        </p>
+                                        <div class="row">
+                                            <div class="col-7">
+                                                <div class="row g-3">
+                                                    <div class="col-auto"> <i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
+                                                    <div class="col-auto"> <i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-5 text-end">
+                                                <a href="{{ url }}" target="_blank" class="btn btn-info btn-sm rounded-2 py-0">En savoir plus</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+            
+                                <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-scrollable">
+                                        <div class="modal-content">
+                                            <div class="modal-body p-0">
+                                                <img src="/promotion/{{actu.image}}" class="card-img-top" alt="...">
+                                                <p class="text-end px-3 pt-3 mb-0">
+                                                    <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm mb-3 rounded-5">Contacter l'annonceur</a>
+                                                </p>
+                                                <p class="px-3">
+                                                    {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description|nl2br}} {% endif %}
+                                                    {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste|nl2br}} {% endif %}
+                                                    {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur|nl2br}} {% endif %}
+                                                </p>
+                                                <div class="px-3">
+                                                    {% for key, value in actu.annotherInfo %}
+                                                        <div class="mb-1">
+                                                            <div class="fw-bolder text-primary fs-6">{{ key | replace({'_': ' '}) | capitalize }} : </div>
+                                                            <div style="word-wrap: break-word; white-space: normal;">{{ value|nl2br }}</div>
+                                                            <hr>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

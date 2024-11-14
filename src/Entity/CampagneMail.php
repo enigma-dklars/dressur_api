@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\CampagneMailRepository;
@@ -47,9 +49,16 @@ class CampagneMail
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $motif = null;
 
+    #[ORM\Column]
+    private ?bool $traitement = null;
+
+    #[ORM\OneToMany(mappedBy: 'campagneMail', targetEntity: FileAttenteCampagneMail::class)]
+    private Collection $fileAttenteCampagneMails;
+
     public function __construct()
     {
         $this->status = 1;
+        $this->traitement = 0;
         $this->createdAt = new DateTime();
         /**
          * status values description
@@ -59,6 +68,7 @@ class CampagneMail
          * 3 : payer et en cours de traitement
          * 4 : terminer
          */
+        $this->fileAttenteCampagneMails = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -182,6 +192,48 @@ class CampagneMail
     public function setMotif(?string $motif): self
     {
         $this->motif = $motif;
+
+        return $this;
+    }
+
+    public function getTraitement(): ?bool
+    {
+        return $this->traitement;
+    }
+
+    public function setTraitement(bool $traitement): static
+    {
+        $this->traitement = $traitement;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FileAttenteCampagneMail>
+     */
+    public function getFileAttenteCampagneMails(): Collection
+    {
+        return $this->fileAttenteCampagneMails;
+    }
+
+    public function addFileAttenteCampagneMail(FileAttenteCampagneMail $fileAttenteCampagneMail): static
+    {
+        if (!$this->fileAttenteCampagneMails->contains($fileAttenteCampagneMail)) {
+            $this->fileAttenteCampagneMails->add($fileAttenteCampagneMail);
+            $fileAttenteCampagneMail->setCampagneMail($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFileAttenteCampagneMail(FileAttenteCampagneMail $fileAttenteCampagneMail): static
+    {
+        if ($this->fileAttenteCampagneMails->removeElement($fileAttenteCampagneMail)) {
+            // set the owning side to null (unless already changed)
+            if ($fileAttenteCampagneMail->getCampagneMail() === $this) {
+                $fileAttenteCampagneMail->setCampagneMail(null);
+            }
+        }
 
         return $this;
     }

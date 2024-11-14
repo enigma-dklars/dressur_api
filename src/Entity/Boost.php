@@ -37,6 +37,20 @@ class Boost
     {
         $this->dateDebut = new DateTime();
         $this->mode = "Gratuit";
+
+        /**
+         * modeNumber
+         * 1 : gratuit
+         * 2 : payant
+         * 3 : kdo
+         */
+
+        /**
+         * statusNumber
+         * 1 : en cours
+         * 2 : programmer
+         * 3 : terminer
+         */
     }
 
     public function getId(): ?int

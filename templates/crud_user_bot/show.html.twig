@@ -1,0 +1,58 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}UserBot{% endblock %}
+
+{% block body %}
+    <h1>UserBot</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ user_bot.id }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ user_bot.nom }}</td>
+            </tr>
+            <tr>
+                <th>Email</th>
+                <td>{{ user_bot.email }}</td>
+            </tr>
+            <tr>
+                <th>Numero</th>
+                <td>{{ user_bot.numero }}</td>
+            </tr>
+            <tr>
+                <th>AdresseMac</th>
+                <td>{{ user_bot.adresseMac }}</td>
+            </tr>
+            <tr>
+                <th>UuidMachine</th>
+                <td>{{ user_bot.uuidMachine }}</td>
+            </tr>
+            <tr>
+                <th>DiskSerialNumber</th>
+                <td>{{ user_bot.diskSerialNumber }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ user_bot.createdAt ? user_bot.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>ExpiratedAt</th>
+                <td>{{ user_bot.expiratedAt ? user_bot.expiratedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>TypeMachine</th>
+                <td>{{ user_bot.typeMachine }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {# <a href="{{ path('app_crud_user_bot_index') }}">back to list</a> #}
+
+    {# <a href="{{ path('app_crud_user_bot_edit', {'id': user_bot.id}) }}" class="btn btn-sm btn-success">Edit</a> #}
+
+    {# {{ include('crud_user_bot/_delete_form.html.twig') }} #}
+{% endblock %}

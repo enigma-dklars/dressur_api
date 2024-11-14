@@ -117,12 +117,16 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $banniere = null;
 
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $hasReceived = null;
+
     public function __construct()
     {
         $this->admin = false;
         $this->avatar = "avatar_".rand(1, 10).".png";
         $this->banniere = "banniere_dressur.jpg";
         $this->createdAt = new DateTime();
+        $this->lastLoginTo = new DateTime();
         $this->uid = uniqid();
         $this->codeBonus = $this->codeBonus();
         $this->filleuls = new ArrayCollection();
@@ -687,6 +691,18 @@ class User
     public function setBanniere(?string $banniere): static
     {
         $this->banniere = $banniere;
+
+        return $this;
+    }
+
+    public function getHasReceived(): ?string
+    {
+        return $this->hasReceived;
+    }
+
+    public function setHasReceived(?string $hasReceived): static
+    {
+        $this->hasReceived = $hasReceived;
 
         return $this;
     }

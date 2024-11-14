@@ -1,0 +1,197 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Promotion Réseaux Sociaux sur Dressur - Achetez des interactions, likes, abonnés, vues, etc., sur TikTok, Facebook, YouTube, Twitter, et plus. Augmentez votre visibilité avec Dressur." %}
+
+{% set title = "Promotions Réseaux Sociaux" %}
+
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="Promotion Réseaux Sociaux, Dressur, TikTok, Facebook, YouTube, Twitter, Telegram, Twitch, Spotify, acheter likes, abonnés, vues, inter-actions">
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div class="mb-3 h6">
+            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Promotions Réseaux Sociaux</span>
+        </div>
+        <!-- Header -->
+        <header class="text-white text-center py-5 rounded" style="background-color: #2a4b9a !important;">
+            <div class="container">
+                <h1 class="display-5">Promotion Réseaux Sociaux</h1>
+                <p class="lead">Augmentez votre visibilité sur les réseaux sociaux avec Dressur</p>
+                <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" class="btn btn-light btn-lg mb-3">Télécharger sur Google Play</a>
+                <a href="{{path('app_inscription')}}" class="btn btn-light btn-lg mb-3">S'inscrire</a>
+            </div>
+        </header>
+
+        <!-- Features Section -->
+        <section id="features" class="py-4">
+            <div class="container">
+                <h2 class="text-center">Pourquoi choisir Promotions Réseaux Sociaux ?</h2>
+                <p class="text-center lead mb-4">Découvrez comment les Promotions Réseaux Sociaux peuvent transformer vos interactions sur les réseaux sociaux.</p>
+                <div class="row g-3">
+                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a; font-weight: 500;">Achetez des interactions</h5>
+                                <p class="card-text mt-3">Boostez vos publications avec des likes, des commentaires et des partages sur des plateformes comme Facebook, TikTok, et Instagram.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a; font-weight: 500;">Augmentez vos abonnés</h5>
+                                <p class="card-text mt-3">Obtenez plus d'abonnés sur vos profils sociaux pour augmenter votre crédibilité et attirer une audience plus large.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a; font-weight: 500;">Augmentez les vues</h5>
+                                <p class="card-text mt-3">Augmentez le nombre de vues de vos vidéos sur YouTube et d'autres plateformes pour atteindre un public plus large.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a; font-weight: 500;">Attirez plus de spectateurs en live</h5>
+                                <p class="card-text mt-3">Augmentez le nombre de personnes qui regardent vos streams en direct sur Twitch, YouTube, et Facebook.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a; font-weight: 500;">Renforcez votre présence en ligne</h5>
+                                <p class="card-text mt-3">Avec une présence plus forte et plus visible, vous gagnez la confiance des utilisateurs et pouvez attirer plus de clients potentiels.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch text-center">
+                        <div class="card mb-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title" style="color: #2a4b9a; font-weight: 500;">Optimisation SEO</h5>
+                                <p class="card-text mt-3">Nos promotions sont également référencées sur les moteurs de recherche pour une visibilité maximale.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section id="call-to-action" class="pb-5 text-center">
+            <div class="container">
+                <h2 class="mb-4">Commencez dès aujourd'hui</h2>
+                <p class="lead">Utilisez Dressur pour booster vos réseaux sociaux et atteindre de nouveaux sommets.</p>
+                <a href="{{path('app_inscription')}}" class="btn btn-primary btn-lg">Commencer vos promotions</a>
+            </div>
+        </section>
+
+        <section>
+            <div class="container mb-3">
+                <h1 class="fs-4 fw-semibold mb-3"><i class="fs-5 fas fa-play"></i> Autres Services sur Dressur Mobile et Web</h1>
+                <div class="row g-3">
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-users fs-1 mb-3 text-primary"></i>
+                                    <h5>Trouvez de nouveaux contacts</h5>
+                                    <p>Nos algorithmes intelligents vous affichent les contacts en fonction de vos préférences pays et centre d'intérêt.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-clock fs-1 mb-3 text-primary"></i>
+                                    <h5>Gagnez du temps</h5>
+                                    <p>Les contacts que vous enregistrez sont automatiquement ajoutés à votre téléphone et vos coordonnées sont ajoutées dans celui de votre contact.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fa-brands fa-android fs-1 mb-3 text-primary"></i>
+                                    <h5>Dressur Bot</h5>
+                                    <p>
+                                        Dressur Bot est une application Windows qui permet d'automatiser l'envoi de messages via WhatsApp Web ou WhatsApp Desktop.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-bullhorn fs-1 mb-3 text-primary"></i>
+                                    <h5>Promouvez vos produits</h5>
+                                    <p>Faites connaître vos produits, services, événements, etc. avec des promotions ciblées en fonction de vos préférences.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-envelope fs-1 mb-3 text-primary"></i>
+                                    <h5>Campagnes Mail</h5>
+                                    <p>Lancez des campagnes de mailing vers plus de 10 000 adresses e-mail. Faites la promotion de vos produits, envoyez des newsletters ou des invitations à des événements.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {# <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-thumbs-up fs-1 mb-3 text-primary"></i>
+                                    <h5>Promotions Réseaux Sociaux</h5>
+                                    <p>Achetez des abonnés, likes, commentaires, partages, etc. sur Facebook, TikTok, Instagram, YouTube et plus encore.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> #}
+                    <div class="col-md-4 d-flex align-items-stretch">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <div class="feature-box rounded text-center d-flex flex-column">
+                                    <i class="fas fa-id-card-alt fs-1 mb-3 text-primary"></i>
+                                    <h5>Carte de Visite Numérique</h5>
+                                    <p>Partagez facilement vos informations de contact avec un QR code moderne et pratique. Plus besoin d'imprimer des centaines de cartes de visite.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+{% endblock %}

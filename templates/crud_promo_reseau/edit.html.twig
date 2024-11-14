@@ -1,0 +1,13 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Edit PromoReseau{% endblock %}
+
+{% block body %}
+    <span class="h4 me-3">Edit PromoReseau</span>
+
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_promo_reseau_index') }}">back to list</a>
+
+    {# {{ include('crud_promo_reseau/_delete_form.html.twig') }} #}
+
+    {{ include('crud_promo_reseau/_form.html.twig', {'button_label': 'Update'}) }}
+{% endblock %}

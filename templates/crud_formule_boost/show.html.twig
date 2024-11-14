@@ -1,0 +1,38 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}FormuleBoost{% endblock %}
+
+{% block body %}
+    <h1>FormuleBoost</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ formule_boost.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ formule_boost.titre }}</td>
+            </tr>
+            <tr>
+                <th>Prix</th>
+                <td>{{ formule_boost.prix }}</td>
+            </tr>
+            <tr>
+                <th>NbrJour</th>
+                <td>{{ formule_boost.nbrJour }}</td>
+            </tr>
+            <tr>
+                <th>Alert</th>
+                <td>{{ formule_boost.alert ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_formule_boost_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_formule_boost_edit', {'id': formule_boost.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_formule_boost/_delete_form.html.twig') }}
+{% endblock %}

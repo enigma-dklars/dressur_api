@@ -15,16 +15,16 @@ class Promotion
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    private ?FormuleBoost $formule_boost = null;
+    private ?FormulePromoAffaire $formulePromoAffaire = null;
 
     #[ORM\ManyToOne(inversedBy: 'promotions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $image = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
@@ -39,7 +39,7 @@ class Promotion
     #[ORM\Column]
     private ?int $nombreDeVue = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $mode = null;
 
     #[ORM\Column(nullable: true)]
@@ -57,14 +57,26 @@ class Promotion
     #[ORM\Column(nullable: true)]
     private ?bool $isFakeVue = null;
 
+    #[ORM\Column]
+    private ?bool $referencement = null;
+
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    private ?array $annotherInfo = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $typePromotionAffaire = null;
+
     public function __construct()
     {
         $this->status = 1;
+        $this->referencement = false;
+        $this->isFakeVue = false;
         $this->limited = true;
         $this->mode = "Gratuit";
         $this->nombreDeVue = 0;
         $this->nombreImpression = 0;
         $this->whoSaw = [];
+        $this->typePromotionAffaire = "produit_service";
         /**
          * status values description
          * 0 : rejeter
@@ -73,6 +85,13 @@ class Promotion
          * 3 : accepter et en cours
          * 4 : terminer
          */
+
+        /**
+         * typePromotionAffaire description
+         * produit_service
+         * dmd_emploi
+         * offre_emploi
+         */
     }
 
     public function getId(): ?int
@@ -80,14 +99,14 @@ class Promotion
         return $this->id;
     }
 
-    public function getFormuleBoost(): ?FormuleBoost
+    public function getFormulePromoAffaire(): ?FormulePromoAffaire
     {
-        return $this->formule_boost;
+        return $this->formulePromoAffaire;
     }
 
-    public function setFormuleBoost(?FormuleBoost $formule_boost): self
+    public function setFormulePromoAffaire(?FormulePromoAffaire $formulePromoAffaire): self
     {
-        $this->formule_boost = $formule_boost;
+        $this->formulePromoAffaire = $formulePromoAffaire;
 
         return $this;
     }
@@ -186,6 +205,8 @@ class Promotion
         if($mode == "fakeVue") {
             $this->nombreImpression += rand(5, 10);
             $this->nombreDeVue += rand(1, 5);
+        } else if($mode == "web") {
+            $this->nombreImpression += rand(1, 3);
         } else if($mode == "all" || $mode == "vue" ) {
             if($user->getId() != $this->getUser()->getId()) {
                 if (in_array($user->getId(), $this->whoSaw)) {
@@ -263,6 +284,42 @@ class Promotion
     public function setIsFakeVue(?bool $isFakeVue): static
     {
         $this->isFakeVue = $isFakeVue;
+
+        return $this;
+    }
+
+    public function getReferencement(): ?bool
+    {
+        return $this->referencement;
+    }
+
+    public function setReferencement(bool $referencement): static
+    {
+        $this->referencement = $referencement;
+
+        return $this;
+    }
+
+    public function getAnnotherInfo(): ?array
+    {
+        return $this->annotherInfo;
+    }
+
+    public function setAnnotherInfo(?array $annotherInfo): static
+    {
+        $this->annotherInfo = $annotherInfo;
+
+        return $this;
+    }
+
+    public function getTypePromotionAffaire(): ?string
+    {
+        return $this->typePromotionAffaire;
+    }
+
+    public function setTypePromotionAffaire(?string $typePromotionAffaire): static
+    {
+        $this->typePromotionAffaire = $typePromotionAffaire;
 
         return $this;
     }

@@ -1,0 +1,115 @@
+<div class="row g-3">
+    {% for campagemail in campagemails %}
+        <div class="col-md-4">
+            <div class="card mb-0 h-100">
+                <div class="card-body">
+                    <p>
+                        {% if campagemail.statusNumber == 0 %} <span class="badge bg-danger text-white fw-normal">Rejeter</span> {% endif %}
+                        {% if campagemail.statusNumber == 1 %} <span class="badge bg-warning text-white fw-normal">En Attente de validation</span> {% endif %}
+                        {% if campagemail.statusNumber == 2 %} <span class="badge bg-warning text-white fw-normal">Accepter et en attente de paiement</span> {% endif %}
+                        {% if campagemail.statusNumber == 3 %} <span class="badge bg-success text-white fw-normal">Accepter et en cours</span> {% endif %}
+                        {% if campagemail.statusNumber == 4 %} <span class="badge bg-success text-white fw-normal">Terminer</span> {% endif %}
+                    </p>
+                    {% if campagemail.statusNumber != 0 %}
+                        <span class="contact-name">{{campagemail.sujet}}</span> <br>
+                        <span class="actu-small-description">{{campagemail.contentmail}}</span>
+                    {% else %}
+                        <p>
+                            Motif : {{campagemail.motif}}
+                        </p>
+                        <span class="text-success small">
+                            Tenez compte du motif de refus pour soumettre une nouvelle demande. Merci...
+                        </span>
+                    {% endif %}                    
+                    
+                    <div class="row mt-2">
+                        {% if campagemail.statusNumber == 2 %}
+                            <div class="col-md-6">
+                                <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#modal_payercampagemail_{{campagemail.id}}"><i class="fas fa-credit-card me-2"></i> Payer</button>
+                            </div>
+                        {% endif %}
+                        <div class="text-end {% if campagemail.statusNumber == 2 %}col-md-6{% else %}col-md-12{% endif %}">
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal_campagemail_{{campagemail.id}}"><i class="fas fa-info me-2"></i> Détails</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal_payercampagemail_{{campagemail.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5>Démarer la campagne mail</h5>
+                        </div>
+                        <div class="modal-body">
+                            <div class="col-12">
+                                <div class="mt-0 msgError" id="msgError-{{campagemail.id}}" style="display: none;"></div>
+                            </div>
+                            <div hidden>
+                                <input type="text" id="uid-{{campagemail.id}}" value="{{user.uid}}">
+                                <input type="text" id="idCampagne-{{campagemail.id}}" value="{{campagemail.id}}">
+                            </div>
+                            <div class="text-center fw-bold">
+                                Prix : {{campagemail.prixFormuleCampagneMail}} Fcfa
+                            </div>
+                            <div class="mb-2">
+                                <label for="moyen-paiement">Moyen de paiement mobile ou par carte</label>
+                                <select id="moyen-paiement-{{campagemail.id}}" class="form-select getInfo getInfo-{{campagemail.id}}">
+                                    <option value="" disabled selected>Choisisez le Moyen de paiement mobile ou par carte</option>
+                                    {% for uneMethodePaiement in listeMethodePaiements %}
+                                        <option value="{{uneMethodePaiement.value}}">{{uneMethodePaiement.titre}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label for="numero-paiement">Indicatif + Numéro de Paiement</label>
+                                <input type="text" class="form-control getInfo getInfo-{{campagemail.id}}" id="numero-paiement-{{campagemail.id}}">
+                            </div>
+                            <div class="text-danger text-center mt-2 small">
+                                Pour payer par Wave ou Carte Bancaire, ceuillez contactez l'Assistance Dressur par WhatsApp. Merci...
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">Fermer</button>
+                            <button type="button" class="btn btn-primary btn-sm payerCampageMail" payerCampageMail="{{campagemail.id}}" id="payerCampageMail-{{campagemail.id}}">Payer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modal_campagemail_{{campagemail.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-body p-0">
+                            <p class="px-3">
+                                Prix : {{campagemail.prixFormuleCampagneMail}} Fcfa
+                            </p>
+                            <p class="px-3">
+                                Titre : {{campagemail.titre}}
+                            </p>
+                            <p class="px-3">
+                                Sujet : {{campagemail.sujet}}
+                            </p>
+                            <p class="px-3">
+                                Répondre à : {{campagemail.replyto}}
+                            </p>
+                            <p class="px-3">
+                                Destinataire(s) : {{campagemail.sendto}}
+                            </p>
+                            <p class="px-3">
+                                Contenu du Mail : {{campagemail.contentmail|nl2br}}
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Aucune Campagne Mail trouvé.
+        </div>
+    {% endfor %}
+</div>

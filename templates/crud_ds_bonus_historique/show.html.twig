@@ -1,0 +1,34 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DSBonusHistorique{% endblock %}
+
+{% block body %}
+    <h1>DSBonusHistorique</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ d_s_bonus_historique.id }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ d_s_bonus_historique.createdAt ? d_s_bonus_historique.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ d_s_bonus_historique.titre }}</td>
+            </tr>
+            <tr>
+                <th>Montant</th>
+                <td>{{ d_s_bonus_historique.montant }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_d_s_bonus_historique_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_d_s_bonus_historique_edit', {'id': d_s_bonus_historique.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_ds_bonus_historique/_delete_form.html.twig') }}
+{% endblock %}

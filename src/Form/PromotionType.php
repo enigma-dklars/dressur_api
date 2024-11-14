@@ -12,17 +12,77 @@ class PromotionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('description')
-            ->add('image')
-            ->add('dateDebut')
-            ->add('dateExp')
-            ->add('status')
-            ->add('nombreDeVue')
-            ->add('mode')
-            ->add('nombreImpression')
-            ->add('limited')
-            ->add('formule_boost')
-            ->add('user')
+            ->add('formulePromoAffaire', null, [
+                'attr' => [
+                    'class' => 'form-select single-select mb-2'
+                ],
+            ])
+            ->add('user', null, [
+                'attr' => [
+                    'class' => 'form-select single-select mb-2'
+                ],
+            ])
+            ->add('description', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('image', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('dateDebut', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('dateExp', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('status', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('nombreDeVue', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('mode', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('nombreImpression', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('motif', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('limited', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
+            // ->add('whoSaw')
+            ->add('isFakeVue', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
+            ->add('referencement', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 
