@@ -416,47 +416,24 @@ class CampagneMailController extends AbstractController
                     'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
                 ]);
             }
-
-            $array_create_transaction = [
-                "description" => "Dressur :  Promotion Payante : ". $campagneMail->getTitre() ." - ". $campagneMail->getFormuleCampagneMail()->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
-                "amount" => $campagneMail->getFormuleCampagneMail()->getPrix(),
-                "currency" => ["iso" => "XOF"],
-                "customer" => [
-                    "firstname" => $user->getPseudo(),
-                    "lastname" => $user,
-                    "email" => $user->getMail(),
-                    "phone_number" => [
-                        "number" => $tel,
-                        "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
-                    ]
-                ]
-            ];
     
             if($campagneMail->getStatus() == 2){
                 try {
-                    $transaction = Transaction::create($array_create_transaction);
-    
-                    $myTransaction  = new EntityTransaction();
-                    $myTransaction
-                        ->setUser($user)
-                        ->setTransactionFor("campagne_mail")
-                        ->setIdTransaction($transaction["id"])
-                        ->setReference($transaction["reference"])
-                        ->setAmount($transaction["amount"])
-                        ->setStatus($transaction["status"])
-                        ->setCustomerId($transaction["customer_id"])
-                        ->setCurrencyId($transaction["currency_id"])
-                        ->setAnnotherInfo([
+                    $resultat = $traitementsDS->startPaiementFeexPay(
+                        $envPaiementApi, 
+                        $methodePaiementEntity, 
+                        $campagneMail->getFormuleCampagneMail()->getPrix(),
+                        $tel,
+                        $user->getPseudo(),
+                        $user->getMail(),
+                        "campagne_mail",
+                        [
                             'userId' => $user->getId(),
                             'userUid' => $user->getUid(),
                             'idCampagneMail' => $idCampagneMail,
-                        ])
-                    ;
-                    $this->em->persist($myTransaction);
-    
-                    $this->em->flush();
-                    
-                    $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
+                        ],
+                        $user
+                    );
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;

@@ -34,9 +34,11 @@ use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
 use App\Entity\MethodePaiement;
+use App\Entity\Transaction;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\MethodePaiementRepository;
+use Feexpay\FeexpayPhp\FeexpayClass;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -984,6 +986,67 @@ class TraitementsDS extends AbstractController
             ];
         } else {
             $token = $transaction->generateToken()->url;
+            return [
+                "error" => false,
+                "direct" => false,
+                "url" => $token,
+            ];
+        }
+    }
+
+    public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user) {
+        if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
+            $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
+            $response = $skeleton->paiementLocal(
+                $amount,
+                $tel,
+                $methodePaiementEntity->getCode(),
+                $username,
+                $email,
+                "callback_info",
+                "custom_id",
+                ""
+            );
+            return $response;
+            $reference = $response;
+
+            $status = $skeleton->getPaiementStatus($response);
+            dd($reference, $response, $status);
+
+            $myTransaction  = new Transaction();
+            $myTransaction
+                ->setUser($user)
+                ->setTransactionFor($transaction_for)
+                ->setIdTransaction($reference)
+                ->setReference($reference)
+                ->setAmount($amount)
+                ->setStatus($status ?? "PENDING")
+                // ->setCustomerId($transaction["customer_id"])
+                // ->setCurrencyId($transaction["currency_id"])
+                ->setAnnotherInfo($another_info)
+            ;
+            $this->em->persist($myTransaction);
+
+            $this->em->flush();
+            
+            return [
+                "error" => false,
+                "direct" => true,
+                "url" => "none",
+            ];
+        }
+
+        if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
+            $token = "";
+            return [
+                "error" => false,
+                "direct" => false,
+                "url" => $token,
+            ];
+        }
+
+        if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
+            $token = "";
             return [
                 "error" => false,
                 "direct" => false,
