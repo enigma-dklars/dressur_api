@@ -275,7 +275,7 @@ class BoostController extends AbstractController
             ]);
         }
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
-            $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
                 if($sessionDS->get("langUserPhone") != "fr") {

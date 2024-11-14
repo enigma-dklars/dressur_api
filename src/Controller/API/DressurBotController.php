@@ -202,7 +202,7 @@ class DressurBotController extends AbstractController
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel'); 
 
-        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
         if(!$envPaiementApi) {
             $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -282,7 +282,7 @@ class DressurBotController extends AbstractController
             ]);
         }
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
-            $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
                 if($sessionDS->get("langUserPhone") != "fr") {

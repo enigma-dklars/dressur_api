@@ -1122,8 +1122,8 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
     }
 
-    public function getEnvPaiementApiDisponible() {
-        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true]);
+    public function getEnvPaiementApiFedaPayDisponible() {
+        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "FedaPay"]);
         foreach ($envPaiementApis as $envPaiementApi) {
             if($envPaiementApi->getCountTransactionApproved() < 10) {
                 return $envPaiementApi;
