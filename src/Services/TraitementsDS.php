@@ -1132,6 +1132,14 @@ class TraitementsDS extends AbstractController
         return false;
     }
 
+    public function getEnvPaiementApiFeexPayDisponible() {
+        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "FeexPay"]);
+        foreach ($envPaiementApis as $envPaiementApi) {
+            return $envPaiementApi;
+        }
+        return false;
+    }
+
     public function execPurge($user){
         foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
             $element->setParrain($this->userRepository->find(3));
