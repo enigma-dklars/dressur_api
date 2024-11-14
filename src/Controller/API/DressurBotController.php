@@ -204,7 +204,7 @@ class DressurBotController extends AbstractController
 
         $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
         if(!$envPaiementApi) {
-            $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
+            $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FedaPay");
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -284,7 +284,7 @@ class DressurBotController extends AbstractController
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
-                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
+                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FedaPay");
                 if($sessionDS->get("langUserPhone") != "fr") {
                     return new JsonResponse([
                         'error' => true,
