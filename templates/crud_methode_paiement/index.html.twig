@@ -17,10 +17,11 @@
                     <th>Pays</th>
                     <th>Titre</th>
                     <th>Code</th>
-                    <th>Aggregator</th>
-                    <th>Activated</th>
+                    <th>Aggreg.</th>
+                    <th>Type</th>
+                    <th>Activ.</th>
                     <th>Isdirect</th>
-                    <th>Autre Un</th>
+                    <th>Autre 1</th>
                     <th>Requires</th>
                 </tr>
             </thead>
@@ -40,6 +41,17 @@
                         {% endif %}
                         {% if methode_paiement.aggregator == "FedaPay" %}
                             <span class="badge bg-primary">FedaPay</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if methode_paiement.typeFeexPay == "paiementLocal" %}
+                            <span class="badge bg-success">Local</span>
+                        {% endif %}
+                        {% if methode_paiement.typeFeexPay == "requestToPayWeb" %}
+                            <span class="badge bg-primary">Pay Web</span>
+                        {% endif %}
+                        {% if methode_paiement.typeFeexPay == "paiementCard" %}
+                            <span class="badge bg-danger">Card</span>
                         {% endif %}
                     </td>
                     <td class="text-center">
