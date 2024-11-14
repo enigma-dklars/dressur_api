@@ -973,7 +973,7 @@ class TraitementsDS extends AbstractController
         return $country;
     }
 
-    public function startPaiement($transaction, $methodePaiementEntity) {
+    public function startPaiementFedaPay($transaction, $methodePaiementEntity) {
         if($methodePaiementEntity->isIsdirect()) {
             $token = $transaction->generateToken()->token;
             $transaction->sendNowWithToken($methodePaiementEntity->getCode(), $token);

@@ -357,7 +357,7 @@ class CampagneMailController extends AbstractController
     
                     $this->em->flush();
                     
-                    $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                    $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;
@@ -399,9 +399,10 @@ class CampagneMailController extends AbstractController
                 ]);
             }
         } else {
+            // logique fait de paiement FeexPay
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
             if(!$envPaiementApi) {
-                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
                 if($sessionDS->get("langUserPhone") != "fr") {
                     return new JsonResponse([
                         'error' => true,
@@ -415,8 +416,6 @@ class CampagneMailController extends AbstractController
                     'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
                 ]);
             }
-            FedaPay::setApiKey($envPaiementApi->getApiKey());
-            FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
             $array_create_transaction = [
                 "description" => "Dressur :  Promotion Payante : ". $campagneMail->getTitre() ." - ". $campagneMail->getFormuleCampagneMail()->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
@@ -457,7 +456,7 @@ class CampagneMailController extends AbstractController
     
                     $this->em->flush();
                     
-                    $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                    $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;

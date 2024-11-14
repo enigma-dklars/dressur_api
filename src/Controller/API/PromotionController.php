@@ -495,7 +495,7 @@ class PromotionController extends AbstractController
     
                     $this->em->flush();
                     
-                    $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                    $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;
@@ -932,7 +932,7 @@ class PromotionController extends AbstractController
         
                     $this->em->flush();
         
-                    $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                    $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;
