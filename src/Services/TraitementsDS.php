@@ -995,6 +995,9 @@ class TraitementsDS extends AbstractController
     }
 
     public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user) {
+        $reference = "";
+        $url = "none";
+
         if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
             $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
             $response = $skeleton->paiementLocal(
@@ -1003,46 +1006,15 @@ class TraitementsDS extends AbstractController
                 $methodePaiementEntity->getCode(),
                 $username,
                 $email,
-                "callback_info",
+                json_encode($another_info),
                 "custom_id",
                 ""
             );
-            return $response;
             $reference = $response;
-
-            $status = $skeleton->getPaiementStatus($response);
-            dd($reference, $response, $status);
-
-            $myTransaction  = new Transaction();
-            $myTransaction
-                ->setUser($user)
-                ->setTransactionFor($transaction_for)
-                ->setIdTransaction($reference)
-                ->setReference($reference)
-                ->setAmount($amount)
-                ->setStatus($status ?? "PENDING")
-                // ->setCustomerId($transaction["customer_id"])
-                // ->setCurrencyId($transaction["currency_id"])
-                ->setAnnotherInfo($another_info)
-            ;
-            $this->em->persist($myTransaction);
-
-            $this->em->flush();
-            
-            return [
-                "error" => false,
-                "direct" => true,
-                "url" => "none",
-            ];
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
-            $token = "";
-            return [
-                "error" => false,
-                "direct" => false,
-                "url" => $token,
-            ];
+            
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
@@ -1053,6 +1025,27 @@ class TraitementsDS extends AbstractController
                 "url" => $token,
             ];
         }
+
+        $myTransaction  = new Transaction();
+        $myTransaction
+            ->setUser($user)
+            ->setTransactionFor($transaction_for)
+            ->setIdTransaction($reference)
+            ->setReference($reference)
+            ->setAmount($amount)
+            ->setStatus("PENDING")
+            // ->setCustomerId($transaction["customer_id"])
+            ->setCurrencyId(1)
+            ->setAnnotherInfo($another_info)
+        ;
+        $this->em->persist($myTransaction);
+        $this->em->flush();
+
+        return [
+            "error" => false,
+            "direct" => $url == "none" ? true : false,
+            "url" => $url,
+        ];
     }
 
     public function getSoldeZefame() {
