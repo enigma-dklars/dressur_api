@@ -998,6 +998,10 @@ class TraitementsDS extends AbstractController
         $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
         $reference = "";
         $url = "none";
+        $customer_id = rand(111111, 999999);
+
+        dump($envPaiementApi);
+        dump($methodePaiementEntity);
 
         if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
             $response = $skeleton->paiementLocal(
@@ -1007,10 +1011,11 @@ class TraitementsDS extends AbstractController
                 $username,
                 $email,
                 json_encode($another_info),
-                "custom_id",
+                $customer_id,
                 ""
             );
             $reference = $response;
+            dd($response);
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
@@ -1021,7 +1026,7 @@ class TraitementsDS extends AbstractController
                 $username,
                 $email,
                 json_encode($another_info),
-                "custom_id",
+                $customer_id,
                 "",
                 ""
             );
@@ -1032,7 +1037,22 @@ class TraitementsDS extends AbstractController
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
-            
+            $responseCard = $skeleton->paiementCard(
+                $amount,
+                $tel,
+                $methodePaiementEntity->getCode(),
+                $username,
+                $username,
+                $email,
+                "Benin", // "country(Benin)", 
+                "Cotonou", // "address(Cotonou)", 
+                "Littoral", // "district(Littoral)", 
+                "XOF", // "currency(XOF, USD, EUR)",
+                json_encode($another_info),
+                $customer_id,
+            );
+            dd($responseCard);
+            $redirectUrl = $responseCard["url"];
         }
 
         $myTransaction  = new Transaction();
@@ -1043,7 +1063,7 @@ class TraitementsDS extends AbstractController
             ->setReference($reference)
             ->setAmount($amount)
             ->setStatus("PENDING")
-            // ->setCustomerId($transaction["customer_id"])
+            ->setCustomerId($customer_id)
             ->setCurrencyId(1)
             ->setAnnotherInfo($another_info)
         ;
