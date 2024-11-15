@@ -1000,9 +1000,6 @@ class TraitementsDS extends AbstractController
         $url = "none";
         $customer_id = rand(111111, 999999);
 
-        dump($envPaiementApi);
-        dump($methodePaiementEntity);
-
         if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
             $response = $skeleton->paiementLocal(
                 $amount,
