@@ -995,11 +995,11 @@ class TraitementsDS extends AbstractController
     }
 
     public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user) {
+        $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
         $reference = "";
         $url = "none";
 
         if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
-            $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
             $response = $skeleton->paiementLocal(
                 $amount,
                 $tel,
@@ -1014,16 +1014,25 @@ class TraitementsDS extends AbstractController
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
-            
+            $response = $skeleton->requestToPayWeb(
+                $amount,
+                $tel,
+                $methodePaiementEntity->getCode(),
+                $username,
+                $email,
+                json_encode($another_info),
+                "custom_id",
+                "",
+                ""
+            );
+            dd($response);
+            $reference = $response["reference"];
+            $url = $response["payment_url"];
+            $status = $skeleton->getPaiementStatus($reference);
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
-            $token = "";
-            return [
-                "error" => false,
-                "direct" => false,
-                "url" => $token,
-            ];
+            
         }
 
         $myTransaction  = new Transaction();
