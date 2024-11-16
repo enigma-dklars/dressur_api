@@ -51,6 +51,7 @@ class PromotionController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 

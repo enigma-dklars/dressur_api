@@ -41,7 +41,7 @@ class CampagneMailController extends AbstractController
     }    
 
     #[Route('/listeFormuleCampagneMail', name: 'listeFormuleCampagneMail', methods: ['POST', 'GET'])]
-    public function listeFormuleCampagneMail(FormuleCampagneMailRepository $formuleCampagneMailRepository): Response
+    public function listeFormuleCampagneMail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
     {
         $listeFormuleCampagneMail = [];
         foreach ($formuleCampagneMailRepository->findAll() as $boost) {
@@ -56,6 +56,7 @@ class CampagneMailController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormuleCampagneMail' => $listeFormuleCampagneMail,
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 

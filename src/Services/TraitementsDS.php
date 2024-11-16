@@ -344,6 +344,7 @@ class TraitementsDS extends AbstractController
                     array_push($listeMethodePaiement, [
                         "id" => $methode->getId(),
                         "value" => $methode->getId(),
+                        "label" => $methode->getPays()." - ".$methode->getTitre(),
                         "titre" => $methode->getPays()." - ".$methode->getTitre(),
                         "code" => $methode->getCode(),
                         "pays" => $methode->getPays(),
@@ -354,6 +355,7 @@ class TraitementsDS extends AbstractController
                         array_push($listeMethodePaiement, [
                             "id" => $methode->getAutreMethodeUn()->getId(),
                             "value" => $methode->getAutreMethodeUn()->getId(),
+                            "label" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
                             "titre" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
                             "code" => $methode->getAutreMethodeUn()->getCode(),
                             "pays" => $methode->getAutreMethodeUn()->getPays(),

@@ -58,6 +58,7 @@ class PromotionReseauController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormulePromoReseau' => $traitementsDS->listeFormulePromoReseau(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 

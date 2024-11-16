@@ -183,6 +183,7 @@ class DressurBotController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormuleDressurBot' => $traitementsDS->listeFormuleDressurBot(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 

@@ -51,6 +51,7 @@ class BoostController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 
