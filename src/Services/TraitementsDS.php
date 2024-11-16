@@ -1048,8 +1048,8 @@ class TraitementsDS extends AbstractController
                 json_encode($another_info),
                 $customer_id,
             );
-            dd($responseCard);
-            $redirectUrl = $responseCard["url"];
+            $url = $responseCard["url"];
+            $reference = $responseCard["reference"];
         }
 
         $myTransaction  = new Transaction();
