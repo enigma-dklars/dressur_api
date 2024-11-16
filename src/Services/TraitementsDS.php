@@ -1050,8 +1050,12 @@ class TraitementsDS extends AbstractController
         }
 
         $myTransaction  = new Transaction();
+        if($transaction_for == "dressur_bot_activation") {
+            $myTransaction->setUserBot($user);
+        } else {
+            $myTransaction->setUser($user);
+        }
         $myTransaction
-            ->setUser($user)
             ->setTransactionFor($transaction_for)
             ->setIdTransaction($reference)
             ->setReference($reference)
