@@ -38,6 +38,9 @@ class MethodePaiement
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $requires = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $typeFeexPay = null;
+
     public function __toString()
     {
         return $this->pays." ".$this->titre." de ".$this->aggregator;
@@ -140,6 +143,18 @@ class MethodePaiement
     public function setRequires(?string $requires): static
     {
         $this->requires = $requires;
+
+        return $this;
+    }
+
+    public function getTypeFeexPay(): ?string
+    {
+        return $this->typeFeexPay;
+    }
+
+    public function setTypeFeexPay(?string $typeFeexPay): static
+    {
+        $this->typeFeexPay = $typeFeexPay;
 
         return $this;
     }

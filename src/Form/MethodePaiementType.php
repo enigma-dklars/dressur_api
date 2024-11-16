@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\MethodePaiement;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,6 +17,17 @@ class MethodePaiementType extends AbstractType
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
+            ])
+            ->add('typeFeexPay', ChoiceType::class, [
+                'choices'  => [
+                    'Paiement Local' => 'paiementLocal',
+                    'Request To Pay Web' => 'requestToPayWeb',
+                    'Paiement Card' => 'paiementCard',
+                ],
+                'attr' => [
+                    'class' => 'form-select single-select mb-2'
+                ],
+                'required' => false,
             ])
             ->add('pays', null, [
                 'attr' => [
