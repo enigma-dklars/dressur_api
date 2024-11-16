@@ -1012,7 +1012,6 @@ class TraitementsDS extends AbstractController
                 ""
             );
             $reference = $response;
-            dd($response);
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
