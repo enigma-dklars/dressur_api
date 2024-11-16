@@ -34,9 +34,11 @@ use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
 use App\Entity\MethodePaiement;
+use App\Entity\Transaction;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\MethodePaiementRepository;
+use Feexpay\FeexpayPhp\FeexpayClass;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -342,6 +344,7 @@ class TraitementsDS extends AbstractController
                     array_push($listeMethodePaiement, [
                         "id" => $methode->getId(),
                         "value" => $methode->getId(),
+                        "label" => $methode->getPays()." - ".$methode->getTitre(),
                         "titre" => $methode->getPays()." - ".$methode->getTitre(),
                         "code" => $methode->getCode(),
                         "pays" => $methode->getPays(),
@@ -352,6 +355,7 @@ class TraitementsDS extends AbstractController
                         array_push($listeMethodePaiement, [
                             "id" => $methode->getAutreMethodeUn()->getId(),
                             "value" => $methode->getAutreMethodeUn()->getId(),
+                            "label" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
                             "titre" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
                             "code" => $methode->getAutreMethodeUn()->getCode(),
                             "pays" => $methode->getAutreMethodeUn()->getPays(),
@@ -973,7 +977,7 @@ class TraitementsDS extends AbstractController
         return $country;
     }
 
-    public function startPaiement($transaction, $methodePaiementEntity) {
+    public function startPaiementFedaPay($transaction, $methodePaiementEntity) {
         if($methodePaiementEntity->isIsdirect()) {
             $token = $transaction->generateToken()->token;
             $transaction->sendNowWithToken($methodePaiementEntity->getCode(), $token);
@@ -990,6 +994,87 @@ class TraitementsDS extends AbstractController
                 "url" => $token,
             ];
         }
+    }
+
+    public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user) {
+        $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
+        $reference = "";
+        $url = "none";
+        $customer_id = rand(111111, 999999);
+
+        if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
+            $response = $skeleton->paiementLocal(
+                $amount,
+                $tel,
+                $methodePaiementEntity->getCode(),
+                $username,
+                $email,
+                json_encode($another_info),
+                $customer_id,
+                ""
+            );
+            $reference = $response;
+        }
+
+        if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
+            $response = $skeleton->requestToPayWeb(
+                $amount,
+                $tel,
+                $methodePaiementEntity->getCode(),
+                $username,
+                $email,
+                json_encode($another_info),
+                $customer_id,
+                "",
+                ""
+            );
+            $reference = $response["reference"];
+            $url = $response["payment_url"];
+        }
+
+        if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
+            $responseCard = $skeleton->paiementCard(
+                $amount,
+                $tel,
+                $methodePaiementEntity->getCode(),
+                $username,
+                $username,
+                $email,
+                "Benin", // "country(Benin)", 
+                "Cotonou", // "address(Cotonou)", 
+                "Littoral", // "district(Littoral)", 
+                "XOF", // "currency(XOF, USD, EUR)",
+                json_encode($another_info),
+                $customer_id,
+            );
+            $url = $responseCard["url"];
+            $reference = $responseCard["reference"];
+        }
+
+        $myTransaction  = new Transaction();
+        if($transaction_for == "dressur_bot_activation") {
+            $myTransaction->setUserBot($user);
+        } else {
+            $myTransaction->setUser($user);
+        }
+        $myTransaction
+            ->setTransactionFor($transaction_for)
+            ->setIdTransaction($reference)
+            ->setReference($reference)
+            ->setAmount($amount)
+            ->setStatus("PENDING")
+            ->setCustomerId($customer_id)
+            ->setCurrencyId(1)
+            ->setAnnotherInfo($another_info)
+        ;
+        $this->em->persist($myTransaction);
+        $this->em->flush();
+
+        return [
+            "error" => false,
+            "direct" => $url == "none" ? true : false,
+            "url" => $url,
+        ];
     }
 
     public function getSoldeZefame() {
@@ -1122,12 +1207,20 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
     }
 
-    public function getEnvPaiementApiDisponible() {
-        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true]);
+    public function getEnvPaiementApiFedaPayDisponible() {
+        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "FedaPay"]);
         foreach ($envPaiementApis as $envPaiementApi) {
             if($envPaiementApi->getCountTransactionApproved() < 10) {
                 return $envPaiementApi;
             }
+        }
+        return false;
+    }
+
+    public function getEnvPaiementApiFeexPayDisponible() {
+        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "FeexPay"]);
+        foreach ($envPaiementApis as $envPaiementApi) {
+            return $envPaiementApi;
         }
         return false;
     }
