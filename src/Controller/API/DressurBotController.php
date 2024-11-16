@@ -183,6 +183,7 @@ class DressurBotController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormuleDressurBot' => $traitementsDS->listeFormuleDressurBot(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 
@@ -202,9 +203,9 @@ class DressurBotController extends AbstractController
         $valueMethodePaiement = $datas->get('valueMethodePaiement');
         $tel = $datas->get('tel'); 
 
-        $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+        $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
         if(!$envPaiementApi) {
-            $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
+            $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FedaPay");
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -282,9 +283,9 @@ class DressurBotController extends AbstractController
             ]);
         }
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
-            $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
-                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible");
+                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FedaPay");
                 if($sessionDS->get("langUserPhone") != "fr") {
                     return new JsonResponse([
                         'error' => true,
@@ -338,7 +339,7 @@ class DressurBotController extends AbstractController
         
                 $this->em->flush();
         
-                $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $msgError = (string)$th;
@@ -375,7 +376,74 @@ class DressurBotController extends AbstractController
                 ]);
             }
         } else {
-            // logique de paiement FeexPay
+            // logique fait de paiement FeexPay
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FeexPay");
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Payment error. Please contact the administrators.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+            
+            try {
+                $resultat = $traitementsDS->startPaiementFeexPay(
+                    $envPaiementApi, 
+                    $methodePaiementEntity, 
+                    $formulDressurBot->getPrix(),
+                    $tel,
+                    $userBotFind->getNom(),
+                    $userBotFind->getEmail(),
+                    "dressur_bot_activation",
+                    [
+                        'userBotId' => $userBotFind->getId(),
+                        'formulDressurBotId' => $formulDressurBot->getId(),
+                    ],
+                    $userBotFind
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $msgError = (string)$th;
+                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                    $envPaiementApi->setCountTransactionApproved(10);
+                    $this->em->flush();
+
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Excuse us please!',
+                            'message' => "Please submit the form again. Thank you.",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excusez-nous svp!',
+                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                    ]);
+                }
+
+                $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         }
 
         return new JsonResponse([
