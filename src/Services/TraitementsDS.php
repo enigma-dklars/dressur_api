@@ -1026,10 +1026,8 @@ class TraitementsDS extends AbstractController
                 "",
                 ""
             );
-            dd($response);
             $reference = $response["reference"];
             $url = $response["payment_url"];
-            $status = $skeleton->getPaiementStatus($reference);
         }
 
         if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
