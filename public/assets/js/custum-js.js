@@ -388,7 +388,6 @@ $(document).ready(function () {
     });
 
     $("#connexion").on("click", function () {
-        alert("sdddddd")
         traitementContact("connexion", "debut", "")
 
         let msgError = "Veuillez renseigner :"
