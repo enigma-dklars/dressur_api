@@ -1,8 +1,52 @@
 $(document).ready(function () {
+
     $("img.lazy").lazyload({
         placeholder : "/assets/images/placeholder.png", // image à afficher avant le chargement de l'image réelle
         effect : "fadeIn" // effet de transition lorsque l'image est chargée
     });
+    
+    const services = [
+        "Bot WhatsApp",
+        "Boost Contact (Add)",
+        "Campagne Mail",
+        "Promotion des Produits",
+        "Promotion des Services",
+        "Demande d'emploi",
+        "Offre d'emploi",
+        "Carte de visite numérique",
+        "Social Média Marketing"
+    ];
+
+    const animatedService = document.getElementById("animated-service");
+    let serviceIndex = 0; // Index of the current service
+    let charIndex = 0; // Index of the current character
+    const typingSpeed = 50; // Speed of typing in ms
+    const delayBetweenServices = 2000; // Delay before switching to the next service in ms
+
+    function typeService() {
+        if (charIndex < services[serviceIndex].length) {
+            animatedService.textContent += services[serviceIndex][charIndex];
+            charIndex++;
+            setTimeout(typeService, typingSpeed);
+        } else {
+            // Wait and then erase the text
+            setTimeout(eraseService, delayBetweenServices);
+        }
+    }
+
+    function eraseService() {
+        if (charIndex > 0) {
+            animatedService.textContent = services[serviceIndex].substring(0, charIndex - 1);
+            charIndex--;
+            setTimeout(eraseService, typingSpeed);
+        } else {
+            // Move to the next service
+            serviceIndex = (serviceIndex + 1) % services.length;
+            setTimeout(typeService, typingSpeed);
+        }
+    }
+
+    typeService(); // Start the animation
     
     let network_id;
     let service_network_id;

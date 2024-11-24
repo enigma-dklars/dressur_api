@@ -1,30 +1,15 @@
-
-/*
-Template Name: Skodash Admin
-Author: codervent
-Email: codervent@gmail.com
-File: style.css
-*/
-
-
-/* 
-- General
-- Header
-- Sidebar
-- Page Content
-- Utilities
-- Widgets
-- Chips
-- Email
-- chat box
-- Authentication
-- swicther
-- Responsive
-
- */
-
-
 /* General */
+
+* {
+	font-family: 'Poppins', sans-serif;
+}
+
+#animated-service {
+	display: inline-block;
+	white-space: nowrap;
+	overflow: hidden;
+	vertical-align: bottom;
+}
 
 body {
     font-size: 14px;
