@@ -301,7 +301,7 @@ class BoostController extends AbstractController
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
                     "firstname" => $user->getPseudo(),
-                    "lastname" => $user,
+                    "lastname" => $user->getNom(),
                     "email" => $user->getMail(),
                     "phone_number" => [
                         "number" => $tel,
@@ -331,7 +331,7 @@ class BoostController extends AbstractController
                 ;
                 $this->em->persist($myTransaction);
                 $this->em->flush();
-    
+                
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {

@@ -326,7 +326,7 @@ class CampagneMailController extends AbstractController
                     "currency" => ["iso" => "XOF"],
                     "customer" => [
                         "firstname" => $user->getPseudo(),
-                        "lastname" => $user,
+                        "lastname" => $user->getNom(),
                         "email" => $user->getMail(),
                         "phone_number" => [
                             "number" => $tel,
