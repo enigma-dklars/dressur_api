@@ -305,7 +305,7 @@ class BoostController extends AbstractController
                     "email" => $user->getMail(),
                     "phone_number" => [
                         "number" => $tel,
-                        "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                        "country" => $methodePaiementEntity->getCodePays()
                     ]
                 ]
             ];

@@ -965,18 +965,6 @@ class TraitementsDS extends AbstractController
         ];
     }
 
-    public function getCountryWithMethodePaiement($valueMethodePaiement) {
-        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
-        else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci" || $valueMethodePaiement == "moov_ci") { $country = "ci"; }
-        else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
-        else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
-        else if($valueMethodePaiement == "airtel_ne") { $country = "ne"; }
-        else if($valueMethodePaiement == "orange_ml") { $country = "ml"; }
-        else if($valueMethodePaiement == "mtn_open_gn") { $country = "gn"; }
-        else if($valueMethodePaiement == "moov_bf" || $valueMethodePaiement == "orange_bf") { $country = "bf"; }
-        return $country;
-    }
-
     public function startPaiementFedaPay($transaction, $methodePaiementEntity) {
         if($methodePaiementEntity->isIsdirect()) {
             $token = $transaction->generateToken()->token;
@@ -1210,9 +1198,7 @@ class TraitementsDS extends AbstractController
     public function getEnvPaiementApiFedaPayDisponible() {
         $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "FedaPay"]);
         foreach ($envPaiementApis as $envPaiementApi) {
-            if($envPaiementApi->getCountTransactionApproved() < 10) {
-                return $envPaiementApi;
-            }
+            return $envPaiementApi;
         }
         return false;
     }

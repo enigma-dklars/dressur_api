@@ -312,7 +312,7 @@ class DressurBotController extends AbstractController
                     "email" => $userBotFind->getEmail(),
                     "phone_number" => [
                         "number" => $tel,
-                        "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                        "country" => $methodePaiementEntity->getCodePays()
                     ]
                 ]
             ];
