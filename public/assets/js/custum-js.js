@@ -45,8 +45,6 @@ $(document).ready(function () {
             setTimeout(typeService, typingSpeed);
         }
     }
-
-    typeService(); // Start the animation
     
     let network_id;
     let service_network_id;
@@ -390,6 +388,7 @@ $(document).ready(function () {
     });
 
     $("#connexion").on("click", function () {
+        alert("sdddddd")
         traitementContact("connexion", "debut", "")
 
         let msgError = "Veuillez renseigner :"
@@ -2766,4 +2765,9 @@ $(document).ready(function () {
             }
         });
     });
+    
+    /**
+     * Les codes JS a executer en dernier
+     */
+    typeService(); // Start the animation
 });
