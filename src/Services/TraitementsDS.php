@@ -338,7 +338,7 @@ class TraitementsDS extends AbstractController
 
     public function listeMethodePaiements() {
         $listeMethodePaiement = [];
-        foreach ($this->methodePaiementRepository->findAll() as $methode) {
+        foreach ($this->methodePaiementRepository->findBy([], ['pays' => "ASC"]) as $methode) {
             if(!$this->methodePaiementRepository->findOneBy(['autreMethodeUn' => $methode])) {
                 if($methode->isActivated()){
                     array_push($listeMethodePaiement, [
