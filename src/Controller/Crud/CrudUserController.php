@@ -154,6 +154,16 @@ class CrudUserController extends AbstractController
                 }
             }
 
+            if (strpos($input, '+229') === 0) {
+                // Vérifier s'il y a 10 caractères après +229
+                if (strlen(substr($input, 4)) == 10) {
+                    // Retirer les 2 caractères qui suivent +229
+                    $telcut = substr($input, 0, 4) . substr($input, 6);
+                } else {
+                    $teladd1 = str_replace("+229", "+22901", $input);
+                }
+            }
+
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
