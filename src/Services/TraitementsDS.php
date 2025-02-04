@@ -547,7 +547,7 @@ class TraitementsDS extends AbstractController
         foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
             $lesFormulesFils = [];
             foreach ($this->formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.4 * 700;
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.7 * 700;
                 $prix_service_fcfa = round($prix_service_fcfa) + 1;
                 if($this->sessionDS->get("langUserPhone") == 'fr') {
                     $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
