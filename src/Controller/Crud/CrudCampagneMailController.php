@@ -44,11 +44,16 @@ class CrudCampagneMailController extends AbstractController
     {
         if($request->isMethod('POST')) {
             $usersDressur = $userRepository->findAllEmails();
+
             $message = $request->request->get('message');
+            $subject = $request->request->get('subject');
+            $title = $request->request->get('title');
+
             $html = $this->renderView('emails/camp_mail_1.html.twig',[
                 'contentmail' => $message,
             ]);
-            $sendMail->smtpMail($usersDressur, "CAMPAGNE MAIL DRESSUR", $html, "dressur.ds@gmail.com", "Dressur Campagne Mail");
+            $sendMail->smtpMail($usersDressur, $subject, $html, "dressur.ds@gmail.com", $title);
+            
             return $this->redirectToRoute('mailforallusers');
         }
 
