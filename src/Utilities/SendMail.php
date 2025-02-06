@@ -52,6 +52,11 @@ class SendMail {
                 return true;
             }
         } catch (\Exception $e) {
+            $msgError = (string)$e;
+            if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
+                $this->envMailSender->setActivated(false);
+                $this->em->flush();
+            }
             $this->logger->error('Erreur lors de l\'envoi de l\'e-mail : ' . $e->getMessage());
             return false;
         }
@@ -64,35 +69,42 @@ class SendMail {
                 ->setPassword($this->envMailSender->getPassword());
     
             $mailer = new Swift_Mailer($transport);
-            $batches = array_chunk($to, 100); // Découpe le tableau en groupes de 100 emails
-    
+            $batches = array_chunk($to, 100); // Découpe en groupes de 100 emails
+            
             foreach ($batches as $batch) {
                 $content = (new Swift_Message())
                     ->setSubject($subject)
                     ->setFrom([$this->envMailSender->getMailAdresse() => $title])
                     ->setReplyTo($replyto)
-                    ->setTo($batch) // Envoi à un lot de 100 emails maximum
-                    ->setBody($message, 'text/html');
+                    ->setBcc($batch) // Utilisation de BCC pour cacher les destinataires
+                    ->setBody($message, 'text/html')
+                ;
     
                 if ($mailer->send($content)) {
-                    $this->envMailSender->isUsed();
-                    $this->em->flush();
+                    $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 100);
                 } else {
                     $this->logger->error('Échec de l\'envoi du lot d\'emails.');
                 }
-    
-                sleep(2); // Pause de 2 secondes pour éviter un éventuel blocage du serveur SMTP
+                
+                sleep(2); // Pause de 2 secondes pour éviter un éventuel blocage SMTP
+                $this->envMailSender = $this->getEnvMailSenderDisponible();
             }
+            
+            $this->em->flush();
     
             return true;
         } catch (\Exception $e) {
+            $msgError = (string)$e;
+            if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
+                $this->envMailSender->setActivated(false);
+                $this->em->flush();
+            }
             $this->logger->error('Erreur lors de l\'envoi de l\'e-mail : ' . $e->getMessage());
             return false;
         }
     }
-    
 
-    public function smtpMail(string $to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"): bool {
+    public function smtpMail($to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"): bool {
         if(is_array($to)) {
             return $this->sendEmailMultiple($to, $subject, $message, $replyto, $title);
         } else {

@@ -38,7 +38,7 @@ class CampagneMailController extends AbstractController
         $this->em = $em;
         $this->env = $env->find(1);
         $this->sendMail = $sendMail;
-    }    
+    }
 
     #[Route('/listeFormuleCampagneMail', name: 'listeFormuleCampagneMail', methods: ['POST', 'GET'])]
     public function listeFormuleCampagneMail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response

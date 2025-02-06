@@ -39,6 +39,15 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllEmails(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.mail')
+            ->orderBy('u.id', 'DESC')
+            ->getQuery()
+            ->getSingleColumnResult();
+    }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */

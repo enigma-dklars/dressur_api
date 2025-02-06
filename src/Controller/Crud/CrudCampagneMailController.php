@@ -7,6 +7,7 @@ use App\Entity\FileAttenteCampagneMail;
 use App\Form\CampagneMailType;
 use App\Repository\CampagneMailRepository;
 use App\Repository\FileAttenteCampagneMailRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +37,25 @@ class CrudCampagneMailController extends AbstractController
         } else {
             $this->theme = "light-theme";
         }
+    }   
+
+    #[Route('/mailforallusers', name: 'mailforallusers', methods: ['POST', 'GET'])]
+    public function mailforallusers(Request $request, SendMail $sendMail, UserRepository $userRepository): Response
+    {
+        if($request->isMethod('POST')) {
+            $usersDressur = $userRepository->findAllEmails();
+            $message = $request->request->get('message');
+            $html = $this->renderView('emails/camp_mail_1.html.twig',[
+                'contentmail' => $message,
+            ]);
+            $sendMail->smtpMail($usersDressur, "CAMPAGNE MAIL DRESSUR", $html, "dressur.ds@gmail.com", "Dressur Campagne Mail");
+            return $this->redirectToRoute('mailforallusers');
+        }
+
+        return $this->renderForm('crud_campagne_mail/textmessage.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+        ]);
     }
     
     #[Route('/', name: 'app_crud_campagne_mail_index', methods: ['GET'])]
