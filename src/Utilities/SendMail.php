@@ -81,7 +81,7 @@ class SendMail {
                 ;
     
                 if ($mailer->send($content)) {
-                    $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 100);
+                    $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 200);
                 } else {
                     $this->logger->error('Échec de l\'envoi du lot d\'emails.');
                 }
