@@ -45,7 +45,9 @@ class SendMail {
                 ->setFrom([$this->envMailSender->getMailAdresse() => $title])
                 ->setReplyTo($replyto)
                 ->setTo($to)
-                ->setBody($message, 'text/html');
+                ->setBody($message, 'text/html')
+            ;
+            
             if($mailer->send($content)){
                 $this->envMailSender->isUsed();
                 $this->em->flush();
@@ -69,7 +71,7 @@ class SendMail {
                 ->setPassword($this->envMailSender->getPassword());
     
             $mailer = new Swift_Mailer($transport);
-            $batches = array_chunk($to, 100); // Découpe en groupes de 100 emails
+            $batches = array_chunk($to, 20); // Découpe en groupes de 20 emails
             
             foreach ($batches as $batch) {
                 $content = (new Swift_Message())
@@ -81,7 +83,7 @@ class SendMail {
                 ;
     
                 if ($mailer->send($content)) {
-                    $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 200);
+                    $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 20);
                 } else {
                     $this->logger->error('Échec de l\'envoi du lot d\'emails.');
                 }
