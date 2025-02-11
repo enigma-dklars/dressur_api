@@ -99,7 +99,7 @@ class PublicController extends AbstractController
             'formule_campagne_mails' => $formuleCampagneMailRepository->findAll(),
             'formule_dressur_bots' => $formuleDressurBotRepository->findAll(),
             'formule_promo_affaires' => $formulePromoAffaireRepository->findAll(),
-            'formule_promo_reseaus' => $formulePromoReseauRepository->findAll(),
+            'formule_promo_reseaus' => $formulePromoReseauRepository->findBy([], ['parent' => 'ASC']),
         ]);
     }
 
