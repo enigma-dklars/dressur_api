@@ -28,6 +28,9 @@
                     </ul>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {% if app.request.requestUri == path('app_tarifs') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_tarifs')}}">Tarifs</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {% if app.request.requestUri == path('app_contactez_nous') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_contactez_nous')}}">Contacts</a>
                 </li>
             </ul>

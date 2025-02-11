@@ -4,9 +4,15 @@ namespace App\Controller;
 
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Controller\PrivateController;
+use App\Repository\FormuleBoostRepository;
 use Symfony\Component\HttpFoundation\Response;
+use App\Repository\FormuleDressurBotRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\FormulePromoReseauRepository;
+use App\Repository\FormuleCampagneMailRepository;
+use App\Repository\FormulePromoAffaireRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class PublicController extends AbstractController
 {
@@ -79,6 +85,21 @@ class PublicController extends AbstractController
             'controller_name' => 'PublicController',
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/tarifs', name: 'app_tarifs')]
+    public function tarifs(FormuleBoostRepository $formuleBoostRepository, FormuleCampagneMailRepository $formuleCampagneMailRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    {
+        return $this->render('public/tarifs.html.twig', [
+            'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+            'formule_boosts' => $formuleBoostRepository->findAll(),
+            'formule_campagne_mails' => $formuleCampagneMailRepository->findAll(),
+            'formule_dressur_bots' => $formuleDressurBotRepository->findAll(),
+            'formule_promo_affaires' => $formulePromoAffaireRepository->findAll(),
+            'formule_promo_reseaus' => $formulePromoReseauRepository->findAll(),
         ]);
     }
 

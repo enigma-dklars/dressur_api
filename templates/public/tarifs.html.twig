@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Contactez-nous pour toute question ou demande d'information. Retrouvez nos coordonnées et comment nous joindre facilement." %}
+{% set title = "Contacts" %}
+{% block referencement %}
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card Meta Tags (facultatif) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+
+    <!-- Autres balises meta facultatives -->
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="contact Dressur, nous joindre, coordonnées Dressur, WhatsApp Dressur, email Dressur, Facebook Dressur, application Dressur, support Dressur" />
+{% endblock %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block body %}
+    <div class="container mt-3">
+        <div class="mb-3 h6">
+            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Tarifs</span>
+        </div>
+
+        <div class="row g-5">
+            <div class="col-md-12">
+                <p class="fw-bolder display-6">Tarifs des services Dressur</p>
+                <p class="fs-5">
+                    Ci-dessous vous verez les différents tarifs pour chacun des services Dressur. Pour tous besoin d'éclaircissement, veuillez <a href="{{path('app_contactez_nous')}}">contactez l'assistance Dressur</a> par WhatsApp. Cliquez sur le nom du service pour en savoir plus.
+                </p>
+            </div>
+        </div>
+
+        <div>
+            <p class="fw-bolder h5">1- <a href="{{path('app_dressur_bot')}}"> Dressur Bot </a></p>
+            <p class="ps-md-4">Avec Dressur Bot, simplifiez vos campagnes de communication en masse sur WhatsApp.</p>
+        </div>
+
+        <div>
+            <p class="fw-bolder h5">2- <a href="{{path('app_boost_contact')}}"> Boost Contact </a></p>
+            <p class="ps-md-4">
+                Optimisez vos contacts et augmentez votre visibilité avec Dressur. 
+                Ce service vous permet d'évoluer en mode <span class="fw-bolder text-success">GRATUIT</span> comme <span class="fw-bolder text-danger">PAYANT</span>. Ci-dessous les tarifs a titre payante.
+            </p>
+        </div>
+
+        <div>
+            <p class="fw-bolder h5">3- <a href="{{path('app_campagne_mail')}}"> Campagnes Mail </a></p>
+            <p class="ps-md-4">Envoyez des emails à des milliers de destinataires avec facilité.</p>
+        </div>
+
+        <div>
+            <p class="fw-bolder h5">4- <a href="{{path('app_promotion_affaire')}}"> Promotion Affaire </a></p>
+            <p class="ps-md-4">
+                Promouvez vos produits, services, événements, et plus encore auprès d'un public ciblé.  
+                Ce service vous permet d'évoluer en mode <span class="fw-bolder text-success">GRATUIT</span> comme <span class="fw-bolder text-danger">PAYANT</span>. Ci-dessous les tarifs a titre payante.
+            </p>
+        </div>
+
+        <div>
+            <p class="fw-bolder h5">5- <a href="{{path('app_carte_visite_numerique')}}"> Carte de visite numérique </a></p>
+            <p class="ps-md-4">Simplifiez l'échange de vos contacts en scannant un code QR. Plus besoin d'imprimer des cartes de visite. <span class="fw-bolder text-success">Ce service est GRATUIT</span>.</p>
+        </div>
+
+        <div>
+            <p class="fw-bolder h5">6- <a href="{{path('app_promotion_reseaux_sociaux')}}"> Promotions Réseaux Sociaux </a></p>
+            <p class="ps-md-4">Augmentez votre visibilité sur les réseaux sociaux avec Dressur. Les taris ci-dessous peuvent dimminuer ou augmnter en fonction du bon vouloir de chaque réseau social.</p>
+        </div>
+    </div>
+{% endblock %}
