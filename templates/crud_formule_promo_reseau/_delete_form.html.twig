@@ -1,6 +1,8 @@
 <a href="{{ path('app_crud_formule_promo_reseau_show', {'id': formule_promo_reseau.id}) }}" class="btn btn-sm btn-info">Show</a>
 <a href="{{ path('app_crud_formule_promo_reseau_edit', {'id': formule_promo_reseau.id}) }}" class="btn btn-sm btn-success">Edit</a>
-<a href="{{ path('app_crud_formule_promo_reseau_edit_by_id_zef', {'idzef': formule_promo_reseau.idZefame}) }}" class="btn btn-sm btn-success">Edit By id Zef</a>
+{% if formule_promo_reseau.idZefame %}
+    <a href="{{ path('app_crud_formule_promo_reseau_edit_by_id_zef', {'idzef': formule_promo_reseau.idZefame}) }}" class="btn btn-sm btn-success">Edit By id Zef</a>
+{% endif %}
 
 
 {# <form method="post" action="{{ path('app_crud_formule_promo_reseau_delete', {'id': formule_promo_reseau.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">

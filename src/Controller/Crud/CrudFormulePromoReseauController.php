@@ -98,7 +98,7 @@ class CrudFormulePromoReseauController extends AbstractController
         ]);
     }
 
-    #[Route('/{idzef}/edit-by-id-zef', name: 'app_crud_formule_promo_reseau_edit_by_id_zef', methods: ['GET', 'POST'])]
+    #[Route('/{idzef?}/edit-by-id-zef', name: 'app_crud_formule_promo_reseau_edit_by_id_zef', methods: ['GET', 'POST'])]
     public function edit_by_id_zef($idzef, Request $request, FormulePromoReseauRepository $formulePromoReseauRepository, EntityManagerInterface $entityManager): Response
     {
         $formulePromoReseau = $formulePromoReseauRepository->findOneBy(['idZefame' => $idzef]);
