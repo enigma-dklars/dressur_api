@@ -263,6 +263,21 @@ class PromotionController extends AbstractController
 
         $image = $files->get('image');
 
+        if($mode == "gratuit") {
+            if ($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Free business promotions are currently unavailable. However, to offer you a unique opportunity, we have reduced the price of paid business promotions. We hope you will take advantage of this exceptional opportunity.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Les promotions affaire gratuites sont actuellement indisponibles. Cependant, pour vous offrir une occasion unique, nous avons réduit le prix des promotions affaire payantes. Nous espérons que vous profiterez de cette opportunité exceptionnelle.",
+            ]);
+        }
+
         if ($text === null || $image === null) {
             return new JsonResponse([
                 'error' => true,
