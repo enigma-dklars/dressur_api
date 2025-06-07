@@ -22,7 +22,7 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th>Id</th>
+                    <th>Service</th>
                     <th>User</th>
                     <th>Qte.</th>
                     <th>Prix</th>
@@ -32,6 +32,7 @@
                     <th>C.Debut</th>
                     <th>C.Restant</th>
                     <th>Url</th>
+                    <th>Id</th>
                     <th>CreatedAt</th>
                     <th>UpdatedAt</th>
                 </tr>
@@ -40,7 +41,7 @@
             {% for promo_reseau in promo_reseaus %}
                 <tr>
                     <td>{% include "crud_promo_reseau/_delete_form.html.twig" %}</td>
-                    <td>{{ promo_reseau.id }}</td>
+                    <td>{{ promo_reseau.formulePromoReseau }}</td>
                     <td>{{ promo_reseau.user.pseudo }}</td>
                     <td>{{ promo_reseau.qteDemander }}</td>
                     <td>{{ promo_reseau.prixFixer }}</td>
@@ -54,7 +55,12 @@
                     <td>{{ promo_reseau.idZefame }}</td>
                     <td>{{ promo_reseau.compteurDebut }}</td>
                     <td>{{ promo_reseau.compteurRestant }}</td>
-                    <td>{{ promo_reseau.url }}</td>
+                    <td>
+                        <span url="{{ promo_reseau.url }}" class="copier_url badge bg-danger" style="cursor: pointer;"><i class="fas fa-copy"></i> Copier</span>
+                        <span url="{{ promo_reseau.url }}" class="afficher_url badge bg-primary mt-1" style="cursor: pointer;"><i class="fas fa-eye"></i> Afficher</span>
+                        <textarea id="urlTextarea" style="display: none;">{{ promo_reseau.url }}</textarea>
+                    </td>
+                    <td>{{ promo_reseau.id }}</td>
                     <td>{{ promo_reseau.createdAt ? promo_reseau.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promo_reseau.updatedAt ? promo_reseau.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
                 </tr>
@@ -67,4 +73,33 @@
         </table>
     </div>
 
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        $(document).ready(function() {
+        // Fonction pour copier l'URL dans le presse-papiers
+        $('.copier_url').click(function() {
+            var url = $(this).attr('url');
+            navigator.clipboard.writeText(url).then(function() {
+                alert('URL copiée dans le presse-papiers');
+            }, function(err) {
+                console.error('Erreur lors de la copie de l\'URL: ', err);
+            });
+        });
+
+        // Fonction pour afficher l'URL dans un SweetAlert ou une modale
+        $('.afficher_url').click(function() {
+            var url = $(this).attr('url');
+            // Utilisation de SweetAlert pour afficher l'URL
+            Swal.fire({
+                title: 'URL',
+                text: url,
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+    </script>
 {% endblock %}

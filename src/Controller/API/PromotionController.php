@@ -263,6 +263,21 @@ class PromotionController extends AbstractController
 
         $image = $files->get('image');
 
+        if($mode == "gratuit") {
+            if ($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Free business promotions are currently unavailable. However, to offer you a unique opportunity, we have reduced the price of paid business promotions. We hope you will take advantage of this exceptional opportunity.",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Les promotions affaire gratuites sont actuellement indisponibles. Cependant, pour vous offrir une occasion unique, nous avons réduit le prix des promotions affaire payantes. Nous espérons que vous profiterez de cette opportunité exceptionnelle.",
+            ]);
+        }
+
         if ($text === null || $image === null) {
             return new JsonResponse([
                 'error' => true,
@@ -462,11 +477,11 @@ class PromotionController extends AbstractController
                     "currency" => ["iso" => "XOF"],
                     "customer" => [
                         "firstname" => $user->getPseudo(),
-                        "lastname" => $user,
+                        "lastname" => $user->getNom(),
                         "email" => $user->getMail(),
                         "phone_number" => [
                             "number" => $tel,
-                            "country" => $traitementsDS->getCountryWithMethodePaiement($paymentMethod)
+                            "country" => $methodePaiementEntity->getCodePays()
                         ]
                     ]
                 ];
@@ -502,6 +517,7 @@ class PromotionController extends AbstractController
                     $msgError = (string)$th;
                     if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
                         $envPaiementApi->setCountTransactionApproved(10);
+                        $envPaiementApi->setActivated(false);
                         $this->em->flush();
     
                         if($sessionDS->get("langUserPhone") != "fr") {
@@ -574,6 +590,7 @@ class PromotionController extends AbstractController
                     $msgError = (string)$th;
                     if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
                         $envPaiementApi->setCountTransactionApproved(10);
+                        $envPaiementApi->setActivated(false);
                         $this->em->flush();
     
                         if($sessionDS->get("langUserPhone") != "fr") {
@@ -970,11 +987,11 @@ class PromotionController extends AbstractController
                     "currency" => ["iso" => "XOF"],
                     "customer" => [
                         "firstname" => $user->getPseudo(),
-                        "lastname" => $user,
+                        "lastname" => $user->getNom(),
                         "email" => $user->getMail(),
                         "phone_number" => [
                             "number" => $tel,
-                            "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                            "country" => $methodePaiementEntity->getCodePays()
                         ]
                     ]
                 ];                
@@ -1009,6 +1026,7 @@ class PromotionController extends AbstractController
                     $msgError = (string)$th;
                     if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
                         $envPaiementApi->setCountTransactionApproved(10);
+                        $envPaiementApi->setActivated(false);
                         $this->em->flush();
         
                         if($sessionDS->get("langUserPhone") != "fr") {
@@ -1080,6 +1098,7 @@ class PromotionController extends AbstractController
                     $msgError = (string)$th;
                     if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
                         $envPaiementApi->setCountTransactionApproved(10);
+                        $envPaiementApi->setActivated(false);
                         $this->em->flush();
 
                         if($sessionDS->get("langUserPhone") != "fr") {
