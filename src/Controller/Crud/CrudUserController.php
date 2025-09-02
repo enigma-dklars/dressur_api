@@ -51,13 +51,31 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/', name: 'app_crud_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
+    public function index(UserRepository $userRepository, Request $request): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $search = $request->query->get('search', '');
+        $limit = 100; // Nombre d'utilisateurs par page
+        
+        if ($search) {
+            $usersPaginator = $userRepository->searchUsers($search, $page, $limit);
+        } else {
+            $usersPaginator = $userRepository->findAllPaginated($page, $limit);
+        }
+        
+        $totalItems = $usersPaginator->count();
+        $totalPages = ceil($totalItems / $limit);
+        
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findBy([], ['id' => 'DESC']),
+            'users' => $usersPaginator,
             'option' => "All",
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalItems' => $totalItems,
+            'search' => $search,
+            'limit' => $limit
         ]);
     }
 
@@ -119,7 +137,7 @@ class CrudUserController extends AbstractController
             return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('crud_user/new.html.twig', [
+        return $this->render('crud_user/new.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'user' => $user,
@@ -151,16 +169,6 @@ class CrudUserController extends AbstractController
                     $teladd1 = str_replace("+225", "+22501", $input);
                     $teladd2 = str_replace("+225", "+22505", $input);
                     $teladd3 = str_replace("+225", "+22507", $input);
-                }
-            }
-
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
                 }
             }
 
@@ -220,16 +228,6 @@ class CrudUserController extends AbstractController
                 }
             }
 
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
-                }
-            }
-
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
@@ -281,16 +279,6 @@ class CrudUserController extends AbstractController
                     $teladd1 = str_replace("+225", "+22501", $input);
                     $teladd2 = str_replace("+225", "+22505", $input);
                     $teladd3 = str_replace("+225", "+22507", $input);
-                }
-            }
-
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
                 }
             }
 
@@ -363,6 +351,8 @@ class CrudUserController extends AbstractController
     #[Route('/{id}/edit', name: 'app_crud_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        ini_set('memory_limit', '-1');
+        
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
@@ -372,7 +362,7 @@ class CrudUserController extends AbstractController
             return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('crud_user/edit.html.twig', [
+        return $this->render('crud_user/edit.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             // 'user' => $user,
