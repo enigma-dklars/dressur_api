@@ -98,6 +98,31 @@ class CrudFormulePromoReseauController extends AbstractController
         ]);
     }
 
+    #[Route('/{idzef?}/edit-by-id-zef', name: 'app_crud_formule_promo_reseau_edit_by_id_zef', methods: ['GET', 'POST'])]
+    public function edit_by_id_zef($idzef, Request $request, FormulePromoReseauRepository $formulePromoReseauRepository, EntityManagerInterface $entityManager): Response
+    {
+        $formulePromoReseau = $formulePromoReseauRepository->findOneBy(['idZefame' => $idzef]);
+        $form = $this->createForm(FormulePromoReseauType::class, $formulePromoReseau);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+            $this->addFlash(
+               'success',
+               'Formule Promo Réseau Edited'
+            );
+
+            return $this->redirectToRoute('app_crud_formule_promo_reseau_edit_by_id_zef', ['idzef' => $idzef], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('crud_formule_promo_reseau/edit.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'formule_promo_reseau' => $formulePromoReseau,
+            'form' => $form,
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_crud_formule_promo_reseau_delete', methods: ['POST'])]
     public function delete(Request $request, FormulePromoReseau $formulePromoReseau, EntityManagerInterface $entityManager): Response
     {

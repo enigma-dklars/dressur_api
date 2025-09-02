@@ -28,11 +28,17 @@
 {% block body %}
     <section id="hero" class="my-4">
         <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-lg-7 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center">
+            {# <div class="row justify-content-between"> #}
+            <div class="row">
+                <div class="col-lg-8 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center">
                     <div data-aos="zoom-out">
                         <h1>Dressur <span>Mobile & Web</span></h1>
-                        <h2>Dressé votre mure de compétences et assurez-vous une grande visibilité.</h2>
+                        <div id="services-container" class="h5" style="font-weight:600; font-size: 20px">
+                            Dressé votre mur de compétences et assurez-vous une grande visibilité.
+                        </div>
+                        <br>
+                        <span class="h4 fw-semibold">Nos Service(s) : <span id="animated-service" class="text-success"></span></span>
+                        <br> <br> <br>
                         <div class="d-md-flex text-center text-lg-start justify-content-between">
                             <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-get-started scrollto mb-2 mb-md-0"> <i class="fs-5 fab fa-google-play me-2"></i> Télécharger sur Google Play</a>
                             <a href="{{path('app_inscription')}}" class="btn-get-started scrollto">S'inscrire <i class="fs-5 fas fa-user-plus ms-2"></i> </a>

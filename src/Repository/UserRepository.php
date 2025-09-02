@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -37,6 +38,44 @@ class UserRepository extends ServiceEntityRepository
         if ($flush) {
             $this->getEntityManager()->flush();
         }
+    }
+
+
+    public function findAllPaginated(int $page = 1, int $limit = 20): Paginator
+    {
+        $query = $this->createQueryBuilder('u')
+            ->orderBy('u.id', 'DESC')
+            ->getQuery();
+        
+        return $this->paginate($query, $page, $limit);
+    }
+
+    public function searchUsers(string $search, int $page = 1, int $limit = 20): Paginator
+    {
+        $query = $this->createQueryBuilder('u')
+            ->where('u.pseudo LIKE :search')
+            ->orWhere('u.nom LIKE :search')
+            ->orWhere('u.mail LIKE :search')
+            ->orWhere('u.tel LIKE :search')
+            ->orWhere('u.uid LIKE :search')
+            ->orWhere('u.id LIKE :search')
+            ->orWhere('u.codeBonus LIKE :search')
+            ->setParameter('search', '%' . $search . '%')
+            ->orderBy('u.id', 'DESC')
+            ->getQuery();
+        
+        return $this->paginate($query, $page, $limit);
+    }
+
+    private function paginate($query, int $page = 1, int $limit = 20): Paginator
+    {
+        $paginator = new Paginator($query);
+        
+        $paginator->getQuery()
+            ->setFirstResult($limit * ($page - 1))
+            ->setMaxResults($limit);
+        
+        return $paginator;
     }
 
 //    /**

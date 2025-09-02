@@ -4,7 +4,11 @@
 
 {% block body %}
     <div class="row g-2 mb-3">
-        <div class="col-md-6"><span class="h4 me-3">CampagneMail index</span> <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_campagne_mail_new') }}">Create new</a></div>
+        <div class="col-md-6">
+            <span class="h4 me-3">CampagneMail index</span> 
+            <a class="btn btn-sm btn-primary h4 me-2" href="{{ path('app_crud_campagne_mail_new') }}">Create new</a>
+            <a class="btn btn-sm btn-danger h4" href="{{ path('mailforallusers') }}">For all users</a>
+        </div>
         <div class="col-md-6 text-end">
             {% if nbr_file_attente >= 1 %}
                 <a class="btn btn-sm btn-warning" href="{{ path('app_crud_campagne_mail_pending') }}"><i class="fa fa-spinner fa-spin me-2"></i> File Attente ({{nbr_file_attente}})</a>

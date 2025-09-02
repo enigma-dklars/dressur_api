@@ -51,13 +51,31 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/', name: 'app_crud_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
+    public function index(UserRepository $userRepository, Request $request): Response
     {
+        $page = $request->query->getInt('page', 1);
+        $search = $request->query->get('search', '');
+        $limit = 100; // Nombre d'utilisateurs par page
+        
+        if ($search) {
+            $usersPaginator = $userRepository->searchUsers($search, $page, $limit);
+        } else {
+            $usersPaginator = $userRepository->findAllPaginated($page, $limit);
+        }
+        
+        $totalItems = $usersPaginator->count();
+        $totalPages = ceil($totalItems / $limit);
+        
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findBy([], ['id' => 'DESC']),
+            'users' => $usersPaginator,
             'option' => "All",
+            'currentPage' => $page,
+            'totalPages' => $totalPages,
+            'totalItems' => $totalItems,
+            'search' => $search,
+            'limit' => $limit
         ]);
     }
 
@@ -119,7 +137,7 @@ class CrudUserController extends AbstractController
             return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('crud_user/new.html.twig', [
+        return $this->render('crud_user/new.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'user' => $user,
@@ -333,6 +351,8 @@ class CrudUserController extends AbstractController
     #[Route('/{id}/edit', name: 'app_crud_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        ini_set('memory_limit', '-1');
+        
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
@@ -342,7 +362,7 @@ class CrudUserController extends AbstractController
             return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->renderForm('crud_user/edit.html.twig', [
+        return $this->render('crud_user/edit.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             // 'user' => $user,

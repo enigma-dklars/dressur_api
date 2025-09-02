@@ -338,7 +338,7 @@ class TraitementsDS extends AbstractController
 
     public function listeMethodePaiements() {
         $listeMethodePaiement = [];
-        foreach ($this->methodePaiementRepository->findAll() as $methode) {
+        foreach ($this->methodePaiementRepository->findBy([], ['pays' => "ASC", 'titre' => "ASC"]) as $methode) {
             if(!$this->methodePaiementRepository->findOneBy(['autreMethodeUn' => $methode])) {
                 if($methode->isActivated()){
                     array_push($listeMethodePaiement, [
@@ -547,13 +547,11 @@ class TraitementsDS extends AbstractController
         foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
             $lesFormulesFils = [];
             foreach ($this->formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.6 * 700;
+                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.7 * 700;
                 $prix_service_fcfa = round($prix_service_fcfa) + 1;
-                if($this->sessionDS->get("langUserPhone") == 'fr') {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
-                } else {
-                    $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." for ".$prix_service_fcfa." FCFA\n\nQuantity Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescriptionEn();
-                }
+                $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
+                $description_service .= "\n\nAucun remboursement n'est possible, vérifiez donc bien avant d'effectuer votre commande et surtout, ne faites pas d'erreur d'URL.";
+                $description_service .= "\n\nVous pourriez être contacté par l'assistance Dressur via WhatsApp pour des informations supplémentaires.";
                 array_push($lesFormulesFils, [
                     "value" => $formuleFils->getId(),
                     "label" => $formuleFils->getTitre(),
@@ -965,18 +963,6 @@ class TraitementsDS extends AbstractController
         ];
     }
 
-    public function getCountryWithMethodePaiement($valueMethodePaiement) {
-        if($valueMethodePaiement == "mtn" || $valueMethodePaiement == "moov" || $valueMethodePaiement == "sbin") { $country = "bj"; }
-        else if($valueMethodePaiement == "mtn_ci" || $valueMethodePaiement == "orange_ci" || $valueMethodePaiement == "moov_ci") { $country = "ci"; }
-        else if($valueMethodePaiement == "orange_sn" || $valueMethodePaiement == "free_sn") { $country = "sn"; }
-        else if($valueMethodePaiement == "moov_tg" || $valueMethodePaiement == "togocel") { $country = "tg"; }
-        else if($valueMethodePaiement == "airtel_ne") { $country = "ne"; }
-        else if($valueMethodePaiement == "orange_ml") { $country = "ml"; }
-        else if($valueMethodePaiement == "mtn_open_gn") { $country = "gn"; }
-        else if($valueMethodePaiement == "moov_bf" || $valueMethodePaiement == "orange_bf") { $country = "bf"; }
-        return $country;
-    }
-
     public function startPaiementFedaPay($transaction, $methodePaiementEntity) {
         if($methodePaiementEntity->isIsdirect()) {
             $token = $transaction->generateToken()->token;
@@ -1210,9 +1196,7 @@ class TraitementsDS extends AbstractController
     public function getEnvPaiementApiFedaPayDisponible() {
         $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "FedaPay"]);
         foreach ($envPaiementApis as $envPaiementApi) {
-            if($envPaiementApi->getCountTransactionApproved() < 10) {
-                return $envPaiementApi;
-            }
+            return $envPaiementApi;
         }
         return false;
     }
