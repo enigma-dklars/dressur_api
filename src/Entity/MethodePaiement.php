@@ -41,6 +41,9 @@ class MethodePaiement
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $typeFeexPay = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $codePays = null;
+
     public function __toString()
     {
         return $this->pays." ".$this->titre." de ".$this->aggregator;
@@ -155,6 +158,18 @@ class MethodePaiement
     public function setTypeFeexPay(?string $typeFeexPay): static
     {
         $this->typeFeexPay = $typeFeexPay;
+
+        return $this;
+    }
+
+    public function getCodePays(): ?string
+    {
+        return $this->codePays;
+    }
+
+    public function setCodePays(?string $codePays): static
+    {
+        $this->codePays = $codePays;
 
         return $this;
     }

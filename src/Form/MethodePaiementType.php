@@ -29,6 +29,11 @@ class MethodePaiementType extends AbstractType
                 ],
                 'required' => false,
             ])
+            ->add('codePays', null, [
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
             ->add('pays', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'
