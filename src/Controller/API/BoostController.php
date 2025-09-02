@@ -51,6 +51,7 @@ class BoostController extends AbstractController
         return new JsonResponse([
             'error' => false,
             'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
 
@@ -275,9 +276,9 @@ class BoostController extends AbstractController
             ]);
         }
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
-            $envPaiementApi = $traitementsDS->getEnvPaiementApiDisponible();
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
-                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible");
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
                 if($sessionDS->get("langUserPhone") != "fr") {
                     return new JsonResponse([
                         'error' => true,
@@ -300,11 +301,11 @@ class BoostController extends AbstractController
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
                     "firstname" => $user->getPseudo(),
-                    "lastname" => $user,
+                    "lastname" => $user->getNom(),
                     "email" => $user->getMail(),
                     "phone_number" => [
                         "number" => $tel,
-                        "country" => $traitementsDS->getCountryWithMethodePaiement($valueMethodePaiement)
+                        "country" => $methodePaiementEntity->getCodePays()
                     ]
                 ]
             ];
@@ -330,13 +331,14 @@ class BoostController extends AbstractController
                 ;
                 $this->em->persist($myTransaction);
                 $this->em->flush();
-    
-                $resultat = $traitementsDS->startPaiement($transaction, $methodePaiementEntity);
+                
+                $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $msgError = (string)$th;
                 if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
                     $envPaiementApi->setCountTransactionApproved(10);
+                    $envPaiementApi->setActivated(false);
                     $this->em->flush();
     
                     if($sessionDS->get("langUserPhone") != "fr") {
@@ -368,7 +370,76 @@ class BoostController extends AbstractController
                 ]);
             }
         } else {
-            // logique de paiement FeexPay
+            // logique fait de paiement FeexPay
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Payment error. Please contact the administrators.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+            
+            try {
+                $resultat = $traitementsDS->startPaiementFeexPay(
+                    $envPaiementApi, 
+                    $methodePaiementEntity, 
+                    $formulBoost->getPrix(),
+                    $tel,
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "boost_contact",
+                    [
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
+                        'formulBoostId' => $formulBoost->getId(),
+                    ],
+                    $user
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $msgError = (string)$th;
+                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                    $envPaiementApi->setCountTransactionApproved(10);
+                    $envPaiementApi->setActivated(false);
+                    $this->em->flush();
+
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Excuse us please!',
+                            'message' => "Please submit the form again. Thank you.",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excusez-nous svp!',
+                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                    ]);
+                }
+
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         }
 
         return new JsonResponse([
