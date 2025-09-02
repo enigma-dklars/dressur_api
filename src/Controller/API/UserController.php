@@ -1287,6 +1287,13 @@ class UserController extends AbstractController
 
         $dressur = $userRepository->find(2);
 
+        if (strpos($tel, '+229') === 0) {
+            // Vérifier s'il y a 8 caractères après +229 si oui je complete le 01
+            if (strlen(substr($tel, 4)) == 8) {
+                $tel = str_replace("+229", "+22901", $tel);
+            }
+        }
+
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
