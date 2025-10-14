@@ -123,35 +123,43 @@ class CrudPromoReseauController extends AbstractController
     #[Route('/{id}/demarrage_direct_zefame', name: 'app_crud_promo_reseau_demarrage_direct_zefame', methods: ['GET', 'POST'])]
     public function demarrage_direct_zefame(Request $request, PromoReseau $promoReseau, EntityManagerInterface $em, ZefameApi $zefame): Response
     {
-        $idServiveZefame = $promoReseau->getFormulePromoReseau()->getIdZefame();
-        $linkPromo = $promoReseau->getUrl();
-        $qte = $promoReseau->getQteDemander();
-        $resultZefame = $zefame->order([
-            'service' => $idServiveZefame, 
-            'link' => $linkPromo, 
-            'quantity' => $qte, 
-            'runs' => 2, 
-            'interval' => 5
-        ]);
+        $formule = $promoReseau->getFormulePromoReseau();
+        if (stripos($formule, 'Commentaires') === false && stripos($formule, 'Customisés') === false) {
+            $idServiveZefame = $promoReseau->getFormulePromoReseau()->getIdZefame();
+            $linkPromo = $promoReseau->getUrl();
+            $qte = $promoReseau->getQteDemander();
+            $resultZefame = $zefame->order([
+                'service' => $idServiveZefame, 
+                'link' => $linkPromo, 
+                'quantity' => $qte, 
+                'runs' => 2, 
+                'interval' => 5
+            ]);
 
-        if(isset($resultZefame->order)){
-            $promoReseau->setIdZefame($resultZefame->order)
-                ->setStatus(2)
-            ;
-            $em->flush();
-        } else if(isset($resultZefame->error)){
-            $this->addFlash(
-               'danger',
-               $resultZefame->error
-            );
+            if(isset($resultZefame->order)){
+                $promoReseau->setIdZefame($resultZefame->order)
+                    ->setStatus(2)
+                ;
+                $em->flush();
+            } else if(isset($resultZefame->error)){
+                $this->addFlash(
+                    'danger',
+                    $resultZefame->error
+                );
+            } else {
+                $this->addFlash(
+                    'danger',
+                    "Résultat inatendu..."
+                );
+                $this->addFlash(
+                    'danger',
+                    (string)$resultZefame
+                );
+            }
         } else {
             $this->addFlash(
-               'danger',
-               "Résultat inatendu..."
-            );
-            $this->addFlash(
-               'danger',
-               (string)$resultZefame
+                'danger',
+                "Impossible de demarrer directement..."
             );
         }
 
