@@ -48,7 +48,10 @@
                     <td>{{ promo_reseau.prixZefame }}</td>
                     <td class="text-center">
                         {% if promo_reseau.status == 0 %} <span class="badge bg-info text-white fw-normal">Rembour</span> {% endif %}
-                        {% if promo_reseau.status == 1 %} <span class="badge bg-warning text-white fw-normal">En.Attent</span> {% endif %}
+                        {% if promo_reseau.status == 1 %} 
+                            <span class="badge bg-warning text-white fw-normal">En.Attent</span>
+                            <a href="{{ path('app_crud_promo_reseau_demarrage_direct_zefame', {'id': promo_reseau.id}) }}" class="badge bg-danger text-white fw-normal">Démarrer</a> 
+                        {% endif %}
                         {% if promo_reseau.status == 2 %} <span class="badge bg-danger text-white fw-normal">En.Cours</span> {% endif %}
                         {% if promo_reseau.status == 3 %} <span class="badge bg-success text-white fw-normal">Terminer</span> {% endif %}
                     </td>

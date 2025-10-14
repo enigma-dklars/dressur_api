@@ -1098,6 +1098,9 @@ class TraitementsDS extends AbstractController
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Discord")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
 
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("WhatsApp")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
             $this->em->flush();
         }
 

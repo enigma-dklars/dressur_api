@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Utilities\ZefameApi;
 use DateTime;
 
 #[Route('/crud/promo/reseau')]
@@ -117,6 +118,44 @@ class CrudPromoReseauController extends AbstractController
             'promo_reseau' => $promoReseau,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/demarrage_direct_zefame', name: 'app_crud_promo_reseau_demarrage_direct_zefame', methods: ['GET', 'POST'])]
+    public function demarrage_direct_zefame(Request $request, PromoReseau $promoReseau, EntityManagerInterface $em, ZefameApi $zefame): Response
+    {
+        $idServiveZefame = $promoReseau->getFormulePromoReseau()->getIdZefame();
+        $linkPromo = $promoReseau->getUrl();
+        $qte = $promoReseau->getQteDemander();
+        $resultZefame = $zefame->order([
+            'service' => $idServiveZefame, 
+            'link' => $linkPromo, 
+            'quantity' => $qte, 
+            'runs' => 2, 
+            'interval' => 5
+        ]);
+
+        if(isset($resultZefame->order)){
+            $promoReseau->setIdZefame($resultZefame->order)
+                ->setStatus(2)
+            ;
+            $em->flush();
+        } else if(isset($resultZefame->error)){
+            $this->addFlash(
+               'danger',
+               $resultZefame->error
+            );
+        } else {
+            $this->addFlash(
+               'danger',
+               "Résultat inatendu..."
+            );
+            $this->addFlash(
+               'danger',
+               (string)$resultZefame
+            );
+        }
+
+        return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}', name: 'app_crud_promo_reseau_delete', methods: ['POST'])]
