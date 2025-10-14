@@ -30,6 +30,7 @@ use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Utilities\SendMail;
+use App\Utilities\ZefameApi;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -49,8 +50,9 @@ class WebhookController extends AbstractController
     private $boostRepository;
     private $formuleDressurBotRepository;
     private $sendMail;
+    private $zefameApi;
 
-    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi)
     {
         $this->em = $em;
         $this->transactionRepository = $transactionRepository;
@@ -63,6 +65,7 @@ class WebhookController extends AbstractController
         $this->boostRepository = $boostRepository;
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
         $this->sendMail = $sendMail;
+        $this->zefameApi = $zefameApi;
     }
 
     public function allWebhookDressur($envPaiementApi) {
@@ -155,6 +158,34 @@ class WebhookController extends AbstractController
                                 ->setUrl($myTransaction->getAnnotherInfo()['lien'])
                             ;
                             $this->em->persist($boost);
+                            $this->em->flush();
+
+                            $formule = $boost->getFormulePromoReseau();
+                            $formuleLower = mb_strtolower($formule, 'UTF-8');
+                            if (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false) {
+                                $idServiveZefame = $boost->getFormulePromoReseau()->getIdZefame();
+                                $linkPromo = $boost->getUrl();
+                                $qte = $boost->getQteDemander();
+                                $resultZefame = $this->zefameApi->order([
+                                    'service' => $idServiveZefame, 
+                                    'link' => $linkPromo, 
+                                    'quantity' => $qte, 
+                                    'runs' => 2, 
+                                    'interval' => 5
+                                ]);
+
+                                if(isset($resultZefame->order)){
+                                    $boost->setIdZefame($resultZefame->order)
+                                        ->setStatus(2)
+                                    ;
+                                } else if(isset($resultZefame->error)){
+                                    $this->sendMail->sendReport("Error Promo Reseau --- ID = ".$boost->getId(), $resultZefame->error);
+                                } else {
+                                    $this->sendMail->sendReport("Error Promo Reseau --- ID = ".$boost->getId(), (string)$resultZefame);
+                                }
+                            } else {
+                                $this->sendMail->sendReport("Promo Reseau en attente --- ID = ".$boost->getId(), "Impossible de demarrer la promo reseau directement... surrement une demande de commentaire");
+                            }
                         }
 
                         if($myTransaction->getTransactionFor() == "campagne_mail") {
