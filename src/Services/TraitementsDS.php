@@ -1105,9 +1105,13 @@ class TraitementsDS extends AbstractController
         }
 
         $lesFormulesParent = $this->formulePromoReseauRepository->findBy(['parent' => null]);
+
         foreach ($this->formulePromoReseauRepository->findAll() as $uneFormuleReseau) {
-            $uneFormuleReseau->setAvailable(false);
-            if($uneFormuleReseau->getParent() == null) { 
+            if(!empty($uneFormuleReseau->getIdZefame())) {
+                $uneFormuleReseau->setAvailable(false);
+            }
+
+            if($uneFormuleReseau->getParent() == null) {
                 $uneFormuleReseau->setAvailable(true)
                     ->setPrix(null)
                     ->setQte(null)
@@ -1169,28 +1173,30 @@ class TraitementsDS extends AbstractController
     public function checkAndUpdateStatusZefame() {
         $promoReseauStatut2 = $this->promoReseauRepository->findBy(['status' => 2]);
         foreach ($promoReseauStatut2 as $unePromoReseau) {
-            $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
-            if(!isset($resultZefame->error)){
-                if($resultZefame->status == "In progress"){
-                    $unePromoReseau->setPrixZefame($resultZefame->charge)
-                        ->setCompteurDebut($resultZefame->start_count)
-                        ->setCompteurRestant($resultZefame->remains)
-                        ->setUpdatedAt(new DateTime())
-                    ;
+            if(!empty($unePromoReseau->getIdZefame())) {
+                $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
+                if(!isset($resultZefame->error)){
+                    if($resultZefame->status == "In progress"){
+                        $unePromoReseau->setPrixZefame($resultZefame->charge)
+                            ->setCompteurDebut($resultZefame->start_count)
+                            ->setCompteurRestant($resultZefame->remains)
+                            ->setUpdatedAt(new DateTime())
+                        ;
+                    }
+                    if($resultZefame->status == "Completed"){
+                        $unePromoReseau->setStatus(3)
+                            ->setCompteurRestant(0)
+                            ->setUpdatedAt(new DateTime())
+                        ;
+                    }
+                    if($resultZefame->status == "Canceled"){
+                        $unePromoReseau->setStatus(0)
+                            ->setUpdatedAt(new DateTime())
+                        ;
+                    }
+                    // dump($unePromoReseau);
+                    // dd($resultZefame);
                 }
-                if($resultZefame->status == "Completed"){
-                    $unePromoReseau->setStatus(3)
-                        ->setCompteurRestant(0)
-                        ->setUpdatedAt(new DateTime())
-                    ;
-                }
-                if($resultZefame->status == "Canceled"){
-                    $unePromoReseau->setStatus(0)
-                        ->setUpdatedAt(new DateTime())
-                    ;
-                }
-                // dump($unePromoReseau);
-                // dd($resultZefame);
             }
         }
         $this->em->flush();
