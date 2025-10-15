@@ -125,7 +125,7 @@ class CrudPromoReseauController extends AbstractController
     {
         $formule = $promoReseau->getFormulePromoReseau();
         $formuleLower = mb_strtolower($formule, 'UTF-8'); // Utilise mb_strtolower pour bien gérer les accents et UTF-8
-        if (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false) {
+        if (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false && !empty($promoReseau->getFormulePromoReseau()->getIdZefame())) {
             $idServiveZefame = $promoReseau->getFormulePromoReseau()->getIdZefame();
             $linkPromo = $promoReseau->getUrl();
             $qte = $promoReseau->getQteDemander();
