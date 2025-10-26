@@ -265,7 +265,7 @@ class CrudUserController extends AbstractController
                 // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User and all related information have been deleted.');
                 
-                return $this->redirectToRoute('app_crud_user_purge');
+                return $this->redirectToRoute('app_crud_user_check');
             }
 
             // Add a flash message if user is not found
@@ -333,7 +333,7 @@ class CrudUserController extends AbstractController
                 // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User is Banned.');
                 
-                return $this->redirectToRoute('app_crud_user_purge');
+                return $this->redirectToRoute('app_crud_user_check');
             }
 
             // Add a flash message if user is not found
@@ -425,7 +425,7 @@ class CrudUserController extends AbstractController
                 // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User and all related information have been deleted.');
                 
-                return $this->redirectToRoute('app_crud_user_purge');
+                return $this->redirectToRoute('app_crud_user_check');
             }
 
             // Add a flash message if user is not found
