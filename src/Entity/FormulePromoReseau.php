@@ -25,9 +25,6 @@ class FormulePromoReseau
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $descriptionEn = null;
-
     #[ORM\Column(nullable: true)]
     private ?float $prix = null;
 
@@ -168,18 +165,6 @@ class FormulePromoReseau
                 $sonFormulePromoReseau->setParent(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getDescriptionEn(): ?string
-    {
-        return $this->descriptionEn;
-    }
-
-    public function setDescriptionEn(?string $descriptionEn): self
-    {
-        $this->descriptionEn = $descriptionEn;
 
         return $this;
     }
