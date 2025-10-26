@@ -183,22 +183,22 @@ class CrudUserController extends AbstractController
             }
 
             $user = 
-                $userRepository->findBy(['pseudo' => $input]) ?? 
-                $userRepository->findBy(['mail' => $input]) ?? 
-                $userRepository->findBy(['uid' => $input]) ?? 
-                $userRepository->findBy(['id' => $input]) ?? 
-                $userRepository->findBy(['tel' => $input]) ?? 
-                $userRepository->findBy(['tel' => $telcut]) ?? 
-                $userRepository->findBy(['tel' => $teladd1]) ?? 
-                $userRepository->findBy(['tel' => $teladd2]) ?? 
-                $userRepository->findBy(['tel' => $teladd3])
+                $userRepository->findOneBy(['pseudo' => $input]) ?? 
+                $userRepository->findOneBy(['mail' => $input]) ?? 
+                $userRepository->findOneBy(['uid' => $input]) ?? 
+                $userRepository->findOneBy(['id' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $telcut]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd3])
             ;
 
             $user_array = [];
 
             if($user) {
                 // Add a flash message to confirm deletion
-                $this->addFlash('success', count($user).' User(s) found.');
+                $this->addFlash('success', 'User found.');
 
                 $user_array['user_info'] = $user;
             } else {
