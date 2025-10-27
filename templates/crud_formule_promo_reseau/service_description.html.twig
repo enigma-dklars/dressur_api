@@ -1,0 +1,27 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Service + Description{% endblock %}
+
+{% block body %}
+    <h4>
+        Service + Description
+        <a href="{{ path('app_crud_formule_promo_reseau_index') }}">back to list</a>
+    </h4>
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }}">
+            {% for message in messages %}
+                <p>{{ message|raw }}</p>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <form action="" method="post">
+        <label for="">Id Service</label>
+        <input type="text" name="id_service" class="form-control mb-2" value="{{idService}}">
+
+        <label for="">Description Service</label>
+        <textarea name="description_service" id="description_service" rows="5" class="form-control mb-2">{{descriptionService}}</textarea>
+
+        <button type="submit" class="btn btn-danger mb-3">Enregistrer et/ou Modifier</button>
+    </form>
+
+{% endblock %}

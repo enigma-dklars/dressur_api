@@ -68,6 +68,59 @@ class CrudFormulePromoReseauController extends AbstractController
         ]);
     }
 
+    #[Route('/service_description', name: 'app_crud_formule_promo_reseau_service_description', methods: ['GET', 'POST'])]
+    public function service_description(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        FormulePromoReseauRepository $formulePromoReseauRepository
+    ): Response {
+        $message = null;
+        $idService = "";
+        $descriptionService = "";
+
+        if ($request->isMethod('POST')) {
+            $idService = trim($request->request->get('id_service'));
+            $descriptionService = trim($request->request->get('description_service'));
+            $descriptionService = str_replace("Zefame",  "Dressur", $descriptionService);
+            $descriptionService = str_replace("zefame",  "Dressur", $descriptionService);
+
+            if ($idService && $descriptionService) {
+                // Vérifier si un service existe déjà
+                $service = $formulePromoReseauRepository->findOneBy(['idZefame' => $idService]);
+
+                if ($service) {
+                    // Modifier la description existante
+                    $service->setDescription($descriptionService);
+                    $this->addFlash(
+                        'success',
+                        "Description mise à jour avec succès pour le service ID : {$idService}."
+                    );
+                    $idService = "";
+                    $descriptionService = "";
+                } else {
+                    $this->addFlash(
+                       'danger',
+                       "Formule de promotion réseaux introuveable - service ID : {$idService}."
+                    );
+                }
+
+                $entityManager->flush();
+            } else {
+                $this->addFlash(
+                    'warning',
+                    "Veuillez remplir tous les champs avant de soumettre le formulaire."
+                );
+            }
+        }
+
+        return $this->render('crud_formule_promo_reseau/service_description.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'idService' => $idService,
+            'descriptionService' => $descriptionService,
+        ]);
+    }
+
     #[Route('/{id}', name: 'app_crud_formule_promo_reseau_show', methods: ['GET'])]
     public function show(FormulePromoReseau $formulePromoReseau): Response
     {
