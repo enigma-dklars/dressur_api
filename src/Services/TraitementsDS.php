@@ -1132,7 +1132,7 @@ class TraitementsDS extends AbstractController
                 if($unservice->min > $uneFR->getQteMin()) { $uneFR->setQteMin($unservice->min); }
                 if($unservice->rate > $uneFR->getPrix()) { $uneFR->setPrix($unservice->rate); }
             } else {
-                $newFormuleText .= "<br>".$unservice->name." |";
+                $newFormuleText .= "<br> $unservice->service => $unservice->name | ... |";
                 
                 $newFormulePromoReseau = new FormulePromoReseau();
                 $newFormulePromoReseau->setQte(1000)->setAvailable(false)
