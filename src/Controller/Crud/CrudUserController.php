@@ -215,6 +215,92 @@ class CrudUserController extends AbstractController
         ]);
     }
 
+    #[Route('/find_whatsapp_is_activatable/{tel}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['GET', 'POST'])]
+    public function find_whatsapp_is_activatable(Request $request, string $tel, UserRepository $userRepository, EntityManagerInterface $em): Response
+    {
+        $user = null;
+        $telcut = null;
+        $teladd1 = null;
+        $teladd2 = null;
+        $teladd3 = null;
+        $count_compt = 0;
+
+        $input = "+$tel";
+        $input = str_replace(" ", "", $input);
+        $input = str_replace("	", "", $input);
+
+        if (strpos($input, '+225') === 0) {
+            if (strlen(substr($input, 4)) == 10) {
+                $telcut = substr($input, 0, 4) . substr($input, 6);
+            } else {
+                $teladd1 = str_replace("+225", "+22501", $input);
+                $teladd2 = str_replace("+225", "+22505", $input);
+                $teladd3 = str_replace("+225", "+22507", $input);
+            }
+        }
+
+        if (strpos($input, '+229') === 0) {
+            if (strlen(substr($input, 4)) == 10) {
+                $telcut = substr($input, 0, 4) . substr($input, 6);
+            } else {
+                $teladd1 = str_replace("+229", "+22901", $input);
+            }
+        }
+
+        if (count($userRepository->findBy(['tel' => $input]))) {
+            $count_compt++;
+        }
+        if (count($userRepository->findBy(['tel' => $telcut]))) {
+            $count_compt++;
+        }
+        if (count($userRepository->findBy(['tel' => $teladd1]))) {
+            $count_compt++;
+        }
+        if (count($userRepository->findBy(['tel' => $teladd2]))) {
+            $count_compt++;
+        }
+        if (count($userRepository->findBy(['tel' => $teladd3]))) {
+            $count_compt++;
+        }
+
+        if ($count_compt > 1) {
+            return new Response("Apparemment, vous avez plusieurs comptes Dressur liés au numéro +$tel.\nVeuillez patienter, un assistant vous aidera sous peu.");
+        } else if ($count_compt == 0) {
+            return new Response("Veuillez utiliser le numéro WhatsApp lié à votre compte Dressur pour effectuer la demande de confirmation du numéro WhatsApp.");
+        }
+
+        $user = 
+            $userRepository->findOneBy(['tel' => $input]) ?? 
+            $userRepository->findOneBy(['tel' => $telcut]) ?? 
+            $userRepository->findOneBy(['tel' => $teladd1]) ?? 
+            $userRepository->findOneBy(['tel' => $teladd2]) ?? 
+            $userRepository->findOneBy(['tel' => $teladd3]);
+
+        if ($user) {
+            if ($user->getTelIsVerified() == true) {
+                return new Response("Le compte lié au numéro +$tel est déjà confirmé.");
+            }
+
+            $message = "";
+            if (empty($user->getNom())) {
+                $message .= "Veuillez ajouter votre nom et prénom(s) sur Dressur.\n";
+            }
+            if ($user->getMailIsVerified() == false) {
+                $message .= "Veuillez confirmer votre adresse e-mail sur Dressur.\n";
+            }
+
+            if ($message == "") {
+                return new Response("Vous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
+            }
+
+            $user->setTelIsVerified(true);
+            $em->flush();
+            return new Response("Votre numéro WhatsApp a été confirmé avec succès.");
+        }
+        
+        return new Response("Nous avons rencontré une erreur lors de la confirmation de votre numéro WhatsApp.\nVeuillez patienter, un assistant vous aidera sous peu.");
+    }
+
     #[Route('/purge', name: 'app_crud_user_purge', methods: ['GET', 'POST'])]
     public function purge(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
