@@ -46,6 +46,17 @@ class CrudFormulePromoReseauController extends AbstractController
         ]);
     }
 
+    #[Route('/available', name: 'app_crud_formule_promo_reseau_available', methods: ['GET'])]
+    public function available(FormulePromoReseauRepository $formulePromoReseauRepository, TraitementsDS $traitementsDS): Response
+    {
+        $traitementsDS->majServicesZefame();
+        return $this->render('crud_formule_promo_reseau/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'formule_promo_reseaus' => $formulePromoReseauRepository->findBy(['available' => true], ['id' => 'DESC']),
+        ]);
+    }
+
     #[Route('/new', name: 'app_crud_formule_promo_reseau_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
