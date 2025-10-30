@@ -290,12 +290,12 @@ class CrudUserController extends AbstractController
             }
 
             if ($message == "") {
-                return new Response("Vous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
+                $user->setTelIsVerified(true);
+                $em->flush();
+                return new Response("Votre numéro WhatsApp a été confirmé avec succès.");
             }
-
-            $user->setTelIsVerified(true);
-            $em->flush();
-            return new Response("Votre numéro WhatsApp a été confirmé avec succès.");
+            
+            return new Response("$message\n\nVous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
         }
         
         return new Response("Nous avons rencontré une erreur lors de la confirmation de votre numéro WhatsApp.\nVeuillez patienter, un assistant vous aidera sous peu.");
