@@ -41,7 +41,7 @@ class CrudFormuleDressurBotController extends AbstractController
         return $this->render('crud_formule_dressur_bot/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'formule_dressur_bots' => $formuleDressurBotRepository->findAll(),
+            'formule_dressur_bots' => $formuleDressurBotRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

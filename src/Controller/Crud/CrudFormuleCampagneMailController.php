@@ -41,7 +41,7 @@ class CrudFormuleCampagneMailController extends AbstractController
         return $this->render('crud_formule_campagne_mail/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'formule_campagne_mails' => $formuleCampagneMailRepository->findAll(),
+            'formule_campagne_mails' => $formuleCampagneMailRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

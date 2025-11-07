@@ -385,13 +385,15 @@ class TraitementsDS extends AbstractController
     public function listeFormulePromoAffaire() {
         $listeFormulBoost = [];
         foreach ($this->formulePromoAffaireRepository->findAll() as $boost) {
-            array_push($listeFormulBoost, [
-                "id" => $boost->getId(),
-                "value" => $boost->getId(),
-                "label" => $boost->getTitre(),
-                "prix" => intval($boost->getPrix()),
-                "jours" => $boost->getNbrJour(),
-            ]);
+            if($boost->isActivated() == true) {
+                array_push($listeFormulBoost, [
+                    "id" => $boost->getId(),
+                    "value" => $boost->getId(),
+                    "label" => $boost->getTitre(),
+                    "prix" => intval($boost->getPrix()),
+                    "jours" => $boost->getNbrJour(),
+                ]);
+            }
         }
         return $listeFormulBoost;
     }
