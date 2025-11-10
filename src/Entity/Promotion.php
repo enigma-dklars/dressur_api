@@ -203,16 +203,16 @@ class Promotion
     public function setToWatch($user, $mode): self
     {
         if($mode == "fakeVue") {
-            $this->nombreImpression += rand(5, 10);
-            $this->nombreDeVue += rand(1, 5);
+            $this->nombreImpression += rand(0, 20);
+            $this->nombreDeVue += rand(0, 8);
         } else if($mode == "web") {
-            $this->nombreImpression += rand(1, 3);
-        } else if($mode == "all" || $mode == "vue" ) {
+            $this->nombreImpression += rand(0, 6);
+        } else if($mode == "all" || $mode == "vue") {
             if($user->getId() != $this->getUser()->getId()) {
                 if (in_array($user->getId(), $this->whoSaw)) {
-                    $this->nombreImpression += rand(0, 1);
+                    $this->nombreImpression += rand(0, 4);
                 } else {
-                    $this->nombreImpression += rand(1, 2);
+                    $this->nombreImpression += rand(0, 5);
                     array_push($this->whoSaw, $user->getId());
                 }
                 $this->nombreDeVue += rand(0, 1);
