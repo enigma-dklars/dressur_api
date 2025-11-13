@@ -405,15 +405,17 @@ class TraitementsDS extends AbstractController
             "label" => "Cliquez pour choisir...",
         ]);
         foreach ($this->formuleDressurBotRepository->findAll() as $boost) {
-            $label = $boost->getTitre()." : ";
-            $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
-            if($boost->getSignature() == "oui") {
-                $label .= "+ Signature";
-            }            
-            array_push($listeFormuleDressurBot, [
-                "id" => $boost->getId(),
-                "label" => $label,
-            ]);
+            if($boost->isActivated() == true) {
+                $label = $boost->getTitre()." : ";
+                $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
+                if($boost->getSignature() == "oui") {
+                    $label .= "+ Signature";
+                }            
+                array_push($listeFormuleDressurBot, [
+                    "id" => $boost->getId(),
+                    "label" => $label,
+                ]);
+            }
         }
         return $listeFormuleDressurBot;
     }

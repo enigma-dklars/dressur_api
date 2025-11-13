@@ -97,8 +97,8 @@ class PublicController extends AbstractController
             'theme' => $this->theme,
             'formule_boosts' => $formuleBoostRepository->findAll(),
             'formule_campagne_mails' => $formuleCampagneMailRepository->findAll(),
-            'formule_dressur_bots' => $formuleDressurBotRepository->findAll(),
-            'formule_promo_affaires' => $formulePromoAffaireRepository->findAll(),
+            'formule_dressur_bots' => $formuleDressurBotRepository->findBy(['activated' => true]),
+            'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
             'formule_promo_reseaus' => $formulePromoReseauRepository->findBy([], ['parent' => 'ASC']),
         ]);
     }

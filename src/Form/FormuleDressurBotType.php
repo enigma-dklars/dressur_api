@@ -33,6 +33,11 @@ class FormuleDressurBotType extends AbstractType
                 ],
                 'label' => "Signature oui ou non"
             ])
+            ->add('activated', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 

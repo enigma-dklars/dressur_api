@@ -25,6 +25,9 @@ class FormuleDressurBot
     #[ORM\Column(length: 4)]
     private ?string $signature = null;
 
+    #[ORM\Column]
+    private ?bool $activated = null;
+
     public function __construct()
     {
         $this->signature = "oui";
@@ -79,6 +82,18 @@ class FormuleDressurBot
     public function setSignature(string $signature): static
     {
         $this->signature = $signature;
+
+        return $this;
+    }
+
+    public function isActivated(): ?bool
+    {
+        return $this->activated;
+    }
+
+    public function setActivated(bool $activated): static
+    {
+        $this->activated = $activated;
 
         return $this;
     }

@@ -13,6 +13,7 @@
                 <th>Titre</th>
                 <th>Prix</th>
                 <th>NbrJour</th>
+                <th>Activated</th>
                 <th>Signature</th>
                 <th>actions</th>
             </tr>
@@ -24,6 +25,7 @@
                 <td>{{ formule_dressur_bot.titre }}</td>
                 <td>{{ formule_dressur_bot.prix }}</td>
                 <td>{{ formule_dressur_bot.nbrJour }}</td>
+                <td class="text-center">{{ formule_promo_affaire.activated ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                 <td>{{ formule_dressur_bot.signature }}</td>
                 <td>
                     {% include "crud_formule_dressur_bot/_delete_form.html.twig" %}
