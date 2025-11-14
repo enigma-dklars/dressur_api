@@ -123,6 +123,16 @@ class CrudUserController extends AbstractController
         ]);
     }
 
+    #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile', methods: ['GET'])]
+    public function supprimer_user_inutile(UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    {
+        foreach ($userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], [], 20) as $user) {
+            $traitementsDS->execPurge($user);
+        }
+        $this->addFlash('success', '20 user inutile supprimer.');
+        return $this->redirectToRoute('app_crud_user_check');
+    }
+
     #[Route('/new', name: 'app_crud_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
