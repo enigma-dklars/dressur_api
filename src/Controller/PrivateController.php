@@ -189,6 +189,7 @@ class PrivateController extends AbstractController
                         'deleted_users' => count($deletedDSRepository->findAll()),
                         'banned_users' => count($this->env->getUserBanned()) / 3,
                         'encour_boost' => count($traitementsDS->getAddDisponible($userRepository->find(2))),
+                        'programmer_boost' => $traitementsDS->getAddProgrammer(),
                         'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
                     ]);
                 }

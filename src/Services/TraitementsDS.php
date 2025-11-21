@@ -809,6 +809,17 @@ class TraitementsDS extends AbstractController
         return $contactAdds;
     }
 
+    public function getAddProgrammer(){
+        $lesBoostContact = $this->boostRepository->findAll();
+        $nbrContacts = 0;
+        foreach ($lesBoostContact as $boost){
+        if((new DateTime()) <= ($boost->getDateDebut()) and (new DateTime()) <= ($boost->getDateExp())) {
+                $nbrContacts ++;
+            }
+        }
+        return $nbrContacts;
+    }
+
     public function getAddDisponible($user){
         $contacts = [];
         if($user->getId() == 3 || $user->getId() == 2) {

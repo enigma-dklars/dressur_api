@@ -98,6 +98,11 @@ class CrudUserController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $userRepository->findBy(['telIsVerified' => false], ['id' => 'DESC']),
             'option' => "Tel Not Verified",
+            'currentPage' => "",
+            'totalPages' => "",
+            'totalItems' => "",
+            'search' => "",
+            'limit' => ""
         ]);
     }
 
@@ -109,6 +114,11 @@ class CrudUserController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $userRepository->findBy(['mailIsVerified' => false], ['id' => 'DESC']),
             'option' => "Mail Not Verified",
+            'currentPage' => "",
+            'totalPages' => "",
+            'totalItems' => "",
+            'search' => "",
+            'limit' => ""
         ]);
     }
 
@@ -120,6 +130,11 @@ class CrudUserController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], ['id' => 'DESC']),
             'option' => "Tel Mail Not Verified",
+            'currentPage' => "",
+            'totalPages' => "",
+            'totalItems' => "",
+            'search' => "",
+            'limit' => ""
         ]);
     }
 

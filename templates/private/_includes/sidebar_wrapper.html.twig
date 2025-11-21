@@ -23,19 +23,20 @@
             <li> <a href="{{path('app_crud_user_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Utilisateurs</a></li>
             <li> <a href="{{path('app_crud_user_check')}}" class="small-fort bg-success text-white"><i class="fas fa-align-left"></i>Check User</a></li>
             <li> <a href="{{path('app_crud_user_purge')}}" class="small-fort bg-danger text-white"><i class="fas fa-align-left"></i>Purge User</a></li>
+            <li> <a href="{{path('app_crud_user_banned')}}" class="small-fort bg-warning text-dark"><i class="fas fa-align-left"></i>Bannir User</a></li>
             {% if user.id == 3 or user.id == 7 %}
             <li> <a href="{{path('app_crud_user_bot_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Users Bot</a></li>
             {% endif %}
             <li> <a href="{{path('app_crud_boost_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Boost Contact</a></li>
             <li> <a href="{{path('app_crud_promotion_index')}}" class="small-fort"><i class="fas fa-align-left"></i>P. Affaire</a></li>
             <li> <a href="{{path('app_crud_promo_reseau_index')}}" class="small-fort"><i class="fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
-            <li> <a href="{{path('app_crud_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Campagne Mail</a></li>
+            {# <li> <a href="{{path('app_crud_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>Campagne Mail</a></li> #}
 
             <hr class="my-2">
 
             <li> <a href="{{path('app_crud_formule_boost_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Boosts</a></li>
             <li> <a href="{{path('app_crud_formule_promo_affaire_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Affaires</a></li>
-            <li> <a href="{{path('app_crud_formule_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Campagne Mail</a></li>
+            {# <li> <a href="{{path('app_crud_formule_campagne_mail_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Campagne Mail</a></li> #}
             <li> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
             <li> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="small-fort"><i class="fas fa-align-left"></i>F. Dressur Bot</a></li>
 
@@ -108,9 +109,9 @@
           
           <li> <a href="javascript:;" class="menu-element small-fort" url="/listepromoreseau"><i class="fas fa-align-left"></i>Liste Promo. Réseau S.</a></li>
 
-          <li> <a href="javascript:;" class="menu-element small-fort" url="/newcampagemail"><i class="fas fa-square-plus"></i>Campage Mail</a></li>
+          {# <li> <a href="javascript:;" class="menu-element small-fort" url="/newcampagemail"><i class="fas fa-square-plus"></i>Campage Mail</a></li> #}
           
-          <li> <a href="javascript:;" class="menu-element small-fort" url="/listecampagemail"><i class="fas fa-align-left"></i>Liste Campage Mail</a></li>
+          {# <li> <a href="javascript:;" class="menu-element small-fort" url="/listecampagemail"><i class="fas fa-align-left"></i>Liste Campage Mail</a></li> #}
         </ul>
       </li>
 
