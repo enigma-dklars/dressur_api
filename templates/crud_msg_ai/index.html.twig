@@ -1,0 +1,36 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}MsgAi{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">MsgAi <a class="btn btn-sm btn-primary ms-2" href="{{ path('app_crud_msg_ai_new') }}">Create For One</a> <a class="btn btn-sm btn-primary ms-2" href="{{ path('app_crud_msg_ai_create_for_all') }}">Create For All</a></p>
+
+    <table class="data-table table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th width="1">Id</th>
+                <th>Recepteur</th>
+                <th>Message</th>
+                <th>CreatedAt</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for msg_ai in msg_ais %}
+            <tr>
+                <td>{{ msg_ai.id }}</td>
+                <td>{{ msg_ai.recepteur }}</td>
+                <td>{{ msg_ai.message|slice(0, 100) }}...</td>
+                <td>{{ msg_ai.createdAt ? msg_ai.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    {{ include('crud_msg_ai/_delete_form.html.twig') }}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
