@@ -64,20 +64,6 @@ class BoostController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
-        $idFormulBoost = $datas->get('idFormulBoost');
-
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Whoops!',
-                'message' => "Free Contact Boosts are suspended until February 12, 2026. In the meantime, make a Paid Contact Boost starting from 100 FCFA.",
-            ]);                
-        }
-        return new JsonResponse([
-            'error' => true,
-            'titre' => 'Oups!',
-            'message' => "Les Boosts Contact Gratuit sont suspendus jusqu'au 12 février 2026. Faite un Boost Contact Payant a partir de 100 FCFA en attendant.",
-        ]);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -106,69 +92,41 @@ class BoostController extends AbstractController
             ]);
         }
 
-        $formulBoost = $formuleBoostRepository->find($idFormulBoost);
-        if(!$formulBoost){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-            ]);
-        }
-
-        if($user->getSoldeBonus() < $formulBoost->getPrix()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
-                ]);                
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Oups!',
-                'message' => "Votre solde bonus est insuffisant.\nFaite un Boost Payant ou parrainé des utilisateurs pour augmenté votre solde bonus.",
-            ]);
-        }
+        $error = false;
+        $lastBoostContact = $boostRepository->findOneBy(['user' => $user], ['id' => 'DESC']);
         
-        $user->debitSoldeBonus($formulBoost->getPrix());
-
-        $DSBH = new DSBonusHistorique();
-        if($user->getLang() == "fr") {
-            $DSBH->setTitre("Boost Contact");
-        } else {
-            $DSBH->setTitre("Boost Contact");
-        }
-        $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
-        $this->em->persist($DSBH);
-
-        $boost = new Boost();
-        $boost->setFormuleBoost($formulBoost)
-              ->setUser($user)
-        ;
-        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {            
-            $lastBoostDateExp = ($boostRepository->findOneBy(['user' => $user], ["id" => "DESC"]))->getDateExp();
-            $boost->setDateDebut($lastBoostDateExp)
-                ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime("+ ".$formulBoost->getNbrJour()."days ".$lastBoostDateExp->format('d-m-Y H:i')))))
+        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) { 
+            $error = true;
+            $message = ($langUserPhone == 'fr') ? "Vous avez déjà un Boost Contact en cours. Il n'est pas possible de programmer un Boost Contact Gratuit." : "You already have a Contact Boost active. It is not possible to schedule another Free Contact Boost.";
+        } else if(!$lastBoostContact) {
+            $boost = new Boost();
+            $boost->setFormuleBoost($formuleBoostRepository->find(7))
+                ->setUser($user)
+                ->setDateDebut(new DateTime())
+                ->setDateExp(new DateTime("+ 5days"))
             ;
-            $message = ($langUserPhone == 'fr') ? "Votre boost contact a été programmé." : "Your contact boost has been programmed.";
-        } else {
-            $boost->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ ".$formulBoost->getNbrJour()."days"))
+            $this->em->persist($boost);
+            $this->em->flush();
+            $error = false;
+            $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
+        } else if($lastBoostContact->getMode() == "Payant") {
+            $boost = new Boost();
+            $boost->setFormuleBoost($formuleBoostRepository->find(7))
+                ->setUser($user)
+                ->setDateDebut(new DateTime())
+                ->setDateExp(new DateTime("+ 5days"))
             ;
-            $message = ($langUserPhone == 'fr') ? "Votre boost contact a démarré." : "Your contact boost has started.";
+            $this->em->persist($boost);
+            $this->em->flush();
+            $error = false;
+            $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
+        } else {
+            $error = true;
+            $message = ($langUserPhone == 'fr') ? "Demande de Boost Contact Gratuit refusé. Votre précédent Boost Contact est en mode Gratuit. Vous devez donc faire un Boost Contact Payant avant de pouvoir demander un autre Boost Contact Gratuit." : "Request for a free Contact Boost denied. Your previous Contact Boost was in Free mode. You must therefore complete a Paid Contact Boost before you can request another Free Contact Boost.";
         }
-        $this->em->persist($boost);
-        $this->em->flush();
 
         return new JsonResponse([
-            'error' => false,
+            'error' => $error,
             'message' => $message,
         ]);
     }

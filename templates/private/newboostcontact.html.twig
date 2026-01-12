@@ -1,6 +1,22 @@
 <div class="bg-danger text-white p-3 rounded">
-    NB: Pour une meilleure efficacité de ce service, veuillez utiliser Dressur Mobile pour que les numéros soient enregistrés automatiquement sur votre téléphone. Les Boosts Gratuit sont beaucoup plus mis en avant! Il est donc conseillé de faire des Boosts Gratuit plutôt que Payant. Il n'est pas possible de connaitre à l'avance le nombre de contacts après boost ni la tranche rapproché. Vous pouvez programmer plusieurs Boosts Gratuit ou Payant. Parrainé des utilisateurs pour avoir des bonus et ainsi faire des Boosts Gratuit. Votre Boost Contact Devient Inactif si votre dernière connexion remonte à plus de 48H. Connectez-vous donc au minimum une fois par jour pour récupérer les contacts obtenus.
+    <strong>NB :</strong> Pour une meilleure efficacité de ce service, veuillez utiliser Dressur Mobile afin que les numéros soient enregistrés automatiquement sur votre téléphone.
+    <br><br>
+
+    <strong>Informations :</strong>
+    <br>
+    - Les Boosts Payants sont beaucoup plus mis en avant. Il est donc conseillé de faire des Boosts Payants plutôt que Gratuits.
+    <br>
+    - Il n'est pas possible de connaître à l'avance le nombre de contacts après boost ni la tranche rapprochée.
+    <br>
+    - Vous pouvez programmer plusieurs Boosts Contact Payants.
+    <br>
+    - Votre Boost Contact devient inactif si votre dernière connexion remonte à plus de 48&nbsp;heures. Connectez-vous donc au minimum une fois par jour pour récupérer les contacts obtenus.
+    <br>
+    - Après un Boost Contact Gratuit, vous êtes obligé de faire au moins un Boost Contact Payant avant de pouvoir faire à nouveau un Boost Contact Gratuit.
+    <br>
+    - Après un Boost Contact, vous vous connectez pour exporter les contacts au format VCF ou CSV pour ensuite les importer dans votre téléphone.
 </div>
+
 
 <div class="card mt-3">
     <div class="card-body">
@@ -32,22 +48,12 @@
                                 <div class="mt-0 msgError" id="msgErrorBoostGratuit" style="display: none;"></div>
                             </div>
                             <div class="col-12">
-                                <label for="formule-boost-gratuit">Formule de Boost Gratuit</label>
-                                <select id="formule-boost-gratuit" class="form-select getInfo getInfoBoostGratuit">
-                                    <option value="" disabled selected>Veuillez choisir une formule... </option>
-                                    {% for formuleBoost in formuleBoosts %}
-                                        <option value="[{{formuleBoost.id}},{{formuleBoost.prix}},{{formuleBoost.nbrJour}}]"
-                                        prix="{{formuleBoost.prix}}" nbr-jour="{{formuleBoost.nbrJour}}">{{formuleBoost.titre}}</option>
-                                    {% endfor %}
-                                </select>
+                                <p class="text-center">
+                                    Demander un Boost Contact Gratuit de 05 jours
+                                </p>
                             </div>
                             <div class="col-12">
-                                <div class="py-2 text-center bg-info rounded px-2 text-white" id="description-boost-gratuit">
-                                    Veuillez choisir une formule gratuite...
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <button class="btn btn-primary" id="newBoostGratuit">BOOSTER</button>
+                                <button class="btn btn-primary w-100" id="newBoostGratuit">Demander un Boost Gratuit</button>
                             </div>
                         </div>
                     </div>
