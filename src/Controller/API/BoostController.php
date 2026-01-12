@@ -76,7 +76,7 @@ class BoostController extends AbstractController
         return new JsonResponse([
             'error' => true,
             'titre' => 'Oups!',
-            'message' => "Les Boosts Contact Gratuit sont suspendus jusqu'au 12 février 2026. Faite un Boost Contact Payant a par tir de 100 FCFA en attendant.",
+            'message' => "Les Boosts Contact Gratuit sont suspendus jusqu'au 12 février 2026. Faite un Boost Contact Payant a partir de 100 FCFA en attendant.",
         ]);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
