@@ -66,6 +66,19 @@ class BoostController extends AbstractController
         $uid = $datas->get('uid');
         $idFormulBoost = $datas->get('idFormulBoost');
 
+        if($sessionDS->get("langUserPhone") != "fr") {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Whoops!',
+                'message' => "Free Contact Boosts are suspended until February 12, 2026. In the meantime, make a Paid Contact Boost starting from 100 FCFA.",
+            ]);                
+        }
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Oups!',
+            'message' => "Les Boosts Contact Gratuit sont suspendus jusqu'au 12 février 2026. Faite un Boost Contact Payant a par tir de 100 FCFA en attendant.",
+        ]);
+
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([
