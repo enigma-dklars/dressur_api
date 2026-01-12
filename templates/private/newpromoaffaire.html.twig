@@ -1,5 +1,13 @@
 <div class="bg-danger text-white p-3 rounded">
-    NB: Après avoir rempli et envoyé votre promotion, elle sera analysée par les administrateurs de Dressur. Si votre promotion est acceptée, vous passerez au paiement et ainsi votre promotion sera visible par des milliers d'utilisateurs correspondant à vos préférences pays.
+    <strong>Informations :</strong>
+    <br>
+    - Après avoir rempli et envoyer votre promotion, elle sera analysée par les administrateurs de Dressur. Si votre promotion est acceptée, elle sera visible par des milliers d'utilisateurs correspondants à vos préférences pays.
+    <br>
+    - Si la promotion est rejetée, vous aurez la possibilité de la modifier.
+    <br>
+    - Les utilisateurs intéressés par votre Promotion Affaire vous contacterons sur votre numéro WhatsApp.
+    <br>
+    - Les Promotions Affaires (Offre d'emploi et Demande d'emploi) sont gratuites.
 </div>
 
 <div class="card mt-3">
@@ -37,32 +45,7 @@
                         Veuillez choisir une formule...
                     </div>
                 </div>
-                <div class="container h-100">
-                    <div class="row h-100">
-                        <div class="col-md-6 d-flex flex-column">
-                            <label for="image" class="form-label">Sélectionner une image</label>
-                            <input type="file" class="form-control getInfo" id="image" accept="image/*">
-                            <div id="imagePreview" class="mt-2"></div>
-                        </div>
-                        <div class="col-md-6 d-flex flex-column">
-                            <label for="description" class="form-label">Description de la promotion</label>
-                            <textarea class="form-control getInfo" id="description" rows="15"></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 fs-5">
-                    <div class="d-flex justify-content-center">
-                        <div class="fw-bold text-success">Gratuit</div>
-                        <div class="mx-3">
-                            <div class="form-check-danger form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="flexSwitchCheckCheckedDanger">
-                                <label class="form-check-label" for="flexSwitchCheckCheckedDanger"></label>
-                            </div>
-                        </div>
-                        <div class="fw-bold text-danger">Payant</div>
-                    </div>
-                </div>
-                <div class="col-md-12" hidden id="parti_paiement">
+                <div class="col-md-12" id="parti_paiement">
                     <div class="row g-2">
                         <div class="col-md-6">
                             <label for="paymentMethod" class="">Moyen de paiement mobile ou par carte</label>
@@ -80,7 +63,19 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="container h-100 mt-2">
+                    <div class="row h-100">
+                        <div class="col-md-6 d-flex flex-column">
+                            <label for="image" class="">Sélectionner une image</label>
+                            <input type="file" class="form-control getInfo" id="image" accept="image/*">
+                            <div id="imagePreview" class="mt-2"></div>
+                        </div>
+                        <div class="col-md-6 d-flex flex-column">
+                            <label for="description" class="">Description de la promotion</label>
+                            <textarea class="form-control getInfo" id="description" rows="15"></textarea>
+                        </div>
+                    </div>
+                </div>                
 
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary" id="btn-promotionForm">Envoyer</button>

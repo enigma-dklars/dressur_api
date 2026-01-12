@@ -1011,19 +1011,9 @@ $(document).ready(function () {
     $(document).on('submit', '#promotionForm', function (event) {
         event.preventDefault();
         traitementContact("btn-promotionForm", "debut", "")
-        let mode = "gratuit";
+        let mode = "payant";
         let paymentMethod = "";
         let tel = "";
-
-        if ($("#flexSwitchCheckCheckedDanger").is(':checked')) {
-            mode = "payant";
-            paymentMethod = $("#paymentMethod").val();
-            tel = $("#tel").val();
-        } else {
-            mode = "gratuit";
-            paymentMethod = "";
-            tel = "";
-        }
 
         const imageInput = $('#image')[0].files[0];
         const description = $('#description').val();
@@ -2214,7 +2204,7 @@ $(document).ready(function () {
         let id = value[0];
         let prix = value[1];
         let nbrJour = value[2];
-        let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" Bonus ou "+prix+" FCFA."
+        let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" FCFA."
         $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
     });
 
