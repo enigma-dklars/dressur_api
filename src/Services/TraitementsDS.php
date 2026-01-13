@@ -144,33 +144,6 @@ class TraitementsDS extends AbstractController
     public function separateurMillier($nombre) {       
         return number_format($nombre, 0, ',', ' ');;
     }
-
-    function makePseudoWithEmailAdress($email) {
-        // Extract the part before the @
-        $parts = explode('@', $email);
-        $username = $parts[0];
-
-        $slugger = new AsciiSlugger();
-        $username = strtolower((string)$slugger->slug($username));
-
-        foreach ($this->motRefusers as $mot) {
-            $username = str_replace($mot->getMot(), '', $username);
-        }
-
-        if (strlen($username) == 0) {
-            $username = "ds-id-";
-        }
-    
-        if (strlen($username) < 5) {
-            $username = str_pad($username, 5, strval(rand(0, 9)));
-        }
-    
-        if (strlen($username) > 13) {
-            $username = substr($username, 0, 13);
-        }
-    
-        return $username;
-    }
     
     public function userBoosts($boosts) {
         $userBoosts = [];
@@ -773,7 +746,7 @@ class TraitementsDS extends AbstractController
             }
         }
         // return $userContacts;
-        
+
         // inverser l'ordre du tableau
         return array_reverse($userContacts);
     }

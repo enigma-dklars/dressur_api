@@ -278,4 +278,68 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="warningModal" tabindex="-1"
+     aria-labelledby="warningModalLabel"
+     aria-hidden="true"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false">
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title text-center w-100" id="warningModalLabel">
+          ⚠️ Avertissement important
+        </h5>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Dressur ne peut garantir la fiabilité ou la moralité des utilisateurs de la plateforme.<br><br>
+          Il est fortement conseillé de ne jamais envoyer d’argent pour un service sans être certain
+          de pouvoir entrer en possession de ce pour quoi vous payez.<br><br>
+          <strong>
+            Dressur ne saurait être tenu responsable en cas d’arnaque ou de perte financière
+            causée par un autre utilisateur.
+          </strong>
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button"
+                id="closeWarningBtn"
+                class="btn btn-sm btn-danger"
+                data-bs-dismiss="modal"
+                disabled>
+          Fermer (5)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modalEl = document.getElementById('warningModal');
+    const closeBtn = document.getElementById('closeWarningBtn');
+
+    // Ouvre le modal automatiquement
+    const warningModal = new bootstrap.Modal(modalEl);
+    warningModal.show();
+
+    let countdown = 5;
+    closeBtn.textContent = `Fermer (${countdown}s)`;
+
+    const timer = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            closeBtn.textContent = `Fermer (${countdown}s)`;
+        } else {
+            clearInterval(timer);
+            closeBtn.textContent = "Fermer";
+            closeBtn.disabled = false;
+        }
+    }, 1000);
+});
+</script>
+
 {% endblock %}

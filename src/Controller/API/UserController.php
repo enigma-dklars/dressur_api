@@ -1278,12 +1278,10 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
         
-        $pseudo = $datas->get('pseudo');
-        $tel = $datas->get('tel'); 
+        $tel = str_replace(" ", "", $datas->get('tel'));
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $password = $datas->get('password');
         $confirmPassword = $datas->get('confirmPassword');
-        $pseudo = $traitementsDS->makePseudoWithEmailAdress($mail);
 
         $dressur = $userRepository->find(2);
 
@@ -1293,6 +1291,11 @@ class UserController extends AbstractController
                 $tel = str_replace("+229", "+22901", $tel);
             }
         }
+
+        // Récupère le numéro depuis $datas et s'assure que c'est une chaîne
+        $telRaw = (string) $tel;
+        // Ne conserve que les chiffres
+        $pseudo = preg_replace('/\D+/', '', $telRaw);
 
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
             if($sessionDS->get("langUserPhone") != "fr") {
