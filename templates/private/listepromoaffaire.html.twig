@@ -50,15 +50,14 @@
                         {% if promoaffaire.typePromotionAffaire == "dmd_emploi" %} <div class="actu-small-description mb-1"> {{promoaffaire.annotherInfo.description_profil_demandeur}} </div> {% endif %}
                     {% endif %}
                     
-                    <div class="{% if promoaffaire.statusNumber == 2 %}d-flex justify-content-between{% else %}text-end{% endif %} mt-2">
-                        {% if promoaffaire.statusNumber == 2 %}
-                            <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#modal_payerpromoaffaire_{{promoaffaire.id}}"><i class="fas fa-credit-card me-1"></i> Payer Fcfa</button>
-                            <button class="btn btn-sm btn-warning text-white" data-bs-toggle="modal" data-bs-target="#modal_payer_bonus_promoaffaire_{{promoaffaire.id}}"><i class="fas fa-credit-card me-1"></i> Payer Bonus</button>
+                    <div class="{% if promoaffaire.statusNumber == 2 or promoaffaire.statusNumber == 4 %}d-flex justify-content-between{% else %}text-end{% endif %} mt-2">
+                        {% if promoaffaire.statusNumber == 2 or promoaffaire.statusNumber == 4 %}
+                            <button class="btn btn-sm btn-warning rounded-pill" data-bs-toggle="modal" data-bs-target="#modal_payerpromoaffaire_{{promoaffaire.id}}"><i class="fas fa-credit-card me-1"></i> Payer</button>
                         {% endif %}
                         {% if promoaffaire.statusNumber == 0 and promoaffaire.typePromotionAffaire == "produit_service" %}
-                            <button class="btn btn-sm btn-danger text-white editPromotionAffaire" data-bs-toggle="modal" data-bs-target="#modal_modifier_promoaffaire_{{promoaffaire.id}}"><i class="fas fa-pen me-1"></i> Modifier</button>
+                            <button class="btn btn-sm btn-danger text-white editPromotionAffaire rounded-pill" data-bs-toggle="modal" data-bs-target="#modal_modifier_promoaffaire_{{promoaffaire.id}}"><i class="fas fa-pen me-1"></i> Modifier</button>
                         {% endif %}
-                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modal_promoaffaire_{{promoaffaire.id}}"><i class="fas fa-info me-2"></i>{% if promoaffaire.statusNumber != 2 %}Détails{% endif %}</button>
+                        <button class="btn btn-sm btn-primary rounded-pill" data-bs-toggle="modal" data-bs-target="#modal_promoaffaire_{{promoaffaire.id}}"><i class="fas fa-info me-2"></i>{% if promoaffaire.statusNumber != 2 %}Détails{% endif %}</button>
                     </div>
                 </div>
             </div>
@@ -101,38 +100,6 @@
                 </div>
             </div>
 
-            <div class="modal fade" id="modal_payer_bonus_promoaffaire_{{promoaffaire.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5>Démarer la promotion affaire Gratuitement</h5>
-                        </div>
-                        <div class="modal-body">
-                            <div class="col-12">
-                                <div class="mt-0 msgError" id="msgError-{{promoaffaire.id}}" style="display: none;"></div>
-                            </div>
-                            <div hidden>
-                                <input type="text" id="uid-booster-{{promoaffaire.id}}" value="{{user.uid}}">
-                                <input type="text" id="idPromoAffaire-{{promoaffaire.id}}" value="{{promoaffaire.id}}">
-                            </div>
-                            <div class="mb-2">
-                                <label for="formulBoost">Formule de Boost</label>
-                                <select id="formulBosst" class="form-select getInfoBoost-{{promoaffaire.id}} formulBoost-{{promoaffaire.id}}">
-                                    <option value="" selected disabled>Choissisez une Formule de Boost</option>
-                                    {% for formulBoost in listeFormulBoost %}
-                                        <option value="{{formulBoost.id}}">{{formulBoost.label}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">Fermer</button>
-                            <button type="button" class="btn btn-primary btn-sm boostpromoaffaire" payerpromoaffaire="{{promoaffaire.id}}" id="boostpromoaffaire-{{promoaffaire.id}}">BOOSTER</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="modal fade" id="modal_payerpromoaffaire_{{promoaffaire.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable">
                     <div class="modal-content">
@@ -168,9 +135,6 @@
                             <div>
                                 <label for="numero-paiement">Indicatif + Numéro de Paiement</label>
                                 <input type="text" class="form-control getInfo getInfoBoostPayant-{{promoaffaire.id}} numeroPaiementPayant-{{promoaffaire.id}}" id="numero-paiement-{{promoaffaire.id}}">
-                            </div>
-                            <div class="text-danger text-center mt-2 small">
-                                Pour payer par Wave ou Carte Bancaire, ceuillez contactez l'Assistance Dressur par WhatsApp. Merci...
                             </div>
                         </div>
                         <div class="modal-footer">

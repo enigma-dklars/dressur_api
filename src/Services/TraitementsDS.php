@@ -772,7 +772,10 @@ class TraitementsDS extends AbstractController
                 array_push($userContacts, $unContact);
             }
         }
-        return $userContacts;
+        // return $userContacts;
+        
+        // inverser l'ordre du tableau
+        return array_reverse($userContacts);
     }
 
     public function adminListeContacts($users){
