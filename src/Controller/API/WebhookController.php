@@ -3,26 +3,19 @@
 namespace App\Controller\API;
 
 use DateTime;
-use App\Entity\User;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
 use App\Entity\PromoReseau;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
-use App\Services\SessionDS;
-use App\Services\TraitementsDS;
-use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
-use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
 use App\Repository\FormuleBoostRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
 use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleDressurBotRepository;
@@ -158,7 +151,6 @@ class WebhookController extends AbstractController
                                 ->setUrl($myTransaction->getAnnotherInfo()['lien'])
                             ;
                             $this->em->persist($boost);
-                            $this->em->flush();
 
                             $formule = $boost->getFormulePromoReseau();
                             $formuleLower = mb_strtolower($formule, 'UTF-8');
@@ -210,17 +202,6 @@ class WebhookController extends AbstractController
                         $envPaiementApi->isUsedApproved();
                         $this->em->flush();
                     }
-                } else {
-                    $myTransaction  = new EntityTransaction();
-                    $myTransaction
-                        ->setTransactionFor("paiement_direct")
-                        ->setIdTransaction($idTransaction)
-                        ->setStatus("approved")
-                    ;
-                    $this->em->persist($myTransaction);
-                    
-                    $envPaiementApi->isUsedApproved();
-                    $this->em->flush();
                 }
 
                 return 200;
