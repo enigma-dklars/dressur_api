@@ -120,6 +120,9 @@ class User
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $hasReceived = null;
 
+    #[ORM\Column]
+    private ?bool $isInscritProgrammeRecompense = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -136,6 +139,7 @@ class User
         $this->mailIsVerified = false;
         $this->themeDark = false;
         $this->blocked = false;
+        $this->isInscritProgrammeRecompense = false;
         $this->promotions = new ArrayCollection();
         $this->campagneMails = new ArrayCollection();
         $this->promoReseaus = new ArrayCollection();
@@ -703,6 +707,18 @@ class User
     public function setHasReceived(?string $hasReceived): static
     {
         $this->hasReceived = $hasReceived;
+
+        return $this;
+    }
+
+    public function getIsInscritProgrammeRecompense(): ?bool
+    {
+        return $this->isInscritProgrammeRecompense ?? false;
+    }
+
+    public function setIsInscritProgrammeRecompense(bool $isInscritProgrammeRecompense): static
+    {
+        $this->isInscritProgrammeRecompense = $isInscritProgrammeRecompense;
 
         return $this;
     }
