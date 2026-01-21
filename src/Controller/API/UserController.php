@@ -1686,4 +1686,32 @@ class UserController extends AbstractController
             'error' => false,
         ]);
     }
+
+    #[Route('/addToRecompenseProgramme', name: 'addToRecompenseProgramme')]
+    public function addToRecompenseProgramme(Request $request,UserRepository $userRepository, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $user->setIsInscritProgrammeRecompense(true);        
+            $this->em->flush();
+            
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
 }
