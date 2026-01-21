@@ -953,7 +953,7 @@ class TraitementsDS extends AbstractController
             "commissionBonus" => $this->env->getCommissionBonus(),
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
             'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
-            'isInscritProgrammeRecompense ' => $user->getIsInscritProgrammeRecompense(),
+            'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
         ];
     }
 
