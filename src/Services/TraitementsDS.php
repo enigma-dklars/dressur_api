@@ -300,6 +300,7 @@ class TraitementsDS extends AbstractController
                 "motif" => $promo->getMotif() ? $promo->getMotif() : "",
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
             ];
             array_push($userPromos, $unePromo);
         }
@@ -582,6 +583,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -613,6 +615,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -655,6 +658,7 @@ class TraitementsDS extends AbstractController
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                         "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                         "annotherInfo" => $promo->getAnnotherInfo(),
+                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
@@ -688,6 +692,7 @@ class TraitementsDS extends AbstractController
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                             "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                             "annotherInfo" => $promo->getAnnotherInfo(),
+                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
@@ -717,6 +722,114 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+            ]);
+        }
+        $this->em->flush();
+        shuffle($listePubliciteAffichageAuxUsers);
+        return $listePubliciteAffichageAuxUsers;
+    }
+
+    public function listePromotionAffaireInProgrammeRecompense($user){
+        $listePubliciteAffichageAuxUsers = [];
+        $promos = $this->promotionRepository->findBy([
+            "status" => 3,
+            "limited" => true,
+            "inProgrammeRecompense" => true,
+        ]);
+        foreach ($promos as $promo) {
+            if ($user->getId() == 3 || $user->getId() == 2) {
+                if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                    if($promo->getIsFakeVue() == true) {
+                        $promo->setToWatch($user, "fakeVue");
+                    } else {
+                        $promo->setToWatch($user, "all");
+                    }
+
+                    $descp_promo = $promo->getDescription();
+                    if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                        $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+                    }
+                    if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                        $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+                    }
+
+                    $unePromo = [
+                        "uidUser" => $promo->getUser()->getUid(),
+                        "id" => $promo->getId(),
+                        "image" => $promo->getImage(),
+                        "description" => $descp_promo,
+                        "whatsappNumber" => $promo->getUser()->getTel(),
+                        "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                        "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                        "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                        "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                        "annotherInfo" => $promo->getAnnotherInfo(),
+                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                    ];
+                    array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                } else {
+                    $promo->setStatus(4);
+                }
+            } else {
+                if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+                    if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                        if($promo->getIsFakeVue() == true) {
+                            $promo->setToWatch($user, "fakeVue");
+                        } else {
+                            $promo->setToWatch($user, "all");
+                        }
+
+                        $descp_promo = $promo->getDescription();
+                        if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                            $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+                        }
+                        if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                            $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+                        }
+
+                        $unePromo = [
+                            "uidUser" => $promo->getUser()->getUid(),
+                            "id" => $promo->getId(),
+                            "image" => $promo->getImage(),
+                            "description" => $descp_promo,
+                            "whatsappNumber" => $promo->getUser()->getTel(),
+                            "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                            "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                            "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                            "annotherInfo" => $promo->getAnnotherInfo(),
+                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                        ];
+                        array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                    } else {
+                        $promo->setStatus(4);
+                    }
+                }
+            }
+        }
+
+        foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
+            $descp_promo = $promo->getDescription();
+            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            }
+            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            }
+
+            array_push($listePubliciteAffichageAuxUsers, [
+                "uidUser" => $promo->getUser()->getUid(),
+                "id" => $promoVIP->getId(),
+                "image" => $promoVIP->getImage(),
+                "description" => $descp_promo,
+                "whatsappNumber" => $promoVIP->getUser()->getTel(),
+                "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
             ]);
         }
         $this->em->flush();
@@ -954,6 +1067,7 @@ class TraitementsDS extends AbstractController
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
             'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
+            'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
         ];
     }
 
