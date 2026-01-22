@@ -330,7 +330,7 @@ class Promotion
 
     public function isInProgrammeRecompense(): ?bool
     {
-        return $this->inProgrammeRecompense;
+        return $this->inProgrammeRecompense ?? false;
     }
 
     public function setInProgrammeRecompense(bool $inProgrammeRecompense): static
