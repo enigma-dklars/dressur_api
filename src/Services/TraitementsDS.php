@@ -300,7 +300,7 @@ class TraitementsDS extends AbstractController
                 "motif" => $promo->getMotif() ? $promo->getMotif() : "",
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
             array_push($userPromos, $unePromo);
         }
@@ -583,7 +583,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -615,7 +615,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -658,7 +658,7 @@ class TraitementsDS extends AbstractController
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                         "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                         "annotherInfo" => $promo->getAnnotherInfo(),
-                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
@@ -692,7 +692,7 @@ class TraitementsDS extends AbstractController
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                             "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                             "annotherInfo" => $promo->getAnnotherInfo(),
-                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
@@ -722,7 +722,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ]);
         }
         $this->em->flush();
@@ -765,7 +765,7 @@ class TraitementsDS extends AbstractController
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                         "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                         "annotherInfo" => $promo->getAnnotherInfo(),
-                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
@@ -799,7 +799,7 @@ class TraitementsDS extends AbstractController
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                             "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                             "annotherInfo" => $promo->getAnnotherInfo(),
-                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
@@ -829,7 +829,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ]);
         }
         $this->em->flush();
