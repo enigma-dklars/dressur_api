@@ -1714,4 +1714,31 @@ class UserController extends AbstractController
             ]);
         }
     }
+
+    #[Route('/getPromotionAffaireInProgrammeRecompense', name: 'getPromotionAffaireInProgrammeRecompense')]
+    public function getPromotionAffaireInProgrammeRecompense(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            
+            return new JsonResponse([
+                'error' => false,
+                'promotions' => $traitementsDS->listePromotionAffaireInProgrammeRecompense($user),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
 }
