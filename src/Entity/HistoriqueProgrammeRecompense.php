@@ -47,7 +47,7 @@ class HistoriqueProgrammeRecompense
     public function __construct()
     {
         $this->nbrVue = 0;
-        $this->nbrPartage = 0;
+        $this->nbrPartage = 1;
         $this->recompense = 0;
         $this->referenceParticipation = $this->referenceParticipation();
 
