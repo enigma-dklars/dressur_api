@@ -1789,4 +1789,45 @@ class UserController extends AbstractController
             ]);
         }
     }
+
+    #[Route('/getMyProgrammeRecompenseInformations', name: 'getMyProgrammeRecompenseInformations')]
+    public function getMyProgrammeRecompenseInformations(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+        $vuesTotales = 0;
+        $gainsTotales = 0;
+        $soldeDisponible = 0;
+
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $soldeDisponible = $user->getSoldeProgrammeRecompense();
+
+            foreach ($historiqueProgrammeRecompenseRepository->findBy(['user' => $user]) as $oneHistorique) {
+                $vuesTotales += $oneHistorique->getNbrVue();
+                $gainsTotales += $oneHistorique->getRecompense();
+            }
+
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'vuesTotales' => $vuesTotales,
+                'gainsTotales' => $gainsTotales,
+                'soldeDisponible' => $soldeDisponible,
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
 }
