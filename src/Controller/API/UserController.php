@@ -21,11 +21,14 @@ use App\Entity\Env;
 use App\Entity\FormuleBoost;
 use App\Entity\FormuleCampagneMail;
 use App\Entity\FormulePromoReseau;
+use App\Entity\HistoriqueProgrammeRecompense;
 use App\Entity\Suggestion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\HistoriqueProgrammeRecompenseRepository;
+use App\Repository\PromotionRepository;
 use App\Repository\SuggestionRepository;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -1731,6 +1734,51 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => false,
                 'promotions' => $traitementsDS->listePromotionAffaireInProgrammeRecompense($user),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/partageInProgrammeRecompense', name: 'partageInProgrammeRecompense')]
+    public function partageInProgrammeRecompense(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $idPromoAffaire = $datas->get('idPromoAffaire');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $promoAffaire = $promotionRepository->findOneBy(['id' => $idPromoAffaire]);
+            $oldProgRecomp = $historiqueProgrammeRecompenseRepository->findOneBy(['user' => $user, 'promotion' => $promoAffaire]);
+
+            if(!$oldProgRecomp) {
+                $historyProgRecomp = new HistoriqueProgrammeRecompense();
+                $historyProgRecomp->setUser($user)->setPromotion($promoAffaire);
+                $em->persist($historyProgRecomp);
+                $em->flush();
+
+                return new JsonResponse([
+                    'error' => false,
+                    'referenceParticipation' => $historyProgRecomp->getReferenceParticipation(),
+                ]);
+            }
+
+            $oldProgRecomp->estPartager()->setUpdatedAt(new DateTime());
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'referenceParticipation' => $oldProgRecomp->getReferenceParticipation(),
             ]);
         } catch (\Throwable $th) {
             //throw $th;

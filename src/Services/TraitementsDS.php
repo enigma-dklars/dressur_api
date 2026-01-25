@@ -740,11 +740,11 @@ class TraitementsDS extends AbstractController
         foreach ($promos as $promo) {
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                    if($promo->getIsFakeVue() == true) {
-                        $promo->setToWatch($user, "fakeVue");
-                    } else {
-                        $promo->setToWatch($user, "all");
-                    }
+                    // if($promo->getIsFakeVue() == true) {
+                    //     $promo->setToWatch($user, "fakeVue");
+                    // } else {
+                    //     $promo->setToWatch($user, "all");
+                    // }
 
                     $descp_promo = $promo->getDescription();
                     if($promo->getTypePromotionAffaire() == "offre_emploi") {
@@ -774,11 +774,11 @@ class TraitementsDS extends AbstractController
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
                     if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                        if($promo->getIsFakeVue() == true) {
-                            $promo->setToWatch($user, "fakeVue");
-                        } else {
-                            $promo->setToWatch($user, "all");
-                        }
+                        // if($promo->getIsFakeVue() == true) {
+                        //     $promo->setToWatch($user, "fakeVue");
+                        // } else {
+                        //     $promo->setToWatch($user, "all");
+                        // }
 
                         $descp_promo = $promo->getDescription();
                         if($promo->getTypePromotionAffaire() == "offre_emploi") {
