@@ -64,7 +64,10 @@ class HistoriqueProgrammeRecompense
 
     public function referenceParticipation(): string
     {
-        return "DRESSUR_".uniqid().uniqid();
+        $unique = uniqid().uniqid().uniqid();
+        $unique = str_shuffle($unique);
+        $unique = strtoupper($unique);
+        return "DRESSUR_".$unique;
     }
 
     public function getId(): ?int
