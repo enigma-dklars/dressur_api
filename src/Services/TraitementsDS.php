@@ -736,7 +736,7 @@ class TraitementsDS extends AbstractController
             "status" => 3,
             "limited" => true,
             "inProgrammeRecompense" => true,
-        ]);
+        ], ['id' => 'DESC']);
         foreach ($promos as $promo) {
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
@@ -809,7 +809,7 @@ class TraitementsDS extends AbstractController
             }
         }
 
-        foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
+        foreach ($this->promotionRepository->findBy(["limited" => false, "inProgrammeRecompense" => true], ['id' => 'DESC']) as $promoVIP) {
             $descp_promo = $promo->getDescription();
             if($promo->getTypePromotionAffaire() == "offre_emploi") {
                 $descp_promo = $promo->getAnnotherInfo()["description_poste"];
@@ -833,7 +833,6 @@ class TraitementsDS extends AbstractController
             ]);
         }
         $this->em->flush();
-        shuffle($listePubliciteAffichageAuxUsers);
         return $listePubliciteAffichageAuxUsers;
     }
 
