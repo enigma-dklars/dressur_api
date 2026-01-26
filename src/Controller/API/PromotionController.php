@@ -254,6 +254,20 @@ class PromotionController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
+        $factureLignes = [];
+        $montantTotal = 0;
+
+        $inProgrammeRecompense = false;
+        $publishOnDressurStatus = false;
+
+        if(isset($datas->get('inProgrammeRecompense'))) {
+            $inProgrammeRecompense = ($datas->get('inProgrammeRecompense') == 1) ? true : false;
+            $totalViewsGoal = $datas->get('totalViewsGoal');
+        }
+        if(isset($datas->get('publishOnDressurStatus'))) {
+            $publishOnDressurStatus = ($datas->get('publishOnDressurStatus') == 1) ? true : false;
+        }
+
         $idFormulePromoAffaire = $datas->get('idFormulePromoAffaire');
         $uid = $datas->get('uid');
         $text = $datas->get('text');
@@ -411,9 +425,29 @@ class PromotionController extends AbstractController
             FedaPay::setApiKey($envPaiementApi->getApiKey());
             FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
+            $factureLignes[] = "Promotion Affaire";
+
+            $montantTotal += $formulBoost->getPrix();
+
+            if ($inProgrammeRecompense) {
+                $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
+
+                $factureLignes[] = "Programme Récompense";
+
+                $montantTotal += $montantForProgrammeRecompense;
+            }
+
+            if ($publishOnDressurStatus) {
+                $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
+
+                $factureLignes[] = "Publication Statut Dressur";
+
+                $montantTotal += $montantForPublishOnDressurStatus;
+            }
+
             $array_create_transaction = [
-                "description" => "Dressur :  Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
-                "amount" => $formulBoost->getPrix(),
+                "description" => implode(" + ", $factureLignes),
+                "amount" => $montantTotal,
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
                     "firstname" => $user->getPseudo(),
