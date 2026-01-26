@@ -1800,6 +1800,8 @@ class UserController extends AbstractController
         $vuesTotales = 0;
         $gainsTotales = 0;
         $soldeDisponible = 0;
+        $sixLastHistorique = [];
+        $allHistorique = [];
 
         try {
             $datas = $request->request;
@@ -1808,14 +1810,31 @@ class UserController extends AbstractController
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $datas->get('uid');
-            
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $soldeDisponible = $user->getSoldeProgrammeRecompense();
 
-            foreach ($historiqueProgrammeRecompenseRepository->findBy(['user' => $user]) as $oneHistorique) {
+            foreach ($historiqueProgrammeRecompenseRepository->findBy(['user' => $user], ['id' => 'DESC']) as $oneHistorique) {
+                $promotion = $oneHistorique->getPromotion();
+
                 $vuesTotales += $oneHistorique->getNbrVue();
                 $gainsTotales += $oneHistorique->getRecompense();
+
+                $anotherHistorique = [
+                    'title' => mb_strlen($promotion->getDescription(), 'UTF-8') > 20
+                        ? mb_substr($promotion->getDescription(), 0, 20, 'UTF-8') . '...'
+                        : $promotion->getDescription(),
+                    'amount' => $oneHistorique->getRecompense(),
+                    'date' => $oneHistorique->getCreatedAt()->format('d/m/y'),
+                    'views' => $oneHistorique->getNbrVue(),
+                    'imageUrl' => $promotion->getImage(),
+                    'status' => $oneHistorique->getstatus(),
+                    'description' => $promotion->getDescription(),
+                ];
+
+                array_push($allHistorique, $anotherHistorique);
             }
+
+            $sixLastHistorique = array_slice($allHistorique, 0, 6);
 
             $em->flush();
                         
@@ -1824,6 +1843,8 @@ class UserController extends AbstractController
                 'vuesTotales' => $vuesTotales,
                 'gainsTotales' => $gainsTotales,
                 'soldeDisponible' => $soldeDisponible,
+                'sixLastHistorique' => $sixLastHistorique,
+                'allHistorique' => $allHistorique,
             ]);
         } catch (\Throwable $th) {
             //throw $th;
