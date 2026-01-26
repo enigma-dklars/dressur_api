@@ -301,6 +301,7 @@ class TraitementsDS extends AbstractController
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
                 "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
+                "publishOnDressurStatus" => $promo->isPublishOnDressurStatus() ? 1 : 0,
             ];
             array_push($userPromos, $unePromo);
         }
