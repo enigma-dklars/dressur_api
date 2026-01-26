@@ -168,14 +168,6 @@ class CampagneMailController extends AbstractController
         ]);
     }
 
-    #[Route('/listCampagneMail/{uid}/{langUserPhone}', name: 'listCampagneMail', methods: ['POST', "GET"])]
-    public function listCampagneMail(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
-    {
-        $sessionDS->set("langUserPhone", $langUserPhone);
-        
-        return new JsonResponse($traitementsDS->userCampagneMail($user->getCampagneMails()));
-    }
-
     #[Route('/newCampageMailPayant/paiement', name: 'newCampageMailPayant', methods: ['POST'])]
     public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {

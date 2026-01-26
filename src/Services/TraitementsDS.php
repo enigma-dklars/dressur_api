@@ -239,7 +239,7 @@ class TraitementsDS extends AbstractController
             $peutPayer = false;
 
             if($promo->getDateExp() and ((new DateTime()) > $promo->getDateExp())) {
-                $promo->setStatus(4);
+                $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
             }
 
             if ($promo->getStatus() == 0) {
@@ -457,72 +457,6 @@ class TraitementsDS extends AbstractController
         return $userPromoReseaus;
     }
 
-    public function userCampagneMail($campagneMails) {
-        $userCampagneMail = [];
-
-        foreach ($campagneMails as $campagneMail) {
-            $statut = "";
-            $peutPayer = false;
-
-            if($campagneMail->getStatus() == 3 && $campagneMail->getTraitement() == true && count($campagneMail->getFileAttenteCampagneMails()) == 0){
-                $campagneMail->setStatus(4);
-            }
-
-            if ($campagneMail->getStatus() == 0) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Rejected";
-                } else {
-                    $statut = "Rejeter";
-                }
-            } else if($campagneMail->getStatus() == 1) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Waiting for validation";
-                } else {
-                    $statut = "En Attente de validation";
-                }
-            } else if($campagneMail->getStatus() == 2) {
-                $peutPayer = true;
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and pending payment";
-                } else {
-                    $statut = "Accepter et en attente de paiement";
-                }
-            } else if($campagneMail->getStatus() == 3) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and in progress";
-                } else {
-                    $statut = "Accepter et en cours";
-                }
-            } else if($campagneMail->getStatus() == 4) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Completed";
-                } else {
-                    $statut = "Terminé";
-                }
-            }
-
-            $unecampagneMail = [
-                "id" => (string)$campagneMail->getId(),
-                "idFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getId(),
-                "prixFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getPrix(),
-                "titre" => $campagneMail->getTitre(),
-                "sujet" => $campagneMail->getSujet(),
-                "replyto" => $campagneMail->getReplyto(),
-                "sendto" => $campagneMail->getSendto(),
-                "contentmail" => $campagneMail->getContentmail(),
-                "statusNumber" => $campagneMail->getStatus(),
-                "status" => $statut,
-                "peutPayer" => $peutPayer,
-                "createdAt" => $campagneMail->getCreatedAt() ? ($campagneMail->getCreatedAt())->format('d-m-Y à H:i') : "",
-                "motif" => $campagneMail->getMotif() ? $campagneMail->getMotif() : "",
-            ];
-            array_push($userCampagneMail, $unecampagneMail);
-        }
-        $userCampagneMail = array_reverse($userCampagneMail);
-        $this->em->flush();
-        return $userCampagneMail;
-    }
-
     public function listeFormulePromoReseau() {
         $listeFormulePromoReseau = [];
         foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
@@ -663,7 +597,7 @@ class TraitementsDS extends AbstractController
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
-                    $promo->setStatus(4);
+                    $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -697,7 +631,7 @@ class TraitementsDS extends AbstractController
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
-                        $promo->setStatus(4);
+                        $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                     }
                 }
             }
@@ -770,7 +704,7 @@ class TraitementsDS extends AbstractController
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
-                    $promo->setStatus(4);
+                    $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -804,7 +738,7 @@ class TraitementsDS extends AbstractController
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
-                        $promo->setStatus(4);
+                        $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                     }
                 }
             }
