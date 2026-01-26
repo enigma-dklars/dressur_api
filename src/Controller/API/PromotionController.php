@@ -260,12 +260,12 @@ class PromotionController extends AbstractController
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
 
-        if(isset($datas->get('inProgrammeRecompense'))) {
-            $inProgrammeRecompense = ($datas->get('inProgrammeRecompense') == 1) ? true : false;
-            $totalViewsGoal = $datas->get('totalViewsGoal');
+        if ($datas->get('inProgrammeRecompense') !== null) {
+            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
+            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
         }
-        if(isset($datas->get('publishOnDressurStatus'))) {
-            $publishOnDressurStatus = ($datas->get('publishOnDressurStatus') == 1) ? true : false;
+        if ($datas->get('publishOnDressurStatus') !== null) {
+            $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
         }
 
         $idFormulePromoAffaire = $datas->get('idFormulePromoAffaire');
