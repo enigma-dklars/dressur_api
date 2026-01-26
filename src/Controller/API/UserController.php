@@ -1759,7 +1759,11 @@ class UserController extends AbstractController
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $promoAffaire = $promotionRepository->findOneBy(['id' => $idPromoAffaire]);
-            $oldProgRecomp = $historiqueProgrammeRecompenseRepository->findOneBy(['user' => $user, 'promotion' => $promoAffaire]);
+            $oldProgRecomp = $historiqueProgrammeRecompenseRepository->findOneBy([
+                'user' => $user, 
+                'promotion' => $promoAffaire,
+                'status' => "en_cours",
+            ]);
 
             if(!$oldProgRecomp) {
                 $historyProgRecomp = new HistoriqueProgrammeRecompense();
