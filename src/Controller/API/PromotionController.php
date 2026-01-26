@@ -831,6 +831,20 @@ class PromotionController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
         $uid = $datas->get('uid');
 
+        $factureLignes = [];
+        $montantTotal = 0;
+
+        $inProgrammeRecompense = false;
+        $publishOnDressurStatus = false;
+
+        if ($datas->get('inProgrammeRecompense') !== null) {
+            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
+            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        }
+        if ($datas->get('publishOnDressurStatus') !== null) {
+            $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
+        }
+
         $idPromotion = $datas->get('idPromotion');
         $idFormulBoost = $datas->get('idFormulBoost');
         $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
@@ -957,9 +971,29 @@ class PromotionController extends AbstractController
                 FedaPay::setApiKey($envPaiementApi->getApiKey());
                 FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
+                $factureLignes[] = "Promotion Affaire";
+
+                $montantTotal += $formulBoost->getPrix();
+
+                if ($inProgrammeRecompense) {
+                    $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
+
+                    $factureLignes[] = "Programme Récompense";
+
+                    $montantTotal += $montantForProgrammeRecompense;
+                }
+
+                if ($publishOnDressurStatus) {
+                    $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
+
+                    $factureLignes[] = "Publication Statut Dressur";
+
+                    $montantTotal += $montantForPublishOnDressurStatus;
+                }
+
                 $array_create_transaction = [
-                    "description" => "Dressur :  Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
-                    "amount" => $formulBoost->getPrix(),
+                    "description" => implode(" + ", $factureLignes),
+                    "amount" => $montantTotal,
                     "currency" => ["iso" => "XOF"],
                     "customer" => [
                         "firstname" => $user->getPseudo(),
@@ -970,7 +1004,7 @@ class PromotionController extends AbstractController
                             "country" => $methodePaiementEntity->getCodePays()
                         ]
                     ]
-                ];                
+                ];
 
                 try {
                     $transaction = Transaction::create($array_create_transaction);
