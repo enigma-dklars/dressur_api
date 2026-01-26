@@ -69,6 +69,9 @@ class Promotion
     #[ORM\Column]
     private ?bool $inProgrammeRecompense = null;
 
+    #[ORM\Column]
+    private ?bool $publishOnDressurStatus = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -81,6 +84,7 @@ class Promotion
         $this->whoSaw = [];
         $this->typePromotionAffaire = "produit_service";
         $this->inProgrammeRecompense = false;
+        $this->publishOnDressurStatus = false;
         /**
          * status values description
          * 0 : rejeter
@@ -336,6 +340,18 @@ class Promotion
     public function setInProgrammeRecompense(bool $inProgrammeRecompense): static
     {
         $this->inProgrammeRecompense = $inProgrammeRecompense;
+
+        return $this;
+    }
+
+    public function isPublishOnDressurStatus(): ?bool
+    {
+        return $this->publishOnDressurStatus;
+    }
+
+    public function setPublishOnDressurStatus(bool $publishOnDressurStatus): static
+    {
+        $this->publishOnDressurStatus = $publishOnDressurStatus;
 
         return $this;
     }

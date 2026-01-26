@@ -125,6 +125,14 @@ class WebhookController extends AbstractController
 
                             if($myTransaction->getTransactionFor() == "boost_affaire") {
                                 $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
+                                $inProgrammeRecompense = false;
+                                $publishOnDressurStatus = false;
+                                if(isset($myTransaction->getAnnotherInfo()['inProgrammeRecompense'])) {
+                                    $inProgrammeRecompense = $myTransaction->getAnnotherInfo()['inProgrammeRecompense'];
+                                }
+                                if(isset($myTransaction->getAnnotherInfo()['publishOnDressurStatus'])) {
+                                    $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'];
+                                }
                                 $promotion = new Promotion();
                                 $promotion
                                     ->setMode("Payant")
@@ -132,18 +140,30 @@ class WebhookController extends AbstractController
                                     ->setFormulePromoAffaire($formulePromoAffaire)
                                     ->setImage($myTransaction->getAnnotherInfo()['image'])
                                     ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                                    ->setInProgrammeRecompense($inProgrammeRecompense)
+                                    ->setPublishOnDressurStatus($publishOnDressurStatus)
                                 ;
                                 $this->em->persist($promotion);
                             }
 
                             if($myTransaction->getTransactionFor() == "re_boost_affaire") {
                                 $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                                $inProgrammeRecompense = false;
+                                $publishOnDressurStatus = false;
+                                if(isset($myTransaction->getAnnotherInfo()['inProgrammeRecompense'])) {
+                                    $inProgrammeRecompense = $myTransaction->getAnnotherInfo()['inProgrammeRecompense'];
+                                }
+                                if(isset($myTransaction->getAnnotherInfo()['publishOnDressurStatus'])) {
+                                    $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'];
+                                }
                                 $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
                                 $promotion->setMode("Payant")
                                     ->setDateDebut(new DateTime())
                                     ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
                                     ->setReferencement($formulePromoAffaire->getReferencement())
                                     ->setStatus(3)
+                                    ->setInProgrammeRecompense($inProgrammeRecompense)
+                                    ->setPublishOnDressurStatus($publishOnDressurStatus)
                                 ;
                             }
 

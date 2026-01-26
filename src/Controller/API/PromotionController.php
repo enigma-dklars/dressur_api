@@ -479,6 +479,8 @@ class PromotionController extends AbstractController
                         'formulePromoAffaire' => $formulBoost->getId(),
                         'image' => $fileName,
                         'description' => $text,
+                        'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'publishOnDressurStatus' => $publishOnDressurStatus,
                     ])
                 ;
                 $this->em->persist($myTransaction);
