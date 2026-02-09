@@ -1896,7 +1896,7 @@ class UserController extends AbstractController
                     'message' => "Erreur lors du traitement de la capture – Liste des statuts.",
                 ]);
             }
-            $fileName1 = "preuve_$uid"."_".time().'.'.$capture1->getClientOriginalExtension();
+            $fileName1 = "preuve_$uid"."_".time()."_".rand(1111, 9999).'.'.$capture1->getClientOriginalExtension();
 
 
             $capture2 = $files->get('capture2');
@@ -1914,7 +1914,7 @@ class UserController extends AbstractController
                     'message' => "Erreur lors du traitement de la capture – Statut ouvert.",
                 ]);
             }
-            $fileName2 = "preuve_$uid"."_".time().'.'.$capture2->getClientOriginalExtension();
+            $fileName2 = "preuve_$uid"."_".time()."_".rand(1111, 9999).'.'.$capture2->getClientOriginalExtension();
             
             $historiqueProgrammeRecompense->setStatus("en_attente");
             
