@@ -37,6 +37,7 @@ use App\Services\VerificationsDS;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
 
 #[Route('/api', name: 'api_')]
@@ -1861,6 +1862,12 @@ class UserController extends AbstractController
     #[Route('/submitProgrammeRecompenseProofs', name: 'submitProgrammeRecompenseProofs')]
     public function submitProgrammeRecompenseProofs(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
     {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('preuve_recompense');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+
         try {
             $datas = $request->request;
             $files = $request->files;
@@ -1911,8 +1918,8 @@ class UserController extends AbstractController
             
             $historiqueProgrammeRecompense->setStatus("en_attente");
             
-            $capture1->move($this->getParameter('promotion_directory'), $fileName1);
-            $capture2->move($this->getParameter('promotion_directory'), $fileName2);
+            $capture1->move($this->getParameter('preuve_recompense'), $fileName1);
+            $capture2->move($this->getParameter('preuve_recompense'), $fileName2);
 
             $newPreuve = new Preuve();
             $newPreuve->setUser($user)

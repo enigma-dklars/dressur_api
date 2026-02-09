@@ -28,6 +28,7 @@ use App\Repository\UserRepository;
 use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/api', name: 'api_')]
@@ -248,6 +249,12 @@ class PromotionController extends AbstractController
     #[Route('/addProduitService', name: 'addProduitService', methods: ['POST'])]
     public function addProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('promotion_directory');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+
         $datas = $request->request;
         $files = $request->files;
 
@@ -617,6 +624,12 @@ class PromotionController extends AbstractController
     #[Route('/editProduitService', name: 'editProduitService', methods: ['POST'])]
     public function editProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('promotion_directory');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+        
         $datas = $request->request;
         $files = $request->files;
 
