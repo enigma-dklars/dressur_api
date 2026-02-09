@@ -22,6 +22,7 @@ use App\Entity\FormuleBoost;
 use App\Entity\FormuleCampagneMail;
 use App\Entity\FormulePromoReseau;
 use App\Entity\HistoriqueProgrammeRecompense;
+use App\Entity\Preuve;
 use App\Entity\Suggestion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -1820,6 +1821,7 @@ class UserController extends AbstractController
                 $gainsTotales += $oneHistorique->getRecompense();
 
                 $anotherHistorique = [
+                    'id' => $oneHistorique->getId(),
                     'title' => mb_strlen($promotion->getDescription(), 'UTF-8') > 20
                         ? mb_substr($promotion->getDescription(), 0, 20, 'UTF-8') . '...'
                         : $promotion->getDescription(),
@@ -1845,6 +1847,87 @@ class UserController extends AbstractController
                 'soldeDisponible' => $soldeDisponible,
                 'sixLastHistorique' => $sixLastHistorique,
                 'allHistorique' => $allHistorique,
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/submitProgrammeRecompenseProofs', name: 'submitProgrammeRecompenseProofs')]
+    public function submitProgrammeRecompenseProofs(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+            $files = $request->files;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            $idHistorique = $datas->get('idHistorique');
+            $historiqueProgrammeRecompense = $historiqueProgrammeRecompenseRepository->find((int)$idHistorique);
+
+            $capture1 = $files->get('capture1');
+            if (!$capture1->isValid()) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Error processing capture – Status list.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur lors du traitement de la capture – Liste des statuts.",
+                ]);
+            }
+            $fileName1 = "preuve_$uid"."_".time().'.'.$capture1->getClientOriginalExtension();
+
+
+            $capture2 = $files->get('capture2');
+            if (!$capture2->isValid()) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Error processing capture – Open status.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur lors du traitement de la capture – Statut ouvert.",
+                ]);
+            }
+            $fileName2 = "preuve_$uid"."_".time().'.'.$capture2->getClientOriginalExtension();
+            
+            $historiqueProgrammeRecompense->setStatus("en_attente");
+            
+            $capture1->move($this->getParameter('promotion_directory'), $fileName1);
+            $capture2->move($this->getParameter('promotion_directory'), $fileName2);
+
+            $newPreuve = new Preuve();
+            $newPreuve->setUser($user)
+                ->setHistoriqueProgrammeRecompense($historiqueProgrammeRecompense)
+                ->setCaptureListeStatut($fileName1)
+                ->setCaptureStatutOuvert($fileName2)
+            ;
+            $em->persist($newPreuve);
+
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'titre' => "OK ...",
+                'message' => "Votre preuve a été enregistrée, elle est en attente de vérification. Veuillez joindre la capture vidéo sur WhatsApp au numéro de l’assistance Dressur. Merci.",
             ]);
         } catch (\Throwable $th) {
             //throw $th;
