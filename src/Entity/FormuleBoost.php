@@ -25,6 +25,9 @@ class FormuleBoost
     #[ORM\Column(type: 'boolean')]
     private $alert;
 
+    #[ORM\Column]
+    private ?bool $activated = null;
+
     public function __construct()
     {
         $this->alert = false;
@@ -84,6 +87,18 @@ class FormuleBoost
     public function setAlert(bool $alert): self
     {
         $this->alert = $alert;
+
+        return $this;
+    }
+
+    public function isActivated(): ?bool
+    {
+        return $this->activated;
+    }
+
+    public function setActivated(bool $activated): static
+    {
+        $this->activated = $activated;
 
         return $this;
     }

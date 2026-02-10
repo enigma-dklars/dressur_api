@@ -144,33 +144,6 @@ class TraitementsDS extends AbstractController
     public function separateurMillier($nombre) {       
         return number_format($nombre, 0, ',', ' ');;
     }
-
-    function makePseudoWithEmailAdress($email) {
-        // Extract the part before the @
-        $parts = explode('@', $email);
-        $username = $parts[0];
-
-        $slugger = new AsciiSlugger();
-        $username = strtolower((string)$slugger->slug($username));
-
-        foreach ($this->motRefusers as $mot) {
-            $username = str_replace($mot->getMot(), '', $username);
-        }
-
-        if (strlen($username) == 0) {
-            $username = "ds-id-";
-        }
-    
-        if (strlen($username) < 5) {
-            $username = str_pad($username, 5, strval(rand(0, 9)));
-        }
-    
-        if (strlen($username) > 13) {
-            $username = substr($username, 0, 13);
-        }
-    
-        return $username;
-    }
     
     public function userBoosts($boosts) {
         $userBoosts = [];
@@ -266,7 +239,7 @@ class TraitementsDS extends AbstractController
             $peutPayer = false;
 
             if($promo->getDateExp() and ((new DateTime()) > $promo->getDateExp())) {
-                $promo->setStatus(4);
+                $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
             }
 
             if ($promo->getStatus() == 0) {
@@ -327,6 +300,8 @@ class TraitementsDS extends AbstractController
                 "motif" => $promo->getMotif() ? $promo->getMotif() : "",
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
+                "publishOnDressurStatus" => $promo->isPublishOnDressurStatus() ? 1 : 0,
             ];
             array_push($userPromos, $unePromo);
         }
@@ -371,13 +346,15 @@ class TraitementsDS extends AbstractController
     public function listeFormulBoost() {
         $listeFormulBoost = [];
         foreach ($this->formuleBoostRepository->findAll() as $boost) {
-            array_push($listeFormulBoost, [
-                "id" => $boost->getId(),
-                "value" => $boost->getId(),
-                "label" => $boost->getTitre(),
-                "prix" => intval($boost->getPrix()),
-                "jours" => $boost->getNbrJour(),
-            ]);
+            if($boost->isActivated() == true) {
+                array_push($listeFormulBoost, [
+                    "id" => $boost->getId(),
+                    "value" => $boost->getId(),
+                    "label" => $boost->getTitre(),
+                    "prix" => intval($boost->getPrix()),
+                    "jours" => $boost->getNbrJour(),
+                ]);
+            }
         }
         return $listeFormulBoost;
     }
@@ -385,13 +362,15 @@ class TraitementsDS extends AbstractController
     public function listeFormulePromoAffaire() {
         $listeFormulBoost = [];
         foreach ($this->formulePromoAffaireRepository->findAll() as $boost) {
-            array_push($listeFormulBoost, [
-                "id" => $boost->getId(),
-                "value" => $boost->getId(),
-                "label" => $boost->getTitre(),
-                "prix" => intval($boost->getPrix()),
-                "jours" => $boost->getNbrJour(),
-            ]);
+            if($boost->isActivated() == true) {
+                array_push($listeFormulBoost, [
+                    "id" => $boost->getId(),
+                    "value" => $boost->getId(),
+                    "label" => $boost->getTitre(),
+                    "prix" => intval($boost->getPrix()),
+                    "jours" => $boost->getNbrJour(),
+                ]);
+            }
         }
         return $listeFormulBoost;
     }
@@ -403,15 +382,17 @@ class TraitementsDS extends AbstractController
             "label" => "Cliquez pour choisir...",
         ]);
         foreach ($this->formuleDressurBotRepository->findAll() as $boost) {
-            $label = $boost->getTitre()." : ";
-            $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
-            if($boost->getSignature() == "oui") {
-                $label .= "+ Signature";
-            }            
-            array_push($listeFormuleDressurBot, [
-                "id" => $boost->getId(),
-                "label" => $label,
-            ]);
+            if($boost->isActivated() == true) {
+                $label = $boost->getTitre()." : ";
+                $label .= $boost->getPrix()." FCFA pour ".$boost->getNbrJour()." Jours ";
+                if($boost->getSignature() == "oui") {
+                    $label .= "+ Signature";
+                }            
+                array_push($listeFormuleDressurBot, [
+                    "id" => $boost->getId(),
+                    "label" => $label,
+                ]);
+            }
         }
         return $listeFormuleDressurBot;
     }
@@ -476,72 +457,6 @@ class TraitementsDS extends AbstractController
         return $userPromoReseaus;
     }
 
-    public function userCampagneMail($campagneMails) {
-        $userCampagneMail = [];
-
-        foreach ($campagneMails as $campagneMail) {
-            $statut = "";
-            $peutPayer = false;
-
-            if($campagneMail->getStatus() == 3 && $campagneMail->getTraitement() == true && count($campagneMail->getFileAttenteCampagneMails()) == 0){
-                $campagneMail->setStatus(4);
-            }
-
-            if ($campagneMail->getStatus() == 0) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Rejected";
-                } else {
-                    $statut = "Rejeter";
-                }
-            } else if($campagneMail->getStatus() == 1) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Waiting for validation";
-                } else {
-                    $statut = "En Attente de validation";
-                }
-            } else if($campagneMail->getStatus() == 2) {
-                $peutPayer = true;
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and pending payment";
-                } else {
-                    $statut = "Accepter et en attente de paiement";
-                }
-            } else if($campagneMail->getStatus() == 3) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and in progress";
-                } else {
-                    $statut = "Accepter et en cours";
-                }
-            } else if($campagneMail->getStatus() == 4) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Completed";
-                } else {
-                    $statut = "Terminé";
-                }
-            }
-
-            $unecampagneMail = [
-                "id" => (string)$campagneMail->getId(),
-                "idFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getId(),
-                "prixFormuleCampagneMail" => (string)$campagneMail->getFormuleCampagneMail()->getPrix(),
-                "titre" => $campagneMail->getTitre(),
-                "sujet" => $campagneMail->getSujet(),
-                "replyto" => $campagneMail->getReplyto(),
-                "sendto" => $campagneMail->getSendto(),
-                "contentmail" => $campagneMail->getContentmail(),
-                "statusNumber" => $campagneMail->getStatus(),
-                "status" => $statut,
-                "peutPayer" => $peutPayer,
-                "createdAt" => $campagneMail->getCreatedAt() ? ($campagneMail->getCreatedAt())->format('d-m-Y à H:i') : "",
-                "motif" => $campagneMail->getMotif() ? $campagneMail->getMotif() : "",
-            ];
-            array_push($userCampagneMail, $unecampagneMail);
-        }
-        $userCampagneMail = array_reverse($userCampagneMail);
-        $this->em->flush();
-        return $userCampagneMail;
-    }
-
     public function listeFormulePromoReseau() {
         $listeFormulePromoReseau = [];
         foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
@@ -603,6 +518,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -634,6 +550,7 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
@@ -676,10 +593,11 @@ class TraitementsDS extends AbstractController
                         "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                         "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                         "annotherInfo" => $promo->getAnnotherInfo(),
+                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
-                    $promo->setStatus(4);
+                    $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -709,10 +627,11 @@ class TraitementsDS extends AbstractController
                             "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                             "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                             "annotherInfo" => $promo->getAnnotherInfo(),
+                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
-                        $promo->setStatus(4);
+                        $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                     }
                 }
             }
@@ -738,10 +657,117 @@ class TraitementsDS extends AbstractController
                 "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ]);
         }
         $this->em->flush();
         shuffle($listePubliciteAffichageAuxUsers);
+        return $listePubliciteAffichageAuxUsers;
+    }
+
+    public function listePromotionAffaireInProgrammeRecompense($user){
+        $listePubliciteAffichageAuxUsers = [];
+        $promos = $this->promotionRepository->findBy([
+            "status" => 3,
+            "limited" => true,
+            "inProgrammeRecompense" => true,
+        ], ['id' => 'DESC']);
+        foreach ($promos as $promo) {
+            if ($user->getId() == 3 || $user->getId() == 2) {
+                if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                    // if($promo->getIsFakeVue() == true) {
+                    //     $promo->setToWatch($user, "fakeVue");
+                    // } else {
+                    //     $promo->setToWatch($user, "all");
+                    // }
+
+                    $descp_promo = $promo->getDescription();
+                    if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                        $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+                    }
+                    if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                        $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+                    }
+
+                    $unePromo = [
+                        "uidUser" => $promo->getUser()->getUid(),
+                        "id" => $promo->getId(),
+                        "image" => $promo->getImage(),
+                        "description" => $descp_promo,
+                        "whatsappNumber" => $promo->getUser()->getTel(),
+                        "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                        "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                        "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                        "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                        "annotherInfo" => $promo->getAnnotherInfo(),
+                        "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
+                    ];
+                    array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                } else {
+                    $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                }
+            } else {
+                if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+                    if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
+                        // if($promo->getIsFakeVue() == true) {
+                        //     $promo->setToWatch($user, "fakeVue");
+                        // } else {
+                        //     $promo->setToWatch($user, "all");
+                        // }
+
+                        $descp_promo = $promo->getDescription();
+                        if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                            $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+                        }
+                        if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                            $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+                        }
+
+                        $unePromo = [
+                            "uidUser" => $promo->getUser()->getUid(),
+                            "id" => $promo->getId(),
+                            "image" => $promo->getImage(),
+                            "description" => $descp_promo,
+                            "whatsappNumber" => $promo->getUser()->getTel(),
+                            "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
+                            "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                            "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                            "annotherInfo" => $promo->getAnnotherInfo(),
+                            "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
+                        ];
+                        array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                    } else {
+                        $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                    }
+                }
+            }
+        }
+
+        foreach ($this->promotionRepository->findBy(["limited" => false, "inProgrammeRecompense" => true], ['id' => 'DESC']) as $promoVIP) {
+            $descp_promo = $promo->getDescription();
+            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            }
+            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            }
+
+            array_push($listePubliciteAffichageAuxUsers, [
+                "uidUser" => $promo->getUser()->getUid(),
+                "id" => $promoVIP->getId(),
+                "image" => $promoVIP->getImage(),
+                "description" => $descp_promo,
+                "whatsappNumber" => $promoVIP->getUser()->getTel(),
+                "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
+                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+                "annotherInfo" => $promo->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
+            ]);
+        }
+        $this->em->flush();
         return $listePubliciteAffichageAuxUsers;
     }
 
@@ -766,7 +792,10 @@ class TraitementsDS extends AbstractController
                 array_push($userContacts, $unContact);
             }
         }
-        return $userContacts;
+        // return $userContacts;
+
+        // inverser l'ordre du tableau
+        return array_reverse($userContacts);
     }
 
     public function adminListeContacts($users){
@@ -801,6 +830,17 @@ class TraitementsDS extends AbstractController
             ]);
         }
         return $contactAdds;
+    }
+
+    public function getAddProgrammer(){
+        $lesBoostContact = $this->boostRepository->findAll();
+        $nbrContacts = 0;
+        foreach ($lesBoostContact as $boost){
+        if((new DateTime()) <= ($boost->getDateDebut()) and (new DateTime()) <= ($boost->getDateExp())) {
+                $nbrContacts ++;
+            }
+        }
+        return $nbrContacts;
     }
 
     public function getAddDisponible($user){
@@ -960,6 +1000,8 @@ class TraitementsDS extends AbstractController
             "commissionBonus" => $this->env->getCommissionBonus(),
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
             'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
+            'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
+            'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
         ];
     }
 
@@ -1098,13 +1140,20 @@ class TraitementsDS extends AbstractController
             $formulePromoReseau = (new FormulePromoReseau())->setTitre("Discord")->setAvailable(true);
             $this->em->persist($formulePromoReseau);
 
+            $formulePromoReseau = (new FormulePromoReseau())->setTitre("WhatsApp")->setAvailable(true);
+            $this->em->persist($formulePromoReseau);
+
             $this->em->flush();
         }
 
         $lesFormulesParent = $this->formulePromoReseauRepository->findBy(['parent' => null]);
+
         foreach ($this->formulePromoReseauRepository->findAll() as $uneFormuleReseau) {
-            $uneFormuleReseau->setAvailable(false);
-            if($uneFormuleReseau->getParent() == null) { 
+            if(!empty($uneFormuleReseau->getIdZefame())) {
+                $uneFormuleReseau->setAvailable(false);
+            }
+
+            if($uneFormuleReseau->getParent() == null) {
                 $uneFormuleReseau->setAvailable(true)
                     ->setPrix(null)
                     ->setQte(null)
@@ -1125,7 +1174,7 @@ class TraitementsDS extends AbstractController
                 if($unservice->min > $uneFR->getQteMin()) { $uneFR->setQteMin($unservice->min); }
                 if($unservice->rate > $uneFR->getPrix()) { $uneFR->setPrix($unservice->rate); }
             } else {
-                $newFormuleText .= $unservice->name." | <br>";
+                $newFormuleText .= "<br> $unservice->service => $unservice->name | ... |";
                 
                 $newFormulePromoReseau = new FormulePromoReseau();
                 $newFormulePromoReseau->setQte(1000)->setAvailable(false)
@@ -1166,28 +1215,30 @@ class TraitementsDS extends AbstractController
     public function checkAndUpdateStatusZefame() {
         $promoReseauStatut2 = $this->promoReseauRepository->findBy(['status' => 2]);
         foreach ($promoReseauStatut2 as $unePromoReseau) {
-            $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
-            if(!isset($resultZefame->error)){
-                if($resultZefame->status == "In progress"){
-                    $unePromoReseau->setPrixZefame($resultZefame->charge)
-                        ->setCompteurDebut($resultZefame->start_count)
-                        ->setCompteurRestant($resultZefame->remains)
-                        ->setUpdatedAt(new DateTime())
-                    ;
+            if(!empty($unePromoReseau->getIdZefame())) {
+                $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
+                if(!isset($resultZefame->error)){
+                    if($resultZefame->status == "In progress"){
+                        $unePromoReseau->setPrixZefame($resultZefame->charge)
+                            ->setCompteurDebut($resultZefame->start_count)
+                            ->setCompteurRestant($resultZefame->remains)
+                            ->setUpdatedAt(new DateTime())
+                        ;
+                    }
+                    if($resultZefame->status == "Completed"){
+                        $unePromoReseau->setStatus(3)
+                            ->setCompteurRestant(0)
+                            ->setUpdatedAt(new DateTime())
+                        ;
+                    }
+                    if($resultZefame->status == "Canceled"){
+                        $unePromoReseau->setStatus(0)
+                            ->setUpdatedAt(new DateTime())
+                        ;
+                    }
+                    // dump($unePromoReseau);
+                    // dd($resultZefame);
                 }
-                if($resultZefame->status == "Completed"){
-                    $unePromoReseau->setStatus(3)
-                        ->setCompteurRestant(0)
-                        ->setUpdatedAt(new DateTime())
-                    ;
-                }
-                if($resultZefame->status == "Canceled"){
-                    $unePromoReseau->setStatus(0)
-                        ->setUpdatedAt(new DateTime())
-                    ;
-                }
-                // dump($unePromoReseau);
-                // dd($resultZefame);
             }
         }
         $this->em->flush();

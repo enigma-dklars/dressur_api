@@ -21,11 +21,15 @@ use App\Entity\Env;
 use App\Entity\FormuleBoost;
 use App\Entity\FormuleCampagneMail;
 use App\Entity\FormulePromoReseau;
+use App\Entity\HistoriqueProgrammeRecompense;
+use App\Entity\Preuve;
 use App\Entity\Suggestion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\HistoriqueProgrammeRecompenseRepository;
+use App\Repository\PromotionRepository;
 use App\Repository\SuggestionRepository;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -33,6 +37,7 @@ use App\Services\VerificationsDS;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
 
 #[Route('/api', name: 'api_')]
@@ -1278,14 +1283,24 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
         
-        $pseudo = $datas->get('pseudo');
-        $tel = $datas->get('tel'); 
+        $tel = str_replace(" ", "", $datas->get('tel'));
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $password = $datas->get('password');
         $confirmPassword = $datas->get('confirmPassword');
-        $pseudo = $traitementsDS->makePseudoWithEmailAdress($mail);
 
         $dressur = $userRepository->find(2);
+
+        if (strpos($tel, '+229') === 0) {
+            // Vérifier s'il y a 8 caractères après +229 si oui je complete le 01
+            if (strlen(substr($tel, 4)) == 8) {
+                $tel = str_replace("+229", "+22901", $tel);
+            }
+        }
+
+        // Récupère le numéro depuis $datas et s'assure que c'est une chaîne
+        $telRaw = (string) $tel;
+        // Ne conserve que les chiffres
+        $pseudo = preg_replace('/\D+/', '', $telRaw);
 
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -1675,5 +1690,259 @@ class UserController extends AbstractController
         return new JsonResponse([
             'error' => false,
         ]);
+    }
+
+    #[Route('/addToRecompenseProgramme', name: 'addToRecompenseProgramme')]
+    public function addToRecompenseProgramme(Request $request,UserRepository $userRepository, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $user->setIsInscritProgrammeRecompense(true);        
+            $this->em->flush();
+            
+            return new JsonResponse([
+                'error' => false,
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/getPromotionAffaireInProgrammeRecompense', name: 'getPromotionAffaireInProgrammeRecompense')]
+    public function getPromotionAffaireInProgrammeRecompense(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            
+            return new JsonResponse([
+                'error' => false,
+                'promotions' => $traitementsDS->listePromotionAffaireInProgrammeRecompense($user),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/partageInProgrammeRecompense', name: 'partageInProgrammeRecompense')]
+    public function partageInProgrammeRecompense(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $idPromoAffaire = $datas->get('idPromoAffaire');
+            
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $promoAffaire = $promotionRepository->findOneBy(['id' => $idPromoAffaire]);
+            $oldProgRecomp = $historiqueProgrammeRecompenseRepository->findOneBy([
+                'user' => $user, 
+                'promotion' => $promoAffaire,
+                'status' => "en_cours",
+            ]);
+
+            if(!$oldProgRecomp) {
+                $historyProgRecomp = new HistoriqueProgrammeRecompense();
+                $historyProgRecomp->setUser($user)->setPromotion($promoAffaire);
+                $em->persist($historyProgRecomp);
+                $em->flush();
+
+                return new JsonResponse([
+                    'error' => false,
+                    'referenceParticipation' => $historyProgRecomp->getReferenceParticipation(),
+                ]);
+            }
+
+            $oldProgRecomp->estPartager()->setUpdatedAt(new DateTime());
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'referenceParticipation' => $oldProgRecomp->getReferenceParticipation(),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/getMyProgrammeRecompenseInformations', name: 'getMyProgrammeRecompenseInformations')]
+    public function getMyProgrammeRecompenseInformations(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+        $vuesTotales = 0;
+        $gainsTotales = 0;
+        $soldeDisponible = 0;
+        $sixLastHistorique = [];
+        $allHistorique = [];
+
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $soldeDisponible = $user->getSoldeProgrammeRecompense();
+
+            foreach ($historiqueProgrammeRecompenseRepository->findBy(['user' => $user], ['id' => 'DESC']) as $oneHistorique) {
+                $promotion = $oneHistorique->getPromotion();
+
+                $vuesTotales += $oneHistorique->getNbrVue();
+                $gainsTotales += $oneHistorique->getRecompense();
+
+                $anotherHistorique = [
+                    'id' => $oneHistorique->getId(),
+                    'title' => mb_strlen($promotion->getDescription(), 'UTF-8') > 20
+                        ? mb_substr($promotion->getDescription(), 0, 20, 'UTF-8') . '...'
+                        : $promotion->getDescription(),
+                    'amount' => $oneHistorique->getRecompense(),
+                    'date' => $oneHistorique->getCreatedAt()->format('d/m/y'),
+                    'views' => $oneHistorique->getNbrVue(),
+                    'imageUrl' => $promotion->getImage(),
+                    'status' => $oneHistorique->getstatus(),
+                    'description' => $promotion->getDescription(),
+                ];
+
+                array_push($allHistorique, $anotherHistorique);
+            }
+
+            $sixLastHistorique = array_slice($allHistorique, 0, 6);
+
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'vuesTotales' => $vuesTotales,
+                'gainsTotales' => $gainsTotales,
+                'soldeDisponible' => $soldeDisponible,
+                'sixLastHistorique' => $sixLastHistorique,
+                'allHistorique' => $allHistorique,
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/submitProgrammeRecompenseProofs', name: 'submitProgrammeRecompenseProofs')]
+    public function submitProgrammeRecompenseProofs(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('preuve_recompense');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+
+        try {
+            $datas = $request->request;
+            $files = $request->files;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            $idHistorique = $datas->get('idHistorique');
+            $historiqueProgrammeRecompense = $historiqueProgrammeRecompenseRepository->find((int)$idHistorique);
+
+            $capture1 = $files->get('capture1');
+            if (!$capture1->isValid()) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Error processing capture – Status list.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur lors du traitement de la capture – Liste des statuts.",
+                ]);
+            }
+            $fileName1 = "preuve_$uid"."_".time()."_".rand(1111, 9999).'.'.$capture1->getClientOriginalExtension();
+
+
+            $capture2 = $files->get('capture2');
+            if (!$capture2->isValid()) {
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Error processing capture – Open status.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur lors du traitement de la capture – Statut ouvert.",
+                ]);
+            }
+            $fileName2 = "preuve_$uid"."_".time()."_".rand(1111, 9999).'.'.$capture2->getClientOriginalExtension();
+            
+            $historiqueProgrammeRecompense->setStatus("en_attente");
+            
+            $capture1->move($this->getParameter('preuve_recompense'), $fileName1);
+            $capture2->move($this->getParameter('preuve_recompense'), $fileName2);
+
+            $newPreuve = new Preuve();
+            $newPreuve->setUser($user)
+                ->setHistoriqueProgrammeRecompense($historiqueProgrammeRecompense)
+                ->setCaptureListeStatut($fileName1)
+                ->setCaptureStatutOuvert($fileName2)
+            ;
+            $em->persist($newPreuve);
+
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'titre' => "OK ...",
+                'message' => "Votre preuve a été enregistrée, elle est en attente de vérification. Veuillez joindre la capture vidéo sur WhatsApp au numéro de l’assistance Dressur. Merci.",
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
     }
 }

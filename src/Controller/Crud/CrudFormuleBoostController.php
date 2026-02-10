@@ -41,7 +41,7 @@ class CrudFormuleBoostController extends AbstractController
         return $this->render('crud_formule_boost/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'formule_boosts' => $formuleBoostRepository->findAll(),
+            'formule_boosts' => $formuleBoostRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 

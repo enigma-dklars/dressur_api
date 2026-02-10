@@ -28,6 +28,7 @@ use App\Repository\UserRepository;
 use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/api', name: 'api_')]
@@ -248,11 +249,31 @@ class PromotionController extends AbstractController
     #[Route('/addProduitService', name: 'addProduitService', methods: ['POST'])]
     public function addProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('promotion_directory');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+
         $datas = $request->request;
         $files = $request->files;
 
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
+
+        $factureLignes = [];
+        $montantTotal = 0;
+
+        $inProgrammeRecompense = false;
+        $publishOnDressurStatus = false;
+
+        if ($datas->get('inProgrammeRecompense') !== null) {
+            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
+            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        }
+        if ($datas->get('publishOnDressurStatus') !== null) {
+            $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
+        }
 
         $idFormulePromoAffaire = $datas->get('idFormulePromoAffaire');
         $uid = $datas->get('uid');
@@ -262,21 +283,6 @@ class PromotionController extends AbstractController
         $tel = $datas->get('tel');
 
         $image = $files->get('image');
-
-        if($mode == "gratuit") {
-            if ($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Free business promotions are currently unavailable. However, to offer you a unique opportunity, we have reduced the price of paid business promotions. We hope you will take advantage of this exceptional opportunity.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Les promotions affaire gratuites sont actuellement indisponibles. Cependant, pour vous offrir une occasion unique, nous avons réduit le prix des promotions affaire payantes. Nous espérons que vous profiterez de cette opportunité exceptionnelle.",
-            ]);
-        }
 
         if ($text === null || $image === null) {
             return new JsonResponse([
@@ -377,256 +383,233 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        if($mode == "gratuit") {
-            if($user->getSoldeBonus() < $formulBoost->getPrix()){
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Whoops!',
-                        'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
-                    ]);                
-                }
+        if(!$paymentMethod){
+            if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
-                    'titre' => 'Oups!',
-                    'message' => "Votre solde bonus est insuffisant.\nFaite une Promotion Payante ou parrainé des utilisateurs pour augmenté votre solde bonus.",
+                    'titre' => 'Mistake!',
+                    'message' => "Please choose a Payment Method...",
                 ]);
-            }
-
-            $user->debitSoldeBonus($formulBoost->getPrix());
-
-            $DSBH = new DSBonusHistorique();
-            if($user->getLang() == "fr") {
-                $DSBH->setTitre("Promotion Affaire");
-            } else {
-                $DSBH->setTitre("Business Promotion");
-            }
-            $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
-            $this->em->persist($DSBH);
-
-            $promotion = new Promotion();
-            $promotion
-                ->setUser($user)
-                ->setFormulePromoAffaire($formulBoost)
-                ->setImage($fileName)
-                ->setDescription($text)
-            ;
-            $promotionRepository->save($promotion, true);
-
-            if($sessionDS->get("langUserPhone") != "fr") { 
-                return new JsonResponse([
-                    'error' => false
-                ]); 
             }
             return new JsonResponse([
-                'error' => false
-            ]);
-        } else {
-            if(!$paymentMethod){
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Mistake!',
-                        'message' => "Please choose a Payment Method...",
-                    ]);
-                }
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Veuillez choisir une Methode de Paiement...',
-                ]);
-            }
-            $methodePaiementEntity = $methodePaiementRepository->find($paymentMethod);
-            if(!$methodePaiementEntity) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Mistake!',
-                        'message' => "Please choose a valide Payment Method...",
-                    ]);
-                }
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Veuillez choisir une Methode de Paiement valide...',
-                ]);
-            }
-            if($methodePaiementEntity->getAggregator() == "FedaPay"){
-                $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
-                if(!$envPaiementApi) {
-                    $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "Payment error. Please contact the administrators.",
-                        ]);
-                    }
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
-                    ]);
-                }
-                FedaPay::setApiKey($envPaiementApi->getApiKey());
-                FedaPay::setEnvironment($envPaiementApi->getEnvironment());
-
-                $array_create_transaction = [
-                    "description" => "Dressur :  Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
-                    "amount" => $formulBoost->getPrix(),
-                    "currency" => ["iso" => "XOF"],
-                    "customer" => [
-                        "firstname" => $user->getPseudo(),
-                        "lastname" => $user->getNom(),
-                        "email" => $user->getMail(),
-                        "phone_number" => [
-                            "number" => $tel,
-                            "country" => $methodePaiementEntity->getCodePays()
-                        ]
-                    ]
-                ];
-    
-                try {
-                    $transaction = Transaction::create($array_create_transaction);
-    
-                    $myTransaction  = new EntityTransaction();
-                    $myTransaction
-                        ->setUser($user)
-                        ->setTransactionFor("boost_affaire")
-                        ->setIdTransaction($transaction["id"])
-                        ->setReference($transaction["reference"])
-                        ->setAmount($transaction["amount"])
-                        ->setStatus($transaction["status"])
-                        ->setCustomerId($transaction["customer_id"])
-                        ->setCurrencyId($transaction["currency_id"])
-                        ->setAnnotherInfo([
-                            'userId' => $user->getId(),
-                            'userUid' => $user->getUid(),
-                            'formulePromoAffaire' => $formulBoost->getId(),
-                            'image' => $fileName,
-                            'description' => $text,
-                        ])
-                    ;
-                    $this->em->persist($myTransaction);
-    
-                    $this->em->flush();
-                    
-                    $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
-                    return new JsonResponse($resultat);
-                } catch (\Throwable $th) {
-                    $msgError = (string)$th;
-                    if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
-                        $envPaiementApi->setCountTransactionApproved(10);
-                        $envPaiementApi->setActivated(false);
-                        $this->em->flush();
-    
-                        if($sessionDS->get("langUserPhone") != "fr") {
-                            return new JsonResponse([
-                                'error' => true,
-                                'titre' => 'Excuse us please!',
-                                'message' => "Please submit the form again. Thank you.",
-                            ]);
-                        }
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excusez-nous svp!',
-                            'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
-                        ]);
-                    }
-    
-                    $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "We encountered an error. You will be contacted by an administrator.",
-                        ]);
-                    }
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
-                    ]);
-                }
-            } else {
-                // logique fait de paiement FeexPay
-                $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
-                if(!$envPaiementApi) {
-                    $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "Payment error. Please contact the administrators.",
-                        ]);
-                    }
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
-                    ]);
-                }
-                
-                try {
-                    $resultat = $traitementsDS->startPaiementFeexPay(
-                        $envPaiementApi, 
-                        $methodePaiementEntity, 
-                        $formulBoost->getPrix(),
-                        $tel,
-                        $user->getPseudo(),
-                        $user->getMail(),
-                        "boost_affaire",
-                        [
-                            'userId' => $user->getId(),
-                            'userUid' => $user->getUid(),
-                            'formulePromoAffaire' => $formulBoost->getId(),
-                            'image' => $fileName,
-                            'description' => $text,
-                        ],
-                        $user
-                    );
-                    return new JsonResponse($resultat);
-                } catch (\Throwable $th) {
-                    $msgError = (string)$th;
-                    if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
-                        $envPaiementApi->setCountTransactionApproved(10);
-                        $envPaiementApi->setActivated(false);
-                        $this->em->flush();
-    
-                        if($sessionDS->get("langUserPhone") != "fr") {
-                            return new JsonResponse([
-                                'error' => true,
-                                'titre' => 'Excuse us please!',
-                                'message' => "Please submit the form again. Thank you.",
-                            ]);
-                        }
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excusez-nous svp!',
-                            'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
-                        ]);
-                    }
-    
-                    $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "We encountered an error. You will be contacted by an administrator.",
-                        ]);
-                    }
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
-                    ]);
-                }
-            }
-
-            return new JsonResponse([
-                'error' => false,
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement...',
             ]);
         }
+        $methodePaiementEntity = $methodePaiementRepository->find($paymentMethod);
+        if(!$methodePaiementEntity) {
+            if($sessionDS->get("langUserPhone") != "fr") {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Mistake!',
+                    'message' => "Please choose a valide Payment Method...",
+                ]);
+            }
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement valide...',
+            ]);
+        }
+        if($methodePaiementEntity->getAggregator() == "FedaPay"){
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Payment error. Please contact the administrators.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+            FedaPay::setApiKey($envPaiementApi->getApiKey());
+            FedaPay::setEnvironment($envPaiementApi->getEnvironment());
+
+            $factureLignes[] = "Promotion Affaire";
+
+            $montantTotal += $formulBoost->getPrix();
+
+            if ($inProgrammeRecompense) {
+                $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
+
+                $factureLignes[] = "Programme Récompense";
+
+                $montantTotal += $montantForProgrammeRecompense;
+            }
+
+            if ($publishOnDressurStatus) {
+                $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
+
+                $factureLignes[] = "Publication Statut Dressur";
+
+                $montantTotal += $montantForPublishOnDressurStatus;
+            }
+
+            $array_create_transaction = [
+                "description" => implode(" + ", $factureLignes),
+                "amount" => $montantTotal,
+                "currency" => ["iso" => "XOF"],
+                "customer" => [
+                    "firstname" => $user->getPseudo(),
+                    "lastname" => $user->getNom(),
+                    "email" => $user->getMail(),
+                    "phone_number" => [
+                        "number" => $tel,
+                        "country" => $methodePaiementEntity->getCodePays()
+                    ]
+                ]
+            ];
+
+            try {
+                $transaction = Transaction::create($array_create_transaction);
+
+                $myTransaction  = new EntityTransaction();
+                $myTransaction
+                    ->setUser($user)
+                    ->setTransactionFor("boost_affaire")
+                    ->setIdTransaction($transaction["id"])
+                    ->setReference($transaction["reference"])
+                    ->setAmount($transaction["amount"])
+                    ->setStatus($transaction["status"])
+                    ->setCustomerId($transaction["customer_id"])
+                    ->setCurrencyId($transaction["currency_id"])
+                    ->setAnnotherInfo([
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
+                        'formulePromoAffaire' => $formulBoost->getId(),
+                        'image' => $fileName,
+                        'description' => $text,
+                        'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'publishOnDressurStatus' => $publishOnDressurStatus,
+                    ])
+                ;
+                $this->em->persist($myTransaction);
+
+                $this->em->flush();
+                
+                $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $msgError = (string)$th;
+                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                    $envPaiementApi->setCountTransactionApproved(10);
+                    $envPaiementApi->setActivated(false);
+                    $this->em->flush();
+
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Excuse us please!',
+                            'message' => "Please submit the form again. Thank you.",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excusez-nous svp!',
+                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                    ]);
+                }
+
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } else {
+            // logique fait de paiement FeexPay
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Payment error. Please contact the administrators.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+            
+            try {
+                $resultat = $traitementsDS->startPaiementFeexPay(
+                    $envPaiementApi, 
+                    $methodePaiementEntity, 
+                    $formulBoost->getPrix(),
+                    $tel,
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "boost_affaire",
+                    [
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
+                        'formulePromoAffaire' => $formulBoost->getId(),
+                        'image' => $fileName,
+                        'description' => $text,
+                    ],
+                    $user
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $msgError = (string)$th;
+                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
+                    $envPaiementApi->setCountTransactionApproved(10);
+                    $envPaiementApi->setActivated(false);
+                    $this->em->flush();
+
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse([
+                            'error' => true,
+                            'titre' => 'Excuse us please!',
+                            'message' => "Please submit the form again. Thank you.",
+                        ]);
+                    }
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Excusez-nous svp!',
+                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
+                    ]);
+                }
+
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                if($sessionDS->get("langUserPhone") != "fr") {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "We encountered an error. You will be contacted by an administrator.",
+                    ]);
+                }
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        }
+
+        return new JsonResponse([
+            'error' => false,
+        ]);
+    
 
         if($sessionDS->get("langUserPhone") != "fr") { 
             return new JsonResponse([
@@ -641,6 +624,12 @@ class PromotionController extends AbstractController
     #[Route('/editProduitService', name: 'editProduitService', methods: ['POST'])]
     public function editProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('promotion_directory');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+        
         $datas = $request->request;
         $files = $request->files;
 
@@ -855,6 +844,20 @@ class PromotionController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
         $uid = $datas->get('uid');
 
+        $factureLignes = [];
+        $montantTotal = 0;
+
+        $inProgrammeRecompense = false;
+        $publishOnDressurStatus = false;
+
+        if ($datas->get('inProgrammeRecompense') !== null) {
+            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
+            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        }
+        if ($datas->get('publishOnDressurStatus') !== null) {
+            $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
+        }
+
         $idPromotion = $datas->get('idPromotion');
         $idFormulBoost = $datas->get('idFormulBoost');
         $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
@@ -981,9 +984,29 @@ class PromotionController extends AbstractController
                 FedaPay::setApiKey($envPaiementApi->getApiKey());
                 FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
+                $factureLignes[] = "Promotion Affaire";
+
+                $montantTotal += $formulBoost->getPrix();
+
+                if ($inProgrammeRecompense) {
+                    $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
+
+                    $factureLignes[] = "Programme Récompense";
+
+                    $montantTotal += $montantForProgrammeRecompense;
+                }
+
+                if ($publishOnDressurStatus) {
+                    $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
+
+                    $factureLignes[] = "Publication Statut Dressur";
+
+                    $montantTotal += $montantForPublishOnDressurStatus;
+                }
+
                 $array_create_transaction = [
-                    "description" => "Dressur :  Promotion Payante : ". $formulBoost->getTitre() ." - ". $formulBoost->getPrix() ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
-                    "amount" => $formulBoost->getPrix(),
+                    "description" => implode(" + ", $factureLignes),
+                    "amount" => $montantTotal,
                     "currency" => ["iso" => "XOF"],
                     "customer" => [
                         "firstname" => $user->getPseudo(),
@@ -994,7 +1017,7 @@ class PromotionController extends AbstractController
                             "country" => $methodePaiementEntity->getCodePays()
                         ]
                     ]
-                ];                
+                ];
 
                 try {
                     $transaction = Transaction::create($array_create_transaction);

@@ -52,6 +52,9 @@
 
 
         <div class="row g-2">
+            <div class="col-12">
+                {% include "crud_user/_delete_form.html.twig" %}
+            </div>
             <div class="col-auto">
                 <div class="border rounded px-2 py-2">
                     <p class="mb-1">Pseudo : {{ user.pseudo }}</p>

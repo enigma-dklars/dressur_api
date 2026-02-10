@@ -13,6 +13,7 @@
                 <th>Titre</th>
                 <th>Prix</th>
                 <th>NbrJour</th>
+                <th>Activated</th>
                 <th>Alert</th>
                 <th>Ref.</th>
                 <th width="1">Id</th>
@@ -25,6 +26,7 @@
                 <td>{{ formule_promo_affaire.titre }}</td>
                 <td>{{ formule_promo_affaire.prix }}</td>
                 <td>{{ formule_promo_affaire.nbrJour }}</td>
+                <td class="text-center">{{ formule_promo_affaire.activated ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                 <td class="text-center">{{ formule_promo_affaire.alert ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                 <td class="text-center">{{ formule_promo_affaire.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                 <td>{{ formule_promo_affaire.id }}</td>

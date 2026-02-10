@@ -189,6 +189,7 @@ class PrivateController extends AbstractController
                         'deleted_users' => count($deletedDSRepository->findAll()),
                         'banned_users' => count($this->env->getUserBanned()) / 3,
                         'encour_boost' => count($traitementsDS->getAddDisponible($userRepository->find(2))),
+                        'programmer_boost' => $traitementsDS->getAddProgrammer(),
                         'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
                     ]);
                 }
@@ -265,23 +266,6 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         $html = $this->renderView('private/newcampagemail.html.twig', [
             'formuleCampageMails' => $formuleCampagneMailRepository->findAll(),
-            'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
-        ]);
-    }
-
-    #[Route('/listecampagemail', name: 'app_listecampagemail')]
-    public function listecampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
-    {
-        $user = $this->traitementsDS->getUserByUidInCookies();
-        // dd($traitementsDS->userCampagneMail($user->getCampagneMails()));
-        $html = $this->renderView('private/listecampagemail.html.twig', [
-            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
-            'campagemails' => $traitementsDS->userCampagneMail($user->getCampagneMails()),
             'user' => $traitementsDS->infosUser($user),
         ]);
 

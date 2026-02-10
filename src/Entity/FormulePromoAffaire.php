@@ -28,6 +28,9 @@ class FormulePromoAffaire
     #[ORM\Column]
     private ?bool $referencement = null;
 
+    #[ORM\Column]
+    private ?bool $activated = null;
+
     public function __construct()
     {
         $this->alert = false;
@@ -100,6 +103,18 @@ class FormulePromoAffaire
     public function setReferencement(bool $referencement): static
     {
         $this->referencement = $referencement;
+
+        return $this;
+    }
+
+    public function isActivated(): ?bool
+    {
+        return $this->activated;
+    }
+
+    public function setActivated(bool $activated): static
+    {
+        $this->activated = $activated;
 
         return $this;
     }

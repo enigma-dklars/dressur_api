@@ -1011,19 +1011,9 @@ $(document).ready(function () {
     $(document).on('submit', '#promotionForm', function (event) {
         event.preventDefault();
         traitementContact("btn-promotionForm", "debut", "")
-        let mode = "gratuit";
+        let mode = "payant";
         let paymentMethod = "";
         let tel = "";
-
-        if ($("#flexSwitchCheckCheckedDanger").is(':checked')) {
-            mode = "payant";
-            paymentMethod = $("#paymentMethod").val();
-            tel = $("#tel").val();
-        } else {
-            mode = "gratuit";
-            paymentMethod = "";
-            tel = "";
-        }
 
         const imageInput = $('#image')[0].files[0];
         const description = $('#description').val();
@@ -2154,40 +2144,7 @@ $(document).ready(function () {
         let msgError = "Veuillez renseigner :"
         let msgErrorHtml = $("#msgErrorBoostGratuit").text()
 
-        let formule_boost_gratuit = JSON.parse($("#formule-boost-gratuit").val())
         let uid = $("#uid").val();
-
-        $(".getInfoBoostGratuit").each(function() {
-            let titre = $(this).prev().text();
-            if(!titre){ titre = $(this).attr("placeholder"); }
-            let value = $(this).val();
-            if(!value){ 
-                if(msgError == "Veuillez renseigner :") {
-                    msgError += " " + titre
-                } else {
-                    msgError += ", " + titre
-                }
-            }
-        });
-
-        if(msgError != "Veuillez renseigner :"){
-            if(!msgErrorHtml){
-                $("#msgErrorBoostGratuit").html(`
-                    <div class="alert mt-3 border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                    <div class="d-flex align-items-center">
-                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                    </div>
-                    <div class="ms-3">
-                        <div class="text-danger">`+msgError+`</div>
-                    </div>
-                    </div>
-                    </div>
-                `);
-                $("#msgErrorBoostGratuit").toggle(800)
-            }
-            traitementContact("newBoostGratuit", "fin", "BOOSTER")
-            return 0;
-        }
 
         $.ajax({
             type: "POST",
@@ -2195,7 +2152,6 @@ $(document).ready(function () {
             data: {
                 uid : uid,
                 langUserPhone : 'fr',
-                idFormulBoost : formule_boost_gratuit[0],
             },
             success: function (response) {
                 if(response.error == true){
@@ -2229,7 +2185,7 @@ $(document).ready(function () {
                     $(".getInfoBoostGratuit").val("");
                     $("#msgErrorBoostGratuit").toggle(800);
                 }
-                traitementContact("newBoostGratuit", "fin", "BOOSTER")
+                traitementContact("newBoostGratuit", "fin", "Demander un Boost Gratuit")
             }
         });
     });
@@ -2248,7 +2204,7 @@ $(document).ready(function () {
         let id = value[0];
         let prix = value[1];
         let nbrJour = value[2];
-        let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" Bonus ou "+prix+" FCFA."
+        let msg = "Cette formule vous offre une promotion affaire de "+nbrJour+" jour(s) pour "+prix+" FCFA."
         $("#description-boost-payant").html(msg).removeClass("bg-info").addClass("bg-success");
     });
 

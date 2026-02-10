@@ -168,14 +168,6 @@ class CampagneMailController extends AbstractController
         ]);
     }
 
-    #[Route('/listCampagneMail/{uid}/{langUserPhone}', name: 'listCampagneMail', methods: ['POST', "GET"])]
-    public function listCampagneMail(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
-    {
-        $sessionDS->set("langUserPhone", $langUserPhone);
-        
-        return new JsonResponse($traitementsDS->userCampagneMail($user->getCampagneMails()));
-    }
-
     #[Route('/newCampageMailPayant/paiement', name: 'newCampageMailPayant', methods: ['POST'])]
     public function newCampageMailPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
@@ -228,21 +220,6 @@ class CampagneMailController extends AbstractController
                 'error' => true,
                 'titre' => 'Erreur!',
                 'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-            ]);
-        }
-
-        if($campagneMail->getFormuleCampagneMail()->getPrix() > 20000){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "For transactions over 20,000 FCFA, please contact Dressur Support.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Pour les transactions de plus de 20.000 FCFA, veuillez svp contacter l'Assistance Dressur.",
             ]);
         }
 

@@ -32,6 +32,11 @@ class FormuleBoostType extends AbstractType
                     'class' => 'ms-2 mb-2'
                 ],
             ])
+            ->add('activated', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
         ;
     }
 

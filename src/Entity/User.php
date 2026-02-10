@@ -120,6 +120,12 @@ class User
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $hasReceived = null;
 
+    #[ORM\Column]
+    private ?bool $isInscritProgrammeRecompense = null;
+
+    #[ORM\Column]
+    private ?int $soldeProgrammeRecompense = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -131,11 +137,14 @@ class User
         $this->codeBonus = $this->codeBonus();
         $this->filleuls = new ArrayCollection();
         $this->boosts = new ArrayCollection();
-        $this->soldeBonus = 1000;
+        $this->soldeBonus = 0;
         $this->telIsVerified = false;
         $this->mailIsVerified = false;
         $this->themeDark = false;
         $this->blocked = false;
+        $this->isInscritProgrammeRecompense = false;
+        $this->soldeProgrammeRecompense = 0;
+        
         $this->promotions = new ArrayCollection();
         $this->campagneMails = new ArrayCollection();
         $this->promoReseaus = new ArrayCollection();
@@ -703,6 +712,30 @@ class User
     public function setHasReceived(?string $hasReceived): static
     {
         $this->hasReceived = $hasReceived;
+
+        return $this;
+    }
+
+    public function getIsInscritProgrammeRecompense(): ?bool
+    {
+        return $this->isInscritProgrammeRecompense ?? false;
+    }
+
+    public function setIsInscritProgrammeRecompense(bool $isInscritProgrammeRecompense): static
+    {
+        $this->isInscritProgrammeRecompense = $isInscritProgrammeRecompense;
+
+        return $this;
+    }
+
+    public function getSoldeProgrammeRecompense(): ?int
+    {
+        return $this->soldeProgrammeRecompense;
+    }
+
+    public function setSoldeProgrammeRecompense(int $soldeProgrammeRecompense): static
+    {
+        $this->soldeProgrammeRecompense = $soldeProgrammeRecompense;
 
         return $this;
     }

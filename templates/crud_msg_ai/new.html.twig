@@ -1,0 +1,11 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}New MsgAi{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">Create new MsgAi <a class="ms-2 btn btn-sm btn-primary" href="{{ path('app_crud_msg_ai_index') }}">Liste</a></p>
+
+    {{ include('crud_msg_ai/_form.html.twig') }}
+
+    
+{% endblock %}

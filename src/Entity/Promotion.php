@@ -66,6 +66,12 @@ class Promotion
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $typePromotionAffaire = null;
 
+    #[ORM\Column]
+    private ?bool $inProgrammeRecompense = null;
+
+    #[ORM\Column]
+    private ?bool $publishOnDressurStatus = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -77,6 +83,8 @@ class Promotion
         $this->nombreImpression = 0;
         $this->whoSaw = [];
         $this->typePromotionAffaire = "produit_service";
+        $this->inProgrammeRecompense = false;
+        $this->publishOnDressurStatus = false;
         /**
          * status values description
          * 0 : rejeter
@@ -203,16 +211,16 @@ class Promotion
     public function setToWatch($user, $mode): self
     {
         if($mode == "fakeVue") {
-            $this->nombreImpression += rand(5, 10);
-            $this->nombreDeVue += rand(1, 5);
+            $this->nombreImpression += rand(0, 20);
+            $this->nombreDeVue += rand(0, 8);
         } else if($mode == "web") {
-            $this->nombreImpression += rand(1, 3);
-        } else if($mode == "all" || $mode == "vue" ) {
+            $this->nombreImpression += rand(0, 6);
+        } else if($mode == "all" || $mode == "vue") {
             if($user->getId() != $this->getUser()->getId()) {
                 if (in_array($user->getId(), $this->whoSaw)) {
-                    $this->nombreImpression += rand(0, 1);
+                    $this->nombreImpression += rand(0, 4);
                 } else {
-                    $this->nombreImpression += rand(1, 2);
+                    $this->nombreImpression += rand(0, 5);
                     array_push($this->whoSaw, $user->getId());
                 }
                 $this->nombreDeVue += rand(0, 1);
@@ -320,6 +328,30 @@ class Promotion
     public function setTypePromotionAffaire(?string $typePromotionAffaire): static
     {
         $this->typePromotionAffaire = $typePromotionAffaire;
+
+        return $this;
+    }
+
+    public function isInProgrammeRecompense(): ?bool
+    {
+        return $this->inProgrammeRecompense ?? false;
+    }
+
+    public function setInProgrammeRecompense(bool $inProgrammeRecompense): static
+    {
+        $this->inProgrammeRecompense = $inProgrammeRecompense;
+
+        return $this;
+    }
+
+    public function isPublishOnDressurStatus(): ?bool
+    {
+        return $this->publishOnDressurStatus;
+    }
+
+    public function setPublishOnDressurStatus(bool $publishOnDressurStatus): static
+    {
+        $this->publishOnDressurStatus = $publishOnDressurStatus;
 
         return $this;
     }

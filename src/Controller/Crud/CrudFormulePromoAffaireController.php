@@ -41,7 +41,7 @@ class CrudFormulePromoAffaireController extends AbstractController
         return $this->render('crud_formule_promo_affaire/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'formule_promo_affaires' => $formulePromoAffaireRepository->findAll(),
+            'formule_promo_affaires' => $formulePromoAffaireRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 
