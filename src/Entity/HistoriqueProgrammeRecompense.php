@@ -63,6 +63,14 @@ class HistoriqueProgrammeRecompense
         $this->updatedAt = new DateTime();
     }
 
+        public function __toString(): string
+    {
+        // Ici tu choisis un champ représentatif
+        return 'Historique #' . $this->getId();
+        // ou si tu as un champ plus parlant, par exemple :
+        // return $this->getReferenceParticipation();
+    }
+
     public function referenceParticipation(): string
     {
         $unique = uniqid().uniqid().uniqid();

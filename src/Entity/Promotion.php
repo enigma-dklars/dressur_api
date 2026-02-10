@@ -102,6 +102,11 @@ class Promotion
          */
     }
 
+    public function __toString(): string
+    {
+        return 'Promotion #' . $this->getId(); // sûr et toujours valide
+    }
+
     public function getId(): ?int
     {
         return $this->id;
