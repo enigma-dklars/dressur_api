@@ -37,6 +37,7 @@ use App\Entity\MethodePaiement;
 use App\Entity\Transaction;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
+use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\MethodePaiementRepository;
 use Feexpay\FeexpayPhp\FeexpayClass;
 use Symfony\Component\String\Slugger\AsciiSlugger;
@@ -71,8 +72,9 @@ class TraitementsDS extends AbstractController
     private $motRefusers;
     private $formulePromoAffaireRepository;
     private $methodePaiementRepository;
+    private $historiqueProgrammeRecompenseRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
@@ -101,6 +103,7 @@ class TraitementsDS extends AbstractController
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
         $this->envPaiementApiRepository = $envPaiementApiRepository;
         $this->envMailSenderRepository = $envMailSenderRepository;
+        $this->historiqueProgrammeRecompenseRepository = $historiqueProgrammeRecompenseRepository;
     }    
 
     function removeMaxSection($string) {
@@ -231,6 +234,16 @@ class TraitementsDS extends AbstractController
         ];
     }
 
+    public function finishParticipationProgrammeRecompense($promoAffaire) {
+        $lesParticipations = $this->historiqueProgrammeRecompenseRepository->findBy(['promotion' => $promoAffaire]);
+
+        foreach ($$lesParticipations as $uneParticipation) {
+            if(in_array($uneParticipation->getStatus(), ['terminer', 'en_cours'])) {
+                $uneParticipation->setStatus("echouer");
+            }
+        }
+    }
+
     public function userPromos($promos){
         $userPromos = [];
 
@@ -240,6 +253,7 @@ class TraitementsDS extends AbstractController
 
             if($promo->getDateExp() and ((new DateTime()) > $promo->getDateExp())) {
                 $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                $this->finishParticipationProgrammeRecompense($promo);
             }
 
             if ($promo->getStatus() == 0) {
@@ -598,6 +612,8 @@ class TraitementsDS extends AbstractController
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
                     $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                    $this->finishParticipationProgrammeRecompense($promo);
+
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -632,6 +648,7 @@ class TraitementsDS extends AbstractController
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
                         $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                        $this->finishParticipationProgrammeRecompense($promo);
                     }
                 }
             }
@@ -705,6 +722,7 @@ class TraitementsDS extends AbstractController
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 } else {
                     $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                    $this->finishParticipationProgrammeRecompense($promo);
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -739,6 +757,7 @@ class TraitementsDS extends AbstractController
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     } else {
                         $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                        $this->finishParticipationProgrammeRecompense($promo);
                     }
                 }
             }
