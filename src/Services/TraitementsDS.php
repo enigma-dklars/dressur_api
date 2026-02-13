@@ -178,7 +178,7 @@ class TraitementsDS extends AbstractController
             }
 
             if($boost->getMode() == "Gratuit") {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). " Bonus";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
                 $modeNumber = 1;
             } else {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
