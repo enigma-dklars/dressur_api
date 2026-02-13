@@ -13,11 +13,33 @@
             </tr>
             <tr>
                 <th>CaptureListeStatut</th>
-                <td>{{ preuve.captureListeStatut }}</td>
+                <td class="text-center">
+                    {% if preuve.captureListeStatut %}
+                        <img 
+                            src="{{ asset('preuve_recompense/' ~ preuve.captureListeStatut) }}"
+                            alt="Capture Liste"
+                            class="img-fluid rounded"
+                            style="max-width:120px; max-height:120px;"
+                        >
+                    {% else %}
+                        <span class="badge bg-danger">Non fourni</span>
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <th>CaptureStatutOuvert</th>
-                <td>{{ preuve.captureStatutOuvert }}</td>
+                <td class="text-center">
+                    {% if preuve.captureStatutOuvert %}
+                        <img 
+                            src="{{ asset('preuve_recompense/' ~ preuve.captureStatutOuvert) }}"
+                            alt="Capture Ouvert"
+                            class="img-fluid rounded"
+                            style="max-width:120px; max-height:120px;"
+                        >
+                    {% else %}
+                        <span class="badge bg-danger">Non fourni</span>
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <th>CreatedAt</th>
