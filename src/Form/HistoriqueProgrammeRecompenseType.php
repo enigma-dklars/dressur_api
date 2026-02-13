@@ -8,6 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class HistoriqueProgrammeRecompenseType extends AbstractType
 {
@@ -29,11 +30,21 @@ class HistoriqueProgrammeRecompenseType extends AbstractType
                     'class' => 'form-control mb-2',
                 ],
             ])
-            ->add('status', null, [
+            ->add('status', ChoiceType::class, [
+                'label' => 'Statut',
+                'choices' => [
+                    'En attente' => 'en_attente',
+                    'En cours'   => 'en_cours',
+                    'Approuvé'   => 'approuver',
+                    'Terminé'    => 'terminer',
+                    'Échoué'     => 'echouer',
+                    'Refusé'     => 'refuser',
+                ],
                 'attr' => [
-                    'class' => 'form-control mb-2',
+                    'class' => 'form-select'
                 ],
             ])
+
             ->add('referenceParticipation', null, [
                 'attr' => [
                     'class' => 'form-control mb-2',

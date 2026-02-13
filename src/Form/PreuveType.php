@@ -10,11 +10,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class PreuveType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
 
         $builder
             ->add('captureListeStatut', FileType::class, [
@@ -66,7 +68,13 @@ class PreuveType extends AbstractType
                     'class' => 'form-select single-select mb-5'
                 ],
             ])
-        ;
+            ->add('isTreated', CheckboxType::class, [
+                'label' => 'Preuve traitée',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-check-input'
+                ],
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

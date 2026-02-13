@@ -23,6 +23,7 @@
             <th>Historique</th>
             <th>Capture Liste</th>
             <th>Capture Ouvert</th>
+            <th>Traitée</th>
             <th>Créé le</th>
             <th>Modifié le</th>
         </tr>
@@ -62,11 +63,7 @@
                 <td class="text-center">
                     {% if preuve.captureListeStatut %}
                         <a href="{{ asset('preuve_recompense/' ~ preuve.captureListeStatut) }}" target="_blank">
-                            <img 
-                                src="{{ asset('preuve_recompense/' ~ preuve.captureListeStatut) }}"
-                                class="img-fluid rounded"
-                                style="max-width:100px;"
-                            >
+                            <img src="{{ asset('preuve_recompense/' ~ preuve.captureListeStatut) }}" class="img-fluid rounded" style="max-width:100px;">
                         </a>
                     {% else %}
                         <span class="badge bg-danger">Non fourni</span>
@@ -77,14 +74,19 @@
                 <td class="text-center">
                     {% if preuve.captureStatutOuvert %}
                         <a href="{{ asset('preuve_recompense/' ~ preuve.captureStatutOuvert) }}" target="_blank">
-                            <img 
-                                src="{{ asset('preuve_recompense/' ~ preuve.captureStatutOuvert) }}"
-                                class="img-fluid rounded"
-                                style="max-width:100px;"
-                            >
+                            <img src="{{ asset('preuve_recompense/' ~ preuve.captureStatutOuvert) }}" class="img-fluid rounded" style="max-width:100px;">
                         </a>
                     {% else %}
                         <span class="badge bg-danger">Non fourni</span>
+                    {% endif %}
+                </td>
+
+                <!-- IS TREATED -->
+                <td class="text-center">
+                    {% if preuve.isTreated %}
+                        <span class="badge bg-success">Traitée</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">En attente</span>
                     {% endif %}
                 </td>
 
@@ -94,11 +96,12 @@
             </tr>
         {% else %}
             <tr>
-                <td colspan="8" class="text-center">Aucun enregistrement trouvé</td>
+                <td colspan="9" class="text-center">Aucun enregistrement trouvé</td>
             </tr>
         {% endfor %}
     </tbody>
 </table>
+
 
 
 	</div>

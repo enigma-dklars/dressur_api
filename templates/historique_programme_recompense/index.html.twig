@@ -56,16 +56,31 @@
 					<td>{{ historique.recompense }}</td>
 
 					<td class="text-center">
-						{% if historique.status == 'En attente' %}
-							<span class="badge bg-warning">{{ historique.status }}</span>
-						{% elseif historique.status == 'Validé' %}
-							<span class="badge bg-success">{{ historique.status }}</span>
-						{% elseif historique.status == 'Refusé' %}
-							<span class="badge bg-danger">{{ historique.status }}</span>
+						{% set status = historique.status %}
+
+						{% if status == 'en_attente' %}
+							<span class="badge bg-warning">En attente</span>
+
+						{% elseif status == 'en_cours' %}
+							<span class="badge bg-info">En cours</span>
+
+						{% elseif status == 'approuver' %}
+							<span class="badge bg-success">Approuvé</span>
+
+						{% elseif status == 'terminer' %}
+							<span class="badge bg-primary">Terminé</span>
+
+						{% elseif status == 'echouer' %}
+							<span class="badge bg-dark">Échoué</span>
+
+						{% elseif status == 'refuser' %}
+							<span class="badge bg-danger">Refusé</span>
+
 						{% else %}
-							<span class="badge bg-secondary">{{ historique.status }}</span>
+							<span class="badge bg-secondary">{{ status }}</span>
 						{% endif %}
 					</td>
+
 
 					<td>{{ historique.referenceParticipation }}</td>
 					<td>{{ historique.createdAt ? historique.createdAt|date('Y-m-d H:i:s') : '' }}</td>

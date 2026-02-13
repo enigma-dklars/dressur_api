@@ -35,10 +35,14 @@ class Preuve
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column]
+    private ?bool $isTreated = false;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
+        $this->isTreated = false;
     }
 
     public function getId(): ?int
@@ -114,6 +118,18 @@ class Preuve
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function isIsTreated(): ?bool
+    {
+        return $this->isTreated;
+    }
+
+    public function setIsTreated(bool $isTreated): static
+    {
+        $this->isTreated = $isTreated;
 
         return $this;
     }

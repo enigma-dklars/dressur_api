@@ -29,9 +29,9 @@ class PreuveController extends AbstractController
         $this->traitementsDS = $traitementsDS;
 
         $this->theme = $this->cookieDS->check("theme") &&
-                       $this->cookieDS->get("theme") === "dark-theme"
-                       ? "dark-theme"
-                       : "light-theme";
+            $this->cookieDS->get("theme") === "dark-theme"
+            ? "dark-theme"
+            : "light-theme";
 
         $this->is_connect = $this->traitementsDS->getUserByUidInCookies() !== null;
     }
@@ -52,8 +52,7 @@ class PreuveController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
-    ): Response
-    {
+    ): Response {
         $preuve = new Preuve();
         $form = $this->createForm(PreuveType::class, $preuve);
         $form->handleRequest($request);
@@ -93,24 +92,45 @@ class PreuveController extends AbstractController
         Preuve $preuve,
         EntityManagerInterface $entityManager,
         SluggerInterface $slugger
-    ): Response
-    {
+    ): Response {
+        // On récupère les anciennes captures pour supprimer si nécessaire
         $ancienneCaptureListe = $preuve->getCaptureListeStatut();
         $ancienneCaptureOuvert = $preuve->getCaptureStatutOuvert();
 
+        // Création du formulaire
         $form = $this->createForm(PreuveType::class, $preuve);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $this->handleUpload($form, $preuve, $slugger, true, $ancienneCaptureListe, $ancienneCaptureOuvert);
+            // Gestion upload fichiers (capture liste et capture ouvert)
+            $this->handleUpload(
+                $form,
+                $preuve,
+                $slugger,
+                true,
+                $ancienneCaptureListe,
+                $ancienneCaptureOuvert
+            );
 
+            // ⚡ Logique métier : si preuve traitée, statut historique = 'terminer'
+            if ($preuve->isIsTreated()) {
+                $historique = $preuve->getHistoriqueProgrammeRecompense();
+                if ($historique) {
+                    $historique->setStatus('terminer');
+                }
+            }
+
+
+            // Sauvegarde en base
             $entityManager->flush();
 
             return $this->redirectToRoute('app_preuve_index');
         }
 
+        // Rendu du formulaire
         return $this->renderForm('preuve/edit.html.twig', [
+            'preuve' => $preuve,
             'theme' => $this->theme,
             'is_connect' => $this->is_connect,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
@@ -118,10 +138,48 @@ class PreuveController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/accept', name: 'app_preuve_accept', methods: ['POST'])]
+public function accept(Preuve $preuve, EntityManagerInterface $em, Request $request): Response
+{
+    if ($this->isCsrfTokenValid('accept'.$preuve->getId(), $request->request->get('_token'))) {
+        $preuve->setIsTreated(true);
+
+        $historique = $preuve->getHistoriqueProgrammeRecompense();
+        if ($historique) {
+            $historique->setStatus('approuver');
+        }
+
+        $em->flush();
+        $this->addFlash('success', 'Preuve approuvée avec succès !');
+    }
+
+    return $this->redirectToRoute('app_preuve_index');
+}
+
+#[Route('/{id}/refuse', name: 'app_preuve_refuse', methods: ['POST'])]
+public function refuse(Preuve $preuve, EntityManagerInterface $em, Request $request): Response
+{
+    if ($this->isCsrfTokenValid('refuse'.$preuve->getId(), $request->request->get('_token'))) {
+        $preuve->setIsTreated(true);
+
+        $historique = $preuve->getHistoriqueProgrammeRecompense();
+        if ($historique) {
+            $historique->setStatus('refuser');
+        }
+
+        $em->flush();
+        $this->addFlash('danger', 'Preuve refusée !');
+    }
+
+    return $this->redirectToRoute('app_preuve_index');
+}
+
+
+
     #[Route('/{id}', name: 'app_preuve_delete', methods: ['POST'])]
     public function delete(Request $request, Preuve $preuve, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$preuve->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $preuve->getId(), $request->request->get('_token'))) {
 
             $this->removeFile($preuve->getCaptureListeStatut());
             $this->removeFile($preuve->getCaptureStatutOuvert());
@@ -149,7 +207,7 @@ class PreuveController extends AbstractController
                 $this->removeFile($oldListe);
             }
 
-            $newFilename = uniqid().'.'.$fileListe->guessExtension();
+            $newFilename = uniqid() . '.' . $fileListe->guessExtension();
 
             try {
                 $fileListe->move($dossier, $newFilename);
@@ -163,7 +221,7 @@ class PreuveController extends AbstractController
                 $this->removeFile($oldOuvert);
             }
 
-            $newFilename = uniqid().'.'.$fileOuvert->guessExtension();
+            $newFilename = uniqid() . '.' . $fileOuvert->guessExtension();
 
             try {
                 $fileOuvert->move($dossier, $newFilename);
@@ -179,7 +237,7 @@ class PreuveController extends AbstractController
             return;
         }
 
-        $filePath = $this->getParameter('preuve_recompense').'/'.$filename;
+        $filePath = $this->getParameter('preuve_recompense') . '/' . $filename;
 
         if (file_exists($filePath)) {
             unlink($filePath);
