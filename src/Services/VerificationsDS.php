@@ -278,18 +278,18 @@ class VerificationsDS extends AbstractController
             ];
         }
 
-        if(strlen($pseudo) > 14){
+        if(strlen($pseudo) > 20){
             if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
                     'titre' => 'Attention!',
-                    'message' => 'Nickname too long! 14 characters maximum...',
+                    'message' => 'Nickname too long! 20 characters maximum...',
                 ];
             }
             return [
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Pseudo trop long! 14 caractères maximum...',
+                'message' => 'Pseudo trop long! 20 caractères maximum...',
             ];
         }
 

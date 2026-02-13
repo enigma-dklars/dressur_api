@@ -1945,4 +1945,67 @@ class UserController extends AbstractController
             ]);
         }
     }
+
+    #[Route('/saveRetraitConfiguration', name: 'saveRetraitConfiguration')]
+    public function saveRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            $reseauRetrait = $datas->get('reseauRetrait') ?? "";
+            $numeroRetrait = $datas->get('numeroRetrait') ?? "";
+            
+            $user->setReseauRetrait($reseauRetrait)->setNumeroRetrait($numeroRetrait);
+
+            $em->flush();
+                        
+            return new JsonResponse([
+                'error' => false,
+                'titre' => "OK ...",
+                'message' => "Configuration enregistrer.",
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/getRetraitConfiguration', name: 'getRetraitConfiguration')]
+    public function getRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    {
+
+        try {
+            $datas = $request->request;
+        
+            $langUserPhone = $datas->get('langUserPhone');
+            $sessionDS->set("langUserPhone", $langUserPhone);
+
+            $uid = $datas->get('uid');
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            return new JsonResponse([
+                'error' => false,
+                'reseauRetrait' => $user->getReseauRetrait(),
+                'numeroRetrait' => $user->getNumeroRetrait(),
+            ]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
 }

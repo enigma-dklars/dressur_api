@@ -126,6 +126,12 @@ class User
     #[ORM\Column]
     private ?int $soldeProgrammeRecompense = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reseauRetrait = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $numeroRetrait = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -736,6 +742,30 @@ class User
     public function setSoldeProgrammeRecompense(int $soldeProgrammeRecompense): static
     {
         $this->soldeProgrammeRecompense = $soldeProgrammeRecompense;
+
+        return $this;
+    }
+
+    public function getReseauRetrait(): ?string
+    {
+        return $this->reseauRetrait;
+    }
+
+    public function setReseauRetrait(?string $reseauRetrait): static
+    {
+        $this->reseauRetrait = $reseauRetrait;
+
+        return $this;
+    }
+
+    public function getNumeroRetrait(): ?string
+    {
+        return $this->numeroRetrait;
+    }
+
+    public function setNumeroRetrait(?string $numeroRetrait): static
+    {
+        $this->numeroRetrait = $numeroRetrait;
 
         return $this;
     }

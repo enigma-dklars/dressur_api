@@ -57,6 +57,7 @@ class HistoriqueProgrammeRecompense
          * en_attente
          * approuver
          * echouer
+         * refuser
          */
         $this->status = "en_cours";
         $this->createdAt = new DateTime();
