@@ -29,15 +29,15 @@ class VerifMail
         $this->code = $this->code();
     }
 
-    public function code(int $length = 6): ?string
+    public function code(int $length = 4): ?string
     {
         // allowed characters
-        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        $chars = "0123456789";
         // make sure we have enough length
         while (strlen($chars) < $length) {
             $chars .= $chars;
         }
-        return "DS".substr(str_shuffle($chars), 0, $length);
+        return substr(str_shuffle($chars), 0, $length);
     }
 
     public function getId(): ?int
