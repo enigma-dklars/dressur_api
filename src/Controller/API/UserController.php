@@ -1816,10 +1816,20 @@ class UserController extends AbstractController
             $soldeDisponible = $user->getSoldeProgrammeRecompense();
 
             foreach ($historiqueProgrammeRecompenseRepository->findBy(['user' => $user], ['id' => 'DESC']) as $oneHistorique) {
-                $promotion = $oneHistorique->getPromotion();
 
+                $promotion = $oneHistorique->getPromotion();
                 $vuesTotales += $oneHistorique->getNbrVue();
                 $gainsTotales += $oneHistorique->getRecompense();
+
+                if(in_array($oneHistorique->getstatus(), ['en_cours', 'terminer'])) {
+                    if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
+                        $oneHistorique->setStatus('echouer');
+                    }
+                    if(!$promotion->isInProgrammeRecompense()) {
+                        $oneHistorique->setStatus('echouer');
+                    }
+                    $em->flush();
+                }
 
                 $anotherHistorique = [
                     'id' => $oneHistorique->getId(),
@@ -1833,14 +1843,11 @@ class UserController extends AbstractController
                     'status' => $oneHistorique->getstatus(),
                     'description' => $promotion->getDescription(),
                 ];
-
                 array_push($allHistorique, $anotherHistorique);
             }
 
             $sixLastHistorique = array_slice($allHistorique, 0, 6);
 
-            $em->flush();
-                        
             return new JsonResponse([
                 'error' => false,
                 'vuesTotales' => $vuesTotales,
