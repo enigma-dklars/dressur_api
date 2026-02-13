@@ -237,7 +237,7 @@ class TraitementsDS extends AbstractController
     public function finishParticipationProgrammeRecompense($promoAffaire) {
         $lesParticipations = $this->historiqueProgrammeRecompenseRepository->findBy(['promotion' => $promoAffaire]);
 
-        foreach ($$lesParticipations as $uneParticipation) {
+        foreach ($lesParticipations as $uneParticipation) {
             if(in_array($uneParticipation->getStatus(), ['terminer', 'en_cours'])) {
                 $uneParticipation->setStatus("echouer");
             }
