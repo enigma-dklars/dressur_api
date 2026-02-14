@@ -386,15 +386,17 @@ class UserController extends AbstractController
             ]);
         }
 
-        $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
-        if($verificationPseudo["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationPseudo["titre"],
-                'message' => $verificationPseudo["message"],
-            ]);
+        if(!$user->getAdmin() and !in_array($user->getMail(), ['dressur.ds@gmail.com', 'bluelife.tech@gmail.com', 'dklars.dev@gmail.com'])) {
+            $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
+            if($verificationPseudo["error"] == true){
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => $verificationPseudo["titre"],
+                    'message' => $verificationPseudo["message"],
+                ]);
+            }
+            $pseudo = $verificationPseudo["pseudo"];
         }
-        $pseudo = $verificationPseudo["pseudo"];
 
         $userPseudoUid =  $userRepository->findOneBy(['pseudo' => $pseudo]);
         $userPseudoUid =  $userPseudoUid ? $userPseudoUid->getUid() : null;
@@ -1346,16 +1348,6 @@ class UserController extends AbstractController
                 'message' => "Cette adresse mail a été banni de Dressur. Contactez l'assistance s'il s'agit d'une erreur.",
             ]);
         }
-
-        $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
-        if($verificationPseudo["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationPseudo["titre"],
-                'message' => $verificationPseudo["message"],
-            ]);
-        }
-        $pseudo = $verificationPseudo["pseudo"];
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){

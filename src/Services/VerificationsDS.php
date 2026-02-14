@@ -239,29 +239,14 @@ class VerificationsDS extends AbstractController
         ];
     }
 
-    public function verifPseudo($pseudo){
+    public function verifPseudo($pseudo) {
         $slugger = new AsciiSlugger();
         $pseudo = strtolower((string)$slugger->slug($pseudo));
         $pseudoSansChiffre = $pseudo;
 
-        for ($i=0; $i <= 9; $i++) { 
+        for ($i=0; $i <= 9; $i++) {
             $pseudoSansChiffre = str_replace($i, '', $pseudoSansChiffre);
         }
-
-        // if(strlen($pseudoSansChiffre) <= 1){
-        //     if($this->sessionDS->get("langUserPhone") != "fr") {
-        //         return [
-        //             'error' => true,
-        //             'titre' => 'Attention!',
-        //             'message' => 'Your Nickname contains forbidden words...',
-        //         ];
-        //     }
-        //     return [
-        //         'error' => true,
-        //         'titre' => 'Refus!',
-        //         'message' => "Votre Pseudo doit contenir au minimum deux lettres.",
-        //     ];
-        // }
 
         if(strlen($pseudo) < 3) {
             if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -278,7 +263,7 @@ class VerificationsDS extends AbstractController
             ];
         }
 
-        if(strlen($pseudo) > 20){
+        if(strlen($pseudo) > 20) {
             if($this->sessionDS->get("langUserPhone") != "fr") {
                 return [
                     'error' => true,
