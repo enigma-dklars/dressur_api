@@ -191,6 +191,9 @@ class PrivateController extends AbstractController
                         'encour_boost' => count($traitementsDS->getAddDisponible($userRepository->find(2))),
                         'programmer_boost' => $traitementsDS->getAddProgrammer(),
                         'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
+                        'users_prog_recomp' => count($userBotRepository->findBy(['isInscritProgrammeRecompense' => true])),
+                        'p_aff_recomp' => count($promotionRepository->findBy(['inProgrammeRecompense' => true])),
+                        'p_aff_ds_statut' => count($promotionRepository->findBy(['publishOnDressurStatus' => true])),
                     ]);
                 }
             }
