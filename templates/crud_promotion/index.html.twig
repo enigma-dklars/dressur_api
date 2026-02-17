@@ -22,10 +22,12 @@
                     <th>User</th>
                     <th>Type P.A</th>
                     <th>Status</th>
+                    <th>Mode</th>
+                    <th>Récomp.</th>
+                    <th>DS Statut</th>
                     <th>Limited</th>
                     <th>Fake</th>
                     <th>Ref.</th>
-                    <th>Mode</th>
                     <th>Formule</th>
                     <th>DateDebut</th>
                     <th>DateExp</th>
@@ -63,9 +65,6 @@
                         {% if promotion.status == 4 %}{% set bg_badge = "bg-success" %} {% set status_name = "Terminer" %}{% endif %}
                         <span class="badge {{bg_badge}} text-white mb-1">{{status_name}}</span>
                     </td>
-                    <td class="text-center">{{ promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td class="text-center">{{ promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td class="text-center">{{ promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td class="text-center">
                         {% if promotion.mode == "Gratuit" %}
                             <span class="badge bg-danger">{{promotion.mode}}</span>
@@ -73,6 +72,11 @@
                             <span class="badge bg-success">{{promotion.mode}}</span>
                         {% endif %}
                     </td>
+                    <td class="text-center">{{ promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td>{{ promotion.formulePromoAffaire }}</td>
                     <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
