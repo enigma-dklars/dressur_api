@@ -1,0 +1,31 @@
+<div class="d-flex gap-1">
+
+    {# Boutons Accepter / Refuser seulement si isTreated = false #}
+    {% if not preuve.isIsTreated %}
+        <form method="post" action="{{ path('app_preuve_accept', {'id': preuve.id}) }}" onsubmit="return confirm('Accepter cette preuve ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('accept' ~ preuve.id) }}">
+            <button class="btn btn-success btn-sm">Accepter</button>
+        </form>
+
+        <form method="post" action="{{ path('app_preuve_refuse', {'id': preuve.id}) }}" onsubmit="return confirm('Refuser cette preuve ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ preuve.id) }}">
+            <button class="btn btn-danger btn-sm">Refuser</button>
+        </form>
+    {% endif %}
+
+    <!-- Bouton Voir -->
+    <a class="btn btn-sm btn-info" href="{{ path('app_preuve_show', {'id': preuve.id}) }}">
+        Show
+    </a>
+
+    <!-- Bouton Modifier -->
+    <a class="btn btn-sm btn-primary" href="{{ path('app_preuve_edit', {'id': preuve.id}) }}">
+        Update
+    </a>
+
+    <!-- Formulaire Supprimer -->
+    <form method="post" action="{{ path('app_preuve_delete', {'id': preuve.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ preuve.id) }}">
+        <button class="btn btn-sm btn-danger">Delete</button>
+    </form>
+</div>

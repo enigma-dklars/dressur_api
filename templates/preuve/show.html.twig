@@ -1,0 +1,60 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Preuve{% endblock %}
+
+{% block body %}
+    <h1>Preuve</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ preuve.id }}</td>
+            </tr>
+            <tr>
+                <th>CaptureListeStatut</th>
+                <td class="text-center">
+                    {% if preuve.captureListeStatut %}
+                        <img 
+                            src="{{ asset('preuve_recompense/' ~ preuve.captureListeStatut) }}"
+                            alt="Capture Liste"
+                            class="img-fluid rounded"
+                            style="max-width:120px; max-height:120px;"
+                        >
+                    {% else %}
+                        <span class="badge bg-danger">Non fourni</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>CaptureStatutOuvert</th>
+                <td class="text-center">
+                    {% if preuve.captureStatutOuvert %}
+                        <img 
+                            src="{{ asset('preuve_recompense/' ~ preuve.captureStatutOuvert) }}"
+                            alt="Capture Ouvert"
+                            class="img-fluid rounded"
+                            style="max-width:120px; max-height:120px;"
+                        >
+                    {% else %}
+                        <span class="badge bg-danger">Non fourni</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ preuve.createdAt ? preuve.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>UpdatedAt</th>
+                <td>{{ preuve.updatedAt ? preuve.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_preuve_index') }}">back to list</a>
+
+    <a href="{{ path('app_preuve_edit', {'id': preuve.id}) }}">edit</a>
+
+    {{ include('preuve/_delete_form.html.twig') }}
+{% endblock %}
