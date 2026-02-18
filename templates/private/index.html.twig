@@ -17,7 +17,7 @@
 
         {% endif %}
 
-        {% if user.telIsVerified == false %}
+        {% if user.telIsVerified == false and user.mailIsVerified == true and user.nom is not null and user.nom|trim != '' %}
             <div class="{% if user.mailIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
                 <div class="card radius-10 mb-0 h-100">
                     <div class="card-body">
