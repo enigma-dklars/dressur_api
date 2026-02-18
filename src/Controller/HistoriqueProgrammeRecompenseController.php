@@ -42,13 +42,35 @@ class HistoriqueProgrammeRecompenseController extends AbstractController
     }
 
     #[Route('/', name: 'app_historique_programme_recompense_index', methods: ['GET'])]
-    public function index(HistoriqueProgrammeRecompenseRepository $repository): Response
+    public function index(HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, EntityManagerInterface $em): Response
     {
+        foreach ($historiqueProgrammeRecompenseRepository->findBy(['status' => 'en_cours']) as $oneHistorique) {
+            $promotion = $oneHistorique->getPromotion();
+            if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
+                $oneHistorique->setStatus('echouer');
+            }
+            if(!$promotion->isInProgrammeRecompense()) {
+                $oneHistorique->setStatus('echouer');
+            }
+        }
+        $em->flush();
+
+        foreach ($historiqueProgrammeRecompenseRepository->findBy(['terminer' => 'en_cours']) as $oneHistorique) {
+            $promotion = $oneHistorique->getPromotion();
+            if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
+                $oneHistorique->setStatus('echouer');
+            }
+            if(!$promotion->isInProgrammeRecompense()) {
+                $oneHistorique->setStatus('echouer');
+            }
+        }
+        $em->flush();
+        
         return $this->render('historique_programme_recompense/index.html.twig', [
             'theme' => $this->theme,
             'is_connect' => $this->is_connect,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'historique_programme_recompenses' => $repository->findBy([], ['id' => 'DESC']),
+            'historique_programme_recompenses' => $historiqueProgrammeRecompenseRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
 
