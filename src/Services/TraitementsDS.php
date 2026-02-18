@@ -33,14 +33,12 @@ use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
-use App\Entity\MethodePaiement;
 use App\Entity\Transaction;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\MethodePaiementRepository;
 use Feexpay\FeexpayPhp\FeexpayClass;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class TraitementsDS extends AbstractController
@@ -180,7 +178,7 @@ class TraitementsDS extends AbstractController
             }
 
             if($boost->getMode() == "Gratuit") {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). " Bonus";
+                $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
                 $modeNumber = 1;
             } else {
                 $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
@@ -237,7 +235,7 @@ class TraitementsDS extends AbstractController
     public function finishParticipationProgrammeRecompense($promoAffaire) {
         $lesParticipations = $this->historiqueProgrammeRecompenseRepository->findBy(['promotion' => $promoAffaire]);
 
-        foreach ($$lesParticipations as $uneParticipation) {
+        foreach ($lesParticipations as $uneParticipation) {
             if(in_array($uneParticipation->getStatus(), ['terminer', 'en_cours'])) {
                 $uneParticipation->setStatus("echouer");
             }

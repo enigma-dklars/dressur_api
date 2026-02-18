@@ -97,30 +97,7 @@
         </div>
 
         <div>
-            <p class="fw-bolder h5">3- <a href="{{path('app_campagne_mail')}}"> Campagnes Mail </a></p>
-            <p class="ps-md-4">Envoyez des emails à des milliers de destinataires avec facilité.</p>
-            <table class="data-table table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>Formule d'abonnement</th>
-                        <th>Prix de la formule</th>
-                        <th>Limite de destinataire</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for formule_campagne_mail in formule_campagne_mails %}
-                    <tr>
-                        <td>{{ formule_campagne_mail.titre }}</td>
-                        <td>{{ formule_campagne_mail.prix }} FCFA</td>
-                        <td>{{ formule_campagne_mail.nombreMail }} Adresse Mail(s)</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <div>
-            <p class="fw-bolder h5">4- <a href="{{path('app_promotion_affaire')}}"> Promotion Affaire </a></p>
+            <p class="fw-bolder h5">3- <a href="{{path('app_promotion_affaire')}}"> Promotion Affaire </a></p>
             <p class="ps-md-4">
                 Promouvez vos produits, services, événements, et plus encore auprès d'un public ciblé.  
                 Ce service vous permet d'évoluer en mode <span class="fw-bolder text-success">GRATUIT</span> comme <span class="fw-bolder text-danger">PAYANT</span>. Ci-dessous les tarifs a titre payante.
@@ -152,12 +129,7 @@
         </div>
 
         <div>
-            <p class="fw-bolder h5">5- <a href="{{path('app_carte_visite_numerique')}}"> Carte de visite numérique </a></p>
-            <p class="ps-md-4">Simplifiez l'échange de vos contacts en scannant un code QR. Plus besoin d'imprimer des cartes de visite. <span class="fw-bolder text-success">Ce service est GRATUIT</span>.</p>
-        </div>
-
-        <div>
-            <p class="fw-bolder h5">6- <a href="{{path('app_promotion_reseaux_sociaux')}}"> Promotions Réseaux Sociaux </a></p>
+            <p class="fw-bolder h5">4- <a href="{{path('app_promotion_reseaux_sociaux')}}"> Promotions Réseaux Sociaux </a></p>
             <p class="ps-md-4">Augmentez votre visibilité sur les réseaux sociaux avec Dressur. Les taris ci-dessous peuvent dimminuer ou augmnter en fonction du bon vouloir de chaque réseau social.</p>
             <div class="table-responsive">
                 <table class="data-table table table-bordered table-striped">

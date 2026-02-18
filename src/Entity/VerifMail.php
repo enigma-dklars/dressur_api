@@ -29,7 +29,7 @@ class VerifMail
         $this->code = $this->code();
     }
 
-    public function code(int $length = 4): ?string
+    public function code(int $length = 6): ?string
     {
         // allowed characters
         $chars = "0123456789";
