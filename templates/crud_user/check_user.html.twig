@@ -88,6 +88,28 @@
             </div>
             <div class="col-auto">
                 <div class="border rounded px-2 py-2">
+                    <p class="mb-1 fw-bold">Récompenses</p>
+                    <p class="mb-1">
+                        In Prog. Rec ? : 
+                        {% if user.isInscritProgrammeRecompense %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>                                
+                        {% endif %}
+                    </p>
+                    <p class="mb-1">
+                        Solde : {{ user.soldeProgrammeRecompense }} FCFA
+                    </p>
+                    <p class="mb-1">
+                        Reseau Retrait : {{ user.reseauRetrait ?? '__________' }}
+                    </p>
+                    <p class="mb-1">
+                        Numero Retrait : {{ user.numeroRetrait ?? '__________' }}
+                    </p>
+                </div>
+            </div>
+            {# <div class="col-auto">
+                <div class="border rounded px-2 py-2">
                     <p class="mb-1 fw-bold">Affiliation</p>
                     <p class="mb-1">Invité(s) : {{user.filleuls|length}}</p>
                     Have Parrain : 
@@ -97,7 +119,7 @@
                         <span class="badge bg-danger">No</span>                                
                     {% endif %}
                 </div>
-            </div>
+            </div> #}
             <div class="col-auto">
                 <div class="border rounded px-2 py-2">
                     <p class="mb-1 fw-bold">Last Login To</p>
@@ -110,12 +132,12 @@
                     <p class="mb-1">{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</p>
                 </div>
             </div>
-            <div class="col-auto">
+            {# <div class="col-auto">
                 <div class="border rounded px-2 py-2">
                     <p class="mb-1 fw-bold">Solde Bonus</p>
                     <p class="mb-1">{{ user.soldeBonus }}</p>
                 </div>
-            </div>
+            </div> #}
 
             <div class="col-auto">
                 <div class="border rounded px-2 py-2">
