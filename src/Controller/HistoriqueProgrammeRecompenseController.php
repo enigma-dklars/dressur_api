@@ -55,7 +55,7 @@ class HistoriqueProgrammeRecompenseController extends AbstractController
         }
         $em->flush();
 
-        foreach ($historiqueProgrammeRecompenseRepository->findBy(['terminer' => 'en_cours']) as $oneHistorique) {
+        foreach ($historiqueProgrammeRecompenseRepository->findBy(['status' => 'terminer']) as $oneHistorique) {
             $promotion = $oneHistorique->getPromotion();
             if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
                 $oneHistorique->setStatus('echouer');
