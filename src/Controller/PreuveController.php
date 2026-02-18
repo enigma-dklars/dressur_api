@@ -139,40 +139,116 @@ class PreuveController extends AbstractController
     }
 
     #[Route('/{id}/accept', name: 'app_preuve_accept', methods: ['POST'])]
-public function accept(Preuve $preuve, EntityManagerInterface $em, Request $request): Response
-{
-    if ($this->isCsrfTokenValid('accept'.$preuve->getId(), $request->request->get('_token'))) {
-        $preuve->setIsTreated(true);
+    public function accept(
+        Preuve $preuve,
+        EntityManagerInterface $em,
+        Request $request
+    ): Response {
+        // 🔐 Vérification CSRF
+        if (!$this->isCsrfTokenValid('accept' . $preuve->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_preuve_index');
+        }
 
+        // 🔒 Protection contre double traitement
+        if ($preuve->isIsTreated()) {
+            $this->addFlash('warning', 'Cette preuve a déjà été traitée.');
+            return $this->redirectToRoute('app_preuve_index');
+        }
+
+        // 📌 Récupération de l'historique lié
         $historique = $preuve->getHistoriqueProgrammeRecompense();
-        if ($historique) {
-            $historique->setStatus('approuver');
+
+        if (!$historique) {
+            $this->addFlash('danger', 'Historique introuvable.');
+            return $this->redirectToRoute('app_preuve_index');
+        }
+
+        // 📥 Récupération du nombre de vues depuis la modal
+        $nbrVue = (int) $request->request->get('nbrVue');
+
+        if ($nbrVue <= 0) {
+            $this->addFlash('danger', 'Nombre de vues invalide.');
+            return $this->redirectToRoute('app_preuve_index');
+        }
+
+        // 💾 On sauvegarde la valeur validée
+        $historique->setNbrVue($nbrVue);
+
+        // 🧮 Calcul du gain
+        $gain = $this->calculerGain($nbrVue);
+
+        // 🚫 Si moins de 250 vues → refus implicite
+        if ($gain <= 0) {
+            $this->addFlash('danger', 'Nombre de vues insuffisant pour validation.');
+            return $this->redirectToRoute('app_preuve_index');
+        }
+
+        // ✅ Validation finale
+        $preuve->setIsTreated(true);
+        $historique->setStatus('approuver');
+
+        $user = $historique->getUser();
+
+        if ($user) {
+            $user->addSoldeProgrammeRecompense($gain);
         }
 
         $em->flush();
-        $this->addFlash('success', 'Preuve approuvée avec succès !');
+
+        $this->addFlash('success', 'Preuve approuvée et gain ajouté.');
+
+        return $this->redirectToRoute('app_preuve_index');
     }
 
-    return $this->redirectToRoute('app_preuve_index');
-}
 
-#[Route('/{id}/refuse', name: 'app_preuve_refuse', methods: ['POST'])]
-public function refuse(Preuve $preuve, EntityManagerInterface $em, Request $request): Response
-{
-    if ($this->isCsrfTokenValid('refuse'.$preuve->getId(), $request->request->get('_token'))) {
-        $preuve->setIsTreated(true);
 
-        $historique = $preuve->getHistoriqueProgrammeRecompense();
-        if ($historique) {
-            $historique->setStatus('refuser');
+    /**
+     * Calcul du gain selon les paliers de vues
+     */
+    private function calculerGain(int $nbrVue): int
+    {
+
+        if ($nbrVue < 250) {
+            return 0;
         }
 
-        $em->flush();
-        $this->addFlash('danger', 'Preuve refusée !');
+        if ($nbrVue < 500) {
+            return 100;
+        }
+
+        if ($nbrVue < 1000) {
+            return 200;
+        }
+
+        if ($nbrVue < 2000) {
+            return 500;
+        }
+
+        if ($nbrVue < 4000) {
+            return 1000;
+        }
+
+        return 2500;
     }
 
-    return $this->redirectToRoute('app_preuve_index');
-}
+    #[Route('/{id}/refuse', name: 'app_preuve_refuse', methods: ['POST'])]
+    public function refuse(Preuve $preuve, EntityManagerInterface $em, Request $request): Response
+    {
+        if ($this->isCsrfTokenValid('refuse' . $preuve->getId(), $request->request->get('_token'))) {
+            $preuve->setIsTreated(true);
+
+            $historique = $preuve->getHistoriqueProgrammeRecompense();
+            if ($historique) {
+                $historique->setStatus('refuser');
+            }
+
+            $em->flush();
+            $this->addFlash('danger', 'Preuve refusée !');
+        }
+
+        return $this->redirectToRoute('app_preuve_index');
+    }
 
 
 

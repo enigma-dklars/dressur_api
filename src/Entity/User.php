@@ -746,6 +746,17 @@ class User
         return $this;
     }
 
+    public function addSoldeProgrammeRecompense(int $montant): self
+    {
+        if ($this->soldeProgrammeRecompense === null) {
+            $this->soldeProgrammeRecompense = 0;
+        }
+
+        $this->soldeProgrammeRecompense += $montant;
+
+        return $this;
+    }
+
     public function getReseauRetrait(): ?string
     {
         return $this->reseauRetrait;
