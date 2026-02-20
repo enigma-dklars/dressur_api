@@ -170,7 +170,7 @@ class CrudUserController extends AbstractController
         $teladd3 = null;
 
         // Process the form submission
-        if ($request->isMethod('POST') OR !empty($inputRequest)) {
+        if ($request->isMethod('POST') OR $inputRequest != null) {
             $input = !empty($inputRequest) ? $inputRequest : $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("	", "", $input);
