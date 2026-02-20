@@ -298,12 +298,16 @@ class CrudUserController extends AbstractController
                     $message[] = "Veuillez complété votre profil (au minimum nom et prenom ou nom d'entreprise).";
                 }
 
-                if($user->getMailIsVerified() and !empty($user->getNom())) {
-                    $user->setTelIsVerified(true);
-                    $entityManager->flush();
-                    $this->addFlash('success', 'Numéro WhatsApp a été confirmé avec succès');
+                if(!$user->getTelIsVerified()) {
+                    if($user->getMailIsVerified() and !empty($user->getNom())) {
+                        $user->setTelIsVerified(true);
+                        $entityManager->flush();
+                        $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
+                    } else {
+                        $this->addFlash('danger', 'User not found.');
+                    }
                 } else {
-                    $this->addFlash('danger', 'User not found.');
+                    $message[] = "Le numéro WhatsApp (".$user->getTel().") avais déja été confirmé.";
                 }
 
                 $user_array['user_info'] = $user;
