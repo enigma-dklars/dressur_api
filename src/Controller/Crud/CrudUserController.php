@@ -312,8 +312,7 @@ class CrudUserController extends AbstractController
 
                 $user_array['user_info'] = $user;
             } else {
-                // Add a flash message if user is not found
-                $this->addFlash('danger', 'Echac de confirmation du numéro WhatsApp.');
+                $message[] =  "Aucune correspondance avec le numéro ".$input;
             }
         }
 
