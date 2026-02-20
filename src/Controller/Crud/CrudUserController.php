@@ -168,6 +168,7 @@ class CrudUserController extends AbstractController
         $teladd1 = null;
         $teladd2 = null;
         $teladd3 = null;
+        $paysChoisies = [];
 
         // Process the form submission
         if ($request->isMethod('POST')) {
@@ -216,13 +217,13 @@ class CrudUserController extends AbstractController
                 $this->addFlash('success', 'User found.');
 
                 $user_array['user_info'] = $user;
+                
+                $paysChoisies = $user->getPreference()->getPaysChoisies();
             } else {
                 // Add a flash message if user is not found
                 $this->addFlash('danger', 'User not found.');
             }
         }
-
-        $paysChoisies = $user->getPreference()?->getPaysChoisies() ?? [];
 
         return $this->render('crud_user/check_user.html.twig', [
             'theme' => $this->theme,
