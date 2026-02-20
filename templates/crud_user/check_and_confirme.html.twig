@@ -1,0 +1,31 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Ckeck User And Confirm{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="h4 me-3 text-success">Ckeck User And Confirm</p></div>
+        <div class="col-6 text-end"><a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_index') }}">Back To List</a></div>
+    </div>
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="px-3 py-3 rounded text-white fs-5 bg-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <form action="{{ path('app_crud_user_check') }}" method="post" class="my-3 py-5 px-3 bg-success rounded">
+        <label for="identifier" class="text-white fs-6">Enter User Email | Phone Number | Pseudo | Uid | Id :</label>
+        <div class="input-group">
+            <input type="text" class="form-control form-control-lg my-2" id="identifier" name="identifier" autofocus required>
+            <button type="submit" class="btn btn-lg btn-white my-2">Ckeck User And Confirm</button>
+        </div>
+    </form>
+
+    {% if user_check %}
+        <hr>
+        <p class="fs-4 my-3">Message</p>
+        <p>{{message}}</p>
+    {% endif %}
+{% endblock %}

@@ -160,8 +160,8 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/check', name: 'app_crud_user_check', methods: ['GET', 'POST'])]
-    public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    #[Route('/check/{inputRequest?}', name: 'app_crud_user_check', methods: ['GET', 'POST'])]
+    public function check(?string $inputRequest, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         $user = null;
         $telcut = null;
@@ -170,8 +170,8 @@ class CrudUserController extends AbstractController
         $teladd3 = null;
 
         // Process the form submission
-        if ($request->isMethod('POST')) {
-            $input = $request->request->get('identifier');
+        if ($request->isMethod('POST') OR !empty($inputRequest)) {
+            $input = !empty($inputRequest) ? $inputRequest : $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("	", "", $input);
 
@@ -227,6 +227,95 @@ class CrudUserController extends AbstractController
             'users' => $userRepository->findAll(),
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'user_check' => $user ? $user_array : null,
+            'nbr_pays_preference' => count($user->getPreference()->getPaysChoisies()),
+            'pays_preference' => implode(", ", $user->getPreference()->getPaysChoisies()),
+        ]);
+    }
+
+    #[Route('/check-and-confirme', name: 'app_crud_user_check_and_confirme', methods: ['GET', 'POST'])]
+    public function check_and_confirme(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    {
+        $user = null;
+        $telcut = null;
+        $teladd1 = null;
+        $teladd2 = null;
+        $teladd3 = null;
+        $message = [];
+
+        // Process the form submission
+        if ($request->isMethod('POST')) {
+            $input = $request->request->get('identifier');
+            $input = str_replace(" ", "", $input);
+            $input = str_replace("	", "", $input);
+
+            if (strpos($input, '+225') === 0) {
+                // Vérifier s'il y a 10 caractères après +225
+                if (strlen(substr($input, 4)) == 10) {
+                    // Retirer les 2 caractères qui suivent +225
+                    $telcut = substr($input, 0, 4) . substr($input, 6);
+                } else {
+                    $teladd1 = str_replace("+225", "+22501", $input);
+                    $teladd2 = str_replace("+225", "+22505", $input);
+                    $teladd3 = str_replace("+225", "+22507", $input);
+                }
+            }
+
+            if (strpos($input, '+229') === 0) {
+                // Vérifier s'il y a 10 caractères après +229
+                if (strlen(substr($input, 4)) == 10) {
+                    // Retirer les 2 caractères qui suivent +229
+                    $telcut = substr($input, 0, 4) . substr($input, 6);
+                } else {
+                    $teladd1 = str_replace("+229", "+22901", $input);
+                }
+            }
+
+            $user = 
+                $userRepository->findOneBy(['pseudo' => $input]) ?? 
+                $userRepository->findOneBy(['mail' => $input]) ?? 
+                $userRepository->findOneBy(['uid' => $input]) ?? 
+                $userRepository->findOneBy(['id' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $input]) ?? 
+                $userRepository->findOneBy(['tel' => $telcut]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
+                $userRepository->findOneBy(['tel' => $teladd3])
+            ;
+
+            $user_array = [];
+
+            if($user) {
+                // Add a flash message to confirm deletion
+                $this->addFlash('success', 'User found.');
+
+                if(!$user->getMailIsVerified()) {
+                    $message[] = "Vous n'avez pas confirmer votre adresse mail.";
+                }
+                if(empty($user->getNom())) {
+                    $message[] = "Veuillez complété votre profil (au minimum nom et prenom ou nom d'entreprise).";
+                }
+
+                if($user->getMailIsVerified() and !empty($user->getNom())) {
+                    $user->setTelIsVerified(true);
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Numéro WhatsApp a été confirmé avec succès');
+                } else {
+                    $this->addFlash('danger', 'User not found.');
+                }
+
+                $user_array['user_info'] = $user;
+            } else {
+                // Add a flash message if user is not found
+                $this->addFlash('danger', 'Echac de confirmation du numéro WhatsApp.');
+            }
+        }
+
+        return $this->render('crud_user/check_and_confirme.html.twig', [
+            'theme' => $this->theme,
+            'users' => $userRepository->findAll(),
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'user_check' => $user ? $user_array : null,
+            'message' => implode("<br>", $message),
         ]);
     }
 
