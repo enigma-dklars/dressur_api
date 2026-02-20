@@ -304,7 +304,7 @@ class CrudUserController extends AbstractController
                         $entityManager->flush();
                         $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
                     } else {
-                        $this->addFlash('danger', 'User not found.');
+                        $this->addFlash('danger', 'Echec de confirmation du numéro fournis.');
                     }
                 } else {
                     $message[] = "Le numéro WhatsApp (".$user->getTel().") avais déja été confirmé.";
@@ -312,7 +312,8 @@ class CrudUserController extends AbstractController
 
                 $user_array['user_info'] = $user;
             } else {
-                $message[] =  "Aucune correspondance avec le numéro ".$input;
+                $this->addFlash('danger', 'User not found.');
+                $message[] =  "Aucune correspondance avec le ".$input;
             }
         }
 
