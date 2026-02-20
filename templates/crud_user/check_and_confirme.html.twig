@@ -23,9 +23,7 @@
         </div>
     </form>
 
-    {% if user_check %}
-        <hr>
-        <p class="fs-4 my-3">Message</p>
-        <p>{{ message|raw }}</p>
-    {% endif %}
+    <hr>
+    <p class="fs-4 my-3">Message</p>
+    <p>{{ message|raw }}</p>
 {% endblock %}
