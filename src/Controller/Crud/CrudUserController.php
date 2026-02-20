@@ -222,13 +222,15 @@ class CrudUserController extends AbstractController
             }
         }
 
+        $paysChoisies = $user->getPreference()?->getPaysChoisies() ?? [];
+
         return $this->render('crud_user/check_user.html.twig', [
             'theme' => $this->theme,
             'users' => $userRepository->findAll(),
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'user_check' => $user ? $user_array : null,
-            'nbr_pays_preference' => count($user->getPreference()->getPaysChoisies()),
-            'pays_preference' => implode(", ", $user->getPreference()->getPaysChoisies()),
+            'nbr_pays_preference' => count($paysChoisies),
+            'pays_preference' => implode(", ", $paysChoisies),
         ]);
     }
 
