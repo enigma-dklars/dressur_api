@@ -160,8 +160,8 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/check/{inputRequest?}', name: 'app_crud_user_check', methods: ['GET', 'POST'])]
-    public function check(?string $inputRequest, Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    #[Route('/check', name: 'app_crud_user_check', methods: ['GET', 'POST'])]
+    public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         $user = null;
         $telcut = null;
@@ -170,8 +170,8 @@ class CrudUserController extends AbstractController
         $teladd3 = null;
 
         // Process the form submission
-        if ($request->isMethod('POST') OR $inputRequest != null) {
-            $input = !empty($inputRequest) ? $inputRequest : $request->request->get('identifier');
+        if ($request->isMethod('POST')) {
+            $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("	", "", $input);
 
