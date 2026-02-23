@@ -289,7 +289,7 @@ class CrudUserController extends AbstractController
 
             if($user) {
                 // Add a flash message to confirm deletion
-                $this->addFlash('success', 'User found.');
+                $this->addFlash('info', 'User found.');
 
                 if(!$user->getMailIsVerified()) {
                     $message[] = "Vous n'avez pas confirmer votre adresse mail.";

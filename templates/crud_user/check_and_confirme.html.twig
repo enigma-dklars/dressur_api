@@ -11,7 +11,7 @@
     {# Display flash messages #}
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div class="px-3 py-3 rounded text-white fs-5 bg-{{ label }}">{{ message }}</div> <br>
+            <div class="px-3 py-3 rounded text-white bg-{{ label }}">{{ message }}</div> <br>
         {% endfor %}
     {% endfor %}
 
