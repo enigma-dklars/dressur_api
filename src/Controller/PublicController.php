@@ -88,6 +88,26 @@ class PublicController extends AbstractController
         ]);
     }
 
+    #[Route('/politique-confidentialite', name: 'politique_confidentialite')]
+    public function politiqueConfidentialite(): Response
+    {
+        return $this->render('public/politique_confidentialite.html.twig', [
+            'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/conditions-utilisation', name: 'app_conditions_utilisation')]
+    public function conditionsUtilisation(): Response
+    {
+        return $this->render('public/conditions_utilisation.html.twig', [
+            'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
     #[Route('/tarifs', name: 'app_tarifs')]
     public function tarifs(FormuleBoostRepository $formuleBoostRepository, FormuleCampagneMailRepository $formuleCampagneMailRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, FormulePromoReseauRepository $formulePromoReseauRepository): Response
     {
