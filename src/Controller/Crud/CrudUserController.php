@@ -403,7 +403,7 @@ class CrudUserController extends AbstractController
             if ($message == "") {
                 $user->setTelIsVerified(true);
                 $em->flush();
-                return new Response("Votre numéro WhatsApp a été confirmé avec succès.");
+                return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\nVous pouvez donc profiter pleinement des fonctionnalités de Dressur :\n\n* Boost Contact (ADD)\n* Promotion Affaire\n* Promotion Réseau Sociaux\n* Participé au programme des récompenses\n\n📢 *Suivez la chaîne sur WhatsApp* pour rester informé de toutes les nouveautés :  \nwhatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t\n\nNous restons disponibles pour toutes vos préoccupations.");
             }
             
             return new Response("$message\n\nVous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
