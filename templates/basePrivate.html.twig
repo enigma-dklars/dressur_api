@@ -171,5 +171,636 @@
     {% block script %}{% endblock %}
 
     <script src="/assets/js/custum-js.js"></script>
+
+    <script>
+        /**
+ * Script de gestion du formulaire de promotion affaire
+ * Compatible avec l'injection dynamique de HTML via jQuery .html()
+ * Utilise la délégation d'événements pour fonctionner avec du contenu injecté
+ * Version corrigée avec validation en temps réel
+ */
+
+(function($) {
+    'use strict';
+
+    // ==========================================
+    // CONFIGURATION ET VARIABLES GLOBALES
+    // ==========================================
+    const API_BASE_URL = window.API_BASE_URL || "https://dressur.site/api";
+    const LANG_USER = window.LANG_USER || 'fr';
+    const DRESSUR_STATUS_PRICE_PER_7_DAYS = 5000;
+    const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
+
+    /**
+     * Récupère l'UID de l'utilisateur depuis l'input caché
+     */
+    function getUID() {
+        const $uidInput = $('#uid');
+        if ($uidInput.length) {
+            return $uidInput.val() || '0000';
+        }
+        return window.UID_USER || '0000';
+    }
+
+    // Variables globales pour l'état du formulaire
+    let selectedImage = null;
+    let currentFormuleData = {
+        id: 0,
+        prix: 0,
+        jours: 0,
+        titre: ''
+    };
+
+    // ==========================================
+    // UTILITAIRES
+    // ==========================================
+    
+    /**
+     * Affiche une alerte Bootstrap
+     */
+    function showAlert(title, message, type = 'danger') {
+        const alertId = 'alert-' + Date.now();
+        const alertHTML = `
+            <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                <strong>${title}</strong><br>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        const $container = $('#alertContainer');
+        if ($container.length) {
+            $container.html(alertHTML);
+            
+            // Auto-close après 5 secondes
+            setTimeout(() => {
+                const $alert = $(`#${alertId}`);
+                if ($alert.length) {
+                    const bsAlert = new bootstrap.Alert($alert[0]);
+                    bsAlert.close();
+                }
+            }, 5000);
+        }
+    }
+
+    /**
+     * Formate un nombre en français
+     */
+    function formatNumber(num) {
+        return Math.round(num).toLocaleString('fr-FR');
+    }
+
+    /**
+     * Vérifie si une image est carrée
+     */
+    function isImageSquare(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const aspectRatio = img.width / img.height;
+                    resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // ==========================================
+    // SECTION PRODUITS/SERVICES - CALCULS
+    // ==========================================
+    
+    /**
+     * Calcule le montant du programme de récompense
+     */
+    function calculateRewardAmount() {
+        const $participateReward = $('#participateReward');
+        if (!$participateReward.length || !$participateReward.is(':checked')) {
+            return 0;
+        }
+
+        const $viewsGoal = $('#viewsGoal');
+        const viewsGoal = $viewsGoal.length ? parseInt($viewsGoal.val()) || 2500 : 2500;
+        const effectiveViews = viewsGoal < 2500 ? 2500 : viewsGoal;
+        
+        // Règle de 3 : 4000 vues = 2500 FCFA
+        const baseReward = (effectiveViews * 2500) / 4000;
+        // Ajout de 20% de commission plateforme
+        return baseReward * 1.2;
+    }
+
+    /**
+     * Calcule les frais du statut Dressur
+     */
+    function calculateDressurStatusAmount() {
+        const $publishStatus = $('#publishDressurStatus');
+        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.jours === 0) {
+            return 0;
+        }
+        
+        return (currentFormuleData.jours * DRESSUR_STATUS_PRICE_PER_7_DAYS) / 7;
+    }
+
+    /**
+     * Calcule la commission Fedapay
+     */
+    function calculateFedapayCommission(subTotal) {
+        if (subTotal === 0) return 0;
+        return (subTotal * 0.03) + 100;
+    }
+
+    /**
+     * Met à jour le récapitulatif des prix
+     */
+    function updatePricingSummary() {
+        const formulePrice = currentFormuleData.prix;
+        const rewardAmount = calculateRewardAmount();
+        const statusAmount = calculateDressurStatusAmount();
+        const subTotal = formulePrice + rewardAmount + statusAmount;
+        const fedapayCommission = calculateFedapayCommission(subTotal);
+        const total = subTotal + fedapayCommission;
+
+        // Mise à jour du DOM avec jQuery
+        $('#summaryFormulePrice').text(formatNumber(formulePrice) + ' F');
+        $('#summaryRewardPrice').text(formatNumber(rewardAmount) + ' F');
+        $('#summaryStatusPrice').text(formatNumber(statusAmount) + ' F');
+        $('#summarySubTotal').text(formatNumber(subTotal) + ' F');
+        $('#summaryFedapayCommission').text(formatNumber(fedapayCommission) + ' F');
+        $('#summaryTotal').text(formatNumber(total) + ' F');
+        $('#rewardAmount').text(formatNumber(rewardAmount));
+        $('#statusAmount').text(formatNumber(statusAmount));
+    }
+
+    // ==========================================
+    // VALIDATION EN TEMPS RÉEL
+    // ==========================================
+
+    /**
+     * Vérifie si le formulaire Produits/Services est valide
+     */
+    function isProduitServiceFormValid() {
+        const hasFormule = currentFormuleData.id && currentFormuleData.id !== 0;
+        const hasDescription = $('#descriptionPromo').length && $('#descriptionPromo').val().trim() !== '';
+        const hasImage = selectedImage !== null;
+        const hasPaymentMethod = $('#paymentMethod').length && $('#paymentMethod').val() !== '';
+        const hasPaymentNumber = $('#paymentNumber').length && $('#paymentNumber').val().trim() !== '';
+
+        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber;
+    }
+
+    /**
+     * Vérifie si le formulaire Demandes d'emploi est valide
+     */
+    function isDemandeEmploiFormValid() {
+        const hasTitle = $('#titreDemande').length && $('#titreDemande').val().trim() !== '';
+        const hasDescription = $('#descriptionProfil').length && $('#descriptionProfil').val().trim() !== '';
+        const hasCompetences = $('#competences').length && $('#competences').val().trim() !== '';
+        const hasExperience = $('#niveauExperience').length && $('#niveauExperience').val().trim() !== '';
+        const hasSector = $('#secteurActivite').length && $('#secteurActivite').val().trim() !== '';
+        const hasContractType = $('#typeContrat').length && $('#typeContrat').val().trim() !== '';
+        const hasLocation = $('#localisationSouhaite').length && $('#localisationSouhaite').val().trim() !== '';
+        const hasSalary = $('#salaireSouhaite').length && $('#salaireSouhaite').val().trim() !== '';
+        const hasLanguages = $('#languesParle').length && $('#languesParle').val().trim() !== '';
+        const hasPortfolio = $('#lienPortfolio').length && $('#lienPortfolio').val().trim() !== '';
+        const hasCoordinates = $('#coordonneesDemandeur').length && $('#coordonneesDemandeur').val().trim() !== '';
+
+        return hasTitle && hasDescription && hasCompetences && hasExperience && hasSector && 
+               hasContractType && hasLocation && hasSalary && hasLanguages && hasPortfolio && hasCoordinates;
+    }
+
+    /**
+     * Vérifie si le formulaire Offres d'emploi est valide
+     */
+    function isOffreEmploiFormValid() {
+        const hasTitle = $('#titrePoste').length && $('#titrePoste').val().trim() !== '';
+        const hasDescription = $('#descriptionPoste').length && $('#descriptionPoste').val().trim() !== '';
+        const hasSkills = $('#competencesRequises').length && $('#competencesRequises').val().trim() !== '';
+        const hasContractType = $('#typeContratOffre').length && $('#typeContratOffre').val().trim() !== '';
+        const hasLocation = $('#lieuTravail').length && $('#lieuTravail').val().trim() !== '';
+        const hasSalary = $('#salaireOffre').length && $('#salaireOffre').val().trim() !== '';
+        const hasExperience = $('#niveauExperienceOffre').length && $('#niveauExperienceOffre').val().trim() !== '';
+        const hasSchedule = $('#horaireTravail').length && $('#horaireTravail').val().trim() !== '';
+        const hasBenefits = $('#avantages').length && $('#avantages').val().trim() !== '';
+        const hasDuration = $('#dureeContrat').length && $('#dureeContrat').val().trim() !== '';
+        const hasContact = $('#contactEmployeur').length && $('#contactEmployeur').val().trim() !== '';
+        const hasDeadline = $('#dateLimiteCandidature').length && $('#dateLimiteCandidature').val().trim() !== '';
+
+        return hasTitle && hasDescription && hasSkills && hasContractType && hasLocation && 
+               hasSalary && hasExperience && hasSchedule && hasBenefits && hasDuration && 
+               hasContact && hasDeadline;
+    }
+
+    /**
+     * Met à jour l'état des boutons de soumission
+     */
+    function updateSubmitButtonsState() {
+        // Vérifier le formulaire Produits/Services
+        const isProduitValid = isProduitServiceFormValid();
+        $('#submitProduitService').prop('disabled', !isProduitValid);
+
+        // Vérifier le formulaire Demandes d'emploi
+        const isDemandeValid = isDemandeEmploiFormValid();
+        $('#submitDemande').prop('disabled', !isDemandeValid);
+
+        // Vérifier le formulaire Offres d'emploi
+        const isOffreValid = isOffreEmploiFormValid();
+        $('#submitOffre').prop('disabled', !isOffreValid);
+    }
+
+    // ==========================================
+    // GESTION DU TYPE DE PROMOTION
+    // ==========================================
+    
+    $(document).on('change', '#typePromoAffaire', function() {
+        const type = $(this).val();
+        $('#produitServiceSection').toggle(type === 'produit_service');
+        $('#demandeEmploiSection').toggle(type === 'dmd_emploi');
+        $('#offreEmploiSection').toggle(type === 'offre_emploi');
+        
+        // Mettre à jour l'état des boutons
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // GESTION DES FORMULES (PRODUITS/SERVICES)
+    // ==========================================
+    
+    $(document).on('change', '#formulePromoPageNewAffaire', function() {
+        const $selected = $(this).find('option:selected');
+        const prix = parseInt($selected.data('prix')) || 0;
+        const jours = parseInt($selected.data('jours')) || 0;
+        const titre = $selected.data('titre') || '';
+
+        currentFormuleData = {
+            id: $(this).val(),
+            prix: prix,
+            jours: jours,
+            titre: titre
+        };
+
+        const message = `Formule de ${jours} jour(s) pour ${formatNumber(prix)} FCFA.`;
+        $('#formuleMessage').text(message);
+        
+        // Activer le bouton d'upload d'image
+        $('#imageUploadBtn').prop('disabled', false);
+        
+        updatePricingSummary();
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // GESTION DE L'IMAGE
+    // ==========================================
+    
+    $(document).on('click', '#imageUploadBtn', function() {
+        $('#imageUpload').click();
+    });
+
+    $(document).on('change', '#imageUpload', async function() {
+        const file = this.files[0];
+        if (!file) return;
+
+        // Vérifier la taille
+        if (file.size > MAX_IMAGE_SIZE) {
+            showAlert('Attention !!!', 'L\'image ne peut pas dépasser 1 Mo.', 'warning');
+            return;
+        }
+
+        // Vérifier le format carré
+        const isSquare = await isImageSquare(file);
+        if (!isSquare) {
+            showAlert('Attention !!!', 'L\'image doit être proche d\'un carré.', 'warning');
+            return;
+        }
+
+        selectedImage = file;
+
+        // Afficher l'aperçu
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            $('#imagePreview').html(`<img src="${e.target.result}" alt="Aperçu">`);
+        };
+        reader.readAsDataURL(file);
+
+        // Mettre à jour l'état du bouton
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // PROGRAMME DE RÉCOMPENSE
+    // ==========================================
+    
+    $(document).on('change', '#participateReward', function() {
+        $('#rewardSection').toggle(this.checked);
+        updatePricingSummary();
+    });
+
+    $(document).on('input', '#viewsGoal', function() {
+        updatePricingSummary();
+    });
+
+    // ==========================================
+    // STATUT DRESSUR
+    // ==========================================
+    
+    $(document).on('change', '#publishDressurStatus', function() {
+        $('#statusSection').toggle(this.checked);
+        updatePricingSummary();
+    });
+
+    // ==========================================
+    // SURVEILLANCE EN TEMPS RÉEL - PRODUITS/SERVICES
+    // ==========================================
+
+    $(document).on('input change', '#descriptionPromo, #paymentNumber', function() {
+        updateSubmitButtonsState();
+    });
+
+    $(document).on('change', '#paymentMethod', function() {
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // SURVEILLANCE EN TEMPS RÉEL - DEMANDES D'EMPLOI
+    // ==========================================
+
+    $(document).on('input change', '#titreDemande, #descriptionProfil, #competences, #niveauExperience, ' +
+        '#secteurActivite, #typeContrat, #localisationSouhaite, #salaireSouhaite, #languesParle, ' +
+        '#lienPortfolio, #coordonneesDemandeur', function() {
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // SURVEILLANCE EN TEMPS RÉEL - OFFRES D'EMPLOI
+    // ==========================================
+
+    $(document).on('input change', '#titrePoste, #descriptionPoste, #competencesRequises, #typeContratOffre, ' +
+        '#lieuTravail, #salaireOffre, #niveauExperienceOffre, #horaireTravail, #avantages, #dureeContrat, ' +
+        '#contactEmployeur, #dateLimiteCandidature, #lienInformation', function() {
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // VALIDATION ET SOUMISSION - PRODUITS/SERVICES
+    // ==========================================
+    
+    function validateProduitServiceForm() {
+        const errors = [];
+
+        if (!currentFormuleData.id) {
+            errors.push('Veuillez choisir une formule.');
+        }
+        if (!$('#descriptionPromo').val().trim()) {
+            errors.push('Veuillez entrer une description.');
+        }
+        if (!selectedImage) {
+            errors.push('Veuillez sélectionner une image.');
+        }
+        if (!$('#paymentMethod').val()) {
+            errors.push('Veuillez choisir un moyen de paiement.');
+        }
+        if (!$('#paymentNumber').val().trim()) {
+            errors.push('Veuillez entrer un numéro de paiement.');
+        }
+
+        return errors;
+    }
+
+    $(document).on('submit', '#produitServiceForm', async function(e) {
+        e.preventDefault();
+
+        const errors = validateProduitServiceForm();
+        if (errors.length > 0) {
+            showAlert('Attention !!!', errors.join('<br>'), 'warning');
+            return;
+        }
+
+        // Désactiver le bouton et afficher le spinner
+        const $submitBtn = $('#submitProduitService');
+        $submitBtn.prop('disabled', true);
+        $('#submitSpinner').show();
+        $('#submitText').text('Traitement en cours...');
+
+        try {
+            const formData = new FormData();
+            formData.append('langUserPhone', "fr");
+            formData.append('idFormulePromoAffaire', currentFormuleData.id);
+            formData.append('text', $('#descriptionPromo').val());
+            formData.append('uid', getUID());
+            formData.append('image', selectedImage);
+            formData.append('paymentMethod', $('#paymentMethod').val());
+            formData.append('tel', $('#paymentNumber').val());
+            formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
+            formData.append('totalViewsGoal', $('#viewsGoal').val());
+            formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+
+            const response = await fetch(`${API_BASE_URL}/addProduitService`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && !data.error) {
+                showAlert('Succès', 'Votre promotion a été enregistrée avec succès. Elle sera publiée après paiement et accord d\'un administrateur.', 'success');
+                
+                // Réinitialiser le formulaire
+                $('#produitServiceForm')[0].reset();
+                $('#imagePreview').html('');
+                selectedImage = null;
+                currentFormuleData = { id: 0, prix: 0, jours: 0, titre: '' };
+                updatePricingSummary();
+                updateSubmitButtonsState();
+            } else {
+                showAlert(data.titre || 'Erreur', data.message || 'Une erreur est survenue.', 'danger');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showAlert('Erreur', 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.', 'danger');
+        } finally {
+            $submitBtn.prop('disabled', false);
+            $('#submitSpinner').hide();
+            $('#submitText').text('VALIDER ET PAYER');
+            updateSubmitButtonsState();
+        }
+    });
+
+    // ==========================================
+    // VALIDATION ET SOUMISSION - DEMANDES D'EMPLOI
+    // ==========================================
+    
+    $(document).on('submit', '#demandeEmploiForm', async function(e) {
+        e.preventDefault();
+
+        const $submitBtn = $('#submitDemande');
+        $submitBtn.prop('disabled', true);
+        $('#submitDemandeSpinner').show();
+        $('#submitDemandeText').text('Traitement en cours...');
+
+        try {
+            const formData = new FormData();
+            formData.append('uid', getUID());
+            formData.append('langUserPhone', "fr");
+            formData.append('titre_demande_poste_rechercher', $('#titreDemande').val());
+            formData.append('description_profil_demandeur', $('#descriptionProfil').val());
+            formData.append('competence_qualification', $('#competences').val());
+            formData.append('niveau_experience', $('#niveauExperience').val());
+            formData.append('secteur_activite_rechercher', $('#secteurActivite').val());
+            formData.append('type_contrat_rechercher', $('#typeContrat').val());
+            formData.append('localisation_souhaite', $('#localisationSouhaite').val());
+            formData.append('salaire_souhaite', $('#salaireSouhaite').val());
+            formData.append('langues_parle', $('#languesParle').val());
+            formData.append('lien_portfolio', $('#lienPortfolio').val());
+            formData.append('coordonne_demandeur', $('#coordonneesDemandeur').val());
+
+            const response = await fetch(`${API_BASE_URL}/newDmdEmploi`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && !data.error) {
+                showAlert('Succès', 'Votre demande d\'emploi a été enregistrée et sera publiée après accord d\'un administrateur.', 'success');
+                $('#demandeEmploiForm')[0].reset();
+                updateSubmitButtonsState();
+            } else {
+                showAlert(data.titre || 'Erreur', data.message || 'Une erreur est survenue.', 'danger');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showAlert('Erreur', 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.', 'danger');
+        } finally {
+            $submitBtn.prop('disabled', false);
+            $('#submitDemandeSpinner').hide();
+            $('#submitDemandeText').text('ENREGISTRER');
+            updateSubmitButtonsState();
+        }
+    });
+
+    // ==========================================
+    // VALIDATION ET SOUMISSION - OFFRES D'EMPLOI
+    // ==========================================
+    
+    $(document).on('submit', '#offreEmploiForm', async function(e) {
+        e.preventDefault();
+
+        const $submitBtn = $('#submitOffre');
+        $submitBtn.prop('disabled', true);
+        $('#submitOffreSpinner').show();
+        $('#submitOffreText').text('Traitement en cours...');
+
+        try {
+            const formData = new FormData();
+            formData.append('uid', getUID());
+            formData.append('langUserPhone', "fr");
+            formData.append('titre_poste', $('#titrePoste').val());
+            formData.append('description_poste', $('#descriptionPoste').val());
+            formData.append('competences_requises', $('#competencesRequises').val());
+            formData.append('type_contrat', $('#typeContratOffre').val());
+            formData.append('lieu_travail', $('#lieuTravail').val());
+            formData.append('salaire', $('#salaireOffre').val());
+            formData.append('niveau_experience', $('#niveauExperienceOffre').val());
+            formData.append('horaire_travail', $('#horaireTravail').val());
+            formData.append('avantages', $('#avantages').val());
+            formData.append('dure_contrat_not_cdi', $('#dureeContrat').val());
+            formData.append('contact_emploiyeur', $('#contactEmployeur').val());
+            formData.append('date_limite_candidature', $('#dateLimiteCandidature').val());
+            formData.append('lien_information_otionel', $('#lienInformation').val());
+
+            const response = await fetch(`${API_BASE_URL}/newOffreEmploi`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && !data.error) {
+                showAlert('Succès', 'Votre offre d\'emploi a été enregistrée et sera publiée après accord d\'un administrateur.', 'success');
+                $('#offreEmploiForm')[0].reset();
+                updateSubmitButtonsState();
+            } else {
+                showAlert(data.titre || 'Erreur', data.message || 'Une erreur est survenue.', 'danger');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showAlert('Erreur', 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.', 'danger');
+        } finally {
+            $submitBtn.prop('disabled', false);
+            $('#submitOffreSpinner').hide();
+            $('#submitOffreText').text('ENREGISTRER');
+            updateSubmitButtonsState();
+        }
+    });
+
+    // ==========================================
+    // INITIALISATION AU CHARGEMENT DU DOM
+    // ==========================================
+    
+    $(document).ready(function() {
+        // Désactiver les boutons au démarrage
+        $('#imageUploadBtn').prop('disabled', true);
+        $('#submitProduitService').prop('disabled', true);
+        $('#submitDemande').prop('disabled', true);
+        $('#submitOffre').prop('disabled', true);
+
+        // Masquer les sections par défaut
+        $('#rewardSection').hide();
+        $('#statusSection').hide();
+        $('#demandeEmploiSection').hide();
+        $('#offreEmploiSection').hide();
+
+        // Initialiser l'état des boutons
+        updateSubmitButtonsState();
+    });
+
+    // ==========================================
+    // FONCTION PUBLIQUE POUR RÉINITIALISER
+    // ==========================================
+    
+    /**
+     * Réinitialise le formulaire et l'état global
+     * Utile si le formulaire est réinjecté dynamiquement
+     */
+    window.resetPromotionForm = function() {
+        selectedImage = null;
+        currentFormuleData = {
+            id: 0,
+            prix: 0,
+            jours: 0,
+            titre: ''
+        };
+        
+        $('#produitServiceForm')[0].reset();
+        $('#demandeEmploiForm')[0].reset();
+        $('#offreEmploiForm')[0].reset();
+        
+        $('#imagePreview').html('');
+        $('#formuleMessage').text('');
+        
+        updatePricingSummary();
+        updateSubmitButtonsState();
+        
+        $('#imageUploadBtn').prop('disabled', true);
+        $('#submitProduitService').prop('disabled', true);
+        $('#submitDemande').prop('disabled', true);
+        $('#submitOffre').prop('disabled', true);
+    };
+
+    /**
+     * Fonction pour mettre à jour les variables globales
+     * Utile si les données utilisateur changent
+     */
+    window.updatePromotionFormConfig = function(config) {
+        if (config.apiBaseUrl) window.API_BASE_URL = config.apiBaseUrl;
+        if (config.uidUser) window.UID_USER = config.uidUser;
+        if (config.langUser) window.LANG_USER = config.langUser;
+    };
+
+})(jQuery);
+
+
+    </script>
 </body>
 </html>

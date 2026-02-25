@@ -320,7 +320,7 @@ class PrivateController extends AbstractController
         $sessionDS->set("langUserPhone", "fr");
         $html = $this->renderView('private/newpromoaffaire.html.twig', [
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
-            'formuleBoosts' => $formulePromoAffaireRepository->findAll(),
+            'formuleBoosts' => $formulePromoAffaireRepository->findBy(['activated' => true]),
             'user' => $traitementsDS->infosUser($user),
         ]);
 
