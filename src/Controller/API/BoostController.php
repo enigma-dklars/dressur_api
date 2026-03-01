@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
+use App\Repository\DeletedDSRepository;
 use App\Repository\MethodePaiementRepository;
 use App\Repository\PromotionRepository;
 use App\Utilities\SendMail;
@@ -56,7 +57,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoost', name: 'newBoost', methods: ['POST'])]
-    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository): Response
     {
         $datas = $request->request;
         
@@ -95,7 +96,18 @@ class BoostController extends AbstractController
         $error = false;
         $lastBoostContact = $boostRepository->findOneBy(['user' => $user], ['id' => 'DESC']);
         
-        if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) { 
+        if (
+            count($boostRepository->findBy(['user' => $user])) === 0
+            &&
+            (
+                count($deletedDSRepository->findBy(['tel' => $user->getTel()])) >= 1
+                ||
+                count($deletedDSRepository->findBy(['mail' => $user->getMail()])) >= 1
+            )
+        ) {
+            $error = true;
+            $message = ($langUserPhone == 'fr') ? "Ce numéro de téléphone ou cette adresse e-mail a déjà été associé(e) à un compte supprimé. Pour continuer, vous devez obligatoirement activer un Boost Contact Payant d’un montant minimum de 500 F." : "This phone number or email address was previously linked to a deleted account. To proceed, you are required to activate a paid Boost Contact with a minimum amount of 500 F.";
+        } else if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
             $error = true;
             $message = ($langUserPhone == 'fr') ? "Vous avez déjà un Boost Contact en cours. Il n'est pas possible de programmer un Boost Contact Gratuit." : "You already have a Contact Boost active. It is not possible to schedule another Free Contact Boost.";
         } else if(!$lastBoostContact) {
@@ -132,7 +144,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoostPayant', name: 'newBoostPayant', methods: ['POST'])]
-    public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
+    public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository, DeletedDSRepository $deletedDSRepository): Response
     {
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
@@ -191,6 +203,20 @@ class BoostController extends AbstractController
                 'titre' => 'Erreur!',
                 'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
+        }
+
+        if (
+            count($boostRepository->findBy(['user' => $user])) === 0
+            &&
+            (
+                count($deletedDSRepository->findBy(['tel' => $user->getTel()])) >= 1
+                ||
+                count($deletedDSRepository->findBy(['mail' => $user->getMail()])) >= 1
+            )
+        ) {
+            if($formulBoost->getPrix() < 500) {
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => ($langUserPhone == 'fr') ? "Ce numéro de téléphone ou cette adresse e-mail a déjà été associé(e) à un compte supprimé. Pour continuer, vous devez obligatoirement activer un Boost Contact Payant d’un montant minimum de 500 F." : "This phone number or email address was previously linked to a deleted account. To proceed, you are required to activate a paid Boost Contact with a minimum amount of 500 F."]);
+            }
         }
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
