@@ -27,10 +27,8 @@ use App\Entity\Suggestion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\DSBonusHistoriqueRepository;
-use App\Repository\FormulePromoReseauRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
-use App\Repository\SuggestionRepository;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
@@ -74,7 +72,7 @@ class UserController extends AbstractController
             $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
 
             // mise en place de l'env
-            $this->em->persist((new Env())->setCommissionBonus(5000)->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([])->setDoBoostPayant(false)->setLinkLocalServer("PAS_ENCORE_DE_LINK"));
+            $this->em->persist((new Env())->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([]));
 
             // creation des utilisateures important
             if(count($userRepository->findAll()) == 0) {
@@ -688,223 +686,6 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/addParrain', name: 'addParrain', methods: ['POST'])]
-    public function addParrain(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
-    {
-        $datas = $request->request;
-
-        $codeBonus = str_replace(" ", "", $datas->get('codeBonus'));
-        
-        $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $uid = $datas->get('uid');
-
-        if(!$codeBonus){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please enter referral code.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez saisir le code de parrainage.",
-            ]);
-        }
-
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
-            ]);
-        }
-        $user = $verificationUser["user"];
-
-        if(in_array($user->getTel(), $this->env->getUsersParrainer())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Fraudster!',
-                    'message' => "Fraud attempt failed. This number has already been sponsored once.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Fraudeur!',
-                'message' => "Tentative de fraude échoué. Ce numéro a déjà été parrainé une fois.",
-            ]);
-        }
-
-        if(in_array($user->getMail(), $this->env->getUsersParrainer())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Fraudster!',
-                    'message' => "Fraud attempt failed. This email address has already been sponsored once.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Fraudeur!',
-                'message' => "Tentative de fraude échoué. Cette adresse mail a déjà été parrainé une fois.",
-            ]);
-        }
-
-        if($user->getParrain()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "You already have a sponsor.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Vous avez déja un parrain.",
-            ]);
-        }
-
-        if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => "Please confirm your WhatsApp number first.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Veuillez d'abord confirmer votre numéro WhatsApp.",
-            ]);
-        }
-
-        if(!$user->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => "Please confirm your email address first.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Veuillez d'abord confirmer votre adresse Mail.",
-            ]);
-        }
-
-        $userCodeBonus = $userRepository->findOneBy(['codeBonus' => $codeBonus]);
-        if(!$userCodeBonus){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "The code you entered is not a Dressur referral code. Please double check the referral code with your sponsor and ask them to direct you.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Le code saisi n'est pas un code de parrainage Dressur. Vérifiez bien le code parrainage auprès de votre parrain et demandez-lui de vous orienter.",
-            ]);
-        }
-
-        if($user->getUid() == $userCodeBonus->getUid()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "You cannot self-sponsor.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Oups!',
-                'message' => "Vous ne pouvez pas vous auto-parrainer.",
-            ]);
-        }
-
-        if(!$userCodeBonus->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => "Your sponsor must first confirm his WhatsApp number.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Votre parrain doit d'abord confirmer son numéro WhatsApp.",
-            ]);
-        }
-
-        if(!$userCodeBonus->getMailIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => "Your sponsor must first confirm their email address.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Votre parrain doit d'abord confirmer son adresse Mail.",
-            ]);
-        }
-
-        $DSBH = new DSBonusHistorique();
-        if($user->getLang() == "fr") {
-            $DSBH->setTitre("Parrainer par ".$userCodeBonus->getTel());
-        } else {
-            $DSBH->setTitre("Sponsor by ".$userCodeBonus->getTel());
-        }
-        $DSBH->setUser($user)->setMontant($this->env->getCommissionBonus());
-        $this->em->persist($DSBH);
-
-        $DSBHParrain = new DSBonusHistorique();
-        if($userCodeBonus->getLang() == "fr") {
-            $DSBHParrain->setTitre("+1 filleul ".$user->getTel());
-        } else {
-            $DSBHParrain->setTitre("+1 referral ".$user->getTel());
-        }
-        $DSBHParrain->setUser($userCodeBonus)->setMontant($this->env->getCommissionBonus());
-        $this->em->persist($DSBHParrain);
-
-        $user->setParrain($userCodeBonus)->addSoldeBonus($this->env->getCommissionBonus());
-        $userCodeBonus->addSoldeBonus($this->env->getCommissionBonus());
-        
-        $this->env->addUsersParrainer($user->getTel());
-        $this->env->addUsersParrainer($user->getMail());
-
-        $this->em->flush();
-
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => false,
-                'soldeBonus' => $user->getSoldeBonus(),
-                'message' => "Congratulations!\nYou have been sponsored!\nYou have received ".$this->env->getCommissionBonus(). " Bonus Points!",
-                'user' => $this->traitementsDS->infosUser($user),
-            ]);
-        }
-        return new JsonResponse([
-            'error' => false,
-            'soldeBonus' => $user->getSoldeBonus(),
-            'message' => "Félicitations!\nVous étes parrainer!\nVous avez reçu ".$this->env->getCommissionBonus(). " Points Bonus!",
-            'user' => $this->traitementsDS->infosUser($user),
-        ]);
-    }
-
     #[Route('/addBonusPromo', name: 'addBonusPromo', methods: ['POST'])]
     public function addBonusPromo(Request $request, UserRepository $userRepository, DSBonusRepository $wPBonusRepository, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
@@ -1459,19 +1240,9 @@ class UserController extends AbstractController
         if(in_array($tel, $this->env->getUsersTel())) { 
             $user->setSoldeBonus(0);
         } else { 
-            $user->setSoldeBonus($this->env->getCommissionBonus());
             $this->env->addUsersTel($tel);
         }
         $this->em->persist($user);
-
-        $DSBH = new DSBonusHistorique();
-        if($user->getLang() == "fr") {
-            $DSBH->setTitre("Bonus de Bienvenu");
-        } else {
-            $DSBH->setTitre("Welcome Bonus");
-        }
-        $DSBH->setUser($user)->setMontant($this->env->getCommissionBonus());
-        $this->em->persist($DSBH);
 
         $preference = new Preference();
         $preference->setUser($user)
@@ -1505,12 +1276,6 @@ class UserController extends AbstractController
         $userAfterRegister = $userRepository->findOneBy(["mail" => $mail]);
 
         if ($userAfterRegister) {
-            try {
-                $response_add_taff = file_get_contents($this->env->getLinkLocalServer()."/add_taff");
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
-
             $sendMail->smtpMail(
                 $userAfterRegister->getMail(), 
                 "Bienvenu sur Dressur", 

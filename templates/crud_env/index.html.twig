@@ -12,13 +12,10 @@
                 <tr>
                     <th></th>
                     <th>Id</th>
-                    <th>Com. Bonus</th>
                     <th>V. App</th>
                     <th>ImportantUpdate</th>
                     <th>V. DS BOT</th>
                     <th>UsersTel</th>
-                    <th>DoBoostPayant</th>
-                    <th>LinkLocalServer</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,14 +25,11 @@
                         {% include "crud_env/_delete_form.html.twig" %}
                     </td>
                     <td>{{ env.id }}</td>
-                    <td>{{ env.commissionBonus }}</td>
                     <td>{{ env.versionApp }}</td>
                     <td>{{ env.importantUpdate ? 'Yes' : 'No' }}</td>
                     <td>{{ env.versionDressurBot }}</td>
                     {# <td>{{ env.usersTel ? env.usersTel|json_encode : '' }}</td> #}
                     <td>{{env.usersTel|length}}</td>
-                    <td>{{ env.doBoostPayant ? 'Yes' : 'No' }}</td>
-                    <td>{{ env.linkLocalServer }}</td>
                 </tr>
             {% else %}
                 <tr>

@@ -182,13 +182,6 @@ class BoostController extends AbstractController
             ]);
         }
 
-        if(!$this->env->getDoBoostPayant()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Paid boosts are temporarily unavailable. Do a free boost instead."]);
-            }
-            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Les boosts payants sont momentanément indisponibles. Faite plutôt un boost gratuit."]);
-        }
-
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
             if($sessionDS->get("langUserPhone") != "fr") {

@@ -391,7 +391,7 @@ class PrivateController extends AbstractController
         $html = $this->renderView('private/partagerDressur.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'codeParrainage' => $user->getCodeBonus(), 
-            'commission' => $this->env->getCommissionBonus(), 
+            'commission' => "0", 
         ]);
 
         return new JsonResponse([

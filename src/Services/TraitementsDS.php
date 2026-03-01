@@ -1012,7 +1012,7 @@ class TraitementsDS extends AbstractController
             "admin" => $user->getAdmin() ? true : false,
             "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],
             "messageErreurPermissionAdd" => ($this->verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
-            "commissionBonus" => $this->env->getCommissionBonus(),
+            "commissionBonus" => "0",
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
             'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
