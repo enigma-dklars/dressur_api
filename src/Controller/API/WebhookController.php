@@ -97,7 +97,7 @@ class WebhookController extends AbstractController
                     }
 
                     if($myTransaction){
-                        if($myTransaction->getStatus() == "pending") {
+                        if(in_array($myTransaction->getStatus(), ["pending", "canceled"])) {
                             $this->em->beginTransaction();
                             
                             $transaction = Transaction::retrieve($idTransaction);
