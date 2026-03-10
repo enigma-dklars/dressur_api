@@ -44,6 +44,9 @@ class HistoriqueProgrammeRecompense
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $expiredAt = null;
+
     public function __construct()
     {
         $this->nbrVue = 0;
@@ -196,6 +199,18 @@ class HistoriqueProgrammeRecompense
     public function estPartager(): static
     {
         $this->nbrPartage++;
+
+        return $this;
+    }
+
+    public function getExpiredAt(): ?\DateTimeInterface
+    {
+        return $this->expiredAt;
+    }
+
+    public function setExpiredAt(?\DateTimeInterface $expiredAt): static
+    {
+        $this->expiredAt = $expiredAt;
 
         return $this;
     }

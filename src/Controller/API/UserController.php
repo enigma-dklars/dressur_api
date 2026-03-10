@@ -1518,6 +1518,21 @@ class UserController extends AbstractController
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $promoAffaire = $promotionRepository->findOneBy(['id' => $idPromoAffaire]);
+
+            $lastAppreouvedForThisPromotion = $historiqueProgrammeRecompenseRepository->findOneBy(
+                ['promotion' => $promoAffaire, 'status' => 'approuver', 'user' => $user], 
+                ['id' => 'DESC']
+            );
+            if($lastAppreouvedForThisPromotion) {
+                if((new DateTime()) < $lastAppreouvedForThisPromotion->getExpiredAt()) {
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => "Oups !!!",
+                        'message' => "Vous ne pouvez pas partager cette promotion pour le moment, car votre précédente participation a déjà été approuvée.",
+                    ]);
+                }
+            }
+
             $oldProgRecomp = $historiqueProgrammeRecompenseRepository->findOneBy([
                 'user' => $user, 
                 'promotion' => $promoAffaire,

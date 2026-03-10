@@ -688,19 +688,8 @@ class TraitementsDS extends AbstractController
         foreach ($promos as $promo) {
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                    // if($promo->getIsFakeVue() == true) {
-                    //     $promo->setToWatch($user, "fakeVue");
-                    // } else {
-                    //     $promo->setToWatch($user, "all");
-                    // }
 
                     $descp_promo = $promo->getDescription();
-                    if($promo->getTypePromotionAffaire() == "offre_emploi") {
-                        $descp_promo = $promo->getAnnotherInfo()["description_poste"];
-                    }
-                    if($promo->getTypePromotionAffaire() == "dmd_emploi") {
-                        $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
-                    }
 
                     $unePromo = [
                         "uidUser" => $promo->getUser()->getUid(),
@@ -723,19 +712,8 @@ class TraitementsDS extends AbstractController
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
                     if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                        // if($promo->getIsFakeVue() == true) {
-                        //     $promo->setToWatch($user, "fakeVue");
-                        // } else {
-                        //     $promo->setToWatch($user, "all");
-                        // }
 
                         $descp_promo = $promo->getDescription();
-                        if($promo->getTypePromotionAffaire() == "offre_emploi") {
-                            $descp_promo = $promo->getAnnotherInfo()["description_poste"];
-                        }
-                        if($promo->getTypePromotionAffaire() == "dmd_emploi") {
-                            $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
-                        }
 
                         $unePromo = [
                             "uidUser" => $promo->getUser()->getUid(),
@@ -750,7 +728,27 @@ class TraitementsDS extends AbstractController
                             "annotherInfo" => $promo->getAnnotherInfo(),
                             "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                         ];
-                        array_push($listePubliciteAffichageAuxUsers, $unePromo);
+
+                        /**
+                         * ici je recherche dans l'historique, la derniere occurence pour la promotion de l'itération
+                         * dont le statut est approuver 
+                         * pour l'utilisateur connecter
+                         * 
+                         * si on a pas de resultat, on affiche la promotion dans la liste des programme de recempense pour l'utilisateur
+                         * si on a un resultat, on affiche la promotion dans la liste des promotions du programme a condition que la date actuel
+                         * dépasse la date d'expiration de l'historique approuver
+                         */
+                        $lastAppreouvedForThisPromotion = $this->historiqueProgrammeRecompenseRepository->findOneBy(
+                            ['promotion' => $promo, 'status' => 'approuver', 'user' => $user], 
+                            ['id' => 'DESC']
+                        );
+                        if($lastAppreouvedForThisPromotion) {
+                            if((new DateTime()) > $lastAppreouvedForThisPromotion->getExpiredAt()) {
+                                array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                            }
+                        } else {
+                            array_push($listePubliciteAffichageAuxUsers, $unePromo);
+                        }
                     } else {
                         $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                         $this->finishParticipationProgrammeRecompense($promo);
@@ -759,29 +757,6 @@ class TraitementsDS extends AbstractController
             }
         }
 
-        foreach ($this->promotionRepository->findBy(["limited" => false, "inProgrammeRecompense" => true], ['id' => 'DESC']) as $promoVIP) {
-            $descp_promo = $promo->getDescription();
-            if($promo->getTypePromotionAffaire() == "offre_emploi") {
-                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
-            }
-            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
-                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
-            }
-
-            array_push($listePubliciteAffichageAuxUsers, [
-                "uidUser" => $promo->getUser()->getUid(),
-                "id" => $promoVIP->getId(),
-                "image" => $promoVIP->getImage(),
-                "description" => $descp_promo,
-                "whatsappNumber" => $promoVIP->getUser()->getTel(),
-                "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
-                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
-                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
-                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
-                "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
-            ]);
-        }
         $this->em->flush();
         return $listePubliciteAffichageAuxUsers;
     }

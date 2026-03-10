@@ -172,6 +172,9 @@ class PreuveController extends AbstractController
             return $this->redirectToRoute('app_preuve_index');
         }
 
+        // definir la date d'expiration de la promotion en cours qui accompagne la validation de cette preuve pour lhistorique
+        $historique->setExpiredAt($historique->getPromotion()->getDateExp());
+
         // 💾 On sauvegarde la valeur validée
         $historique->setNbrVue($nbrVue);
 
