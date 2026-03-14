@@ -49,12 +49,13 @@ class UserBotType extends AbstractType
             ])
 
             ->add('createdAt', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
             ])
-
             ->add('expiratedAt', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],

@@ -12,8 +12,18 @@ class BoostType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('dateDebut')
-            ->add('dateExp')
+            ->add('dateDebut', null, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('dateExp', null, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
             ->add('mode')
             ->add('formuleBoost')
             ->add('user')

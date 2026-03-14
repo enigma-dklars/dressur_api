@@ -59,12 +59,13 @@ class PromoReseauType extends AbstractType
                 ],
             ])
             ->add('createdAt', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
             ])
             ->add('updatedAt', null, [
-                // 'widget' => 'single_text',
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],

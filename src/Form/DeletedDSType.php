@@ -13,7 +13,12 @@ class DeletedDSType extends AbstractType
     {
         $builder
             ->add('motif')
-            ->add('createdAt')
+            ->add('createdAt', null, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
             ->add('tel')
             ->add('mail')
         ;

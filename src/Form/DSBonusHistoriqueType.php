@@ -12,7 +12,12 @@ class DSBonusHistoriqueType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('createdAt')
+            ->add('createdAt', null, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'class' => 'form-control mb-2'
+                ],
+            ])
             ->add('titre')
             ->add('montant')
             ->add('user')

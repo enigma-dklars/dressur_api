@@ -48,6 +48,7 @@ class CampagneMailType extends AbstractType
                 ],
             ])
             ->add('createdAt', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],

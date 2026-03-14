@@ -28,6 +28,7 @@ class DSBonusType extends AbstractType
                 ],
             ])
             ->add('dateExp', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],

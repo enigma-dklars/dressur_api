@@ -33,11 +33,13 @@ class PromotionType extends AbstractType
                 ],
             ])
             ->add('dateDebut', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
             ])
             ->add('dateExp', null, [
+                'widget' => 'single_text',
                 'attr' => [
                     'class' => 'form-control mb-2'
                 ],
@@ -79,6 +81,16 @@ class PromotionType extends AbstractType
                 ],
             ])
             ->add('referencement', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
+            ->add('inProgrammeRecompense', null, [
+                'attr' => [
+                    'class' => 'ms-2 mb-2'
+                ],
+            ])
+            ->add('publishOnDressurStatus', null, [
                 'attr' => [
                     'class' => 'ms-2 mb-2'
                 ],
