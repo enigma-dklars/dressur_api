@@ -269,11 +269,11 @@ class WebhookController extends AbstractController
 
         $idTransactionFeda = $myTransaction->getIdTransaction();
         if (!$idTransactionFeda) {
-            return new JsonResponse(['error' => true, 'message' => 'Aucun identifiant FedaPay lié à cette transaction.']);
+            return new JsonResponse(['error' => true, 'message' => 'Aucun identifiant FedaPay lie a cette transaction.']);
         }
 
         if (!in_array($myTransaction->getStatus(), ['pending', 'canceled'])) {
-            return new JsonResponse(['error' => true, 'message' => 'Cette transaction a déjà été traitée (statut actuel : ' . $myTransaction->getStatus() . ').']);
+            return new JsonResponse(['error' => true, 'message' => 'Cette transaction a deja ete traitee (statut actuel : ' . $myTransaction->getStatus() . ').']);
         }
 
         $envPaiementApis = $envPaiementApiRepository->findAll();
@@ -293,11 +293,11 @@ class WebhookController extends AbstractController
         }
 
         if (!$fedaTransaction) {
-            return new JsonResponse(['error' => true, 'message' => 'Impossible de récupérer la transaction sur FedaPay. Vérifiez la configuration des APIs.']);
+            return new JsonResponse(['error' => true, 'message' => 'Impossible de recuperer la transaction sur FedaPay. Verifiez la configuration des APIs.']);
         }
 
         if ($fedaTransaction->status !== 'approved') {
-            return new JsonResponse(['error' => true, 'message' => 'Le paiement n'est pas approuvé sur FedaPay. Statut réel : ' . $fedaTransaction->status]);
+            return new JsonResponse(['error' => true, 'message' => 'Le paiement nest pas approuve sur FedaPay. Statut reel : ' . $fedaTransaction->status]);
         }
 
         try {
@@ -362,7 +362,7 @@ class WebhookController extends AbstractController
 
                 $formule = $boost->getFormulePromoReseau();
                 $formuleLower = mb_strtolower($formule, 'UTF-8');
-                if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
+                if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customises') === false)
                         OR
                         (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
                     ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
@@ -382,7 +382,7 @@ class WebhookController extends AbstractController
                         $this->sendMail->sendReport('Error Promo Reseau --- ID = ' . $boost->getId(), (string)$resultZefame);
                     }
                 } else {
-                    $this->sendMail->sendReport('Promo Reseau en attente --- ID = ' . $boost->getId(), 'Impossible de demarrer la promo reseau directement... surrement une demande de commentaire');
+                    $this->sendMail->sendReport('Promo Reseau en attente --- ID = ' . $boost->getId(), 'Impossible de demarrer la promo reseau directement');
                 }
             }
 
@@ -402,7 +402,7 @@ class WebhookController extends AbstractController
             $this->em->flush();
             $this->em->commit();
 
-            return new JsonResponse(['error' => false, 'message' => 'Transaction traitée avec succès (type : ' . $myTransaction->getTransactionFor() . ').']);
+            return new JsonResponse(['error' => false, 'message' => 'Transaction traitee avec succes (type : ' . $myTransaction->getTransactionFor() . ').']);
         } catch (\Throwable $th) {
             $this->em->rollback();
             $this->sendMail->sendReport('Error forceProcessTransaction --- ID = ' . $id, $th . '<br><br><br>');
