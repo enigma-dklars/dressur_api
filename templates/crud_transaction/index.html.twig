@@ -31,14 +31,6 @@
                     <td></td>
                     <td>
                         {% include "crud_transaction/_delete_form.html.twig" %}
-                        <button
-                            class="btn btn-sm btn-warning btn-force-process mt-1"
-                            data-id="{{ transaction.id }}"
-                            data-for="{{ transaction.transactionFor }}"
-                            data-status="{{ transaction.status }}"
-                            title="Vérifier et forcer le traitement du paiement">
-                            <i class="bi bi-arrow-repeat"></i>
-                        </button>
                     </td>
                     <td>
                         {% if transaction.user %}

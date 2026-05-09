@@ -3,6 +3,15 @@
     <a href="{{ path('app_crud_transaction_show', {'id': transaction.id}) }}" class="btn btn-sm btn-info">Show</a>
     <a href="{{ path('app_crud_transaction_edit', {'id': transaction.id}) }}" class="btn btn-sm btn-success">Edit</a>
     <span data-bs-toggle="modal" data-bs-target="#modal_transaction_{{transaction.id}}" class="btn btn-sm btn-primary">More</span>
+    <button
+        class="btn btn-sm btn-warning btn-force-process mt-1"
+        data-id="{{ transaction.id }}"
+        data-for="{{ transaction.transactionFor }}"
+        data-status="{{ transaction.status }}"
+        title="Vérifier et forcer le traitement du paiement">
+        {# <i class="bi bi-arrow-repeat"></i>  #}
+        Pay Check
+    </button>
     {# <button class="btn btn-sm btn-danger">Delete</button> #}
 </form>
 <div class="modal fade" id="modal_transaction_{{transaction.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
