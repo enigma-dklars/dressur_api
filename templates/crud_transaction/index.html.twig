@@ -29,7 +29,17 @@
             {% for transaction in transactions %}
                 <tr>
                     <td></td>
-                    <td>{% include "crud_transaction/_delete_form.html.twig" %}</td>
+                    <td>
+                        {% include "crud_transaction/_delete_form.html.twig" %}
+                        <button
+                            class="btn btn-sm btn-warning btn-force-process mt-1"
+                            data-id="{{ transaction.id }}"
+                            data-for="{{ transaction.transactionFor }}"
+                            data-status="{{ transaction.status }}"
+                            title="Vérifier et forcer le traitement du paiement">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                    </td>
                     <td>
                         {% if transaction.user %}
                             {{ transaction.user.pseudo }}
@@ -68,5 +78,60 @@
             </tbody>
         </table>
     </div>
+{% endblock %}
 
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).on('click', '.btn-force-process', function () {
+    const btn       = $(this);
+    const id        = btn.data('id');
+    const forType   = btn.data('for');
+    const status    = btn.data('status');
+
+    Swal.fire({
+        title: 'Forcer le traitement ?',
+        html:  '<b>Type :</b> ' + forType + '<br><b>Statut actuel :</b> ' + status +
+               '<br><br>Cette action va vérifier le paiement sur FedaPay et exécuter le traitement correspondant si le paiement est approuvé.',
+        icon:  'warning',
+        showCancelButton:  true,
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor:  '#6b7280',
+        confirmButtonText:  'Oui, vérifier & traiter',
+        cancelButtonText:   'Annuler',
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+        fetch('/api/admin/force-process/' + id, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                Swal.fire({
+                    title: 'Échec',
+                    text:  data.message,
+                    icon:  'error',
+                    confirmButtonText: 'OK',
+                });
+                btn.prop('disabled', false).html('<i class="bi bi-arrow-repeat"></i>');
+            } else {
+                Swal.fire({
+                    title: 'Succès !',
+                    text:  data.message,
+                    icon:  'success',
+                    confirmButtonText: 'OK',
+                }).then(() => location.reload());
+            }
+        })
+        .catch(() => {
+            Swal.fire('Erreur réseau', 'La requête a échoué. Réessayez.', 'error');
+            btn.prop('disabled', false).html('<i class="bi bi-arrow-repeat"></i>');
+        });
+    });
+});
+</script>
 {% endblock %}
