@@ -4,6 +4,7 @@
     <a href="{{ path('app_crud_transaction_edit', {'id': transaction.id}) }}" class="btn btn-sm btn-success">Edit</a>
     <span data-bs-toggle="modal" data-bs-target="#modal_transaction_{{transaction.id}}" class="btn btn-sm btn-primary">More</span>
     <button
+        type="button"
         class="btn btn-sm btn-danger btn-force-process mt-1"
         data-id="{{ transaction.id }}"
         data-for="{{ transaction.transactionFor }}"
