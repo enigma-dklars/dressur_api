@@ -75,20 +75,14 @@ class WebhookController extends AbstractController
                 $payload, $sig_header, $endpoint_secret
             );
         } catch(\UnexpectedValueException $e) {
-            // Invalid payload
-
             return [400, "Invalid payload"];
         } catch(\FedaPay\Error\SignatureVerification $e) {
-            // Invalid signature
-
             return [400, "Invalid signature"];
         }
 
         try {
-            // Handle the event
             switch ($event->name) {
                 case 'transaction.approved':
-                    // Transaction approuvée
                     $idTransaction = $event->entity->id;
                     $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
 
@@ -235,7 +229,6 @@ class WebhookController extends AbstractController
                     return [200, "Transaction non trouvée"];
                     break;
                 default:
-                    // action par defaut si ce n'est ni approved ni canceled
                     $idTransaction = $event->entity->id;
                     $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
                     $transaction = Transaction::retrieve($idTransaction);
@@ -262,6 +255,158 @@ class WebhookController extends AbstractController
         } catch (\Throwable $th) {
             $this->sendMail->sendReport("Error webhookDressur : ".$routeWebhook, $th."<br><br><br>");
             return new Response('Erreur : report is sent by mail', 200);
+        }
+    }
+
+    #[Route('/admin/force-process/{id}', name: 'forceProcessTransaction', methods: ['POST'])]
+    public function forceProcessTransaction(int $id, EnvPaiementApiRepository $envPaiementApiRepository): JsonResponse
+    {
+        $myTransaction = $this->transactionRepository->find($id);
+
+        if (!$myTransaction) {
+            return new JsonResponse(['error' => true, 'message' => 'Transaction introuvable.']);
+        }
+
+        $idTransactionFeda = $myTransaction->getIdTransaction();
+        if (!$idTransactionFeda) {
+            return new JsonResponse(['error' => true, 'message' => 'Aucun identifiant FedaPay lié à cette transaction.']);
+        }
+
+        if (!in_array($myTransaction->getStatus(), ['pending', 'canceled'])) {
+            return new JsonResponse(['error' => true, 'message' => 'Cette transaction a déjà été traitée (statut actuel : ' . $myTransaction->getStatus() . ').']);
+        }
+
+        $envPaiementApis = $envPaiementApiRepository->findAll();
+        $fedaTransaction = null;
+        $usedEnv = null;
+
+        foreach ($envPaiementApis as $envApi) {
+            try {
+                FedaPay::setApiKey($envApi->getApiKey());
+                FedaPay::setEnvironment($envApi->getEnvironment());
+                $fedaTransaction = Transaction::retrieve((int)$idTransactionFeda);
+                $usedEnv = $envApi;
+                break;
+            } catch (\Throwable $th) {
+                continue;
+            }
+        }
+
+        if (!$fedaTransaction) {
+            return new JsonResponse(['error' => true, 'message' => 'Impossible de récupérer la transaction sur FedaPay. Vérifiez la configuration des APIs.']);
+        }
+
+        if ($fedaTransaction->status !== 'approved') {
+            return new JsonResponse(['error' => true, 'message' => 'Le paiement n'est pas approuvé sur FedaPay. Statut réel : ' . $fedaTransaction->status]);
+        }
+
+        try {
+            $this->em->beginTransaction();
+            $myTransaction->setStatus($fedaTransaction->status)->isUpdated();
+
+            if ($myTransaction->getTransactionFor() === 'boost_contact') {
+                $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                $boost = new Boost();
+                $boost->setFormuleBoost($formuleBoost)
+                    ->setMode('Payant')
+                    ->setUser($myTransaction->getUser());
+                if ($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
+                    $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $myTransaction->getUser()], ['id' => 'DESC']))->getDateExp();
+                    $boost->setDateDebut($lastBoostDateExp)
+                        ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime('+ ' . $formuleBoost->getNbrJour() . 'days ' . $lastBoostDateExp->format('d-m-Y H:i')))));
+                } else {
+                    $boost->setDateDebut(new DateTime())
+                        ->setDateExp(new DateTime('+ ' . $formuleBoost->getNbrJour() . 'days'));
+                }
+                $this->em->persist($boost);
+            }
+
+            if ($myTransaction->getTransactionFor() === 'boost_affaire') {
+                $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
+                $inProgrammeRecompense = $myTransaction->getAnnotherInfo()['inProgrammeRecompense'] ?? false;
+                $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+                $promotion = new Promotion();
+                $promotion->setMode('Payant')
+                    ->setUser($myTransaction->getUser())
+                    ->setFormulePromoAffaire($formulePromoAffaire)
+                    ->setImage($myTransaction->getAnnotherInfo()['image'])
+                    ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                    ->setInProgrammeRecompense($inProgrammeRecompense)
+                    ->setPublishOnDressurStatus($publishOnDressurStatus);
+                $this->em->persist($promotion);
+            }
+
+            if ($myTransaction->getTransactionFor() === 're_boost_affaire') {
+                $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                $inProgrammeRecompense = $myTransaction->getAnnotherInfo()['inProgrammeRecompense'] ?? false;
+                $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+                $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+                $promotion->setMode('Payant')
+                    ->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime('+ ' . $formulePromoAffaire->getNbrJour() . 'days'))
+                    ->setReferencement($formulePromoAffaire->getReferencement())
+                    ->setStatus(3)
+                    ->setInProgrammeRecompense($inProgrammeRecompense)
+                    ->setPublishOnDressurStatus($publishOnDressurStatus);
+            }
+
+            if ($myTransaction->getTransactionFor() === 'boost_reseau_sociaux') {
+                $formulePromoReseau = $this->formulePromoReseauRepository->find($myTransaction->getAnnotherInfo()['idFormulePromoReseau']);
+                $boost = new PromoReseau();
+                $boost->setFormulePromoReseau($formulePromoReseau)
+                    ->setUser($myTransaction->getUser())
+                    ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
+                    ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
+                    ->setUrl($myTransaction->getAnnotherInfo()['lien']);
+                $this->em->persist($boost);
+
+                $formule = $boost->getFormulePromoReseau();
+                $formuleLower = mb_strtolower($formule, 'UTF-8');
+                if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
+                        OR
+                        (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
+                    ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
+                    $idServiveZefame = $boost->getFormulePromoReseau()->getIdZefame();
+                    $resultZefame = $this->zefameApi->order([
+                        'service' => $idServiveZefame,
+                        'link' => $boost->getUrl(),
+                        'quantity' => $boost->getQteDemander(),
+                        'runs' => 2,
+                        'interval' => 5,
+                    ]);
+                    if (isset($resultZefame->order)) {
+                        $boost->setIdZefame($resultZefame->order)->setStatus(2);
+                    } elseif (isset($resultZefame->error)) {
+                        $this->sendMail->sendReport('Error Promo Reseau --- ID = ' . $boost->getId(), $resultZefame->error);
+                    } else {
+                        $this->sendMail->sendReport('Error Promo Reseau --- ID = ' . $boost->getId(), (string)$resultZefame);
+                    }
+                } else {
+                    $this->sendMail->sendReport('Promo Reseau en attente --- ID = ' . $boost->getId(), 'Impossible de demarrer la promo reseau directement... surrement une demande de commentaire');
+                }
+            }
+
+            if ($myTransaction->getTransactionFor() === 'campagne_mail') {
+                $campagneMail = $this->campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
+                $campagneMail->setStatus(3);
+            }
+
+            if ($myTransaction->getTransactionFor() === 'dressur_bot_activation') {
+                $formuleDressurBot = $this->formuleDressurBotRepository->find($myTransaction->getAnnotherInfo()['formulDressurBotId']);
+                $userBot = $myTransaction->getUserBot();
+                $userBot->setExpiratedAt(new DateTime('+ ' . $formuleDressurBot->getNbrJour() . 'days'))
+                    ->setSignature($formuleDressurBot->getSignature());
+            }
+
+            $usedEnv->isUsedApproved();
+            $this->em->flush();
+            $this->em->commit();
+
+            return new JsonResponse(['error' => false, 'message' => 'Transaction traitée avec succès (type : ' . $myTransaction->getTransactionFor() . ').']);
+        } catch (\Throwable $th) {
+            $this->em->rollback();
+            $this->sendMail->sendReport('Error forceProcessTransaction --- ID = ' . $id, $th . '<br><br><br>');
+            return new JsonResponse(['error' => true, 'message' => 'Erreur lors du traitement : ' . $th->getMessage()]);
         }
     }
 }
