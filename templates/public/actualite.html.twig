@@ -16,6 +16,37 @@
     <meta name="keywords" content="actualités Dressur, nouveautés Dressur, promotions Dressur, annonces Dressur, communauté Dressur, produits Dressur, services Dressur" />
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Actualités Dressur",
+  "description": "{{ description }}",
+  "url": "{{ url('app_actualite') }}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "@id": "https://dressur.site/#organization"
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "name": "Promotions Affaires des utilisateurs Dressur",
+    "itemListElement": [
+      {% for actu in actus %}
+      {
+        "@type": "ListItem",
+        "position": {{ loop.index }},
+        "url": "https://dressur.site/actualite/{{ actu.token }}",
+        "name": "{{ actu.pseudoAnnonceur|e('js') }} — Promotion Dressur"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  }
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

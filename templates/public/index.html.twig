@@ -23,6 +23,63 @@
     <meta name="keywords" content="Dressur, actualités Dressur, produits Dressur, services Dressur, promotions, annonces utilisateurs, gestion compétences, visibilité, réseau social, marketing digital">
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://dressur.site/#organization",
+      "name": "Dressur",
+      "url": "https://dressur.site",
+      "logo": "https://dressur.site/assets/images/dressur_logo_blanc.png",
+      "sameAs": [
+        "https://www.facebook.com/dressurds",
+        "https://play.google.com/store/apps/details?id=com.dressur.ds"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+229-64-04-42-94",
+        "contactType": "customer service",
+        "availableLanguage": ["French"]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://dressur.site/#website",
+      "url": "https://dressur.site",
+      "name": "Dressur",
+      "description": "{{ description }}",
+      "publisher": { "@id": "https://dressur.site/#organization" },
+      "inLanguage": "fr"
+    },
+    {
+      "@type": "MobileApplication",
+      "name": "Dressur",
+      "operatingSystem": "Android",
+      "applicationCategory": "BusinessApplication",
+      "description": "Application mobile Dressur — gérez vos compétences, trouvez des contacts et promouvez vos affaires en Afrique de l'Ouest.",
+      "url": "https://play.google.com/store/apps/details?id=com.dressur.ds",
+      "publisher": { "@id": "https://dressur.site/#organization" }
+    },
+    {
+      "@type": "ItemList",
+      "name": "Services Dressur",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Boost Contact", "url": "{{ url('app_boost_contact') }}" },
+        { "@type": "ListItem", "position": 2, "name": "Promotion Affaire", "url": "{{ url('app_promotion_affaire') }}" },
+        { "@type": "ListItem", "position": 3, "name": "Promotions Réseaux Sociaux", "url": "{{ url('app_promotion_reseaux_sociaux') }}" },
+        { "@type": "ListItem", "position": 4, "name": "Dressur Bot", "url": "{{ url('app_dressur_bot') }}" },
+        { "@type": "ListItem", "position": 5, "name": "Campagne Mail", "url": "{{ url('app_campagne_mail') }}" },
+        { "@type": "ListItem", "position": 6, "name": "Carte de Visite Numérique", "url": "{{ url('app_carte_visite_numerique') }}" }
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

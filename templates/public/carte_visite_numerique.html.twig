@@ -23,6 +23,39 @@
     <meta name="keywords" content="Dressur, Carte de Visite Numérique, échange de contacts, code QR, application mobile, contacts professionnels">
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "{{ url('app_carte_visite_numerique') }}#service",
+  "name": "Carte de Visite Numérique",
+  "alternateName": "Dressur Carte de Visite Numérique",
+  "description": "{{ description }}",
+  "url": "{{ url('app_carte_visite_numerique') }}",
+  "provider": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization"
+  },
+  "serviceType": "Carte de visite numérique / QR code",
+  "areaServed": "Afrique de l'Ouest",
+  "availableChannel": {
+    "@type": "ServiceChannel",
+    "serviceUrl": "https://play.google.com/store/apps/details?id=com.dressur.ds",
+    "servicePlatform": "Application mobile Android"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

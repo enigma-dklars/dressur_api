@@ -23,6 +23,39 @@
     <meta name="keywords" content="Boost Contact, Dressur, nouveaux contacts, communication, visibilité, marketing, réseau">
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "{{ url('app_boost_contact') }}#service",
+  "name": "Boost Contact",
+  "alternateName": "Dressur Boost Contact",
+  "description": "{{ description }}",
+  "url": "{{ url('app_boost_contact') }}",
+  "provider": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization"
+  },
+  "serviceType": "Marketing numérique",
+  "areaServed": "Afrique de l'Ouest",
+  "availableChannel": {
+    "@type": "ServiceChannel",
+    "serviceUrl": "https://play.google.com/store/apps/details?id=com.dressur.ds",
+    "servicePlatform": "Application mobile Android"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ url('app_tarifs') }}"
+  }
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

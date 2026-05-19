@@ -21,6 +21,80 @@
     <meta name="keywords" content="tarif Dressur, prix kdo, prix cassé, prix gratuit, email Dressur, Facebook Dressur, application Dressur, support Dressur" />
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Tarifs des services Dressur",
+  "description": "{{ description }}",
+  "url": "{{ url('app_tarifs') }}",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Service",
+        "name": "Dressur Bot",
+        "description": "Automatisez l'envoi de messages WhatsApp en masse avec Dressur Bot.",
+        "url": "{{ url('app_dressur_bot') }}",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "XOF",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Service",
+        "name": "Boost Contact",
+        "description": "Optimisez vos contacts et augmentez votre visibilité avec Dressur.",
+        "url": "{{ url('app_boost_contact') }}",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "XOF",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Service",
+        "name": "Promotion Affaire",
+        "description": "Promouvez vos produits, services et événements auprès d'un public ciblé.",
+        "url": "{{ url('app_promotion_affaire') }}",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "XOF",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "item": {
+        "@type": "Service",
+        "name": "Promotions Réseaux Sociaux",
+        "description": "Achetez des abonnés, likes, vues sur Facebook, TikTok, Instagram, YouTube et plus.",
+        "url": "{{ url('app_promotion_reseaux_sociaux') }}",
+        "offers": {
+          "@type": "Offer",
+          "priceCurrency": "XOF",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

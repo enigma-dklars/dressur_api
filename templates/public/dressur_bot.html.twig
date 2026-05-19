@@ -26,6 +26,42 @@
     <meta name="keywords" content="Dressur, Dressur Bot, automatisation WhatsApp, envoi de messages WhatsApp, WhatsApp Web, WhatsApp Desktop, fichier VCF, communication en masse, marketing WhatsApp, bot WhatsApp, application Windows">
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "@id": "{{ url('app_dressur_bot') }}#software",
+  "name": "Dressur Bot",
+  "description": "{{ description }}",
+  "url": "{{ url('app_dressur_bot') }}",
+  "downloadUrl": "https://dressur.site/assets/dressur_bot/dressur_bot.exe",
+  "operatingSystem": "Windows",
+  "applicationCategory": "BusinessApplication",
+  "softwareVersion": "1.0",
+  "screenshot": "https://dressur.site/assets/img/dressur-bot.jpg",
+  "featureList": [
+    "Automatisation de l'envoi de messages WhatsApp",
+    "Compatible WhatsApp Web et WhatsApp Desktop",
+    "Support des fichiers VCF pour les contacts",
+    "Communication en masse sans limitation"
+  ],
+  "author": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ url('app_tarifs') }}"
+  }
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

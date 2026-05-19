@@ -21,6 +21,51 @@
     <meta name="keywords" content="contact Dressur, nous joindre, coordonnées Dressur, WhatsApp Dressur, email Dressur, Facebook Dressur, application Dressur, support Dressur" />
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ContactPage",
+      "name": "Contactez Dressur",
+      "description": "{{ description }}",
+      "url": "{{ url('app_contactez_nous') }}",
+      "mainEntity": { "@id": "https://dressur.site/#organization" }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://dressur.site/#organization",
+      "name": "Dressur",
+      "url": "https://dressur.site",
+      "logo": "https://dressur.site/assets/images/dressur_logo_blanc.png",
+      "telephone": "+229-64-04-42-94",
+      "email": "dressur.ds@gmail.com",
+      "sameAs": [
+        "https://www.facebook.com/dressurds",
+        "https://play.google.com/store/apps/details?id=com.dressur.ds"
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "telephone": "+229-64-04-42-94",
+          "contactType": "customer service",
+          "availableLanguage": ["French"],
+          "contactOption": "TollFree"
+        },
+        {
+          "@type": "ContactPoint",
+          "email": "dressur.ds@gmail.com",
+          "contactType": "customer support",
+          "availableLanguage": ["French"]
+        }
+      ]
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

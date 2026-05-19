@@ -23,6 +23,46 @@
     <meta name="keywords" content="Promotion Réseaux Sociaux, Dressur, TikTok, Facebook, YouTube, Twitter, Telegram, Twitch, Spotify, acheter likes, abonnés, vues, inter-actions">
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "{{ url('app_promotion_reseaux_sociaux') }}#service",
+  "name": "Promotions Réseaux Sociaux",
+  "alternateName": "Dressur Promotions Réseaux Sociaux",
+  "description": "{{ description }}",
+  "url": "{{ url('app_promotion_reseaux_sociaux') }}",
+  "provider": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization"
+  },
+  "serviceType": "Promotion réseaux sociaux",
+  "areaServed": "Afrique de l'Ouest",
+  "availableChannel": [
+    {
+      "@type": "ServiceChannel",
+      "serviceUrl": "https://play.google.com/store/apps/details?id=com.dressur.ds",
+      "servicePlatform": "Application mobile Android"
+    },
+    {
+      "@type": "ServiceChannel",
+      "serviceUrl": "https://dressur.site",
+      "servicePlatform": "Web"
+    }
+  ],
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ url('app_tarifs') }}"
+  }
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}

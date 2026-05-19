@@ -23,6 +23,46 @@
     <meta name="keywords" content="Dressur, Campagne Mail, email marketing, communication, Dressur Mobile, Dressur Web, automatisation email">
 {% endblock %}
 
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "{{ url('app_campagne_mail') }}#service",
+  "name": "Campagne Mail",
+  "alternateName": "Dressur Campagne Mail",
+  "description": "{{ description }}",
+  "url": "{{ url('app_campagne_mail') }}",
+  "provider": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization"
+  },
+  "serviceType": "Email marketing",
+  "areaServed": "Afrique de l'Ouest",
+  "availableChannel": [
+    {
+      "@type": "ServiceChannel",
+      "serviceUrl": "https://play.google.com/store/apps/details?id=com.dressur.ds",
+      "servicePlatform": "Application mobile Android"
+    },
+    {
+      "@type": "ServiceChannel",
+      "serviceUrl": "https://dressur.site",
+      "servicePlatform": "Web"
+    }
+  ],
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ url('app_tarifs') }}"
+  }
+}
+</script>
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block body %}
