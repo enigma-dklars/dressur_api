@@ -57,10 +57,27 @@ class CookieDS {
         ]);
     }
 
+    /**
+     * Liste des cookies non-sensibles acceptés en plain text (écrits par le JS côté client).
+     * Ces valeurs sont validées par liste blanche, donc sans risque de sécurité.
+     */
+    private array $plainCookieAllowList = [
+        'theme' => ['dark-theme', 'light-theme'],
+    ];
+
     public function get($key = null){ 
         if ($key) {
             if (isset($_COOKIE[$key])) {
-                return $this->verify($_COOKIE[$key]);
+                $verified = $this->verify($_COOKIE[$key]);
+                if ($verified !== false) {
+                    return $verified;
+                }
+                // Fallback : cookie plain text écrit par le JS (ex. theme)
+                if (isset($this->plainCookieAllowList[$key])
+                    && in_array($_COOKIE[$key], $this->plainCookieAllowList[$key], true)) {
+                    return $_COOKIE[$key];
+                }
+                return false;
             }
             return false;
         } else {
@@ -99,7 +116,15 @@ class CookieDS {
 
     public function check($key = null){
         if (isset($_COOKIE[$key])) {
-            return $this->verify($_COOKIE[$key]) !== false;
+            if ($this->verify($_COOKIE[$key]) !== false) {
+                return true;
+            }
+            // Fallback : cookie plain text écrit par le JS (ex. theme)
+            if (isset($this->plainCookieAllowList[$key])
+                && in_array($_COOKIE[$key], $this->plainCookieAllowList[$key], true)) {
+                return true;
+            }
+            return false;
         }
         return false;
     }
