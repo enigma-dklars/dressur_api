@@ -7,7 +7,7 @@
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
-    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:url" content="{{ url('app_inscription') }}" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card Meta Tags (facultatif) -->
@@ -20,6 +20,8 @@
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="inscription, Dressur inscription, gérer compétences, visibilité, créer compte, réseau social, marketing digital, Dressur web">
 {% endblock %}
+
+{% block robots_meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {% block title %}{{title}}{% endblock %}
 
