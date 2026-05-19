@@ -260,6 +260,50 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/actualite/{id}', name: 'app_actualite')]
+    public function actualite(int $id, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        $promo = $promotionRepository->find($id);
+
+        if (!$promo) {
+            return $this->redirectToRoute('app_actu');
+        }
+
+        $descpPromo = $promo->getDescription();
+        if ($promo->getTypePromotionAffaire() == "offre_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_poste"] ?? $promo->getDescription();
+        }
+        if ($promo->getTypePromotionAffaire() == "dmd_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $promo->getDescription();
+        }
+
+        $promoData = [
+            "id"                   => $promo->getId(),
+            "image"                => $promo->getImage(),
+            "description"          => $descpPromo,
+            "whatsappNumber"       => $promo->getUser()->getTel(),
+            "pseudoAnnonceur"      => $promo->getUser()->getPseudo(),
+            "nombreDeVues"         => (string) $traitementsDS->formatNumber($promo->getNombreDeVue()),
+            "nombreImpression"     => (string) $traitementsDS->formatNumber($promo->getNombreImpression()),
+            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+            "annotherInfo"         => $promo->getAnnotherInfo(),
+        ];
+
+        $autresPromos = array_filter(
+            $traitementsDS->getTopAffaires(10),
+            fn($p) => $p['id'] !== $id
+        );
+        $autresPromos = array_slice(array_values($autresPromos), 0, 3);
+
+        return $this->render('private/actualite.html.twig', [
+            'promo'        => $promoData,
+            'autresPromos' => $autresPromos,
+            'user'         => $traitementsDS->infosUser($user),
+            'theme'        => $this->theme,
+        ]);
+    }
+
     #[Route('/contact', name: 'app_contact')]
     public function contact(): Response
     {
