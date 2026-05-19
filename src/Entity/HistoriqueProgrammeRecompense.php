@@ -77,7 +77,7 @@ class HistoriqueProgrammeRecompense
 
     public function referenceParticipation(): string
     {
-        $unique = uniqid().uniqid().uniqid();
+        $unique = bin2hex(random_bytes(16));
         $unique = str_shuffle($unique);
         $unique = strtoupper($unique);
         return "DRESSUR_".$unique;
