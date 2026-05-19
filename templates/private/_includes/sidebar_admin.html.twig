@@ -1,3 +1,4 @@
+{% set r = app.request.attributes.get('_route') %}
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
       <div>
@@ -11,59 +12,59 @@
     </div>
     <!--navigation-->
     <ul class="metismenu" id="menu">
-      <li class="">
-        <a href="{{path('app_admin')}}">
+      <li class="{{ r == 'app_admin' ? 'mm-active' : '' }}">
+        <a href="{{path('app_admin')}}" class="{{ r == 'app_admin' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-gauge text-warning"></i>
           </div>
           <div class="menu-title text-warning">Dashboard Admin</div>
         </a>
       </li>
-      <li class="">
-        <a href="/private">
+      <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
+        <a href="/private" class="{{ r == 'app_private' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-house-user text-success"></i>
           </div>
           <div class="menu-title text-success">Espace User</div>
         </a>
       </li>
 
-      <li> <a href="{{path('app_crud_user_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Utilisateurs</a></li>
-      <li> <a href="{{path('app_crud_user_check_and_confirme')}}" class="small-fort bg-success text-white"><i class="me-2 fas fa-align-left"></i>Check User Confirm</a></li>
-      <li> <a href="{{path('app_crud_user_check')}}" class="small-fort bg-info text-white"><i class="me-2 fas fa-align-left"></i>Check User</a></li>
-      <li> <a href="{{path('app_crud_user_purge')}}" class="small-fort bg-danger text-white"><i class="me-2 fas fa-align-left"></i>Purge User</a></li>
-      <li> <a href="{{path('app_crud_user_banned')}}" class="small-fort bg-warning text-dark"><i class="me-2 fas fa-align-left"></i>Bannir User</a></li>
+      <li class="{{ r == 'app_crud_user_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_index')}}" class="small-fort {{ r == 'app_crud_user_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Utilisateurs</a></li>
+      <li class="{{ r == 'app_crud_user_check_and_confirme' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check_and_confirme')}}" class="small-fort bg-success text-white {{ r == 'app_crud_user_check_and_confirme' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User Confirm</a></li>
+      <li class="{{ r == 'app_crud_user_check' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check')}}" class="small-fort bg-info text-white {{ r == 'app_crud_user_check' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User</a></li>
+      <li class="{{ r == 'app_crud_user_purge' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_purge')}}" class="small-fort bg-danger text-white {{ r == 'app_crud_user_purge' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Purge User</a></li>
+      <li class="{{ r == 'app_crud_user_banned' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_banned')}}" class="small-fort bg-warning text-dark {{ r == 'app_crud_user_banned' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Bannir User</a></li>
       {% if user.id == 3 or user.id == 7 %}
-      <li> <a href="{{path('app_crud_user_bot_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Users Bot</a></li>
+      <li class="{{ r == 'app_crud_user_bot_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_bot_index')}}" class="small-fort {{ r == 'app_crud_user_bot_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Users Bot</a></li>
       {% endif %}
-      <li> <a href="{{path('app_crud_boost_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Boost Contact</a></li>
-      <li> <a href="{{path('app_crud_promotion_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>P. Affaire</a></li>
-      <li> <a href="{{path('app_crud_promo_reseau_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
-      <li> <a href="{{path('app_historique_programme_recompense_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>H. P. Récompense</a></li>
-      <li> <a href="{{path('app_preuve_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Preuve Récompense</a></li>
+      <li class="{{ r == 'app_crud_boost_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_boost_index')}}" class="small-fort {{ r == 'app_crud_boost_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Boost Contact</a></li>
+      <li class="{{ r == 'app_crud_promotion_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promotion_index')}}" class="small-fort {{ r == 'app_crud_promotion_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Affaire</a></li>
+      <li class="{{ r == 'app_crud_promo_reseau_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promo_reseau_index')}}" class="small-fort {{ r == 'app_crud_promo_reseau_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
+      <li class="{{ r == 'app_historique_programme_recompense_index' ? 'mm-active' : '' }}"> <a href="{{path('app_historique_programme_recompense_index')}}" class="small-fort {{ r == 'app_historique_programme_recompense_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>H. P. Récompense</a></li>
+      <li class="{{ r == 'app_preuve_index' ? 'mm-active' : '' }}"> <a href="{{path('app_preuve_index')}}" class="small-fort {{ r == 'app_preuve_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Preuve Récompense</a></li>
       {# <li> <a href="{{path('app_crud_campagne_mail_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Campagne Mail</a></li> #}
 
       <hr class="my-2">
 
-      <li> <a href="{{path('app_crud_formule_boost_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>F. Boosts</a></li>
-      <li> <a href="{{path('app_crud_formule_promo_affaire_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>F. Affaires</a></li>
+      <li class="{{ r == 'app_crud_formule_boost_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_boost_index')}}" class="small-fort {{ r == 'app_crud_formule_boost_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Boosts</a></li>
+      <li class="{{ r == 'app_crud_formule_promo_affaire_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_affaire_index')}}" class="small-fort {{ r == 'app_crud_formule_promo_affaire_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Affaires</a></li>
       {# <li> <a href="{{path('app_crud_formule_campagne_mail_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>F. Campagne Mail</a></li> #}
-      <li> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
-      <li> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>F. Dressur Bot</a></li>
-      <li> <a href="{{path('app_crud_msg_ai_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Message Ai</a></li>
+      <li class="{{ r == 'app_crud_formule_promo_reseau_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="small-fort {{ r == 'app_crud_formule_promo_reseau_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
+      <li class="{{ r == 'app_crud_formule_dressur_bot_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="small-fort {{ r == 'app_crud_formule_dressur_bot_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Dressur Bot</a></li>
+      <li class="{{ r == 'app_crud_msg_ai_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_msg_ai_index')}}" class="small-fort {{ r == 'app_crud_msg_ai_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Message Ai</a></li>
 
       <hr class="my-2">
       
-      <li> <a href="{{path('app_crud_env_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Env</a></li>
-      <li> <a href="{{path('app_env_paiement_api_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Env Paiement Api</a></li>
-      <li> <a href="{{path('app_methode_paiement_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Env M. Paiement</a></li>
-      <li> <a href="{{path('app_crud_env_mail_sender_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Env Mail Sender</a></li>
+      <li class="{{ r == 'app_crud_env_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_env_index')}}" class="small-fort {{ r == 'app_crud_env_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env</a></li>
+      <li class="{{ r == 'app_env_paiement_api_index' ? 'mm-active' : '' }}"> <a href="{{path('app_env_paiement_api_index')}}" class="small-fort {{ r == 'app_env_paiement_api_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env Paiement Api</a></li>
+      <li class="{{ r == 'app_methode_paiement_index' ? 'mm-active' : '' }}"> <a href="{{path('app_methode_paiement_index')}}" class="small-fort {{ r == 'app_methode_paiement_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env M. Paiement</a></li>
+      <li class="{{ r == 'app_crud_env_mail_sender_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_env_mail_sender_index')}}" class="small-fort {{ r == 'app_crud_env_mail_sender_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env Mail Sender</a></li>
 
       <hr class="my-2">
       
-      <li> <a href="{{path('app_crud_mot_refuser_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Mot Refuser</a></li>
-      <li> <a href="{{path('app_crud_deleted_d_s_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Deleted DS</a></li>
-      <li> <a href="{{path('app_crud_transaction_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Transaction</a></li>
-      <li> <a href="{{path('app_crud_suggestion_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
-      <li> <a href="{{path('app_crud_signalement_index')}}" class="small-fort"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
+      <li class="{{ r == 'app_crud_mot_refuser_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_mot_refuser_index')}}" class="small-fort {{ r == 'app_crud_mot_refuser_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Mot Refuser</a></li>
+      <li class="{{ r == 'app_crud_deleted_d_s_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_deleted_d_s_index')}}" class="small-fort {{ r == 'app_crud_deleted_d_s_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Deleted DS</a></li>
+      <li class="{{ r == 'app_crud_transaction_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_transaction_index')}}" class="small-fort {{ r == 'app_crud_transaction_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Transaction</a></li>
+      <li class="{{ r == 'app_crud_suggestion_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_suggestion_index')}}" class="small-fort {{ r == 'app_crud_suggestion_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
+      <li class="{{ r == 'app_crud_signalement_index' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_signalement_index')}}" class="small-fort {{ r == 'app_crud_signalement_index' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
     
     </ul>
     <!--end navigation-->

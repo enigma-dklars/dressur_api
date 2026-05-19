@@ -1,3 +1,10 @@
+{% set r = app.request.attributes.get('_route') %}
+{% set promo_routes = ['app_newboostcontact', 'app_listeboostcontact', 'app_newpromoaffaire', 'app_listepromoaffaire', 'app_newpromoreseau', 'app_listepromoreseau'] %}
+{% set promo_active = r in promo_routes %}
+{% set pref_routes = ['app_preferencePays'] %}
+{% set pref_active = r in pref_routes %}
+{% set autres_routes = ['app_editprofil', 'app_editPassword', 'app_addSuggestion', 'app_signalerUser'] %}
+{% set autres_active = r in autres_routes %}
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
       <div>
@@ -13,8 +20,8 @@
     <ul class="metismenu" id="menu">
 
       {% if user.admin == true %}
-      <li class="">
-        <a href="/admin">
+      <li class="{{ r == 'app_admin' ? 'mm-active' : '' }}">
+        <a href="/admin" class="{{ r == 'app_admin' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-house-user text-danger"></i>
           </div>
           <div class="menu-title text-danger">Espace Admin</div>
@@ -22,54 +29,54 @@
       </li>
       {% endif %}
 
-      <li class="">
-        <a href="{{path('app_public')}}">
+      <li class="{{ r == 'app_public' ? 'mm-active' : '' }}">
+        <a href="{{path('app_public')}}" class="{{ r == 'app_public' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-globe"></i>
           </div>
           <div class="menu-title">Public</div>
         </a>
       </li>
 
-      <li class="">
-        <a href="/private">
+      <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
+        <a href="/private" class="{{ r == 'app_private' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-house-user"></i>
           </div>
           <div class="menu-title">Dashboard</div>
         </a>
       </li>
 
-      <li class="">
-        <a href="/actu">
+      <li class="{{ r == 'app_actu' ? 'mm-active' : '' }}">
+        <a href="/actu" class="{{ r == 'app_actu' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-folder-plus"></i></div>
           <div class="menu-title">Actu</div>
         </a>
       </li>
 
-      <li class="">
-        <a href="/contact">
+      <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
+        <a href="/contact" class="{{ r == 'app_contact' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-users"></i></div>
           <div class="menu-title">Liste des Contacts</div>
         </a>
       </li>
 
-      <li>
-        <a href="javascript:;" class="has-arrow">
+      <li class="{{ promo_active ? 'mm-active' : '' }}">
+        <a href="javascript:;" class="has-arrow {{ promo_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fab fa-sellsy"></i>
           </div>
           <div class="menu-title">Promo</div>
         </a>
-        <ul>
-          <li> <a href="/newboostcontact" class="small-fort"><i class="fas fa-square-plus"></i>Boost Contact</a></li>
+        <ul class="{{ promo_active ? 'mm-show' : '' }}">
+          <li class="{{ r == 'app_newboostcontact' ? 'mm-active' : '' }}"> <a href="/newboostcontact" class="small-fort {{ r == 'app_newboostcontact' ? 'active' : '' }}"><i class="fas fa-square-plus"></i>Boost Contact</a></li>
 
-          <li> <a href="/listeboostcontact" class="small-fort"><i class="fas fa-align-left"></i>Liste Boost Contact</a></li>
+          <li class="{{ r == 'app_listeboostcontact' ? 'mm-active' : '' }}"> <a href="/listeboostcontact" class="small-fort {{ r == 'app_listeboostcontact' ? 'active' : '' }}"><i class="fas fa-align-left"></i>Liste Boost Contact</a></li>
           
-          <li> <a href="/newpromoaffaire" class="small-fort"><i class="fas fa-square-plus"></i>Promo. Affaire</a></li>
+          <li class="{{ r == 'app_newpromoaffaire' ? 'mm-active' : '' }}"> <a href="/newpromoaffaire" class="small-fort {{ r == 'app_newpromoaffaire' ? 'active' : '' }}"><i class="fas fa-square-plus"></i>Promo. Affaire</a></li>
 
-          <li> <a href="/listepromoaffaire" class="small-fort"><i class="fas fa-align-left"></i>Liste Promo. Affaire</a></li>
+          <li class="{{ r == 'app_listepromoaffaire' ? 'mm-active' : '' }}"> <a href="/listepromoaffaire" class="small-fort {{ r == 'app_listepromoaffaire' ? 'active' : '' }}"><i class="fas fa-align-left"></i>Liste Promo. Affaire</a></li>
           
-          <li> <a href="/newpromoreseau" class="small-fort"><i class="fas fa-square-plus"></i>Promo. Réseau S.</a></li>
+          <li class="{{ r == 'app_newpromoreseau' ? 'mm-active' : '' }}"> <a href="/newpromoreseau" class="small-fort {{ r == 'app_newpromoreseau' ? 'active' : '' }}"><i class="fas fa-square-plus"></i>Promo. Réseau S.</a></li>
           
-          <li> <a href="/listepromoreseau" class="small-fort"><i class="fas fa-align-left"></i>Liste Promo. Réseau S.</a></li>
+          <li class="{{ r == 'app_listepromoreseau' ? 'mm-active' : '' }}"> <a href="/listepromoreseau" class="small-fort {{ r == 'app_listepromoreseau' ? 'active' : '' }}"><i class="fas fa-align-left"></i>Liste Promo. Réseau S.</a></li>
 
           {# <li> <a href="/newcampagemail" class="small-fort"><i class="fas fa-square-plus"></i>Campage Mail</a></li> #}
           
@@ -77,38 +84,38 @@
         </ul>
       </li>
 
-      <li>
-        <a href="javascript:;" class="has-arrow">
+      <li class="{{ pref_active ? 'mm-active' : '' }}">
+        <a href="javascript:;" class="has-arrow {{ pref_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-heart"></i>
           </div>
           <div class="menu-title">Préférence</div>
         </a>
-        <ul>
-          <li> <a href="/preferencePays" class="small-fort"><i class="fas fa-arrow-right"></i>Pays</a></li>
+        <ul class="{{ pref_active ? 'mm-show' : '' }}">
+          <li class="{{ r == 'app_preferencePays' ? 'mm-active' : '' }}"> <a href="/preferencePays" class="small-fort {{ r == 'app_preferencePays' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Pays</a></li>
 
         </ul>
       </li>
 
-      <li>
-        <a href="javascript:;" class="has-arrow">
+      <li class="{{ autres_active ? 'mm-active' : '' }}">
+        <a href="javascript:;" class="has-arrow {{ autres_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fa fa-cog"></i>
           </div>
           <div class="menu-title">Autres Pages</div>
         </a>
-        <ul>
+        <ul class="{{ autres_active ? 'mm-show' : '' }}">
           {# <li> <a href="/partagerDressur" class="small-fort"><i class="fas fa-arrow-right"></i>Partager</a></li> #}
 
-          <li> <a href="/editprofil" class="small-fort"><i class="fas fa-arrow-right"></i>Profile</a></li>
+          <li class="{{ r == 'app_editprofil' ? 'mm-active' : '' }}"> <a href="/editprofil" class="small-fort {{ r == 'app_editprofil' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Profile</a></li>
 
-          <li> <a href="/editPassword" class="small-fort"><i class="fas fa-arrow-right"></i>Modifier mot de passe</a></li>
+          <li class="{{ r == 'app_editPassword' ? 'mm-active' : '' }}"> <a href="/editPassword" class="small-fort {{ r == 'app_editPassword' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Modifier mot de passe</a></li>
           
           {# <li> <a href="/invitezVosAmis" class="small-fort"><i class="fas fa-arrow-right"></i>Invitez vos amis</a></li> #}
 
           {# <li> <a href="/listeBonusRecu" class="small-fort"><i class="fas fa-arrow-right"></i>Liste des Bonus Reçu</a></li> #}
 
-          <li> <a href="/addSuggestion" class="small-fort"><i class="fas fa-arrow-right"></i>Faire une Suggestion</a></li>
+          <li class="{{ r == 'app_addSuggestion' ? 'mm-active' : '' }}"> <a href="/addSuggestion" class="small-fort {{ r == 'app_addSuggestion' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Faire une Suggestion</a></li>
           
-          <li> <a href="/signalerUser" class="small-fort"><i class="fas fa-arrow-right"></i>Signaler un utilisateur</a></li>
+          <li class="{{ r == 'app_signalerUser' ? 'mm-active' : '' }}"> <a href="/signalerUser" class="small-fort {{ r == 'app_signalerUser' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Signaler un utilisateur</a></li>
         </ul>
       </li>
     </ul>
