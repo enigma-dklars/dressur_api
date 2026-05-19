@@ -265,4 +265,21 @@ class PublicController extends AbstractController
             'theme' => $this->theme,
         ]);
     }
+
+    #[Route('/sitemap.xml', name: 'app_sitemap', defaults: ['_format' => 'xml'])]
+    public function sitemap(PromotionRepository $promotionRepository): Response
+    {
+        $rawPromos = $promotionRepository->findBy(['activated' => true], ['id' => 'DESC'], 500);
+        $promos = array_map(function ($promo) {
+            return ['token' => $this->encodePromoToken($promo->getId())];
+        }, $rawPromos);
+
+        $response = new Response(
+            $this->renderView('sitemap.xml.twig', ['promos' => $promos]),
+            200,
+            ['Content-Type' => 'application/xml']
+        );
+
+        return $response;
+    }
 }
