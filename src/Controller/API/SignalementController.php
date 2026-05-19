@@ -38,7 +38,7 @@ class SignalementController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $datas->get('uid');
+        $uid = $_COOKIE['uid'] ?? null;
         $telSignaler = $datas->get('telSignaler');
         $motifSignaler = $datas->get('motifSignaler');
 
