@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class CookieDS {
 
@@ -72,6 +73,28 @@ class CookieDS {
             }
             return $all;
         }
+    }
+
+    /**
+     * Résoudre le uid : cookie en priorité (signé HMAC), puis fallback sur le body POST.
+     * Permet aux clients mobiles (Flutter) qui ne gèrent pas les cookies
+     * d'envoyer le uid directement dans le corps de la requête.
+     */
+    public function getWithFallback(string $key, Request $request): string|false
+    {
+        // 1. Cookie signé — prioritaire (navigateur web)
+        $fromCookie = $this->get($key);
+        if ($fromCookie !== false && $fromCookie !== '') {
+            return $fromCookie;
+        }
+
+        // 2. Fallback POST body — pour les clients mobiles sans cookie
+        $fromPost = $request->request->get($key);
+        if ($fromPost !== null && trim((string) $fromPost) !== '') {
+            return trim((string) $fromPost);
+        }
+
+        return false;
     }
 
     public function check($key = null){
