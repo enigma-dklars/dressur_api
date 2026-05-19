@@ -25,6 +25,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PrivateController extends AbstractController
@@ -261,7 +262,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $userinfo = $this->traitementsDS->infosUser($user);
         $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
-        foreach ($actusList as &$a) {
+        $total = count($actusList);
+        $slice = array_slice($actusList, 0, 12);
+        foreach ($slice as &$a) {
             $a['token'] = $this->encodePromoToken($a['id']);
             $promo = $promotionRepository->find($a['id']);
             if ($promo) {
@@ -271,9 +274,41 @@ class PrivateController extends AbstractController
         unset($a);
         $this->em->flush();
         return $this->render('private/actu.html.twig', [
-            'actus' => $actusList,
+            'actus' => $slice,
+            'total' => $total,
             'user' => $userinfo,
             'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/actu/more', name: 'app_actu_more')]
+    public function actuMore(Request $request, PromotionRepository $promotionRepository): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        $userinfo = $this->traitementsDS->infosUser($user);
+        $offset = max(0, (int) $request->query->get('offset', 0));
+        $limit = 12;
+
+        $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
+        $total = count($actusList);
+        $slice = array_slice($actusList, $offset, $limit);
+
+        foreach ($slice as &$a) {
+            $a['token'] = $this->encodePromoToken($a['id']);
+            $promo = $promotionRepository->find($a['id']);
+            if ($promo) {
+                $promo->setNombreImpression(($promo->getNombreImpression() ?? 0) + 1);
+            }
+        }
+        unset($a);
+        $this->em->flush();
+
+        $hasMore = $total > $offset + $limit;
+        $html = $this->renderView('private/actu_cards.html.twig', ['actus' => $slice]);
+
+        return new Response($html, 200, [
+            'X-Has-More' => $hasMore ? '1' : '0',
+            'Content-Type' => 'text/html; charset=UTF-8',
         ]);
     }
 
