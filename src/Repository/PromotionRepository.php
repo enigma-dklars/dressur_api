@@ -39,6 +39,26 @@ class PromotionRepository extends ServiceEntityRepository
         }
     }
 
+    /**
+     * Retourne les promotions référençables pour le sitemap :
+     * - statut 3 (accepter et en cours) OU 4 (terminer)
+     * - isFakeVue != true
+     *
+     * @return Promotion[]
+     */
+    public function findForSitemap(int $limit = 500): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.status IN (:statuses)')
+            ->andWhere('p.isFakeVue IS NULL OR p.isFakeVue != :fakeVue')
+            ->setParameter('statuses', [3, 4])
+            ->setParameter('fakeVue', true)
+            ->orderBy('p.id', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
 //    /**
 //     * @return Promotion[] Returns an array of Promotion objects
 //     */

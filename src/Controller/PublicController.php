@@ -193,6 +193,8 @@ class PublicController extends AbstractController
             "nombreImpression"     => (string) $traitementsDS->formatNumber($promo->getNombreImpression()),
             "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
             "annotherInfo"         => $promo->getAnnotherInfo(),
+            "isFakeVue"            => $promo->getIsFakeVue(),
+            "status"               => $promo->getStatus(),
         ];
 
         $rawAutres = array_filter(
@@ -269,7 +271,7 @@ class PublicController extends AbstractController
     #[Route('/sitemap.xml', name: 'app_sitemap', defaults: ['_format' => 'xml'])]
     public function sitemap(PromotionRepository $promotionRepository): Response
     {
-        $rawPromos = $promotionRepository->findBy(['activated' => true], ['id' => 'DESC'], 500);
+        $rawPromos = $promotionRepository->findForSitemap(500);
         $promos = array_map(function ($promo) {
             return ['token' => $this->encodePromoToken($promo->getId())];
         }, $rawPromos);

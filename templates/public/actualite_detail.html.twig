@@ -3,6 +3,16 @@
 {% set title = promo.pseudoAnnonceur ~ ' — Actualité' %}
 {% set description = promo.description[:160] %}
 
+{% block robots_meta %}
+{% if promo.isFakeVue or promo.status not in [3, 4] %}
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+{% else %}
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
+{% endif %}
+{% endblock %}
+
 {% block referencement %}
     <meta property="og:title" content="{{ title }} | Dressur Web" />
     <meta property="og:description" content="{{ description }}" />
