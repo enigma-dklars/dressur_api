@@ -67,7 +67,7 @@ class PromotionController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $titre_demande_poste_rechercher = $datas->get('titre_demande_poste_rechercher');
         $description_profil_demandeur = $datas->get('description_profil_demandeur');
         $competence_qualification = $datas->get('competence_qualification');
@@ -160,7 +160,7 @@ class PromotionController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $titre_poste = $datas->get('titre_poste');
         $description_poste = $datas->get('description_poste');
         $competences_requises = $datas->get('competences_requises');
@@ -279,7 +279,7 @@ class PromotionController extends AbstractController
         }
 
         $idFormulePromoAffaire = $datas->get('idFormulePromoAffaire');
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $text = $datas->get('text');
         $mode = $datas->get('mode');
         $paymentMethod = $datas->get('paymentMethod'); // mon_argent
@@ -639,7 +639,7 @@ class PromotionController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $idPromoAffaire = $datas->get('idPromoAffaire');
         $text = $datas->get('text');
         $image = $files->get('image');
@@ -736,7 +736,7 @@ class PromotionController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $idFormulBoost = $datas->get('idFormulBoost');
         $idPromotion = $datas->get('idPromotion');
 
@@ -819,7 +819,7 @@ class PromotionController extends AbstractController
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $factureLignes = [];
         $montantTotal = 0;
