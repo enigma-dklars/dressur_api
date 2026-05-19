@@ -57,7 +57,7 @@
 
         {% if user.nom|replace({' ': ''}) == '' or user.nom is null %}
             <div class="col-12">
-                <a href="javascript:;" class="dropdown-item menu-element" url="/editprofil">
+                <a href="/editprofil" class="dropdown-item">
                     <div class="card radius-10 mb-0 h-100">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
@@ -72,7 +72,7 @@
 
         {% if user.nombreContactDispo <= 100 and user.boostEnCours == false %}
             <div class="col-12">
-                <a href="javascript:;" class="dropdown-item menu-element" url="/newboostcontact">
+                <a href="/newboostcontact" class="dropdown-item">
                     <div class="card radius-10 mb-0 h-100">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
@@ -108,7 +108,7 @@
                                     Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
                                 </button>
                             {% endif %}
-                            <a class="btn btn-md btn-info menu-element" url="/contact">Liste des contacts</a>
+                            <a href="/contact" class="btn btn-md btn-info">Liste des contacts</a>
                         </div>
                     </div>
                 </div>
