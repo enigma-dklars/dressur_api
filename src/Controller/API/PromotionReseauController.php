@@ -76,7 +76,7 @@ class PromotionReseauController extends AbstractController
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-        $uid = $datas->get('uid');
+        $uid = $_COOKIE['uid'] ?? null;
         
         $idFormulePromoReseau = $datas->get('idFormulePromoReseau');
         $qteDemander = $datas->get('qteDemander');
