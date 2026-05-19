@@ -165,7 +165,6 @@ class PrivateController extends AbstractController
                 return $this->render('private/index.html.twig', [
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
-                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
@@ -194,7 +193,6 @@ class PrivateController extends AbstractController
                 return $this->render('private/index_admin.html.twig', [
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
-                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
@@ -246,7 +244,6 @@ class PrivateController extends AbstractController
                 return $this->render('private/index.html.twig', [
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
-                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
