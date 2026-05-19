@@ -25,9 +25,8 @@
         </div>
         <div class="row g-3">
             {% for actu in actus %}
-                {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
-                {% set encodedText = text|url_encode %}
-                {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
+                {% set waText %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
+                {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ waText|url_encode %}
 
                 <div class="col-md-4">
                     <div class="card mb-0 shadow h-100">
@@ -41,14 +40,20 @@
                                 {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur}} {% endif %}
                             </p>
                             <div class="row align-items-center">
-                                <div class="col-7">
-                                    <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="row g-2">
                                         <div class="col-auto"><i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
                                         <div class="col-auto"><i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
                                     </div>
                                 </div>
-                                <div class="col-5 text-end d-flex gap-1 justify-content-end">
+                                <div class="col-6 text-end d-flex gap-1 justify-content-end">
                                     <a href="{{ waUrl }}" target="_blank" class="btn btn-success btn-sm rounded-2 py-0"><i class="fab fa-whatsapp"></i></a>
+                                    <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
+                                        data-share-url="https://dressur.site/actualite/{{ actu.token }}"
+                                        data-share-title="{{ actu.pseudoAnnonceur }} — Dressur"
+                                        data-share-text="{{ actu.description[:100] }}">
+                                        <i class="fas fa-share-nodes"></i>
+                                    </button>
                                     <a href="/actualite/{{ actu.token }}" class="btn btn-info btn-sm rounded-2 py-0">Voir</a>
                                 </div>
                             </div>
@@ -58,4 +63,31 @@
             {% endfor %}
         </div>
     </div>
+    <script>
+    (function() {
+        if (window._dsShareReady) return;
+        window._dsShareReady = true;
+        document.addEventListener('click', async function(e) {
+            var btn = e.target.closest('.ds-share-btn');
+            if (!btn) return;
+            var shareData = {
+                title: btn.dataset.shareTitle,
+                text: btn.dataset.shareText,
+                url: btn.dataset.shareUrl
+            };
+            if (navigator.share) {
+                try { await navigator.share(shareData); } catch(err) {}
+            } else {
+                try {
+                    await navigator.clipboard.writeText(btn.dataset.shareUrl);
+                    var orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(function() { btn.innerHTML = orig; }, 2000);
+                } catch(err) {
+                    window.open(btn.dataset.shareUrl, '_blank');
+                }
+            }
+        });
+    })();
+    </script>
 {% endblock %}

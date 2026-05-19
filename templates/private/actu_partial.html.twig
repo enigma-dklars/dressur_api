@@ -19,12 +19,11 @@
                             </div>
                         </div>
                         <div class="col-7 text-end d-flex gap-1 justify-content-end">
-                            <button class="btn btn-info btn-sm shar-actu py-0 px-1 border-0"
-                                pseudoAnnonceur="{{ actu.pseudoAnnonceur }}"
-                                description="{{ actu.description }}"
-                                whatsappNumber="{{ actu.whatsappNumber }}"
-                                image="{{ actu.image }}">
-                                <i class="fas fa-share-nodes me-1"></i> Partager
+                            <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
+                                data-share-url="https://dressur.site/actualite/{{ actu.token }}"
+                                data-share-title="{{ actu.pseudoAnnonceur }} — Dressur"
+                                data-share-text="{{ actu.description[:100] }}">
+                                <i class="fas fa-share-nodes"></i>
                             </button>
                             <a href="/actu/{{ actu.token }}" class="btn btn-outline-primary btn-sm py-0 px-2">
                                 Voir <i class="fas fa-arrow-right ms-1"></i>
@@ -40,3 +39,30 @@
         </div>
     {% endfor %}
 </div>
+<script>
+(function() {
+    if (window._dsShareReady) return;
+    window._dsShareReady = true;
+    document.addEventListener('click', async function(e) {
+        var btn = e.target.closest('.ds-share-btn');
+        if (!btn) return;
+        var shareData = {
+            title: btn.dataset.shareTitle,
+            text: btn.dataset.shareText,
+            url: btn.dataset.shareUrl
+        };
+        if (navigator.share) {
+            try { await navigator.share(shareData); } catch(err) {}
+        } else {
+            try {
+                await navigator.clipboard.writeText(btn.dataset.shareUrl);
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            } catch(err) {
+                window.open(btn.dataset.shareUrl, '_blank');
+            }
+        }
+    });
+})();
+</script>

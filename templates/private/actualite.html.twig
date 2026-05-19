@@ -56,11 +56,10 @@
                     <a href="{{ waUrl }}" target="_blank" class="btn btn-success">
                         <i class="fab fa-whatsapp me-2"></i>Contacter l'annonceur
                     </a>
-                    <button class="btn btn-outline-info shar-actu"
-                        pseudoAnnonceur="{{ promo.pseudoAnnonceur }}"
-                        description="{{ promo.description }}"
-                        whatsappNumber="{{ promo.whatsappNumber }}"
-                        image="{{ promo.image }}">
+                    <button class="btn btn-outline-secondary ds-share-btn"
+                        data-share-url="https://dressur.site/actualite/{{ promo.token }}"
+                        data-share-title="{{ promo.pseudoAnnonceur }} — Dressur"
+                        data-share-text="{{ promo.description[:100] }}">
                         <i class="fas fa-share-nodes me-1"></i> Partager
                     </button>
                 </div>
@@ -85,9 +84,17 @@
                                 <span class="me-2"><i class="fas fa-eye me-1"></i>{{ autre.nombreImpression }}</span>
                                 <span><i class="fas fa-hand-pointer me-1"></i>{{ autre.nombreDeVues }}</span>
                             </div>
-                            <a href="/actu/{{ autre.token }}" class="btn btn-info btn-sm py-0 px-2">
-                                Voir <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
+                                    data-share-url="https://dressur.site/actualite/{{ autre.token }}"
+                                    data-share-title="{{ autre.pseudoAnnonceur }} — Dressur"
+                                    data-share-text="{{ autre.description[:100] }}">
+                                    <i class="fas fa-share-nodes"></i>
+                                </button>
+                                <a href="/actu/{{ autre.token }}" class="btn btn-info btn-sm py-0 px-2">
+                                    Voir <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -98,4 +105,31 @@
     {% endif %}
 
 </div>
+<script>
+(function() {
+    if (window._dsShareReady) return;
+    window._dsShareReady = true;
+    document.addEventListener('click', async function(e) {
+        var btn = e.target.closest('.ds-share-btn');
+        if (!btn) return;
+        var shareData = {
+            title: btn.dataset.shareTitle,
+            text: btn.dataset.shareText,
+            url: btn.dataset.shareUrl
+        };
+        if (navigator.share) {
+            try { await navigator.share(shareData); } catch(err) {}
+        } else {
+            try {
+                await navigator.clipboard.writeText(btn.dataset.shareUrl);
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check me-1"></i> Copié !';
+                setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            } catch(err) {
+                window.open(btn.dataset.shareUrl, '_blank');
+            }
+        }
+    });
+})();
+</script>
 {% endblock %}
