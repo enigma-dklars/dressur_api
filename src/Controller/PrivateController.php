@@ -149,7 +149,7 @@ class PrivateController extends AbstractController
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
-            $actu = $this->renderView('private/actu.html.twig', [
+            $actu = $this->renderView('private/actu_partial.html.twig', [
                 'actus' => json_decode($userinfo['lesPublicites']),
             ]);
 
@@ -226,7 +226,7 @@ class PrivateController extends AbstractController
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
-            $actu = $this->renderView('private/actu.html.twig', [
+            $actu = $this->renderView('private/actu_partial.html.twig', [
                 'actus' => json_decode($userinfo['lesPublicites']),
             ]);
 
