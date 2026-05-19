@@ -40,6 +40,20 @@ class CrudUserController extends AbstractController
         }
     }
 
+    private function buildContactCounts(iterable $users, array $allUserIds): array
+    {
+        $allUserIdsFlip = array_flip($allUserIds);
+        $counts = [];
+        foreach ($users as $user) {
+            $contact = $user->getContact();
+            $whoIAdd = $contact ? $contact->getWhoIAdd() : [];
+            $whoAddMe = $contact ? $contact->getWhoAddMe() : [];
+            $merged = array_unique(array_merge($whoIAdd, $whoAddMe));
+            $counts[$user->getId()] = count(array_intersect_key(array_flip($merged), $allUserIdsFlip));
+        }
+        return $counts;
+    }
+
     #[Route('/', name: 'app_crud_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository, Request $request): Response
     {
@@ -55,11 +69,15 @@ class CrudUserController extends AbstractController
         
         $totalItems = $usersPaginator->count();
         $totalPages = ceil($totalItems / $limit);
+
+        $allUserIds = $userRepository->findAllIds();
+        $contactCounts = $this->buildContactCounts($usersPaginator, $allUserIds);
         
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $usersPaginator,
+            'contactCounts' => $contactCounts,
             'option' => "All",
             'currentPage' => $page,
             'totalPages' => $totalPages,
@@ -83,10 +101,13 @@ class CrudUserController extends AbstractController
     #[Route('/not-verif-tel', name: 'app_crud_user_not_verif_tel', methods: ['GET'])]
     public function not_verif_tel(UserRepository $userRepository): Response
     {
+        $users = $userRepository->findBy(['telIsVerified' => false], ['id' => 'DESC']);
+        $allUserIds = $userRepository->findAllIds();
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findBy(['telIsVerified' => false], ['id' => 'DESC']),
+            'users' => $users,
+            'contactCounts' => $this->buildContactCounts($users, $allUserIds),
             'option' => "Tel Not Verified",
             'currentPage' => "",
             'totalPages' => "",
@@ -99,10 +120,13 @@ class CrudUserController extends AbstractController
     #[Route('/not-verif-mail', name: 'app_crud_user_not_verif_mail', methods: ['GET'])]
     public function not_verif_mail(UserRepository $userRepository): Response
     {
+        $users = $userRepository->findBy(['mailIsVerified' => false], ['id' => 'DESC']);
+        $allUserIds = $userRepository->findAllIds();
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findBy(['mailIsVerified' => false], ['id' => 'DESC']),
+            'users' => $users,
+            'contactCounts' => $this->buildContactCounts($users, $allUserIds),
             'option' => "Mail Not Verified",
             'currentPage' => "",
             'totalPages' => "",
@@ -115,10 +139,13 @@ class CrudUserController extends AbstractController
     #[Route('/not-verif-tel-mail', name: 'app_crud_user_not_verif_tel_mail', methods: ['GET'])]
     public function not_verif_tel_mail(UserRepository $userRepository): Response
     {
+        $users = $userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], ['id' => 'DESC']);
+        $allUserIds = $userRepository->findAllIds();
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], ['id' => 'DESC']),
+            'users' => $users,
+            'contactCounts' => $this->buildContactCounts($users, $allUserIds),
             'option' => "Tel Mail Not Verified",
             'currentPage' => "",
             'totalPages' => "",

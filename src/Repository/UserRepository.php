@@ -66,6 +66,17 @@ class UserRepository extends ServiceEntityRepository
         return $this->paginate($query, $page, $limit);
     }
 
+    public function findAllIds(): array
+    {
+        return array_column(
+            $this->createQueryBuilder('u')
+                ->select('u.id')
+                ->getQuery()
+                ->getScalarResult(),
+            'id'
+        );
+    }
+
     private function paginate($query, int $page = 1, int $limit = 20): Paginator
     {
         $paginator = new Paginator($query);
