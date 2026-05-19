@@ -156,46 +156,62 @@ class PrivateController extends AbstractController
             if($user){
                 $user->setLastLoginTo(new DateTime());    
                 $this->em->flush();
-                if ($user->getAdmin() == false) {
-                    return $this->render('private/index.html.twig', [
-                        'theme' => $this->theme,
-                        'user' => $traitementsDS->infosUser($user),
-                        'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
-                        'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                        'countVues' => $traitementsDS->formatNumber($count['countVues']),
-                        'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                        'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
-                        'actu' => $actu,
-                    ]);
-                } else {
-                    return $this->render('private/index_admin.html.twig', [
-                        'theme' => $this->theme,
-                        'user' => $traitementsDS->infosUser($user),
-                        'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
-                        'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                        'countVues' => $traitementsDS->formatNumber($count['countVues']),
-                        'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                        'nbr_tel_mail_no_conf' => count($userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false])),
-                        'nbr_tel_mail_yes_conf' => count($userRepository->findBy(['telIsVerified' => true, 'mailIsVerified' => true])),
-                        'nbr_tel_no_conf' => count($userRepository->findBy(['telIsVerified' => false])),
-                        'nbr_mail_no_conf' => count($userRepository->findBy(['mailIsVerified' => false])),
-                        'affaire_valider_sans_payer' => count($promotionRepository->findBy(['status' => 2])),
-                        'valid_promo_affaire' => count($promotionRepository->findBy(['status' => 1])),
-                        'valid_promo_reseau' => count($promoReseauRepository->findBy(['status' => 1])),
-                        'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
-                        'nbr_have_parent' => count($userRepository->findAll()) - count($userRepository->findBy(['parrain' => null])),
-                        'nbr_user' => count($userRepository->findAll()),
-                        'nbr_user_bot' => count($userBotRepository->findAll()),
-                        'deleted_users' => count($deletedDSRepository->findAll()),
-                        'banned_users' => count($this->env->getUserBanned()) / 3,
-                        'encour_boost' => count($traitementsDS->getAddDisponible($userRepository->find(2))),
-                        'programmer_boost' => $traitementsDS->getAddProgrammer(),
-                        'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
-                        'users_prog_recomp' => count($userRepository->findBy(['isInscritProgrammeRecompense' => true])),
-                        'p_aff_recomp' => count($promotionRepository->findBy(['inProgrammeRecompense' => true])),
-                        'p_aff_ds_statut' => count($promotionRepository->findBy(['publishOnDressurStatus' => true])),
-                    ]);
-                }
+                return $this->render('private/index.html.twig', [
+                    'theme' => $this->theme,
+                    'user' => $traitementsDS->infosUser($user),
+                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
+                    'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
+                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
+                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
+                    'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
+                    'actu' => $actu,
+                ]);
+            }
+        }
+        return $this->redirectToRoute('app_connexion');
+    }
+
+    #[Route('/admin', name: 'app_admin')]
+    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository): Response
+    {
+        if($cookieDS->get("uid")){
+            $uid = $cookieDS->get("uid");
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+            $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
+
+            $userinfo = $this->traitementsDS->infosUser($user);
+
+            if($user){
+                $user->setLastLoginTo(new DateTime());    
+                $this->em->flush();
+                
+                return $this->render('private/index_admin.html.twig', [
+                    'theme' => $this->theme,
+                    'user' => $traitementsDS->infosUser($user),
+                    'bonus_user' => $traitementsDS->formatNumber($user->getSoldeBonus()),
+                    'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
+                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
+                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
+                    'nbr_tel_mail_no_conf' => count($userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false])),
+                    'nbr_tel_mail_yes_conf' => count($userRepository->findBy(['telIsVerified' => true, 'mailIsVerified' => true])),
+                    'nbr_tel_no_conf' => count($userRepository->findBy(['telIsVerified' => false])),
+                    'nbr_mail_no_conf' => count($userRepository->findBy(['mailIsVerified' => false])),
+                    'affaire_valider_sans_payer' => count($promotionRepository->findBy(['status' => 2])),
+                    'valid_promo_affaire' => count($promotionRepository->findBy(['status' => 1])),
+                    'valid_promo_reseau' => count($promoReseauRepository->findBy(['status' => 1])),
+                    'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
+                    'nbr_have_parent' => count($userRepository->findAll()) - count($userRepository->findBy(['parrain' => null])),
+                    'nbr_user' => count($userRepository->findAll()),
+                    'nbr_user_bot' => count($userBotRepository->findAll()),
+                    'deleted_users' => count($deletedDSRepository->findAll()),
+                    'banned_users' => count($this->env->getUserBanned()) / 3,
+                    'encour_boost' => count($traitementsDS->getAddDisponible($userRepository->find(2))),
+                    'programmer_boost' => $traitementsDS->getAddProgrammer(),
+                    'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
+                    'users_prog_recomp' => count($userRepository->findBy(['isInscritProgrammeRecompense' => true])),
+                    'p_aff_recomp' => count($promotionRepository->findBy(['inProgrammeRecompense' => true])),
+                    'p_aff_ds_statut' => count($promotionRepository->findBy(['publishOnDressurStatus' => true])),
+                ]);
             }
         }
         return $this->redirectToRoute('app_connexion');
