@@ -97,16 +97,14 @@
 
 <script>
 (function () {
-    function scrollToActive() {
-        var active = document.querySelector('.sidebar-wrapper .mm-active');
-        if (!active) return;
-        var scrollEl = document.querySelector('.sidebar-wrapper .simplebar-content-wrapper');
-        if (!scrollEl) return;
-        var activeRect = active.getBoundingClientRect();
-        var containerRect = scrollEl.getBoundingClientRect();
-        var offset = scrollEl.scrollTop + (activeRect.top - containerRect.top) - (scrollEl.clientHeight / 2) + (active.clientHeight / 2);
-        scrollEl.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
-    }
-    window.addEventListener('load', function () { setTimeout(scrollToActive, 200); });
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            var active = document.querySelector('.sidebar-wrapper .mm-active');
+            if (!active) return;
+            var winX = window.scrollX, winY = window.scrollY;
+            active.scrollIntoView({ block: 'center' });
+            window.scrollTo(winX, winY);
+        }, 200);
+    });
 })();
 </script>
