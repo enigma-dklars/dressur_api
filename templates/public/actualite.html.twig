@@ -57,7 +57,7 @@
         <div class="mb-3 h6">
             <span class="fw-bolder">Dressur</span> / <span class="text-primary">Actualités</span>
         </div>
-        <div class="row g-3">
+        <div class="row g-3" id="actualite-grid" data-offset="12" data-total="{{ total }}">
             {% for actu in actus %}
                 {% set waText %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
                 {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ waText|url_encode %}
@@ -97,28 +97,86 @@
                 </div>
             {% endfor %}
         </div>
+
+        <div id="actualite-loader" class="text-center py-4" style="display:none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Chargement…</span>
+            </div>
+        </div>
+        <div id="actualite-end" class="text-center py-3 text-muted small" style="display:none;">
+            — Fin des actualités —
+        </div>
     </div>
+
     <script>
-    (function() {
+    (function () {
+        var grid    = document.getElementById('actualite-grid');
+        var loader  = document.getElementById('actualite-loader');
+        var endMsg  = document.getElementById('actualite-end');
+
+        if (!grid) return;
+
+        var offset  = parseInt(grid.dataset.offset, 10) || 12;
+        var total   = parseInt(grid.dataset.total, 10)  || 0;
+        var loading = false;
+        var done    = offset >= total;
+
+        if (done) { endMsg.style.display = 'block'; }
+
+        function loadMore() {
+            if (loading || done) return;
+            loading = true;
+            loader.style.display = 'block';
+
+            $.ajax({
+                url:  '/actualite/more',
+                type: 'GET',
+                data: { offset: offset },
+                success: function (html, status, xhr) {
+                    loader.style.display = 'none';
+                    $(grid).append(html);
+                    var hasMore = xhr.getResponseHeader('X-Has-More');
+                    offset += 12;
+                    grid.dataset.offset = offset;
+                    if (hasMore === '0' || offset >= total) {
+                        done = true;
+                        endMsg.style.display = 'block';
+                    }
+                    loading = false;
+                },
+                error: function () {
+                    loader.style.display = 'none';
+                    loading = false;
+                }
+            });
+        }
+
+        $(window).on('scroll', function () {
+            if (done || loading) return;
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 300) {
+                loadMore();
+            }
+        });
+
         if (window._dsShareReady) return;
         window._dsShareReady = true;
-        document.addEventListener('click', async function(e) {
+        document.addEventListener('click', async function (e) {
             var btn = e.target.closest('.ds-share-btn');
             if (!btn) return;
             var shareData = {
                 title: btn.dataset.shareTitle,
-                text: btn.dataset.shareText,
-                url: btn.dataset.shareUrl
+                text:  btn.dataset.shareText,
+                url:   btn.dataset.shareUrl
             };
             if (navigator.share) {
-                try { await navigator.share(shareData); } catch(err) {}
+                try { await navigator.share(shareData); } catch (err) {}
             } else {
                 try {
                     await navigator.clipboard.writeText(btn.dataset.shareUrl);
                     var orig = btn.innerHTML;
                     btn.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(function() { btn.innerHTML = orig; }, 2000);
-                } catch(err) {
+                    setTimeout(function () { btn.innerHTML = orig; }, 2000);
+                } catch (err) {
                     window.open(btn.dataset.shareUrl, '_blank');
                 }
             }

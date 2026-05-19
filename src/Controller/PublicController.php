@@ -8,6 +8,7 @@ use App\Controller\PrivateController;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\FormuleDressurBotRepository;
 use Symfony\Component\Routing\Annotation\Route;
@@ -148,14 +149,38 @@ class PublicController extends AbstractController
     public function actualite(TraitementsDS $traitementsDS): Response
     {
         $rawActus = $traitementsDS->getAffaires(90);
+        $total = count($rawActus);
         $actus = array_map(function ($a) {
             $a['token'] = $this->encodePromoToken($a['id']);
             return $a;
-        }, $rawActus);
+        }, array_slice($rawActus, 0, 12));
         return $this->render('public/actualite.html.twig', [
             'actus' => $actus,
+            'total' => $total,
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/actualite/more', name: 'app_actualite_more')]
+    public function actualiteMore(Request $request, TraitementsDS $traitementsDS): Response
+    {
+        $offset = max(0, (int) $request->query->get('offset', 0));
+        $limit  = 12;
+
+        $rawActus = $traitementsDS->getAffaires(90);
+        $total    = count($rawActus);
+        $actus    = array_map(function ($a) {
+            $a['token'] = $this->encodePromoToken($a['id']);
+            return $a;
+        }, array_slice($rawActus, $offset, $limit));
+
+        $hasMore = $total > $offset + $limit;
+        $html    = $this->renderView('public/actualite_cards.html.twig', ['actus' => $actus]);
+
+        return new Response($html, 200, [
+            'X-Has-More'   => $hasMore ? '1' : '0',
+            'Content-Type' => 'text/html; charset=UTF-8',
         ]);
     }
 
