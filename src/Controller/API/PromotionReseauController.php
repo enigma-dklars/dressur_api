@@ -79,7 +79,7 @@ class PromotionReseauController extends AbstractController
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         
         $idFormulePromoReseau = $datas->get('idFormulePromoReseau');
         $qteDemander = $datas->get('qteDemander');
