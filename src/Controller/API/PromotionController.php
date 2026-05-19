@@ -62,6 +62,12 @@ class PromotionController extends AbstractController
     #[Route('/newDmdEmploi', name: 'newDmdEmploi', methods: ['POST'])]
     public function newDmdEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Oups!',
+            'message' => "Le service de publication de demande d'emploi est temporairement indisponible. Merci pour votre compréhension.",
+        ]);
+
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
@@ -155,6 +161,12 @@ class PromotionController extends AbstractController
     #[Route('/newOffreEmploi', name: 'newOffreEmploi', methods: ['POST'])]
     public function newOffreEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
     {
+        return new JsonResponse([
+            'error' => true,
+            'titre' => 'Oups!',
+            'message' => "Le service de publication d'offre d'emploi est temporairement indisponible. Merci pour votre compréhension.",
+        ]);
+
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
