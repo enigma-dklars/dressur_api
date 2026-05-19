@@ -1,10 +1,14 @@
 {% set r = app.request.attributes.get('_route') %}
-{% set promo_routes = ['app_newboostcontact', 'app_listeboostcontact', 'app_newpromoaffaire', 'app_listepromoaffaire', 'app_newpromoreseau', 'app_listepromoreseau'] %}
-{% set promo_active = r in promo_routes %}
-{% set pref_routes = ['app_preferencePays'] %}
-{% set pref_active = r in pref_routes %}
-{% set autres_routes = ['app_editprofil', 'app_editPassword', 'app_addSuggestion', 'app_signalerUser'] %}
-{% set autres_active = r in autres_routes %}
+
+{# ── Groupes actifs ──────────────────────────────────────────────────── #}
+{% set promo_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau'] %}
+{% set promo_active   = r in promo_routes %}
+{% set pref_routes    = ['app_preferencePays'] %}
+{% set pref_active    = r in pref_routes %}
+{% set autres_routes  = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser'] %}
+{% set autres_active  = r in autres_routes %}
+{% set actu_active    = r in ['app_actu','app_actu_detail'] %}
+
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
       <div>
@@ -45,8 +49,8 @@
         </a>
       </li>
 
-      <li class="{{ r == 'app_actu' ? 'mm-active' : '' }}">
-        <a href="/actu" class="{{ r == 'app_actu' ? 'active' : '' }}">
+      <li class="{{ actu_active ? 'mm-active' : '' }}">
+        <a href="/actu" class="{{ actu_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-folder-plus"></i></div>
           <div class="menu-title">Actu</div>
         </a>
@@ -121,3 +125,22 @@
     </ul>
     <!--end navigation-->
 </aside>
+
+<script>
+(function () {
+    function scrollToActive() {
+        var active = document.querySelector('.sidebar-wrapper .mm-active');
+        if (!active) return;
+        var scrollEl = document.querySelector('.sidebar-wrapper .simplebar-content-wrapper');
+        if (scrollEl) {
+            var top = active.offsetTop - 80;
+            scrollEl.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(scrollToActive, 300); });
+    } else {
+        setTimeout(scrollToActive, 300);
+    }
+})();
+</script>
