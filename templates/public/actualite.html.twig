@@ -45,6 +45,9 @@
   }
 }
 </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},{"@type":"ListItem","position":2,"name":"Actualités","item":"{{ url('app_actualite') }}"}]}
+</script>
 {% endblock %}
 
 {% block title %}{{title}}{% endblock %}
@@ -62,7 +65,7 @@
                 <div class="col-md-4">
                     <div class="card mb-0 shadow h-100">
                         <a href="/actualite/{{ actu.token }}">
-                            <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}">
+                            <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}" loading="lazy" width="400" height="300">
                         </a>
                         <div class="card-body">
                             <p class="card-text actu-small-description">
