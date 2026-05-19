@@ -290,7 +290,7 @@ class PublicController extends AbstractController
     #[Route('/sitemap.xml', name: 'app_sitemap', defaults: ['_format' => 'xml'])]
     public function sitemap(PromotionRepository $promotionRepository): Response
     {
-        $rawPromos = $promotionRepository->findForSitemap(500);
+        $rawPromos = $promotionRepository->findForSitemap();
         $promos = array_map(function ($promo) {
             return ['token' => $this->encodePromoToken($promo->getId())];
         }, $rawPromos);

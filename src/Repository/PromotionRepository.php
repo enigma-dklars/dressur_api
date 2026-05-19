@@ -46,7 +46,7 @@ class PromotionRepository extends ServiceEntityRepository
      *
      * @return Promotion[]
      */
-    public function findForSitemap(int $limit = 500): array
+    public function findForSitemap(): array
     {
         return $this->createQueryBuilder('p')
             ->andWhere('p.status IN (:statuses)')
@@ -54,7 +54,6 @@ class PromotionRepository extends ServiceEntityRepository
             ->setParameter('statuses', [3, 4])
             ->setParameter('fakeVue', true)
             ->orderBy('p.id', 'DESC')
-            ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
     }
