@@ -1100,7 +1100,6 @@ class UserController extends AbstractController
         $preference = new Preference();
         $preference->setUser($user)
             ->setPaysChoisies([(string)$user->getPays()])
-            ->setCentreInteretLoisirChoisies([])
         ;
         $this->em->persist($preference);
 

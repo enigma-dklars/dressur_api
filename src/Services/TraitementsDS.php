@@ -989,7 +989,6 @@ class TraitementsDS extends AbstractController
             "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],
             "messageErreurPermissionAdd" => ($this->verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
-            'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
             'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
         ];
