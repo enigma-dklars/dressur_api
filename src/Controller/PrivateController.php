@@ -278,15 +278,20 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/actu', name: 'app_actu')]
-    public function actu(): Response
+    public function actu(PromotionRepository $promotionRepository): Response
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $userinfo = $this->traitementsDS->infosUser($user);
         $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
         foreach ($actusList as &$a) {
             $a['token'] = $this->encodePromoToken($a['id']);
+            $promo = $promotionRepository->find($a['id']);
+            if ($promo) {
+                $promo->setNombreImpression(($promo->getNombreImpression() ?? 0) + 1);
+            }
         }
         unset($a);
+        $this->em->flush();
         return $this->render('private/actu.html.twig', [
             'actus' => $actusList,
             'user' => $userinfo,
