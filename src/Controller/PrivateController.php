@@ -309,6 +309,9 @@ class PrivateController extends AbstractController
             return $this->redirectToRoute('app_actu');
         }
 
+        $promo->setNombreDeVue(($promo->getNombreDeVue() ?? 0) + 1);
+        $this->em->flush();
+
         $descpPromo = $promo->getDescription();
         if ($promo->getTypePromotionAffaire() == "offre_emploi") {
             $descpPromo = $promo->getAnnotherInfo()["description_poste"] ?? $promo->getDescription();
