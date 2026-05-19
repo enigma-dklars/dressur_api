@@ -255,6 +255,7 @@ class PrivateController extends AbstractController
         $userinfo = $this->traitementsDS->infosUser($user);
         return $this->render('private/actu.html.twig', [
             'actus' => json_decode($userinfo['lesPublicites']),
+            'user' => $userinfo,
             'theme' => $this->theme,
         ]);
     }
@@ -266,6 +267,7 @@ class PrivateController extends AbstractController
         $contacts = $this->traitementsDS->userContacts($user);
         return $this->render('private/contact.html.twig', [
             'contacts' => $contacts,
+            'user' => $this->traitementsDS->infosUser($user),
             'theme' => $this->theme,
         ]);
     }
