@@ -8,6 +8,7 @@ use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Repository\MessageRepository;
+use App\Services\CookieDS;
 use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use DateTime;
@@ -25,11 +26,13 @@ class MessageController extends AbstractController
 {
     private $em;
     private $env;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
+        $this->cookieDS = $cookieDS;
     }
 
     #[Route('/addMessage', name: 'addMessage', methods: ['POST', "GET"])]
@@ -41,7 +44,7 @@ class MessageController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         try {
-            $userEmetteur = $userRepository->findOneBy(['uid' => $_COOKIE['uid'] ?? null]);
+            $userEmetteur = $userRepository->findOneBy(['uid' => $this->cookieDS->get('uid') ?: null]);
             $userRecepteur = $userRepository->findOneBy(['uid' => $datas->get('recepteur')]);
             $dateEnvoi = (new DateTime())->setTimestamp($datas->get('dateEnvoi') / 1000);
 
@@ -73,7 +76,7 @@ class MessageController extends AbstractController
 
         try {
             $lesMessages = [];
-            $user = $userRepository->findOneBy(['uid' => $_COOKIE['uid'] ?? null]);
+            $user = $userRepository->findOneBy(['uid' => $this->cookieDS->get('uid') ?: null]);
 
             foreach ($messageRepository->findBy(['recepteur' => $user]) as $message) {
                 array_push($lesMessages, [
@@ -101,7 +104,7 @@ class MessageController extends AbstractController
     #[Route('/deleteMessageEnAttente/{lastIdMessage}/{uidUser}', name: 'deleteMessageEnAttente', methods: ['POST', "GET"])]
     public function deleteMessageEnAttente($lastIdMessage, $uidUser, Request $request, UserRepository $userRepository, SessionDS $sessionDS, MessageRepository $messageRepository): Response
     {
-        $user = $userRepository->findOneBy(['uid' => $_COOKIE['uid'] ?? null]);
+        $user = $userRepository->findOneBy(['uid' => $this->cookieDS->get('uid') ?: null]);
         try {
             $messages = $messageRepository->createQueryBuilder('m')
                 ->where('m.recepteur = :user')

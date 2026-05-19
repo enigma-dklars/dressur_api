@@ -3,6 +3,7 @@
 namespace App\Controller\API;
 
 use App\Entity\Signalement;
+use App\Services\CookieDS;
 use App\Services\SessionDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -22,12 +23,14 @@ class SignalementController extends AbstractController
     private $em;
     private $env;
     private $userController;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserController $userController)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserController $userController, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->userController = $userController;
+        $this->cookieDS = $cookieDS;
     }
 
     #[Route('/addSignalement', name: 'addSignalement')]
@@ -38,7 +41,7 @@ class SignalementController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $telSignaler = $datas->get('telSignaler');
         $motifSignaler = $datas->get('motifSignaler');
 
@@ -57,18 +60,18 @@ class SignalementController extends AbstractController
             ]);
         }
 
-        if(strlen($motifSignaler) < 100){
+        if(strlen($motifSignaler) < 25){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "The pattern must contain at least 100 characters",
+                    'message' => "The pattern must contain at least 25 characters",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
-                'message' => 'Le motif doit contenir au minimum 100 caractères',
+                'message' => 'Le motif doit contenir au minimum 25 caractères',
             ]);
         }
 

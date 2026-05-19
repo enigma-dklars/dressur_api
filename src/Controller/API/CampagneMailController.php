@@ -21,6 +21,7 @@ use App\Entity\Transaction as EntityTransaction;
 use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\MethodePaiementRepository;
+use App\Services\CookieDS;
 use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,12 +33,14 @@ class CampagneMailController extends AbstractController
     private $em;
     private $env;
     private $sendMail;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->sendMail = $sendMail;
+        $this->cookieDS = $cookieDS;
     }
 
     #[Route('/listeFormuleCampagneMail', name: 'listeFormuleCampagneMail', methods: ['POST', 'GET'])]
@@ -68,7 +71,7 @@ class CampagneMailController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $idFormuleCampagneMail = $datas->get('idFormuleCampagneMail');
         $titre = $datas->get('titre');
         $sujet = $datas->get('sujet');
@@ -174,7 +177,7 @@ class CampagneMailController extends AbstractController
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
 
         $idCampagneMail = $datas->get('idCampagneMail');
         $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent

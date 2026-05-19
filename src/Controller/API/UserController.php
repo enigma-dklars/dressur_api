@@ -22,7 +22,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
+use App\Services\CookieDS;
 use App\Services\SessionDS;
+use App\Utilities\UuidGenerator;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,12 +39,14 @@ class UserController extends AbstractController
     private $em;
     private $env;
     private $traitementsDS;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->traitementsDS = $traitementsDS;
+        $this->cookieDS = $cookieDS;
     }
 
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST', 'GET'])]
@@ -163,6 +167,7 @@ class UserController extends AbstractController
                 ]);
             }
 
+            $this->cookieDS->set("uid", $user->getUid());
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Connecter!',
@@ -215,7 +220,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
 
         if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -480,7 +485,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
 
         if(strlen($rawNewPassword) < 6) {
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -603,7 +608,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $uid = str_replace(["\n", "\r", " "], "", $uid);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -657,7 +662,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -710,7 +715,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $codeForVerifMail = $datas->get('codeForVerifMail');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -793,7 +798,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -1132,6 +1137,7 @@ class UserController extends AbstractController
                 ]
             ));
 
+            $this->cookieDS->set("uid", $userAfterRegister->getUid());
             return new JsonResponse([
                 'error' => false,
                 'user' => $this->traitementsDS->infosUser($userAfterRegister),
@@ -1162,7 +1168,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $motifDeleted = $datas->get('motifDeleted');
 
         $user = $userRepository->findOneBy(['uid' => $uid]);
@@ -1235,7 +1241,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $suggestion = $datas->get('suggestion');
 
         if(!$suggestion){
@@ -1298,7 +1304,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $user->setIsInscritProgrammeRecompense(true);        
@@ -1326,7 +1332,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
             
@@ -1353,7 +1359,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             $idPromoAffaire = $datas->get('idPromoAffaire');
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
@@ -1423,7 +1429,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $soldeDisponible = $user->getSoldeProgrammeRecompense();
 
@@ -1494,7 +1500,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
             $idHistorique = $datas->get('idHistorique');
@@ -1515,7 +1521,7 @@ class UserController extends AbstractController
                     'message' => "Erreur lors du traitement de la capture – Liste des statuts.",
                 ]);
             }
-            $fileName1 = "preuve_$uid"."_".time()."_".rand(1111, 9999).'.'.$capture1->getClientOriginalExtension();
+            $fileName1 = "preuve_$uid"."_".UuidGenerator::v4().'.'.$capture1->getClientOriginalExtension();
 
 
             $capture2 = $files->get('capture2');
@@ -1533,7 +1539,7 @@ class UserController extends AbstractController
                     'message' => "Erreur lors du traitement de la capture – Statut ouvert.",
                 ]);
             }
-            $fileName2 = "preuve_$uid"."_".time()."_".rand(1111, 9999).'.'.$capture2->getClientOriginalExtension();
+            $fileName2 = "preuve_$uid"."_".UuidGenerator::v4().'.'.$capture2->getClientOriginalExtension();
             
             $historiqueProgrammeRecompense->setStatus("en_attente");
             
@@ -1575,7 +1581,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
             $reseauRetrait = $datas->get('reseauRetrait') ?? "";
@@ -1610,7 +1616,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $_COOKIE['uid'] ?? null;
+            $uid = $this->cookieDS->get('uid') ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
             return new JsonResponse([

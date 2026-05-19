@@ -2,7 +2,16 @@
 
 namespace App\Services;
 
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 class CookieDS {
+
+    private string $secret;
+
+    public function __construct(ParameterBagInterface $params)
+    {
+        $this->secret = $params->get('kernel.secret');
+    }
 
     private function isSecure(): bool
     {
@@ -15,8 +24,30 @@ class CookieDS {
         return false;
     }
 
+    private function sign(string $value): string
+    {
+        $hmac = hash_hmac('sha256', $value, $this->secret);
+        return $value . '.' . $hmac;
+    }
+
+    private function verify(string $signed): string|false
+    {
+        $pos = strrpos($signed, '.');
+        if ($pos === false) {
+            return false;
+        }
+        $value    = substr($signed, 0, $pos);
+        $hmac     = substr($signed, $pos + 1);
+        $expected = hash_hmac('sha256', $value, $this->secret);
+        if (!hash_equals($expected, $hmac)) {
+            return false;
+        }
+        return $value;
+    }
+
     public function set($key, $val){
-        setcookie($key, $val, [
+        $signed = $this->sign((string) $val);
+        setcookie($key, $signed, [
             'expires'  => time() + 365 * 24 * 3600,
             'path'     => '/',
             'httponly' => true,
@@ -26,20 +57,27 @@ class CookieDS {
     }
 
     public function get($key = null){ 
-        if($key){
-            if(isset($_COOKIE[$key])){
-                return $_COOKIE[$key];
+        if ($key) {
+            if (isset($_COOKIE[$key])) {
+                return $this->verify($_COOKIE[$key]);
             }
             return false;
-        }else{
-            return $_COOKIE;
+        } else {
+            $all = [];
+            foreach ($_COOKIE as $k => $v) {
+                $verified = $this->verify((string) $v);
+                if ($verified !== false) {
+                    $all[$k] = $verified;
+                }
+            }
+            return $all;
         }
     }
 
     public function check($key = null){
-        if(isset($_COOKIE[$key])){
-            return true;
-        }      
+        if (isset($_COOKIE[$key])) {
+            return $this->verify($_COOKIE[$key]) !== false;
+        }
         return false;
     }
 

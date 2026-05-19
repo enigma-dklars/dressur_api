@@ -5,6 +5,7 @@ namespace App\Controller\API;
 use App\Entity\ContactsUser;
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Services\CookieDS;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
@@ -21,11 +22,13 @@ class ContactController extends AbstractController
 {
     private $em;
     private $userRepository;
+    private $cookieDS;
 
-    public function __construct(EntityManagerInterface $em, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $em, UserRepository $userRepository, CookieDS $cookieDS)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
+        $this->cookieDS = $cookieDS;
     }   
     
     #[Route('/listContactDS/{uid}/{langUserPhone}', name: 'listContactDS', methods: ['POST', "GET"])]
@@ -39,25 +42,37 @@ class ContactController extends AbstractController
     #[Route('/allUserAddDressur', name: 'addUserContact')]
     public function addUserContact(UserRepository $userRepository, VerificationsDS $verificationsDS): Response
     {
+        $dressurId  = 2;
+        $batchSize  = 50;
+        $iteration  = 0;
+
         try {
-            $allUsers = $userRepository->findAll();
-            foreach ($allUsers as $user) {
-                $dressur = $userRepository->find(2);
-                if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
+            $dressur = $userRepository->find($dressurId);
+
+            $query          = $this->em->createQuery('SELECT u FROM App\Entity\User u');
+            $iterableResult = $query->toIterable();
+
+            foreach ($iterableResult as $user) {
+                if (($verificationsDS->permissionAdd($user))["permissionAdd"] == true) {
                     $user->getContact()->setNewIAdd($dressur);
                     $dressur->getContact()->setNewAddMe($user);
                 }
+
+                $iteration++;
+                if ($iteration % $batchSize === 0) {
+                    $this->em->flush();
+                    $this->em->clear();
+                    $dressur = $userRepository->find($dressurId);
+                }
             }
+
             $this->em->flush();
+
             return new JsonResponse([
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
-            throw $th;            
-
-            return new JsonResponse([
-                'error' => true,
-            ]);
+            throw $th;
         }
     }
 
@@ -69,7 +84,7 @@ class ContactController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $_COOKIE['uid'] ?? null;
+        $uid = $this->cookieDS->get('uid') ?: null;
         $tel = $datas->get('tel');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
