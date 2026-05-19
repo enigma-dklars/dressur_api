@@ -73,6 +73,25 @@ class PrivateController extends AbstractController
         }
     }
 
+    private function encodePromoToken(int $id): string
+    {
+        $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
+        $encrypted = openssl_encrypt((string) $id, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+        return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
+    }
+
+    private function decodePromoToken(string $token): ?int
+    {
+        $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
+        $padded = strtr($token, '-_', '+/');
+        $pad = strlen($padded) % 4;
+        if ($pad) {
+            $padded .= str_repeat('=', 4 - $pad);
+        }
+        $decrypted = openssl_decrypt(base64_decode($padded), 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+        return ($decrypted !== false && ctype_digit($decrypted)) ? (int) $decrypted : null;
+    }
+
     #[Route('/export_vcf', name: 'app_export_vcf')]
     public function export_vcf(): Response
     {
@@ -149,8 +168,13 @@ class PrivateController extends AbstractController
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
+            $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
+            foreach ($actusList as &$a) {
+                $a['token'] = $this->encodePromoToken($a['id']);
+            }
+            unset($a);
             $actu = $this->renderView('private/actu_partial.html.twig', [
-                'actus' => json_decode($userinfo['lesPublicites']),
+                'actus' => $actusList,
             ]);
 
             if($user){
@@ -226,8 +250,13 @@ class PrivateController extends AbstractController
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
+            $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
+            foreach ($actusList as &$a) {
+                $a['token'] = $this->encodePromoToken($a['id']);
+            }
+            unset($a);
             $actu = $this->renderView('private/actu_partial.html.twig', [
-                'actus' => json_decode($userinfo['lesPublicites']),
+                'actus' => $actusList,
             ]);
 
             if($user){
@@ -253,16 +282,26 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $userinfo = $this->traitementsDS->infosUser($user);
+        $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
+        foreach ($actusList as &$a) {
+            $a['token'] = $this->encodePromoToken($a['id']);
+        }
+        unset($a);
         return $this->render('private/actu.html.twig', [
-            'actus' => json_decode($userinfo['lesPublicites']),
+            'actus' => $actusList,
             'user' => $userinfo,
             'theme' => $this->theme,
         ]);
     }
 
-    #[Route('/actualite/{id}', name: 'app_actualite')]
-    public function actualite(int $id, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
+    #[Route('/actualite/{token}', name: 'app_actualite')]
+    public function actualite(string $token, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
+        $id = $this->decodePromoToken($token);
+        if ($id === null) {
+            return $this->redirectToRoute('app_actu');
+        }
+
         $user = $this->traitementsDS->getUserByUidInCookies();
         $promo = $promotionRepository->find($id);
 
@@ -279,7 +318,7 @@ class PrivateController extends AbstractController
         }
 
         $promoData = [
-            "id"                   => $promo->getId(),
+            "token"                => $token,
             "image"                => $promo->getImage(),
             "description"          => $descpPromo,
             "whatsappNumber"       => $promo->getUser()->getTel(),
@@ -290,11 +329,14 @@ class PrivateController extends AbstractController
             "annotherInfo"         => $promo->getAnnotherInfo(),
         ];
 
-        $autresPromos = array_filter(
+        $rawAutres = array_filter(
             $traitementsDS->getTopAffaires(10),
             fn($p) => $p['id'] !== $id
         );
-        $autresPromos = array_slice(array_values($autresPromos), 0, 3);
+        $autresPromos = array_map(function ($p) {
+            $p['token'] = $this->encodePromoToken($p['id']);
+            return $p;
+        }, array_slice(array_values($rawAutres), 0, 3));
 
         return $this->render('private/actualite.html.twig', [
             'promo'        => $promoData,
