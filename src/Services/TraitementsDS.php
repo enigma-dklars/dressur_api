@@ -236,17 +236,64 @@ class TraitementsDS extends AbstractController
         }
     }
 
+    private function applyExpiredPromoStatusUpdates(iterable $promos): void
+    {
+        $dirty = false;
+        foreach ($promos as $promo) {
+            if ($promo->getDateExp() && (new DateTime()) > $promo->getDateExp()) {
+                $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                $this->finishParticipationProgrammeRecompense($promo);
+                $dirty = true;
+            }
+        }
+        if ($dirty) {
+            $this->em->flush();
+        }
+    }
+
+    private function applyWebViewTracking(iterable $promos): void
+    {
+        $dirty = false;
+        foreach ($promos as $promo) {
+            $promo->setToWatch(null, 'web');
+            $dirty = true;
+        }
+        if ($dirty) {
+            $this->em->flush();
+        }
+    }
+
+    private function applyUserViewTracking($user, iterable $promos): void
+    {
+        $dirty = false;
+        foreach ($promos as $promo) {
+            $type = $promo->getIsFakeVue() ? 'fakeVue' : 'all';
+            if ($user->getId() == 3 || $user->getId() == 2) {
+                if ((new DateTime()) >= $promo->getDateDebut() && (new DateTime()) <= $promo->getDateExp()) {
+                    $promo->setToWatch($user, $type);
+                    $dirty = true;
+                }
+            } else {
+                if (in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
+                    if ((new DateTime()) >= $promo->getDateDebut() && (new DateTime()) <= $promo->getDateExp()) {
+                        $promo->setToWatch($user, $type);
+                        $dirty = true;
+                    }
+                }
+            }
+        }
+        if ($dirty) {
+            $this->em->flush();
+        }
+    }
+
     public function userPromos($promos){
+        $this->applyExpiredPromoStatusUpdates($promos);
         $userPromos = [];
 
         foreach ($promos as $promo) {
             $statut = "";
             $peutPayer = false;
-
-            if($promo->getDateExp() and ((new DateTime()) > $promo->getDateExp())) {
-                $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
-                $this->finishParticipationProgrammeRecompense($promo);
-            }
 
             if ($promo->getStatus() == 0) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
@@ -312,7 +359,6 @@ class TraitementsDS extends AbstractController
             array_push($userPromos, $unePromo);
         }
 
-        $this->em->flush();
         $userPromos = array_reverse($userPromos);
         return $userPromos;
     }
@@ -456,7 +502,6 @@ class TraitementsDS extends AbstractController
             array_push($userPromoReseaus, $unePromo);
         }
 
-        $this->em->flush();
         $userPromoReseaus = array_reverse($userPromoReseaus);
         return $userPromoReseaus;
     }
@@ -502,8 +547,8 @@ class TraitementsDS extends AbstractController
                 "status" => [3, 4],
             ], ["nombreDeVue" => "DESC"], $limit
         );
+        $this->applyWebViewTracking($promos);
         foreach ($promos as $promo) {
-            $promo->setToWatch(null, "web");
             $descp_promo = $promo->getDescription();
             if($promo->getTypePromotionAffaire() == "offre_emploi") {
                 $descp_promo = $promo->getAnnotherInfo()["description_poste"];
@@ -526,7 +571,6 @@ class TraitementsDS extends AbstractController
             ];
             array_push($top_trois_affaires, $unePromo);            
         }
-        $this->em->flush();
         shuffle($top_trois_affaires);
         return $top_trois_affaires;
     }
@@ -569,15 +613,13 @@ class TraitementsDS extends AbstractController
             "status" => 3,
             "limited" => true,
         ]);
+
+        $this->applyExpiredPromoStatusUpdates($promos);
+        $this->applyUserViewTracking($user, $promos);
+
         foreach ($promos as $promo) {
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                    if($promo->getIsFakeVue() == true) {
-                        $promo->setToWatch($user, "fakeVue");
-                    } else {
-                        $promo->setToWatch($user, "all");
-                    }
-
                     $descp_promo = $promo->getDescription();
                     if($promo->getTypePromotionAffaire() == "offre_emploi") {
                         $descp_promo = $promo->getAnnotherInfo()["description_poste"];
@@ -600,20 +642,10 @@ class TraitementsDS extends AbstractController
                         "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
-                } else {
-                    $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
-                    $this->finishParticipationProgrammeRecompense($promo);
-
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
                     if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
-                        if($promo->getIsFakeVue() == true) {
-                            $promo->setToWatch($user, "fakeVue");
-                        } else {
-                            $promo->setToWatch($user, "all");
-                        }
-
                         $descp_promo = $promo->getDescription();
                         if($promo->getTypePromotionAffaire() == "offre_emploi") {
                             $descp_promo = $promo->getAnnotherInfo()["description_poste"];
@@ -636,38 +668,34 @@ class TraitementsDS extends AbstractController
                             "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                         ];
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
-                    } else {
-                        $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
-                        $this->finishParticipationProgrammeRecompense($promo);
                     }
                 }
             }
         }
 
         foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
-            $descp_promo = $promo->getDescription();
-            if($promo->getTypePromotionAffaire() == "offre_emploi") {
-                $descp_promo = $promo->getAnnotherInfo()["description_poste"];
+            $descp_promo = $promoVIP->getDescription();
+            if($promoVIP->getTypePromotionAffaire() == "offre_emploi") {
+                $descp_promo = $promoVIP->getAnnotherInfo()["description_poste"];
             }
-            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
-                $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
+            if($promoVIP->getTypePromotionAffaire() == "dmd_emploi") {
+                $descp_promo = $promoVIP->getAnnotherInfo()["description_profil_demandeur"];
             }
 
             array_push($listePubliciteAffichageAuxUsers, [
-                "uidUser" => $promo->getUser()->getUid(),
+                "uidUser" => $promoVIP->getUser()->getUid(),
                 "id" => $promoVIP->getId(),
                 "image" => $promoVIP->getImage(),
                 "description" => $descp_promo,
                 "whatsappNumber" => $promoVIP->getUser()->getTel(),
                 "pseudoAnnonceur" => $promoVIP->getUser()->getPseudo(),
-                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
-                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
-                "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
-                "annotherInfo" => $promo->getAnnotherInfo(),
-                "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
+                "nombreDeVues" => (string)$this->formatNumber($promoVIP->getNombreDeVue()),
+                "nombreImpression" => (string)$this->formatNumber($promoVIP->getNombreImpression()),
+                "typePromotionAffaire" => $promoVIP->getTypePromotionAffaire(),
+                "annotherInfo" => $promoVIP->getAnnotherInfo(),
+                "inProgrammeRecompense" => $promoVIP->isInProgrammeRecompense() ? 1 : 0,
             ]);
         }
-        $this->em->flush();
         shuffle($listePubliciteAffichageAuxUsers);
         return $listePubliciteAffichageAuxUsers;
     }
@@ -679,6 +707,9 @@ class TraitementsDS extends AbstractController
             "limited" => true,
             "inProgrammeRecompense" => true,
         ], ['id' => 'DESC']);
+
+        $this->applyExpiredPromoStatusUpdates($promos);
+
         foreach ($promos as $promo) {
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
@@ -699,9 +730,6 @@ class TraitementsDS extends AbstractController
                         "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                     ];
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
-                } else {
-                    $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
-                    $this->finishParticipationProgrammeRecompense($promo);
                 }
             } else {
                 if(in_array($user->getPays(), $promo->getUser()->getPreference()->getPaysChoisies())) {
@@ -743,15 +771,11 @@ class TraitementsDS extends AbstractController
                         } else {
                             array_push($listePubliciteAffichageAuxUsers, $unePromo);
                         }
-                    } else {
-                        $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
-                        $this->finishParticipationProgrammeRecompense($promo);
                     }
                 }
             }
         }
 
-        $this->em->flush();
         return $listePubliciteAffichageAuxUsers;
     }
 
