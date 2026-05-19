@@ -16,6 +16,8 @@ use App\Repository\FormulePromoReseauRepository;
 use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\FormulePromoAffaireRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class PublicController extends AbstractController
 {
@@ -288,19 +290,19 @@ class PublicController extends AbstractController
     }
 
     #[Route('/sitemap.xml', name: 'app_sitemap', defaults: ['_format' => 'xml'])]
-    public function sitemap(PromotionRepository $promotionRepository): Response
+    public function sitemap(PromotionRepository $promotionRepository, CacheInterface $cache): Response
     {
-        $rawPromos = $promotionRepository->findForSitemap();
-        $promos = array_map(function ($promo) {
-            return ['token' => $this->encodePromoToken($promo->getId())];
-        }, $rawPromos);
+        $xml = $cache->get('sitemap_xml', function (ItemInterface $item) use ($promotionRepository) {
+            $item->expiresAfter(86400); // 24 heures
 
-        $response = new Response(
-            $this->renderView('sitemap.xml.twig', ['promos' => $promos]),
-            200,
-            ['Content-Type' => 'application/xml']
-        );
+            $rawPromos = $promotionRepository->findForSitemap();
+            $promos = array_map(function ($promo) {
+                return ['token' => $this->encodePromoToken($promo->getId())];
+            }, $rawPromos);
 
-        return $response;
+            return $this->renderView('sitemap.xml.twig', ['promos' => $promos]);
+        });
+
+        return new Response($xml, 200, ['Content-Type' => 'application/xml']);
     }
 }
