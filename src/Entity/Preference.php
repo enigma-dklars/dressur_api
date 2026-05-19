@@ -23,9 +23,6 @@ class Preference
     #[ORM\Column(nullable: true)]
     private array $paysChoisies = [];
 
-    #[ORM\Column]
-    private array $centreInteretLoisirChoisies = [];
-
     public function __construct()
     {
         // $this->paysChoisies = [$this->user->getPays()];
@@ -56,18 +53,6 @@ class Preference
     public function setPaysChoisies(?array $paysChoisies): self
     {
         $this->paysChoisies = $paysChoisies;
-
-        return $this;
-    }
-
-    public function getCentreInteretLoisirChoisies(): array
-    {
-        return $this->centreInteretLoisirChoisies;
-    }
-
-    public function setCentreInteretLoisirChoisies(array $centreInteretLoisirChoisies): self
-    {
-        $this->centreInteretLoisirChoisies = $centreInteretLoisirChoisies;
 
         return $this;
     }
