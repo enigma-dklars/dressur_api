@@ -44,7 +44,7 @@ class MessageController extends AbstractController
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         try {
-            $userEmetteur = $userRepository->findOneBy(['uid' => $this->cookieDS->get('uid') ?: null]);
+            $userEmetteur = $userRepository->findOneBy(['uid' => $this->cookieDS->getWithFallback('uid', $request) ?: null]);
             $userRecepteur = $userRepository->findOneBy(['uid' => $datas->get('recepteur')]);
             $dateEnvoi = (new DateTime())->setTimestamp($datas->get('dateEnvoi') / 1000);
 
@@ -76,7 +76,7 @@ class MessageController extends AbstractController
 
         try {
             $lesMessages = [];
-            $user = $userRepository->findOneBy(['uid' => $this->cookieDS->get('uid') ?: null]);
+            $user = $userRepository->findOneBy(['uid' => $this->cookieDS->getWithFallback('uid', $request) ?: null]);
 
             foreach ($messageRepository->findBy(['recepteur' => $user]) as $message) {
                 array_push($lesMessages, [
@@ -104,7 +104,7 @@ class MessageController extends AbstractController
     #[Route('/deleteMessageEnAttente/{lastIdMessage}/{uidUser}', name: 'deleteMessageEnAttente', methods: ['POST', "GET"])]
     public function deleteMessageEnAttente($lastIdMessage, $uidUser, Request $request, UserRepository $userRepository, SessionDS $sessionDS, MessageRepository $messageRepository): Response
     {
-        $user = $userRepository->findOneBy(['uid' => $this->cookieDS->get('uid') ?: null]);
+        $user = $userRepository->findOneBy(['uid' => $this->cookieDS->getWithFallback('uid', $request) ?: null]);
         try {
             $messages = $messageRepository->createQueryBuilder('m')
                 ->where('m.recepteur = :user')
