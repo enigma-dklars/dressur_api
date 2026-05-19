@@ -422,7 +422,7 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         return $this->render('private/listeboostcontact.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-            'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user]))
+            'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])),
             'theme' => $this->theme,
         ]);
     }
@@ -435,7 +435,7 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         return $this->render('private/listeBonusRecu.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-            'lesBonus' => $traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"]))
+            'lesBonus' => $traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),
             'theme' => $this->theme,
         ]);
     }
@@ -704,7 +704,7 @@ class PrivateController extends AbstractController
                 '967' => 'Yémen',
                 '260' => 'Zambie',
                 '263' => 'Zimbabwe',
-            ]
+            ],
             'theme' => $this->theme,
         ]);
     }
