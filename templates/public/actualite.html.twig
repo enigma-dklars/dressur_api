@@ -62,10 +62,11 @@
                 {% set waText %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
                 {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ waText|url_encode %}
 
+                {% set altText %}{% if actu.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.lieu_travail is defined and actu.annotherInfo.lieu_travail %} à {{ actu.annotherInfo.lieu_travail }}{% endif %} — {{ actu.pseudoAnnonceur }}{% elseif actu.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.localisation_souhaite is defined and actu.annotherInfo.localisation_souhaite %} à {{ actu.annotherInfo.localisation_souhaite }}{% endif %} — {{ actu.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ actu.pseudoAnnonceur }}{% endif %}{% endset %}
                 <div class="col-md-4">
                     <div class="card mb-0 shadow h-100">
                         <a href="/actualite/{{ actu.token }}">
-                            <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}" loading="lazy" width="400" height="300">
+                            <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="{{ altText|trim }}" loading="lazy" width="400" height="300">
                         </a>
                         <div class="card-body">
                             <p class="card-text actu-small-description">

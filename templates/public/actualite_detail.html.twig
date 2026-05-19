@@ -113,8 +113,9 @@
 
     <div class="row g-4">
         <div class="col-lg-8 mx-auto">
+            {% set altPromo %}{% if promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail %} à {{ promo.annotherInfo.lieu_travail }}{% endif %} — {{ promo.pseudoAnnonceur }}{% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.localisation_souhaite is defined and promo.annotherInfo.localisation_souhaite %} à {{ promo.annotherInfo.localisation_souhaite }}{% endif %} — {{ promo.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ promo.pseudoAnnonceur }}{% endif %}{% endset %}
             <div class="card shadow">
-                <img src="/promotion/{{ promo.image }}" class="card-img-top w-100" alt="{{ promo.pseudoAnnonceur }}" style="height:auto; display:block;">
+                <img src="/promotion/{{ promo.image }}" class="card-img-top w-100" alt="{{ altPromo|trim }}" style="height:auto; display:block;">
                 <div class="card-body p-4">
 
                     <div class="d-flex align-items-start mb-3">
@@ -183,10 +184,11 @@
             <h5 class="mb-3 fw-semibold"><i class="fas fa-rectangle-ad me-2 text-info"></i>Autres actualités</h5>
             <div class="row g-3">
                 {% for autre in autresPromos %}
+                {% set altAutre %}{% if autre.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if autre.annotherInfo.titre_demande_poste_rechercher is defined and autre.annotherInfo.titre_demande_poste_rechercher %} — {{ autre.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if autre.annotherInfo.lieu_travail is defined and autre.annotherInfo.lieu_travail %} à {{ autre.annotherInfo.lieu_travail }}{% endif %} — {{ autre.pseudoAnnonceur }}{% elseif autre.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if autre.annotherInfo.titre_demande_poste_rechercher is defined and autre.annotherInfo.titre_demande_poste_rechercher %} — {{ autre.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if autre.annotherInfo.localisation_souhaite is defined and autre.annotherInfo.localisation_souhaite %} à {{ autre.annotherInfo.localisation_souhaite }}{% endif %} — {{ autre.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ autre.pseudoAnnonceur }}{% endif %}{% endset %}
                 <div class="col-md-4">
                     <div class="card mb-0 shadow h-100">
                         <a href="/actualite/{{ autre.token }}">
-                            <img src="/promotion/{{ autre.image }}" class="card-img-top image-actu" alt="{{ autre.pseudoAnnonceur }}">
+                            <img src="/promotion/{{ autre.image }}" class="card-img-top image-actu" alt="{{ altAutre|trim }}">
                         </a>
                         <div class="card-body">
                             <p class="card-text actu-small-description mb-2">{{ autre.description }}</p>
