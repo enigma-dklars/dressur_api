@@ -286,7 +286,7 @@ class PreuveController extends AbstractController
                 $this->removeFile($oldListe);
             }
 
-            $newFilename = uniqid() . '.' . $fileListe->guessExtension();
+            $newFilename = bin2hex(random_bytes(8)) . '.' . $fileListe->guessExtension();
 
             try {
                 $fileListe->move($dossier, $newFilename);
@@ -300,7 +300,7 @@ class PreuveController extends AbstractController
                 $this->removeFile($oldOuvert);
             }
 
-            $newFilename = uniqid() . '.' . $fileOuvert->guessExtension();
+            $newFilename = bin2hex(random_bytes(8)) . '.' . $fileOuvert->guessExtension();
 
             try {
                 $fileOuvert->move($dossier, $newFilename);
