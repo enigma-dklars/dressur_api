@@ -1,397 +1,345 @@
 {% extends 'baseAdmin.html.twig' %}
 
-{% block title %}Dashboard Admin{% endblock %}
+{% block title %}ADMIN DASHBOARD{% endblock %}
 
 {% block body %}
-{% if user.admin == true %}
 
-{# ── En-tête ─────────────────────────────────────────────────────────── #}
-<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
-    <div>
-        <h4 class="mb-0 fw-bold">Dashboard Admin</h4>
-        <p class="mb-0 text-secondary font-13">Bienvenue, <strong>{{ user.pseudo }}</strong> — vue d'ensemble de la plateforme</p>
-    </div>
-    <span class="badge bg-secondary font-13 py-2 px-3">
-        <i class="fas fa-clock me-1"></i>{{ "now"|date("d/m/Y H:i") }}
-    </span>
-</div>
 
-{# ── Actions urgentes ────────────────────────────────────────────────── #}
-{% set has_urgent = (valid_promo_affaire > 0 or valid_promo_reseau > 0 or nbr_tel_mail_no_conf > 0) %}
-{% if has_urgent %}
-<div class="mb-4">
-    <h6 class="text-uppercase text-danger fw-bold mb-2 font-13">
-        <i class="fas fa-triangle-exclamation me-1"></i>Actions requises
-    </h6>
-    <div class="row g-2">
-        {% if valid_promo_affaire > 0 %}
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ path('app_crud_promotion_promo_en_attente') }}" class="text-decoration-none">
-                <div class="card radius-10 border-start border-danger border-4 mb-0 h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="widget-icon-large bg-gradient-danger text-white flex-shrink-0">
-                            <i class="fas fa-hourglass-half"></i>
+
+    {% if user.admin == true %}
+        <div class="row g-2 mb-2 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-5">
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">U. Aléatoires</p>
+                                <h4 class="my-1">{{nbr_user}} <span class="text-warning">|</span> {{nbr_user_bot}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Aléatoires</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-bars"></i>
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            {# <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">U. Inutile</p>
+                                <h4 class="my-1">**** <span class="text-warning">|</span> ****</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Inutile</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                                <a href="{{path('app_crud_user_inutiles')}}" class="text-white"><i class="fas fa-bars"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> #}
+            <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary font-13">En attente de validation</p>
-                            <h4 class="my-1 text-danger">{{ valid_promo_affaire }}</h4>
-                            <p class="mb-0 font-13 text-danger fw-semibold">Promotions Affaire <i class="fas fa-arrow-right ms-1"></i></p>
+                            <p class="mb-0 text-secondary">Confirmation</p>
+                            <h4 class="my-1">
+                                <span class="text-danger">{{nbr_tel_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_tel_no_conf}}</span>
+                            </h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Num. Whats</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_user_not_verif_tel')}}" class="text-white"><i class="fab fa-whatsapp"></i></a>
                         </div>
                     </div>
                 </div>
-            </a>
-        </div>
-        {% endif %}
-        {% if valid_promo_reseau > 0 %}
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ path('app_crud_promo_reseau_promo_reseau_en_attente') }}" class="text-decoration-none">
-                <div class="card radius-10 border-start border-warning border-4 mb-0 h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="widget-icon-large bg-gradient-warning text-white flex-shrink-0">
-                            <i class="fas fa-hourglass-half"></i>
-                        </div>
+            </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary font-13">En attente de validation</p>
-                            <h4 class="my-1 text-warning">{{ valid_promo_reseau }}</h4>
-                            <p class="mb-0 font-13 text-warning fw-semibold">Promotions Réseaux Sociaux <i class="fas fa-arrow-right ms-1"></i></p>
+                            <p class="mb-0 text-secondary">Confirmation</p>
+                            <h4 class="my-1">
+                                <span class="text-danger">{{nbr_mail_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_mail_no_conf}}</span>
+                            </h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Addr. Mail</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_user_not_verif_mail')}}" class="text-white"><i class="fas fa-envelope"></i></a>
                         </div>
                     </div>
                 </div>
-            </a>
-        </div>
-        {% endif %}
-        {% if nbr_tel_mail_no_conf > 0 %}
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ path('app_crud_user_not_verif_tel_mail') }}" class="text-decoration-none">
-                <div class="card radius-10 border-start border-warning border-4 mb-0 h-100">
-                    <div class="card-body d-flex align-items-center gap-3">
-                        <div class="widget-icon-large bg-gradient-warning text-white flex-shrink-0">
-                            <i class="fas fa-user-xmark"></i>
-                        </div>
+            </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary font-13">Sans vérification</p>
-                            <h4 class="my-1 text-warning">{{ nbr_tel_mail_no_conf }}</h4>
-                            <p class="mb-0 font-13 text-warning fw-semibold">Comptes non confirmés <i class="fas fa-arrow-right ms-1"></i></p>
+                            <p class="mb-0 text-secondary">Confirmation</p>
+                            <h4 class="my-1">
+                                <span class="text-danger">{{nbr_tel_mail_no_conf}}</span> | <span class="text-success">{{nbr_tel_mail_yes_conf}}</span>
+                            </h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Whats. Mail</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_user_not_verif_tel_mail')}}" class="text-white"><i class="fas fa-circle-stop"></i></a>
                         </div>
                     </div>
                 </div>
-            </a>
-        </div>
-        {% endif %}
-    </div>
-</div>
-{% endif %}
-
-{# ── Utilisateurs ────────────────────────────────────────────────────── #}
-<div class="mb-4">
-    <h6 class="text-uppercase text-secondary fw-bold mb-2 font-13">
-        <i class="fas fa-users me-1"></i>Utilisateurs
-    </h6>
-    <div class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-6">
-        <div class="col">
-            <a href="{{ path('app_crud_user_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-info text-white mx-auto mb-2"><i class="fas fa-users"></i></div>
-                        <h5 class="mb-0 fw-bold">{{ nbr_user }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Total users</p>
+            </div>
+            </div>
+            {# <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">A. Sans Suite</p>
+                                <h4 class="my-1">{{affaire_valider_sans_payer}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo. Affaire</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                                <a href="/accepterSansSuite" class="text-white"><i class="fas fa-list"></i></a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </a>
-        </div>
-        <div class="col">
-            <div class="card radius-10 mb-0 h-100">
-                <div class="card-body text-center py-3">
-                    <div class="widget-icon-large bg-gradient-success text-white mx-auto mb-2"><i class="fas fa-user-check"></i></div>
-                    <h5 class="mb-0 fw-bold text-success">{{ nbr_tel_mail_yes_conf }}</h5>
-                    <p class="mb-0 font-13 text-secondary">Tél. + Mail conf.</p>
+            </div> #}
+            <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Validation</p>
+                            <h4 class="my-1">{{valid_promo_affaire}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Affaire</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_promotion_promo_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Validation</p>
+                            <h4 class="my-1">{{valid_promo_reseau}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Réseau</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="{{path('app_crud_promo_reseau_promo_reseau_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            {# <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Validation</p>
+                                <h4 class="my-1">{{valid_camp_mail}}</h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Camp. Mail</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list-ul"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> #}
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">En cours</p>
+                                <h4 class="my-1">
+                                    {{encour_boost}}
+                                </h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Programmer</p>
+                                <h4 class="my-1">
+                                    {{programmer_boost}}
+                                </h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">En cours</p>
+                                <h4 class="my-1">
+                                    {{encour_affaire}}
+                                </h4>
+                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo Affaire</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Users</p>
+                                <h4 class="my-1">
+                                    {{users_prog_recomp}}
+                                </h4>
+                                <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Prog Recomp</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">P. Affaire</p>
+                                <h4 class="my-1">
+                                    {{p_aff_recomp}}
+                                </h4>
+                                <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Prog Recomp</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">P. Affaire</p>
+                                <h4 class="my-1">
+                                    {{p_aff_ds_statut}}
+                                </h4>
+                                <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i>DS Statut</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Deleted Users</p>
+                                <h4 class="my-1">
+                                    {{deleted_users}}
+                                </h4>
+                                <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Deleted Users</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card radius-10 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <p class="mb-0 text-secondary">Banned Users</p>
+                                <h4 class="my-1">
+                                    {{banned_users}}
+                                </h4>
+                                <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Banned Users</p>
+                            </div>
+                            <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col">
-            <a href="{{ path('app_crud_user_not_verif_tel') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-warning text-white mx-auto mb-2"><i class="fab fa-whatsapp"></i></div>
-                        <h5 class="mb-0 fw-bold text-warning">{{ nbr_tel_no_conf }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Tél. non conf.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_user_not_verif_mail') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-warning text-white mx-auto mb-2"><i class="fas fa-envelope-circle-check"></i></div>
-                        <h5 class="mb-0 fw-bold text-warning">{{ nbr_mail_no_conf }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Mail non conf.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <div class="card radius-10 mb-0 h-100">
-                <div class="card-body text-center py-3">
-                    <div class="widget-icon-large bg-gradient-secondary text-white mx-auto mb-2"><i class="fas fa-robot"></i></div>
-                    <h5 class="mb-0 fw-bold">{{ nbr_user_bot }}</h5>
-                    <p class="mb-0 font-13 text-secondary">Users bot</p>
-                </div>
-            </div>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_user_banned') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-danger text-white mx-auto mb-2"><i class="fas fa-ban"></i></div>
-                        <h5 class="mb-0 fw-bold text-danger">{{ banned_users }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Bannis</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-</div>
+    {% endif %}
 
-{# ── Activité en cours ───────────────────────────────────────────────── #}
-<div class="mb-4">
-    <h6 class="text-uppercase text-secondary fw-bold mb-2 font-13">
-        <i class="fas fa-chart-line me-1"></i>Activité en cours
-    </h6>
-    <div class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-5">
+    <div class="row g-2 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
         <div class="col">
-            <a href="{{ path('app_crud_promotion_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-success text-white mx-auto mb-2"><i class="fas fa-circle-play"></i></div>
-                        <h5 class="mb-0 fw-bold text-success">{{ encour_affaire }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Promo affaire actives</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_boost_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-success text-white mx-auto mb-2"><i class="fas fa-bolt"></i></div>
-                        <h5 class="mb-0 fw-bold text-success">{{ encour_boost }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Boost en cours</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_boost_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-info text-white mx-auto mb-2"><i class="fas fa-clock-rotate-left"></i></div>
-                        <h5 class="mb-0 fw-bold text-info">{{ programmer_boost }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Boost programmés</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_historique_programme_recompense_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0 h-100">
-                    <div class="card-body text-center py-3">
-                        <div class="widget-icon-large bg-gradient-purple text-white mx-auto mb-2"><i class="fas fa-gift"></i></div>
-                        <h5 class="mb-0 fw-bold text-purple">{{ users_prog_recomp }}</h5>
-                        <p class="mb-0 font-13 text-secondary">Inscrits prog. récomp.</p>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <div class="card radius-10 mb-0 h-100">
-                <div class="card-body text-center py-3">
-                    <div class="widget-icon-large bg-gradient-purple text-white mx-auto mb-2"><i class="fas fa-star"></i></div>
-                    <h5 class="mb-0 fw-bold text-purple">{{ p_aff_recomp }}</h5>
-                    <p class="mb-0 font-13 text-secondary">Promo avec récomp.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{# ── Audience cumulée ────────────────────────────────────────────────── #}
-<div class="mb-4">
-    <h6 class="text-uppercase text-secondary fw-bold mb-2 font-13">
-        <i class="fas fa-eye me-1"></i>Audience cumulée — toutes promotions
-    </h6>
-    <div class="row g-2 row-cols-1 row-cols-md-3">
-        <div class="col">
-            <div class="card radius-10 mb-0 h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="widget-icon-large bg-gradient-purple text-white flex-shrink-0"><i class="fas fa-eye"></i></div>
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
                     <div>
-                        <p class="mb-0 text-secondary font-13">Vues</p>
-                        <h4 class="my-1 fw-bold">{{ countVues }}</h4>
-                        <p class="mb-0 font-13 text-secondary">cumulées sur toutes les affaires</p>
+                        <p class="mb-0 text-secondary">Impressions</p>
+                        <h4 class="my-1">{{countImpressions}}</h4>
+                        <p class="mb-0 font-13 text-purple"><i class="bi bi-caret-up-fill"></i> Cumuler Affaires</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-purple text-white ms-auto"><i class="bi bi-basket2-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
+        </div>
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="widget-icon-large bg-gradient-info text-white flex-shrink-0"><i class="fas fa-chart-bar"></i></div>
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
                     <div>
-                        <p class="mb-0 text-secondary font-13">Impressions</p>
-                        <h4 class="my-1 fw-bold">{{ countImpressions }}</h4>
-                        <p class="mb-0 font-13 text-secondary">cumulées sur toutes les affaires</p>
+                        <p class="mb-0 text-secondary">Contacts</p>
+                        <h4 class="my-1">{{contacts_user}}</h4>
+                        <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Depuis Dressur</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="bi bi-people-fill"></i>
                     </div>
                 </div>
             </div>
         </div>
+        </div>
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
-                <div class="card-body d-flex align-items-center gap-3">
-                    <div class="widget-icon-large bg-gradient-danger text-white flex-shrink-0"><i class="fas fa-address-book"></i></div>
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
                     <div>
-                        <p class="mb-0 text-secondary font-13">Contacts générés</p>
-                        <h4 class="my-1 fw-bold">{{ contacts_user }}</h4>
-                        <p class="mb-0 font-13 text-secondary">depuis Dressur</p>
+                        <p class="mb-0 text-secondary">Vues</p>
+                        <h4 class="my-1">{{countVues}}</h4>
+                        <p class="mb-0 font-13 text-info"><i class="bi bi-caret-up-fill"></i> Cumuler Affaires</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-info text-white ms-auto"><i class="bi bi-bar-chart-line-fill"></i>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </div>
-</div>
-
-{# ── Accès rapides ───────────────────────────────────────────────────── #}
-<div class="mb-2">
-    <h6 class="text-uppercase text-secondary fw-bold mb-2 font-13">
-        <i class="fas fa-table-cells-large me-1"></i>Accès rapides
-    </h6>
-    <div class="row g-2 row-cols-2 row-cols-md-3 row-cols-xl-4">
-        <div class="col">
-            <a href="{{ path('app_crud_user_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-users text-info fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Utilisateurs</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_promotion_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-bullhorn text-success fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Promotions Affaire</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_promo_reseau_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-share-nodes text-primary fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Promotions Réseaux</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_boost_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-bolt text-warning fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Boost Contact</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_historique_programme_recompense_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-gift text-purple fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Historique Récompense</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_preuve_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-file-circle-check text-purple fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Preuves Récompense</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_transaction_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-money-bill-transfer text-danger fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Transactions</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_signalement_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-flag text-danger fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Signalements</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_suggestion_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-lightbulb text-secondary fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Suggestions</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_user_check_and_confirme') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-user-shield text-success fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Check & Confirme</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_deleted_d_s_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-trash text-danger fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Deleted DS
-                            {% if deleted_users > 0 %}<span class="badge bg-danger ms-1">{{ deleted_users }}</span>{% endif %}
-                        </span>
-                    </div>
-                </div>
-            </a>
-        </div>
-        <div class="col">
-            <a href="{{ path('app_crud_env_index') }}" class="text-decoration-none">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body py-3 d-flex align-items-center gap-2">
-                        <i class="fas fa-gear text-secondary fs-5 flex-shrink-0"></i>
-                        <span class="fw-semibold font-13">Configuration Env</span>
-                    </div>
-                </div>
-            </a>
-        </div>
-    </div>
-</div>
-
-{% else %}
-<div class="alert alert-danger">Accès réservé aux administrateurs.</div>
-{% endif %}
 {% endblock %}
