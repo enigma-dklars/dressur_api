@@ -6,6 +6,8 @@ use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Controller\PrivateController;
 use App\Repository\FormuleBoostRepository;
+use App\Repository\PromotionRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\FormuleDressurBotRepository;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,6 +35,25 @@ class PublicController extends AbstractController
             $this->theme = "light-theme";
         }
         $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
+    }
+
+    private function encodePromoToken(int $id): string
+    {
+        $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
+        $encrypted = openssl_encrypt((string) $id, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+        return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
+    }
+
+    private function decodePromoToken(string $token): ?int
+    {
+        $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
+        $padded = strtr($token, '-_', '+/');
+        $pad = strlen($padded) % 4;
+        if ($pad) {
+            $padded .= str_repeat('=', 4 - $pad);
+        }
+        $decrypted = openssl_decrypt(base64_decode($padded), 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+        return ($decrypted !== false && ctype_digit($decrypted)) ? (int) $decrypted : null;
     }
 
     #[Route('/', name: 'app_public')]
@@ -126,10 +147,68 @@ class PublicController extends AbstractController
     #[Route('/actualite', name: 'app_actualite')]
     public function actualite(TraitementsDS $traitementsDS): Response
     {
+        $rawActus = $traitementsDS->getAffaires(90);
+        $actus = array_map(function ($a) {
+            $a['token'] = $this->encodePromoToken($a['id']);
+            return $a;
+        }, $rawActus);
         return $this->render('public/actualite.html.twig', [
-            'actus' => $traitementsDS->getAffaires(90),
+            'actus' => $actus,
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/actualite/{token}', name: 'app_actualite_detail')]
+    public function actualiteDetail(string $token, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, EntityManagerInterface $em): Response
+    {
+        $id = $this->decodePromoToken($token);
+        if ($id === null) {
+            return $this->redirectToRoute('app_actualite');
+        }
+
+        $promo = $promotionRepository->find($id);
+        if (!$promo) {
+            return $this->redirectToRoute('app_actualite');
+        }
+
+        $promo->setNombreDeVue(($promo->getNombreDeVue() ?? 0) + 1);
+        $em->flush();
+
+        $descpPromo = $promo->getDescription();
+        if ($promo->getTypePromotionAffaire() == "offre_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_poste"] ?? $promo->getDescription();
+        }
+        if ($promo->getTypePromotionAffaire() == "dmd_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $promo->getDescription();
+        }
+
+        $promoData = [
+            "token"                => $token,
+            "image"                => $promo->getImage(),
+            "description"          => $descpPromo,
+            "whatsappNumber"       => $promo->getUser()->getTel(),
+            "pseudoAnnonceur"      => $promo->getUser()->getPseudo(),
+            "nombreDeVues"         => (string) $traitementsDS->formatNumber($promo->getNombreDeVue()),
+            "nombreImpression"     => (string) $traitementsDS->formatNumber($promo->getNombreImpression()),
+            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+            "annotherInfo"         => $promo->getAnnotherInfo(),
+        ];
+
+        $rawAutres = array_filter(
+            $traitementsDS->getTopAffaires(10),
+            fn($p) => $p['id'] !== $id
+        );
+        $autresPromos = array_map(function ($p) {
+            $p['token'] = $this->encodePromoToken($p['id']);
+            return $p;
+        }, array_slice(array_values($rawAutres), 0, 3));
+
+        return $this->render('public/actualite_detail.html.twig', [
+            'promo'        => $promoData,
+            'autresPromos' => $autresPromos,
+            'is_connect'   => $this->is_connect,
+            'theme'        => $this->theme,
         ]);
     }
 

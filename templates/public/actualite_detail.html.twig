@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% set title = promo.pseudoAnnonceur ~ ' — Actualité' %}
+{% set description = promo.description[:160] %}
+
+{% block referencement %}
+    <meta property="og:title" content="{{ title }} | Dressur Web" />
+    <meta property="og:description" content="{{ description }}" />
+    <meta property="og:image" content="https://dressur.site/promotion/{{ promo.image }}" />
+    <meta property="og:url" content="https://dressur.site/actualite/{{ promo.token }}" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ title }} | Dressur Web" />
+    <meta name="twitter:description" content="{{ description }}" />
+    <meta name="twitter:image" content="https://dressur.site/promotion/{{ promo.image }}" />
+    <meta name="description" content="{{ description }}" />
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="container my-3">
+
+    <div class="mb-3 h6">
+        <span class="fw-bolder">Dressur</span> /
+        <a href="/actualite" class="text-decoration-none">Actualités</a> /
+        <span class="text-primary">{{ promo.pseudoAnnonceur }}</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <img src="/promotion/{{ promo.image }}" class="card-img-top" alt="{{ promo.pseudoAnnonceur }}" style="max-height:420px; object-fit:cover;">
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1 fw-bold">{{ promo.pseudoAnnonceur }}</h5>
+                            <span class="badge bg-info">
+                                {% if promo.typePromotionAffaire == "produit_service" %}Produit / Service
+                                {% elseif promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi
+                                {% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi
+                                {% else %}{{ promo.typePromotionAffaire }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end text-muted small ms-3">
+                            <div><i class="fas fa-eye me-1"></i>{{ promo.nombreImpression }} vues</div>
+                            <div><i class="fas fa-hand-pointer me-1"></i>{{ promo.nombreDeVues }} clics</div>
+                        </div>
+                    </div>
+
+                    <p class="fs-6 mb-3">{{ promo.description|nl2br }}</p>
+
+                    {% if promo.annotherInfo %}
+                        <hr>
+                        <div class="row g-2">
+                        {% for key, value in promo.annotherInfo %}
+                            {% if value is not empty %}
+                            <div class="col-12 mb-1">
+                                <span class="fw-bold text-primary">{{ key | replace({'_': ' '}) | capitalize }} :</span>
+                                <span>{{ value|nl2br }}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                        <hr>
+                    {% endif %}
+
+                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                        {% set waText %}Bonjour/Bonsoir *{{ promo.pseudoAnnonceur }}*, j'ai une question concernant votre promotion sur Dressur.{% endset %}
+                        {% set waUrl = 'https://wa.me/' ~ promo.whatsappNumber ~ '?text=' ~ waText|url_encode %}
+                        <a href="{{ waUrl }}" target="_blank" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>Contacter l'annonceur
+                        </a>
+                        {% if is_connect == "non" %}
+                        <a href="/connexion" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-1"></i>Rejoindre Dressur
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if autresPromos|length > 0 %}
+        <div class="col-12">
+            <h5 class="mb-3 fw-semibold"><i class="fas fa-rectangle-ad me-2 text-info"></i>Autres actualités</h5>
+            <div class="row g-3">
+                {% for autre in autresPromos %}
+                <div class="col-md-4">
+                    <div class="card mb-0 shadow h-100">
+                        <a href="/actualite/{{ autre.token }}">
+                            <img src="/promotion/{{ autre.image }}" class="card-img-top image-actu" alt="{{ autre.pseudoAnnonceur }}">
+                        </a>
+                        <div class="card-body">
+                            <p class="card-text actu-small-description mb-2">{{ autre.description }}</p>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="text-muted small">
+                                    <span class="me-2"><i class="fas fa-eye me-1"></i>{{ autre.nombreImpression }}</span>
+                                    <span><i class="fas fa-hand-pointer me-1"></i>{{ autre.nombreDeVues }}</span>
+                                </div>
+                                <a href="/actualite/{{ autre.token }}" class="btn btn-info btn-sm py-0 px-2">
+                                    Voir <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

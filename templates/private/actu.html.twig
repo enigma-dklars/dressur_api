@@ -7,7 +7,7 @@
     {% for actu in actus %}
         <div class="col-md-4">
             <div class="card mb-0 shadow h-100">
-                <a href="/actualite/{{ actu.token }}">
+                <a href="/actu/{{ actu.token }}">
                     <img src="/promotion/{{ actu.image }}" class="card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}">
                 </a>
                 <div class="card-body">
@@ -31,7 +31,7 @@
                                 image="{{ actu.image }}">
                                 <i class="fas fa-share-nodes me-1"></i> Partager
                             </button>
-                            <a href="/actualite/{{ actu.token }}" class="btn btn-outline-primary btn-sm py-0 px-2">
+                            <a href="/actu/{{ actu.token }}" class="btn btn-outline-primary btn-sm py-0 px-2">
                                 Voir <i class="fas fa-arrow-right ms-1"></i>
                             </a>
                         </div>

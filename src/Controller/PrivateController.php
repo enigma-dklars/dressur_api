@@ -299,7 +299,7 @@ class PrivateController extends AbstractController
         ]);
     }
 
-    #[Route('/actualite/{token}', name: 'app_actualite')]
+    #[Route('/actu/{token}', name: 'app_actu_detail')]
     public function actualite(string $token, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
         $id = $this->decodePromoToken($token);

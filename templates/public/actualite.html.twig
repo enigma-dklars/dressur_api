@@ -3,20 +3,15 @@
 {% set description = "Découvrez les derniers produits, services et propositions des utilisateurs de Dressur. Restez informé sur les nouveautés et les initiatives au sein de notre communauté." %}
 {% set title = "Actualités" %}
 {% block referencement %}
-    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
     <meta property="og:url" content="https://dressur.site" />
     <meta property="og:type" content="website" />
-
-    <!-- Twitter Card Meta Tags (facultatif) -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{title}} | Dressur Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
-
-    <!-- Autres balises meta facultatives -->
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="actualités Dressur, nouveautés Dressur, promotions Dressur, annonces Dressur, communauté Dressur, produits Dressur, services Dressur" />
 {% endblock %}
@@ -32,56 +27,29 @@
             {% for actu in actus %}
                 {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
                 {% set encodedText = text|url_encode %}
-                {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
+                {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
 
                 <div class="col-md-4">
-                    <div class="card mb-0 shadow">
-                        <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="..." data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                    <div class="card mb-0 shadow h-100">
+                        <a href="/actualite/{{ actu.token }}">
+                            <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}">
+                        </a>
                         <div class="card-body">
-                            <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
+                            <p class="card-text actu-small-description">
                                 {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description}} {% endif %}
                                 {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste}} {% endif %}
                                 {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur}} {% endif %}
                             </p>
-                            <div class="row">
+                            <div class="row align-items-center">
                                 <div class="col-7">
                                     <div class="row g-3">
-                                        <div class="col-auto"> <i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
-                                        <div class="col-auto"> <i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
+                                        <div class="col-auto"><i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
+                                        <div class="col-auto"><i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
                                     </div>
                                 </div>
-                                <div class="col-5 text-end">
-                                    <a href="{{ url }}" target="_blank" class="btn btn-info btn-sm rounded-2 py-0">En savoir plus</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-    
-                    <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-scrollable">
-                            <div class="modal-content">
-                                <div class="modal-body p-0">
-                                    <img src="/promotion/{{actu.image}}" class="card-img-top" alt="...">
-                                    <p class="text-end px-3 pt-3 mb-0">
-                                        <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm mb-3 rounded-5">Contacter l'annonceur</a>
-                                    </p>
-                                    <p class="px-3">
-                                        {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description|nl2br}} {% endif %}
-                                        {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste|nl2br}} {% endif %}
-                                        {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur|nl2br}} {% endif %}
-                                    </p>
-                                    <div class="px-3">
-                                        {% for key, value in actu.annotherInfo %}
-                                            <div class="mb-1">
-                                                <div class="fw-bolder text-primary fs-6">{{ key | replace({'_': ' '}) | capitalize }} : </div>
-                                                <div style="word-wrap: break-word; white-space: normal;">{{ value|nl2br }}</div>
-                                                <hr>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                                <div class="col-5 text-end d-flex gap-1 justify-content-end">
+                                    <a href="{{ waUrl }}" target="_blank" class="btn btn-success btn-sm rounded-2 py-0"><i class="fab fa-whatsapp"></i></a>
+                                    <a href="/actualite/{{ actu.token }}" class="btn btn-info btn-sm rounded-2 py-0">Voir</a>
                                 </div>
                             </div>
                         </div>
