@@ -8,14 +8,6 @@
     <table class="table table-bordered table-striped">
         <tbody>
             <tr>
-                <th>Parrain</th>
-                <td>
-                    {% if user_show.parrain %}
-                        {{user_show.parrain.pseudo}}
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
                 <th>Id</th>
                 <td>{{ user_show.id }}</td>
             </tr>
@@ -58,14 +50,6 @@
             <tr>
                 <th>TelIsVerified</th>
                 <td>{{ user_show.telIsVerified ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>SoldeBonus</th>
-                <td>{{ user_show.soldeBonus }}</td>
-            </tr>
-            <tr>
-                <th>CodeBonus</th>
-                <td>{{ user_show.codeBonus }}</td>
             </tr>
             <tr>
                 <th>ThemeDark</th>

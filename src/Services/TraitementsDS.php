@@ -11,7 +11,6 @@ use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
-use App\Repository\DSBonusRepository;
 use App\Repository\MessageRepository;
 use App\Controller\API\BoostController;
 use App\Repository\DeletedDSRepository;
@@ -29,7 +28,6 @@ use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\EnvMailSenderRepository;
 use App\Repository\EnvPaiementApiRepository;
-use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
@@ -46,9 +44,7 @@ class TraitementsDS extends AbstractController
     private $em;
     private $env;
     private $verificationsDS;
-    private $dSBonusHistoriqueRepository;
     private $boostRepository;
-    private $wPBonusRepository;
     private $userRepository;
     private $sessionDS;
     private $preferenceRepository;
@@ -72,7 +68,7 @@ class TraitementsDS extends AbstractController
     private $methodePaiementRepository;
     private $historiqueProgrammeRecompenseRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, DSBonusRepository $wPBonusRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
@@ -86,9 +82,7 @@ class TraitementsDS extends AbstractController
         $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->verificationsDS = $verificationsDS;
-        $this->dSBonusHistoriqueRepository = $dSBonusHistoriqueRepository;
         $this->boostRepository = $boostRepository;
-        $this->wPBonusRepository = $wPBonusRepository;
         $this->userRepository = $userRepository;
         $this->sessionDS = $sessionDS;
         $this->preferenceRepository = $preferenceRepository;
@@ -925,19 +919,6 @@ class TraitementsDS extends AbstractController
         return "DS".substr(str_shuffle($chars), 0, $length);
     }
 
-    public function bonusTab($lesDSBonus){
-        $bonusTab = [];
-        foreach ($lesDSBonus as $DSBonus) {
-            $bonus = [
-                "titre" => $DSBonus->getTitre(),
-                "montant" => (string)$DSBonus->getMontant()." Points",
-                "date" => ($DSBonus->getCreatedAt())->format('d-m-Y à H:i'),
-            ];
-            array_push($bonusTab, $bonus);
-        }
-        return $bonusTab;
-    }
-
     public function infosUser($user){
         $count = $this->vuesImpressionsCumulerUserPromos($user->getPromotions());
         $totalImpressions = $count['countImpressions'];
@@ -977,17 +958,12 @@ class TraitementsDS extends AbstractController
             "createdAt" => $user->getCreatedAt(),
             "mailIsVerified" => $user->getMailIsVerified(),
             "telIsVerified" => $user->getTelIsVerified(),
-            "soldeBonus" => $user->getSoldeBonus(),
-            "codeBonus" => $user->getCodeBonus(),
-            "siParrain" => false,
             "nombreContactDispo" => count($this->getAddDisponible($user)),
             "lesPublicites" => $lesPublicites,
             "havePublicites" => (count($lesPublicitesArray) >= 1) ? true : false,
-            "nombreFilleuls" => 0,
             "admin" => $user->getAdmin() ? true : false,
             "permissionAdd" => ($this->verificationsDS->permissionAdd($user))["permissionAdd"],
             "messageErreurPermissionAdd" => ($this->verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
-            "commissionBonus" => 0,
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
             'preferenceCentreInteretLoisir' => $user->getPreference()->getCentreInteretLoisirChoisies(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
@@ -1251,14 +1227,7 @@ class TraitementsDS extends AbstractController
     }
 
     public function execPurge($user){
-        foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
-            $element->setParrain($this->userRepository->find(3));
-            $this->em->flush();
-        }
-
         foreach ($this->campagneMailRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-                
-        foreach ($this->dSBonusHistoriqueRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
         
         foreach ($this->promoReseauRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
         

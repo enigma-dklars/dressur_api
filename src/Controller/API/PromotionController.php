@@ -6,7 +6,6 @@ use DateTime;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
-use App\Entity\DSBonusHistorique;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
@@ -779,32 +778,6 @@ class PromotionController extends AbstractController
                 'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
             ]);
         }
-
-        if($user->getSoldeBonus() < $formulBoost->getPrix()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "Your bonus balance is insufficient.\nReferred users to increase your bonus balance.",
-                ]);                
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Oups!',
-                'message' => "Votre solde bonus est insuffisant.\nFaite une Promotion Payante ou parrainé des utilisateurs pour augmenté votre solde bonus.",
-            ]);
-        }
-        
-        $user->debitSoldeBonus($formulBoost->getPrix());
-
-        $DSBH = new DSBonusHistorique();
-        if($user->getLang() == "fr") {
-            $DSBH->setTitre("Promotion Affaire");
-        } else {
-            $DSBH->setTitre("Business Promotion");
-        }
-        $DSBH->setUser($user)->setMontant($formulBoost->getPrix() * -1);
-        $this->em->persist($DSBH);
 
         $promotion = $promotionRepository->find($idPromotion);
 

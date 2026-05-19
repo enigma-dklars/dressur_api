@@ -10,8 +10,6 @@ use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use App\Repository\VerifMailRepository;
-use App\Repository\DSBonusHistoriqueRepository;
-use App\Repository\DSBonusRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,12 +25,10 @@ class PurgeController extends AbstractController
     private $preferenceRepository;
     private $transactionRepository;
     private $verifMailRepository;
-    private $wPBonusRepository;
-    private $wPBonusHistoriqueRepository;
     private $signalementRepository;
     private $userRepository;
     
-    public function __construct(EntityManagerInterface $em, BoostRepository $boostRepository, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, DSBonusRepository $wPBonusRepository, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, SignalementRepository $signalementRepository, UserRepository $userRepository)
+    public function __construct(EntityManagerInterface $em, BoostRepository $boostRepository, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, UserRepository $userRepository)
     {
         $this->em = $em; 
         $this->boostRepository = $boostRepository;
@@ -40,8 +36,6 @@ class PurgeController extends AbstractController
         $this->preferenceRepository = $preferenceRepository;
         $this->transactionRepository = $transactionRepository;
         $this->verifMailRepository = $verifMailRepository;
-        $this->wPBonusRepository = $wPBonusRepository;
-        $this->wPBonusHistoriqueRepository = $wPBonusHistoriqueRepository;
         $this->signalementRepository = $signalementRepository;
         $this->userRepository = $userRepository;
     }
@@ -121,35 +115,7 @@ class PurgeController extends AbstractController
         return new Response("ok");
     }
 
-    #[Route('/addbonusKdoToUser/{bonus}/{id_user_max}', name: 'addbonusKdoToUser')]
-    public function addbonusKdoToUser($bonus, $id_user_max, UserRepository $userRepository): Response
-    {
-        set_time_limit(10000);
-
-        $usersnottel = $userRepository->findBy([
-            'telIsVerified' => true, 
-            'mailIsVerified' => true,
-            'suspended' => false,
-            'deleted' => false,
-            'blocked' => false,
-        ]);
-        foreach ($usersnottel as $usernottel) {
-            if($id_user_max >= $usernottel->getId()) {
-                // $usernottel->addSoldeBonus($bonus);
-                $usernottel->setSoldeBonus($bonus);
-            }
-        }
-        $this->em->flush();
-        
-        return new Response("ok");
-    }
-
     public function execPurge($user){
-        foreach ($this->userRepository->findBy(['parrain' => $user]) as $element) {
-            $element->setParrain($this->userRepository->find(1));
-            $this->em->flush();
-        }
-
         foreach ($this->boostRepository->findBy(['user' => $user]) as $element) {
             $this->boostRepository->remove($element, true);
         }
@@ -164,14 +130,6 @@ class PurgeController extends AbstractController
 
         foreach ($this->verifMailRepository->findBy(['user' => $user]) as $element) {
             $this->verifMailRepository->remove($element, true);
-        }
-
-        foreach ($this->wPBonusRepository->findBy(['user' => $user]) as $element) {
-            $this->wPBonusRepository->remove($element, true);
-        }
-
-        foreach ($this->wPBonusHistoriqueRepository->findBy(['user' => $user]) as $element) {
-            $this->wPBonusHistoriqueRepository->remove($element, true);
         }
 
         foreach ($this->signalementRepository->findBy(['signaler' => $user]) as $element) {

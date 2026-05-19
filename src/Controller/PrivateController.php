@@ -7,7 +7,6 @@ use App\Entity\FormulePromoReseau;
 use App\Repository\BoostRepository;
 use App\Repository\CampagneMailRepository;
 use App\Repository\DeletedDSRepository;
-use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormuleCampagneMailRepository;
@@ -37,7 +36,7 @@ class PrivateController extends AbstractController
     private $traitementsDS;
     private $userRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository)
     {
         $this->em = $em;
         $this->env = $env->find(1);
@@ -207,7 +206,6 @@ class PrivateController extends AbstractController
                     'valid_promo_affaire' => count($promotionRepository->findBy(['status' => 1])),
                     'valid_promo_reseau' => count($promoReseauRepository->findBy(['status' => 1])),
                     'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
-                    'nbr_have_parent' => count($userRepository->findAll()) - count($userRepository->findBy(['parrain' => null])),
                     'nbr_user' => count($userRepository->findAll()),
                     'nbr_user_bot' => count($userBotRepository->findAll()),
                     'deleted_users' => count($deletedDSRepository->findAll()),
@@ -449,8 +447,6 @@ class PrivateController extends AbstractController
         // dd($formuleCampageMails);
         return $this->render('private/partagerDressur.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-            'codeParrainage' => $user->getCodeBonus(), 
-            'commission' => "0",
             'theme' => $this->theme,
         ]);
     }
@@ -502,19 +498,6 @@ class PrivateController extends AbstractController
         return $this->render('private/listeboostcontact.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])),
-            'theme' => $this->theme,
-        ]);
-    }
-
-    #[Route('/listeBonusRecu', name: 'app_listeBonusRecu')]
-    public function listeBonusRecu(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository): Response
-    {
-        $user = $this->traitementsDS->getUserByUidInCookies();
-        $sessionDS->set("langUserPhone", "fr");
-        // dd($formuleCampageMails);
-        return $this->render('private/listeBonusRecu.html.twig', [
-            'user' => $traitementsDS->infosUser($user),
-            'lesBonus' => $traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),
             'theme' => $this->theme,
         ]);
     }

@@ -8,11 +8,9 @@ use App\Entity\User;
 use App\Entity\VerifMail;
 use App\Entity\Preference;
 use App\Utilities\SendMail;
-use App\Entity\DSBonusHistorique;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
-use App\Repository\DSBonusRepository;
 use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
@@ -22,7 +20,6 @@ use App\Entity\Preuve;
 use App\Entity\Suggestion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Repository\DSBonusHistoriqueRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
 use App\Services\SessionDS;
@@ -630,119 +627,6 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/addBonusPromo', name: 'addBonusPromo', methods: ['POST'])]
-    public function addBonusPromo(Request $request, UserRepository $userRepository, DSBonusRepository $wPBonusRepository, DSBonusHistoriqueRepository $wPBonusHistoriqueRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
-    {
-        $datas = $request->request;
-
-        $codePromo = str_replace(" ", "", $datas->get('codePromo'));
-        
-        $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $uid = $datas->get('uid');
-
-        if(!$codePromo){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please enter the promo code.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Veuillez saisir le code promo.",
-            ]);
-        }
-
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
-            ]);
-        }
-        $user = $verificationUser["user"];
-
-        $DSBonus = $wPBonusRepository->findOneBy(['code' => $codePromo]);
-        if(!$DSBonus){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "The code entered is not a Dressur promo code. Double check the promo code.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Le code saisi n'est pas un code promo Dressur. Vérifiez bien le code promo.",
-            ]);
-        }
-
-        if((new Datetime()) > $DSBonus->getDateExp()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "This promo code has expired",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Oups!',
-                'message' => "Ce code promo est expiré.",
-            ]);
-        }
-
-        $wPBonusHistorique = $wPBonusHistoriqueRepository->findOneBy(['user' => $user, 'dsbonus' => $DSBonus]);
-        if($wPBonusHistorique){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "You have already taken advantage of this bonus.",
-                ]);
-            }
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Oups!',
-                'message' => "Vous aviez déja profité de ce bonus.",
-            ]);
-        }
-
-        $DSBH = new DSBonusHistorique();
-        if($user->getLang() == "fr") {
-            $DSBH->setTitre("Bonus Promo");
-        } else {
-            $DSBH->setTitre("Promo Bonus");
-        }
-        $DSBH->setUser($user)->setWpbonus($DSBonus)->setMontant($DSBonus->getMontant());
-        $user->addSoldeBonus($DSBonus->getMontant());
-        $this->em->persist($DSBH);
-        $this->em->flush();
-
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => false,
-                'soldeBonus' => $user->getSoldeBonus(),
-                'message' => "Congratulations!\nYou have benefited from the promo code!\nYou have received ".$DSBonus->getMontant(). "DS of Bonus Boost!",
-                'user' => $this->traitementsDS->infosUser($user),
-            ]);
-        }
-        return new JsonResponse([
-            'error' => false,
-            'soldeBonus' => $user->getSoldeBonus(),
-            'message' => "Félicitations!\nVous avez bénéficier du code promo!\nVous avez reçu ".$DSBonus->getMontant(). "DS de Bonus Boost!",
-            'user' => $this->traitementsDS->infosUser($user),
-        ]);
-    }
-
     #[Route('/sendMailVerification', name: 'sendMailVerification', methods: ['POST'])]
     public function sendMailVerification(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
@@ -1181,9 +1065,7 @@ class UserController extends AbstractController
             ->setLang($langUserPhone)
             ->setLastLoginTo(new DateTime())
         ;
-        if(in_array($tel, $this->env->getUsersTel())) { 
-            $user->setSoldeBonus(0);
-        } else { 
+        if(!in_array($tel, $this->env->getUsersTel())) {
             $this->env->addUsersTel($tel);
         }
         $this->em->persist($user);
@@ -1246,14 +1128,6 @@ class UserController extends AbstractController
             'titre' => 'Erreur!',
             'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
-    }
-
-    #[Route('/listBonus/{uid}/{langUserPhone}', name: 'listBonus', methods: ['POST', "GET"])]
-    public function listBonus(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS, DSBonusHistoriqueRepository $dSBonusHistoriqueRepository): Response
-    {
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        return new JsonResponse($traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"])),);
     }
 
     #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]

@@ -12,11 +12,6 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('parrain', null, [
-                'attr' => [
-                    'class' => 'form-select single-select mb-2'
-                ],
-            ])
             ->add('pseudo', null, [
                 'attr' => [
                     'class' => 'form-control mb-2'
@@ -50,16 +45,6 @@ class UserType extends AbstractType
             ->add('telIsVerified', null, [
                 'attr' => [
                     'class' => 'ms-2 mb-2'
-                ],
-            ])
-            ->add('soldeBonus', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
-            ])
-            ->add('codeBonus', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
                 ],
             ])
             ->add('admin', null, [

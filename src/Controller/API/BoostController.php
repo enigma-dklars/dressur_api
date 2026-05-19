@@ -7,7 +7,6 @@ use App\Entity\User;
 use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
-use App\Entity\DSBonusHistorique;
 use FedaPay\Transaction;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;

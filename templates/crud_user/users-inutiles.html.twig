@@ -18,9 +18,6 @@
                     <th>Tel V.</th>
                     <th>Mail</th>
                     <th>Mail V.</th>
-                    <th>Invt</th>
-                    <th>Parr</th>
-                    <th>Bonus</th>
                     <th>N.C</th>
                     <th>B.C</th>
                     <th>P.A</th>
@@ -78,15 +75,6 @@
                                 <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
                             {% endif %}
                         </td>
-                        <td class="text-end">{{user.filleuls|length}}</td>
-                        <td class="text-center">
-                            {% if user.parrain %}
-                                <span class="badge bg-success">Yes</span>
-                            {% else %}
-                                <span class="badge bg-danger">No</span>                                
-                            {% endif %}
-                        </td>
-                        <td class="text-end">{{user.soldeBonus}}</td>
                         <td class="text-end">
                             {{lesContactsDuUser|length}}
                         </td>

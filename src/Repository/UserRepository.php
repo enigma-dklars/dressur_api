@@ -59,7 +59,6 @@ class UserRepository extends ServiceEntityRepository
             ->orWhere('u.tel LIKE :search')
             ->orWhere('u.uid LIKE :search')
             ->orWhere('u.id LIKE :search')
-            ->orWhere('u.codeBonus LIKE :search')
             ->setParameter('search', '%' . $search . '%')
             ->orderBy('u.id', 'DESC')
             ->getQuery();

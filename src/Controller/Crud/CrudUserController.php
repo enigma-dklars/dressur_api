@@ -174,7 +174,7 @@ class CrudUserController extends AbstractController
         if ($request->isMethod('POST')) {
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
-            $input = str_replace("	", "", $input);
+            $input = str_replace("      ", "", $input);
 
             if (strpos($input, '+225') === 0) {
                 // Vérifier s'il y a 10 caractères après +225
@@ -249,7 +249,7 @@ class CrudUserController extends AbstractController
         if ($request->isMethod('POST')) {
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
-            $input = str_replace("	", "", $input);
+            $input = str_replace("      ", "", $input);
 
             if (strpos($input, '+225') === 0) {
                 // Vérifier s'il y a 10 caractères après +225
@@ -338,7 +338,7 @@ class CrudUserController extends AbstractController
 
         $input = "+$tel";
         $input = str_replace(" ", "", $input);
-        $input = str_replace("	", "", $input);
+        $input = str_replace("  ", "", $input);
 
         if (strpos($input, '+225') === 0) {
             if (strlen(substr($input, 4)) == 10) {
@@ -423,7 +423,7 @@ class CrudUserController extends AbstractController
 
         $input = "+$tel";
         $input = str_replace(" ", "", $input);
-        $input = str_replace("	", "", $input);
+        $input = str_replace("  ", "", $input);
 
         if (strpos($input, '+225') === 0) {
             if (strlen(substr($input, 4)) == 10) {
@@ -470,27 +470,6 @@ class CrudUserController extends AbstractController
             $lines[] = "Confirmation du numéro WhatsApp : " . ($user->getTelIsVerified() ? "Oui" : "Non");
             $lines[] = "Confirmation de l'adresse e-mail : " . ($user->getMailIsVerified() ? "Oui" : "Non");
 
-            $lines[] = "Points bonus : " . ($user->getSoldeBonus() !== null ? $user->getSoldeBonus() : '0');
-            $lines[] = "Code de parrainage : " . ($user->getCodeBonus() ?? '—');
-
-            // parrain : peut être un objet User ou juste une valeur
-            $parrain = $user->getParrain();
-            if ($parrain) {
-                if (is_object($parrain)) {
-                    // supposition : l'entité parrain a une méthode getPseudo() ou getTel()
-                    $parrainLabel = method_exists($parrain, 'getPseudo') && $parrain->getPseudo() ? $parrain->getPseudo() : ($parrain->getTel() ?? '—');
-                } else {
-                    $parrainLabel = (string) $parrain;
-                }
-                $lines[] = "Parrain : " . $parrainLabel;
-            } else {
-                $lines[] = "Parrain : —";
-            }
-
-            // Collections (vérifier s'il s'agit de tableaux ou de Collection)
-            $filleuls = $user->getFilleuls();
-            $lines[] = "Nombre de filleul(s) : " . (is_countable($filleuls) ? count($filleuls) : 0);
-
             $lastLogin = $user->getLastLoginTo();
             $lines[] = "Date de dernière connexion : " . ($lastLogin instanceof \DateTimeInterface ? $lastLogin->format('Y-m-d H:i:s') : '—');
 
@@ -527,7 +506,7 @@ class CrudUserController extends AbstractController
         if ($request->isMethod('POST')) {
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
-            $input = str_replace("	", "", $input);
+            $input = str_replace("      ", "", $input);
 
             if (strpos($input, '+225') === 0) {
                 // Vérifier s'il y a 10 caractères après +225
@@ -591,7 +570,7 @@ class CrudUserController extends AbstractController
             $motif = $request->request->get('motif');
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
-            $input = str_replace("	", "", $input);
+            $input = str_replace("      ", "", $input);
 
             if (strpos($input, '+225') === 0) {
                 // Vérifier s'il y a 10 caractères après +225

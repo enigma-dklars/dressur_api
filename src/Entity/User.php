@@ -51,18 +51,6 @@ class User
     #[ORM\Column(type: 'boolean', nullable: true)]
     private $telIsVerified;
 
-    #[ORM\Column(type: 'float', nullable: true)]
-    private $soldeBonus;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $codeBonus;
-
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'filleuls')]
-    private $parrain;
-
-    #[ORM\OneToMany(mappedBy: 'parrain', targetEntity: self::class)]
-    private $filleuls;
-
     #[ORM\OneToOne(mappedBy: 'user', targetEntity: Preference::class, cascade: ['persist', 'remove'])]
     private $preference;
 
@@ -140,10 +128,7 @@ class User
         $this->createdAt = new DateTime();
         $this->lastLoginTo = new DateTime();
         $this->uid = uniqid();
-        $this->codeBonus = $this->codeBonus();
-        $this->filleuls = new ArrayCollection();
         $this->boosts = new ArrayCollection();
-        $this->soldeBonus = 0;
         $this->telIsVerified = false;
         $this->mailIsVerified = false;
         $this->themeDark = false;
@@ -164,17 +149,6 @@ class User
         } else {
             return $this->pseudo;
         }
-    }
-
-    public function codeBonus(int $length = 5): ?string
-    {
-        // allowed characters
-        $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890123456789";
-        // make sure we have enough length
-        while (strlen($chars) < $length) {
-            $chars .= $chars;
-        }
-        return "DS".substr(str_shuffle($chars), 0, $length);
     }
 
     public function getId(): ?int
@@ -310,86 +284,6 @@ class User
     public function setTelIsVerified(?bool $telIsVerified): self
     {
         $this->telIsVerified = $telIsVerified;
-
-        return $this;
-    }
-
-    public function getSoldeBonus(): ?int
-    {
-        return $this->soldeBonus;
-    }
-
-    public function setSoldeBonus(?int $soldeBonus): self
-    {
-        $this->soldeBonus = $soldeBonus;
-
-        return $this;
-    }
-
-    public function addSoldeBonus(?int $soldeBonus): self
-    {
-        $this->soldeBonus += $soldeBonus;
-
-        return $this;
-    }
-
-    public function debitSoldeBonus(?int $soldeBonus): self
-    {
-        $this->soldeBonus -= $soldeBonus;
-
-        return $this;
-    }
-
-    public function getCodeBonus(): ?string
-    {
-        return $this->codeBonus;
-    }
-
-    public function setCodeBonus(?string $codeBonus): self
-    {
-        $this->codeBonus = $codeBonus;
-
-        return $this;
-    }
-
-    public function getParrain(): ?self
-    {
-        return $this->parrain;
-    }
-
-    public function setParrain(?self $parrain): self
-    {
-        $this->parrain = $parrain;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getFilleuls(): Collection
-    {
-        return $this->filleuls;
-    }
-
-    public function addFilleul(self $filleul): self
-    {
-        if (!$this->filleuls->contains($filleul)) {
-            $this->filleuls[] = $filleul;
-            $filleul->setParrain($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFilleul(self $filleul): self
-    {
-        if ($this->filleuls->removeElement($filleul)) {
-            // set the owning side to null (unless already changed)
-            if ($filleul->getParrain() === $this) {
-                $filleul->setParrain(null);
-            }
-        }
 
         return $this;
     }
