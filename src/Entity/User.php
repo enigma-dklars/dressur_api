@@ -127,7 +127,7 @@ class User
         $this->banniere = "banniere_dressur.jpg";
         $this->createdAt = new DateTime();
         $this->lastLoginTo = new DateTime();
-        $this->uid = uniqid();
+        $this->uid = \App\Utilities\UuidGenerator::v4();
         $this->boosts = new ArrayCollection();
         $this->telIsVerified = false;
         $this->mailIsVerified = false;
