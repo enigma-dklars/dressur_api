@@ -69,7 +69,7 @@ class ContactController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $datas->get('uid');
+        $uid = $_COOKIE['uid'] ?? null;
         $tel = $datas->get('tel');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
