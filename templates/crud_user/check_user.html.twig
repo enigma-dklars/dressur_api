@@ -71,7 +71,10 @@
                     {% if user.telIsVerified == true %}
                         <span class="badge bg-success">Yes</span>
                     {% else %}
-                        <a href="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                        <form action="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation du numéro WhatsApp ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('activer_tel' ~ user.id) }}">
+                            <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
+                        </form>
                     {% endif %}
                 </div>
             </div>
@@ -82,7 +85,10 @@
                     {% if user.mailIsVerified == true %}
                         <span class="badge bg-success">Yes</span>
                     {% else %}
-                        <a href="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" class="text-white badge bg-danger">Activer</a>
+                        <form action="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation de l\'adresse mail ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('activer_mail' ~ user.id) }}">
+                            <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
+                        </form>
                     {% endif %}
                 </div>
             </div>

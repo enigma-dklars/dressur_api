@@ -128,9 +128,13 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile', methods: ['GET'])]
-    public function supprimer_user_inutile(UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile', methods: ['POST'])]
+    public function supprimer_user_inutile(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
     {
+        if (!$this->isCsrfTokenValid('supprimer_user_inutile', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_crud_user_check');
+        }
         foreach ($userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], [], 20) as $user) {
             $traitementsDS->execPurge($user);
         }
@@ -680,19 +684,29 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', methods: ['GET', 'POST'])]
-    public function activerMail(User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', methods: ['POST'])]
+    public function activerMail(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('activer_mail'.$user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
+        }
         $user->setMailIsVerified(true);
         $entityManager->flush();
+        $this->addFlash('success', 'Adresse mail activée avec succès.');
         return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', methods: ['GET', 'POST'])]
-    public function activerTel(User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', methods: ['POST'])]
+    public function activerTel(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('activer_tel'.$user->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
+        }
         $user->setTelIsVerified(true);
         $entityManager->flush();
+        $this->addFlash('success', 'Numéro WhatsApp activé avec succès.');
         return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
