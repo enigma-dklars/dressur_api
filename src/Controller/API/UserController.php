@@ -17,10 +17,6 @@ use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
 use App\Entity\DeletedDS;
-use App\Entity\Env;
-use App\Entity\FormuleBoost;
-use App\Entity\FormuleCampagneMail;
-use App\Entity\FormulePromoReseau;
 use App\Entity\HistoriqueProgrammeRecompense;
 use App\Entity\Preuve;
 use App\Entity\Suggestion;
@@ -62,62 +58,10 @@ class UserController extends AbstractController
                 'importantUpdate' => $this->env->getImportantUpdate(),
             ]);
         } catch (\Throwable $th) {
-            // vider les tables Env, FormuleBoost, FormuleCampagneMail, FormulePromoReseau
-            $platform = $this->em->getConnection()->getDatabasePlatform();
-            $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=0');
-            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(Env::class)->getTableName()));
-            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormuleBoost::class)->getTableName()));
-            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormuleCampagneMail::class)->getTableName()));
-            $this->em->getConnection()->executeStatement($platform->getTruncateTableSQL($this->em->getClassMetadata(FormulePromoReseau::class)->getTableName()));
-            $this->em->getConnection()->executeStatement('SET FOREIGN_KEY_CHECKS=1');
-
-            // mise en place de l'env
-            $this->em->persist((new Env())->setVersionApp("1.0.0")->setImportantUpdate(true)->setUsersTel([]));
-
-            // creation des utilisateures important
-            if(count($userRepository->findAll()) == 0) {
-                $user = (new User())->setPseudo("profil.google")->setTel("+22900000000")->setMail("equipe.test.dressur.ds@gmail.com")->setCodeBonus("DS0000")->setPassword(sha1(sha1(sha1("DressurDS3@"))))->setPays("229")->setLang("en")->setSoldeBonus(2000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setAvatar("dressur.png")->setPseudo("dressur.ds")->setTel("+22964044294")->setMail("dressur.ds@gmail.com")->setCodeBonus("DRESSUR-DS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(100000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setAvatar("blt.png")->setBanniere("banniere_blt.jpg")->setPseudo("bluelife.tech")->setTel("+22958519556")->setMail("bluelife.tech@gmail.com")->setCodeBonus("BLUE-LIFE-TECH")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(200000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true)->setNom("BLUE LIFE TECH")->setTiktok("https://www.tiktok.com/@bluelife.tech")->setInstagram("https://www.instagram.com/bluelife.tech/")->setYoutube("https://www.youtube.com/@bluelife-tech")->setFacebook("https://www.facebook.com/bluelife.tech"); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setAvatar("elitics.png")->setBanniere("banniere_elitics.jpg")->setPseudo("elitics.core")->setTel("+22990978787")->setMail("elitics.core@tech-center.com")->setCodeBonus("ELITICS-CORE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(200000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                
-                $user = (new User())->setPseudo("louise")->setTel("+22956518088")->setMail("affichekpolouise@gmail.com")->setCodeBonus("LOUISE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setPseudo("dklars")->setTel("+22962273861")->setMail("dklars.dev@gmail.com")->setCodeBonus("DKLARS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true)->setAdmin(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setPseudo("san")->setTel("+22969165323")->setMail("alladayesandym@gmail.com")->setCodeBonus("SAN")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setPseudo("noe")->setTel("+22997542851")->setMail("noegouton@gmail.com")->setCodeBonus("NOE")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setPseudo("akpatanativite")->setTel("+22951484969")->setMail("akpatanativite@gmail.com")->setCodeBonus("AKPATA")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                
-                $user = (new User())->setPseudo("dev")->setTel("+22963856891")->setMail("kofukunoatama@gmail.com")->setCodeBonus("DEV")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                $user = (new User())->setPseudo("dynams")->setTel("+22955487985")->setMail("dynamslars@gmail.com")->setCodeBonus("DYNAMS")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-                
-                // $user = (new User())->setPseudo("")->setTel("")->setMail("")->setCodeBonus("")->setPassword(sha1(sha1(sha1("0000"))))->setPays("229")->setLang("fr")->setSoldeBonus(50000)->setMailIsVerified(true)->setTelIsVerified(true); $preference = (new Preference())->setUser($user)->setPaysChoisies([])->setCentreInteretLoisirChoisies([]); $contact = (new Contact())->setUser($user); $this->em->persist($user); $this->em->persist($preference); $this->em->persist($contact);
-            }
-
-            // les FormuleBoost
-            $this->em->persist((new FormuleBoost())->setTitre("Formule A")->setPrix(500)->setNbrJour(2)->setAlert(false));
-            $this->em->persist((new FormuleBoost())->setTitre("Formule B")->setPrix(1000)->setNbrJour(4)->setAlert(false));
-            $this->em->persist((new FormuleBoost())->setTitre("Formule C")->setPrix(1500)->setNbrJour(7)->setAlert(false));
-            $this->em->persist((new FormuleBoost())->setTitre("Formule D")->setPrix(3000)->setNbrJour(14)->setAlert(false));
-            $this->em->persist((new FormuleBoost())->setTitre("Formule E")->setPrix(7000)->setNbrJour(30)->setAlert(false));
-            $this->em->persist((new FormuleBoost())->setTitre("Formule F")->setPrix(12500)->setNbrJour(60)->setAlert(false));
-            $this->em->persist((new FormuleBoost())->setTitre("Formule G")->setPrix(25000)->setNbrJour(120)->setAlert(false));
-
-            // les FormuleCampagneMail
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule A")->setPrix(1000)->setNombreMail(15));
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule B")->setPrix(6000)->setNombreMail(100));
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule C")->setPrix(9000)->setNombreMail(150));
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule D")->setPrix(30000)->setNombreMail(500));
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule E")->setPrix(55000)->setNombreMail(1000));
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule F")->setPrix(330000)->setNombreMail(5000));
-            $this->em->persist((new FormuleCampagneMail())->setTitre("Formule G")->setPrix(600000)->setNombreMail(10000));
-            
-            $this->em->flush();
-
             return new JsonResponse([
-                'error' => false,
-                'versionApp' => "1.0.0",
-                'importantUpdate' => false,
-            ]);
+                'error' => true,
+                'message' => 'Service temporairement indisponible.',
+            ], Response::HTTP_SERVICE_UNAVAILABLE);
         }
         
     }
