@@ -220,7 +220,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -485,7 +485,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         if(strlen($rawNewPassword) < 6) {
             if($sessionDS->get("langUserPhone") != "fr") {
@@ -608,7 +608,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $uid = str_replace(["\n", "\r", " "], "", $uid);
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -662,7 +662,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -715,7 +715,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $codeForVerifMail = $datas->get('codeForVerifMail');
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -798,7 +798,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
@@ -1168,7 +1168,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $motifDeleted = $datas->get('motifDeleted');
 
         $user = $userRepository->findOneBy(['uid' => $uid]);
@@ -1241,7 +1241,7 @@ class UserController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $suggestion = $datas->get('suggestion');
 
         if(!$suggestion){
@@ -1304,7 +1304,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $user->setIsInscritProgrammeRecompense(true);        
@@ -1332,7 +1332,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
             
@@ -1359,7 +1359,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             $idPromoAffaire = $datas->get('idPromoAffaire');
             
             $user = $userRepository->findOneBy(['uid' => $uid]);
@@ -1429,7 +1429,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $soldeDisponible = $user->getSoldeProgrammeRecompense();
 
@@ -1500,7 +1500,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
             $idHistorique = $datas->get('idHistorique');
@@ -1581,7 +1581,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
             $reseauRetrait = $datas->get('reseauRetrait') ?? "";
@@ -1616,7 +1616,7 @@ class UserController extends AbstractController
             $langUserPhone = $datas->get('langUserPhone');
             $sessionDS->set("langUserPhone", $langUserPhone);
 
-            $uid = $this->cookieDS->get('uid') ?: null;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
             return new JsonResponse([
