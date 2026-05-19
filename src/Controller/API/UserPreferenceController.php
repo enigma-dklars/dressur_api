@@ -60,20 +60,4 @@ class UserPreferenceController extends AbstractController
         return new Response('OK');
     }
 
-    #[Route('/updateCentreInteretLoisirChoisies/{uid}/{langUserPhone}/{centreInteretLoisirJson}', name: 'updateCentreInteretLoisirChoisies', methods: ['POST', 'GET'])]
-    public function updateCentreInteretLoisirChoisies(User $user, $langUserPhone, $centreInteretLoisirJson, SessionDS $sessionDS): Response
-    {        
-        $sessionDS->set("langUserPhone", $langUserPhone);
-
-        $centreInteretLoisirJson = json_decode($centreInteretLoisirJson);
-        $arrayCentreInteretLoisir = [];
-
-        foreach ($centreInteretLoisirJson as $key) {
-            array_push($arrayCentreInteretLoisir, $key);
-        }
-        $user->getPreference()->setCentreInteretLoisirChoisies($arrayCentreInteretLoisir);
-        $this->em->flush();
-
-        return new Response('OK');
-    }
 }
