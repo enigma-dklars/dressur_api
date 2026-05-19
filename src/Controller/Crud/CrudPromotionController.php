@@ -5,6 +5,7 @@ namespace App\Controller\Crud;
 use App\Entity\Promotion;
 use App\Form\PromotionType;
 use App\Repository\FormulePromoAffaireRepository;
+use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -185,19 +186,35 @@ class CrudPromotionController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_crud_promotion_delete', methods: ['POST'])]
-    public function delete(Request $request, Promotion $promotion, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Promotion $promotion, EntityManagerInterface $entityManager, HistoriqueProgrammeRecompenseRepository $historiqueRepo): Response
     {
         if ($this->isCsrfTokenValid('delete'.$promotion->getId(), $request->request->get('_token'))) {
-            if(str_starts_with($promotion->getImage(), 'dressur_pro_')) {
+            $id = $promotion->getId();
+            $type = $promotion->getTypePromotionAffaire();
+
+            // Suppression de toutes les occurrences liées (HistoriqueProgrammeRecompense)
+            $historiques = $historiqueRepo->findBy(['promotion' => $promotion]);
+            foreach ($historiques as $historique) {
+                $entityManager->remove($historique);
+            }
+
+            // Suppression de l'image uniquement pour les promotions de type produit_service
+            if ($type === 'produit_service' && str_starts_with((string) $promotion->getImage(), 'dressur_pro_')) {
                 try {
                     unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
                 } catch (\Throwable $th) {
                     //throw $th;
                 }
             }
+
             $entityManager->remove($promotion);
             $entityManager->flush();
+
+            $this->addFlash('success', 'Promotion #'.$id.' supprimée avec '.count($historiques).' historique(s) lié(s).');
+        } else {
+            $this->addFlash('danger', 'Token CSRF invalide. Suppression annulée.');
         }
+
         return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
     }
 }
