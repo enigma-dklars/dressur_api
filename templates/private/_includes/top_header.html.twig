@@ -5,12 +5,9 @@
         </div>
         <div class="top-navbar d-none d-xl-block">
             <ul class="navbar-nav align-items-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{path('app_private')}}">Dashboard</a>
-                </li>
                 {% if user.admin == true %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{path('app_vue_user')}}">Vue User</a>
+                        <a class="nav-link badge bg-danger" href="{{path('app_admin')}}">Admin Dash</a>
                     </li>
                 {% endif %}
                 {# <li class="nav-item">
