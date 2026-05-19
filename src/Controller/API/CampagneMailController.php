@@ -71,7 +71,7 @@ class CampagneMailController extends AbstractController
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $idFormuleCampagneMail = $datas->get('idFormuleCampagneMail');
         $titre = $datas->get('titre');
         $sujet = $datas->get('sujet');
@@ -177,7 +177,7 @@ class CampagneMailController extends AbstractController
         $datas = $request->request;        
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
-        $uid = $this->cookieDS->get('uid') ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $idCampagneMail = $datas->get('idCampagneMail');
         $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
