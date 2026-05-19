@@ -107,80 +107,81 @@
             — Fin des actualités —
         </div>
     </div>
+{% endblock %}
 
-    <script>
-    (function () {
-        var grid    = document.getElementById('actualite-grid');
-        var loader  = document.getElementById('actualite-loader');
-        var endMsg  = document.getElementById('actualite-end');
+{% block script %}
+<script>
+(function () {
+    var grid    = document.getElementById('actualite-grid');
+    var loader  = document.getElementById('actualite-loader');
+    var endMsg  = document.getElementById('actualite-end');
 
-        if (!grid) return;
+    if (!grid) return;
 
-        var offset  = parseInt(grid.dataset.offset, 10) || 12;
-        var total   = parseInt(grid.dataset.total, 10)  || 0;
-        var loading = false;
-        var done    = offset >= total;
+    var offset  = parseInt(grid.dataset.offset, 10) || 12;
+    var total   = parseInt(grid.dataset.total, 10)  || 0;
+    var loading = false;
+    var done    = offset >= total;
 
-        if (done) { endMsg.style.display = 'block'; }
+    if (done) { endMsg.style.display = 'block'; }
 
-        function loadMore() {
-            if (loading || done) return;
-            loading = true;
-            loader.style.display = 'block';
+    function loadMore() {
+        if (loading || done) return;
+        loading = true;
+        loader.style.display = 'block';
 
-            $.ajax({
-                url:  '/actualite/more',
-                type: 'GET',
-                data: { offset: offset },
-                success: function (html, status, xhr) {
-                    loader.style.display = 'none';
-                    $(grid).append(html);
-                    var hasMore = xhr.getResponseHeader('X-Has-More');
-                    offset += 12;
-                    grid.dataset.offset = offset;
-                    if (hasMore === '0' || offset >= total) {
-                        done = true;
-                        endMsg.style.display = 'block';
-                    }
-                    loading = false;
-                },
-                error: function () {
-                    loader.style.display = 'none';
-                    loading = false;
+        $.ajax({
+            url:  '/actualite/more',
+            type: 'GET',
+            data: { offset: offset },
+            success: function (html, status, xhr) {
+                loader.style.display = 'none';
+                $(grid).append(html);
+                offset += 12;
+                grid.dataset.offset = offset;
+                if (xhr.getResponseHeader('X-Has-More') === '0' || offset >= total) {
+                    done = true;
+                    endMsg.style.display = 'block';
                 }
-            });
+                loading = false;
+            },
+            error: function () {
+                loader.style.display = 'none';
+                loading = false;
+            }
+        });
+    }
+
+    $(window).on('scroll', function () {
+        if (done || loading) return;
+        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 300) {
+            loadMore();
         }
+    });
 
-        $(window).on('scroll', function () {
-            if (done || loading) return;
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 300) {
-                loadMore();
+    if (window._dsShareReady) return;
+    window._dsShareReady = true;
+    document.addEventListener('click', async function (e) {
+        var btn = e.target.closest('.ds-share-btn');
+        if (!btn) return;
+        var shareData = {
+            title: btn.dataset.shareTitle,
+            text:  btn.dataset.shareText,
+            url:   btn.dataset.shareUrl
+        };
+        if (navigator.share) {
+            try { await navigator.share(shareData); } catch (err) {}
+        } else {
+            try {
+                await navigator.clipboard.writeText(btn.dataset.shareUrl);
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(function () { btn.innerHTML = orig; }, 2000);
+            } catch (err) {
+                window.open(btn.dataset.shareUrl, '_blank');
             }
-        });
-
-        if (window._dsShareReady) return;
-        window._dsShareReady = true;
-        document.addEventListener('click', async function (e) {
-            var btn = e.target.closest('.ds-share-btn');
-            if (!btn) return;
-            var shareData = {
-                title: btn.dataset.shareTitle,
-                text:  btn.dataset.shareText,
-                url:   btn.dataset.shareUrl
-            };
-            if (navigator.share) {
-                try { await navigator.share(shareData); } catch (err) {}
-            } else {
-                try {
-                    await navigator.clipboard.writeText(btn.dataset.shareUrl);
-                    var orig = btn.innerHTML;
-                    btn.innerHTML = '<i class="fas fa-check"></i>';
-                    setTimeout(function () { btn.innerHTML = orig; }, 2000);
-                } catch (err) {
-                    window.open(btn.dataset.shareUrl, '_blank');
-                }
-            }
-        });
-    })();
-    </script>
+        }
+    });
+})();
+</script>
 {% endblock %}
