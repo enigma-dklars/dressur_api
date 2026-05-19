@@ -217,7 +217,7 @@ class UserController extends AbstractController
 
         $uid = $datas->get('uid');
 
-        if(in_array($tel, $this->env->getUserBanned())) {
+        if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -232,7 +232,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if(in_array($mail, $this->env->getUserBanned())) {
+        if($mail && $this->env->getUserBanned() && in_array($mail, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -950,7 +950,7 @@ class UserController extends AbstractController
             ]);
         }
         
-        if(in_array($tel, $this->env->getUserBanned())) {
+        if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -965,7 +965,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if(in_array($mail, $this->env->getUserBanned())) {
+        if($mail && $this->env->getUserBanned() && in_array($mail, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
