@@ -54,23 +54,6 @@ class PrivateController extends AbstractController
             $this->theme = "light-theme";
         }
         
-        if($this->env->getUsersParrainer() == NULL){
-            foreach ($userRepository->findAll() as $user) {
-                if($user->getParrain()) {
-                    $this->env->addUsersParrainer($user->getTel());
-                    $this->env->addUsersParrainer($user->getMail());
-                }
-            }
-            foreach ($dSBonusHistoriqueRepository->findAll() as $dsBH) {
-                $titre = $dsBH->getTitre();
-                $titreReplace = str_replace("+1 filleul ", "", $titre);
-                $titreReplace = str_replace("+1 referral ", "", $titreReplace);
-                if(strlen($titreReplace) != strlen($titre)) {
-                    $this->env->addUsersParrainer($titreReplace);
-                }
-            }
-            $this->em->flush();
-        }
     }
 
     private function encodePromoToken(int $id): string
