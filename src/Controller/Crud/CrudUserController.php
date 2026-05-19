@@ -72,12 +72,14 @@ class CrudUserController extends AbstractController
 
         $allUserIds = $userRepository->findAllIds();
         $contactCounts = $this->buildContactCounts($usersPaginator, $allUserIds);
+        $collectionCounts = $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts));
         
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $usersPaginator,
             'contactCounts' => $contactCounts,
+            'collectionCounts' => $collectionCounts,
             'option' => "All",
             'currentPage' => $page,
             'totalPages' => $totalPages,
@@ -103,11 +105,13 @@ class CrudUserController extends AbstractController
     {
         $users = $userRepository->findBy(['telIsVerified' => false], ['id' => 'DESC']);
         $allUserIds = $userRepository->findAllIds();
+        $contactCounts = $this->buildContactCounts($users, $allUserIds);
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $users,
-            'contactCounts' => $this->buildContactCounts($users, $allUserIds),
+            'contactCounts' => $contactCounts,
+            'collectionCounts' => $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts)),
             'option' => "Tel Not Verified",
             'currentPage' => "",
             'totalPages' => "",
@@ -122,11 +126,13 @@ class CrudUserController extends AbstractController
     {
         $users = $userRepository->findBy(['mailIsVerified' => false], ['id' => 'DESC']);
         $allUserIds = $userRepository->findAllIds();
+        $contactCounts = $this->buildContactCounts($users, $allUserIds);
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $users,
-            'contactCounts' => $this->buildContactCounts($users, $allUserIds),
+            'contactCounts' => $contactCounts,
+            'collectionCounts' => $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts)),
             'option' => "Mail Not Verified",
             'currentPage' => "",
             'totalPages' => "",
@@ -141,11 +147,13 @@ class CrudUserController extends AbstractController
     {
         $users = $userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], ['id' => 'DESC']);
         $allUserIds = $userRepository->findAllIds();
+        $contactCounts = $this->buildContactCounts($users, $allUserIds);
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $users,
-            'contactCounts' => $this->buildContactCounts($users, $allUserIds),
+            'contactCounts' => $contactCounts,
+            'collectionCounts' => $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts)),
             'option' => "Tel Mail Not Verified",
             'currentPage' => "",
             'totalPages' => "",

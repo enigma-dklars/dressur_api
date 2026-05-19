@@ -110,10 +110,11 @@
                     </td>
                     <td class="text-end">{{user.soldeBonus}}</td> #}
                     <td class="text-end">{{ contactCounts[user.id] ?? 0 }}</td>
-                    <td class="text-end">{{user.boosts|length}}</td>
-                    <td class="text-end">{{user.promotions|length}}</td>
-                    <td class="text-end">{{user.promoReseaus|length}}</td>
-                    <td class="text-end">{{user.campagneMails|length}}</td>
+                    {% set uc = collectionCounts[user.id] ?? {} %}
+                    <td class="text-end">{{ uc.boosts ?? 0 }}</td>
+                    <td class="text-end">{{ uc.promotions ?? 0 }}</td>
+                    <td class="text-end">{{ uc.promoReseaus ?? 0 }}</td>
+                    <td class="text-end">{{ uc.campagneMails ?? 0 }}</td>
                     <td class="text-center">
                         {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}
                     </td>

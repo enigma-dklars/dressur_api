@@ -77,6 +77,42 @@ class UserRepository extends ServiceEntityRepository
         );
     }
 
+    public function findCollectionCountsByUserIds(array $userIds): array
+    {
+        if (empty($userIds)) {
+            return [];
+        }
+
+        $rows = $this->createQueryBuilder('u')
+            ->select(
+                'u.id',
+                'COUNT(DISTINCT b.id) AS boostsCount',
+                'COUNT(DISTINCT p.id) AS promotionsCount',
+                'COUNT(DISTINCT cm.id) AS campagneMailsCount',
+                'COUNT(DISTINCT pr.id) AS promoReseausCount'
+            )
+            ->leftJoin('u.boosts', 'b')
+            ->leftJoin('u.promotions', 'p')
+            ->leftJoin('u.campagneMails', 'cm')
+            ->leftJoin('u.promoReseaus', 'pr')
+            ->where('u.id IN (:ids)')
+            ->setParameter('ids', $userIds)
+            ->groupBy('u.id')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = [];
+        foreach ($rows as $row) {
+            $result[$row['id']] = [
+                'boosts'       => (int) $row['boostsCount'],
+                'promotions'   => (int) $row['promotionsCount'],
+                'campagneMails' => (int) $row['campagneMailsCount'],
+                'promoReseaus' => (int) $row['promoReseausCount'],
+            ];
+        }
+        return $result;
+    }
+
     private function paginate($query, int $page = 1, int $limit = 20): Paginator
     {
         $paginator = new Paginator($query);
