@@ -14,7 +14,7 @@
                     <a class="nav-link {% if app.request.requestUri == path('app_actualite') %}text-primary{% else %}text-dark{% endif %} fw-semibold" href="{{path('app_actualite')}}">Actualités</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link {% if app.request.requestUri in [path('app_dressur_bot'), path('app_boost_contact'), path('app_campagne_mail'), path('app_promotion_affaire'), path('app_carte_visite_numerique'), path('app_promotion_reseaux_sociaux')] %}text-primary{% else %}text-dark{% endif %} fw-semibold dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown"> 
+                    <a class="nav-link {% if app.request.requestUri in [path('app_dressur_bot'), path('app_boost_contact'), path('app_promotion_affaire'), path('app_promotion_reseaux_sociaux')] %}text-primary{% else %}text-dark{% endif %} fw-semibold dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown"> 
                         Services <i class="fas fa-chevron-down align-middle ms-2"></i>
                     </a>
                     <ul class="dropdown-menu bg-white border border-2 border-primary">

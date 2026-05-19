@@ -235,10 +235,7 @@ class PublicController extends AbstractController
     #[Route('/campagne-mail', name: 'app_campagne_mail')]
     public function campagne_mail(): Response
     {
-        return $this->render('public/campagne_mail.html.twig', [
-            'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
-        ]);
+        return $this->redirectToRoute('app_index', [], 301);
     }
 
     #[Route('/promotion-affaire', name: 'app_promotion_affaire')]
@@ -253,10 +250,7 @@ class PublicController extends AbstractController
     #[Route('/carte-visite-numerique', name: 'app_carte_visite_numerique')]
     public function carte_visite_numerique(): Response
     {
-        return $this->render('public/carte_visite_numerique.html.twig', [
-            'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
-        ]);
+        return $this->redirectToRoute('app_index', [], 301);
     }
 
     #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
