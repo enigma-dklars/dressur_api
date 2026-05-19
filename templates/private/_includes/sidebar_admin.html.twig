@@ -100,11 +100,18 @@
     window.addEventListener('load', function () {
         setTimeout(function () {
             var active = document.querySelector('.sidebar-wrapper .mm-active');
-            if (!active) return;
-            var winX = window.scrollX, winY = window.scrollY;
-            active.scrollIntoView({ block: 'center' });
-            window.scrollTo(winX, winY);
-        }, 200);
+            var scrollEl = document.querySelector('.sidebar-wrapper .simplebar-content-wrapper');
+            if (!active || !scrollEl) return;
+            var offsetTop = 0;
+            var node = active;
+            while (node && node !== scrollEl) {
+                offsetTop += node.offsetTop;
+                var parent = node.offsetParent;
+                if (!parent || parent === document.body || parent === document.documentElement) break;
+                node = parent;
+            }
+            scrollEl.scrollTop = Math.max(0, offsetTop - (scrollEl.clientHeight / 2) + (active.offsetHeight / 2));
+        }, 250);
     });
 })();
 </script>
