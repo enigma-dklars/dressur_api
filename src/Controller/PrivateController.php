@@ -253,13 +253,9 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $userinfo = $this->traitementsDS->infosUser($user);
-        $html = $this->renderView('private/actu.html.twig', [
+        return $this->render('private/actu.html.twig', [
             'actus' => json_decode($userinfo['lesPublicites']),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -268,13 +264,9 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $contacts = $this->traitementsDS->userContacts($user);
-        $html = $this->renderView('private/contact.html.twig', [
+        return $this->render('private/contact.html.twig', [
             'contacts' => $contacts,
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -283,14 +275,10 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/newcampagemail.html.twig', [
+        return $this->render('private/newcampagemail.html.twig', [
             'formuleCampageMails' => $formuleCampagneMailRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -300,15 +288,11 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/newpromoreseau.html.twig', [
+        return $this->render('private/newpromoreseau.html.twig', [
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'listSocialNetworks' => $traitementsDS->listeFormulePromoReseau(),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -318,14 +302,10 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/listepromoreseau.html.twig', [
+        return $this->render('private/listepromoreseau.html.twig', [
             'listepromoreseau' => $traitementsDS->userPromoReseaus($user->getPromoReseaus()),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -334,15 +314,11 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
-        $html = $this->renderView('private/newpromoaffaire.html.twig', [
+        return $this->render('private/newpromoaffaire.html.twig', [
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'formuleBoosts' => $formulePromoAffaireRepository->findBy(['activated' => true]),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -351,16 +327,12 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
-        $html = $this->renderView('private/listepromoaffaire.html.twig', [
+        return $this->render('private/listepromoaffaire.html.twig', [
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'listepromoaffaire' => $traitementsDS->userPromos($user->getPromotions()),
             'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -370,15 +342,11 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/accepterSansSuite.html.twig', [
+        return $this->render('private/accepterSansSuite.html.twig', [
             'accepterSansSuite' => $traitementsDS->userPromos($promotionRepository->findBy(['status' => 2])),
             'listeFormulBoost' => $traitementsDS->listeFormulePromoAffaire(),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -388,13 +356,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/editprofil.html.twig', [
+        return $this->render('private/editprofil.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -404,15 +368,11 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/partagerDressur.html.twig', [
+        return $this->render('private/partagerDressur.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'codeParrainage' => $user->getCodeBonus(), 
-            'commission' => "0", 
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'commission' => "0",
+            'theme' => $this->theme,
         ]);
     }
 
@@ -422,13 +382,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/editPassword.html.twig', [
+        return $this->render('private/editPassword.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -438,13 +394,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/invitezVosAmis.html.twig', [
+        return $this->render('private/invitezVosAmis.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -454,15 +406,11 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/newboostcontact.html.twig', [
+        return $this->render('private/newboostcontact.html.twig', [
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'formuleBoosts' => $formuleBoostRepository->findAll(),
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -472,14 +420,10 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/listeboostcontact.html.twig', [
+        return $this->render('private/listeboostcontact.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user]))
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -489,14 +433,10 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/listeBonusRecu.html.twig', [
+        return $this->render('private/listeBonusRecu.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'lesBonus' => $traitementsDS->bonusTab($dSBonusHistoriqueRepository->findBy(['user' => $user], ['id' => "DESC"]))
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -506,13 +446,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/addSuggestion.html.twig', [
+        return $this->render('private/addSuggestion.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -522,13 +458,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/signalerUser.html.twig', [
+        return $this->render('private/signalerUser.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -536,7 +468,7 @@ class PrivateController extends AbstractController
     public function preferencePays(TraitementsDS $traitementsDS): Response
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
-        $html = $this->renderView('private/preferencePays.html.twig', [
+        return $this->render('private/preferencePays.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'paysChoisieJson' => $user->getPreference()->getPaysChoisies(),
             'countryCodes' => [
@@ -773,11 +705,7 @@ class PrivateController extends AbstractController
                 '260' => 'Zambie',
                 '263' => 'Zimbabwe',
             ]
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 
@@ -787,13 +715,9 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
-        $html = $this->renderView('private/centreInteret.html.twig', [
+        return $this->render('private/centreInteret.html.twig', [
             'user' => $traitementsDS->infosUser($user),
-        ]);
-
-        return new JsonResponse([
-            'error' => false,
-            'content' => $html,
+            'theme' => $this->theme,
         ]);
     }
 }

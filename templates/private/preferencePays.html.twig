@@ -1,3 +1,8 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Préférence Pays{% endblock %}
+
+{% block body %}
 <div class="bg-danger text-white p-3 rounded">
     NB: Sélectionnez parmi les pays disponibles. Ces pays sélectionnés seront ceux à partir desquels vous recevrez des propositions de contacts et d'actualités, ainsi que vers lesquels seront orientées vos promotions commerciales et vos boosts contacts.
 </div>
@@ -55,6 +60,9 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block script %}
 <script>
 $(document).ready(function(){
     function filterCountries() {
@@ -84,3 +92,4 @@ $(document).ready(function(){
     $('input[name="filter"]').on('change', filterCountries);
 });
 </script>
+{% endblock %}

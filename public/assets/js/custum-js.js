@@ -1260,7 +1260,7 @@ $(document).ready(function () {
                     Swal.fire({icon: "success", title: "Good...", text: successMessage,});
                     traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
                     $("#modal_modifier_promoaffaire_"+id_promo_affaire).modal("hide");
-                    actualiseContent("/listepromoaffaire")
+                    window.location.href = "/listepromoaffaire"
                 }
             },
             error: function (error) {
@@ -1517,7 +1517,7 @@ $(document).ready(function () {
                     }, 2500);
 
                     setTimeout(() => {
-                        actualiseContent("/listepromoaffaire");
+                        window.location.href = "/listepromoaffaire";
                     }, 3300);
                 }
                 traitementContact("boostpromoaffaire-"+idPromoAffaire, "fin", "BOOSTER")
@@ -1629,7 +1629,7 @@ $(document).ready(function () {
                     }, 15000);
 
                     setTimeout(() => {
-                        actualiseContent("/listepromoaffaire");
+                        window.location.href = "/listepromoaffaire";
                     }, 25000);
                 }
                 traitementContact("payerpromoaffaire-"+idPromoAffaire, "fin", "PAYER et BOOSTER")
@@ -1922,7 +1922,7 @@ $(document).ready(function () {
                     $("#msgErrorParrainage").toggle(800);
                     setTimeout(() => {
                         $("#modal_parrainage").modal("hide");
-                        actualiseContent("/invitezVosAmis");
+                        window.location.href = "/invitezVosAmis";
                     }, 5000);
                 }
                 traitementContact("validerCodeParrainage", "fin", "Valider")
@@ -2012,7 +2012,7 @@ $(document).ready(function () {
                     $("#msgErrorPromo").toggle(800);
                     setTimeout(() => {
                         $("#modal_promo").modal("hide");
-                        actualiseContent("/invitezVosAmis");
+                        window.location.href = "/invitezVosAmis";
                     }, 5000);
                 }
                 traitementContact("validerCodePromo", "fin", "Valider")
@@ -2622,7 +2622,7 @@ $(document).ready(function () {
                     $("#msgError-"+idPromoAffaire).toggle(800);
 
                     $("#modal_payer_bonus_promoaffaire_"+idPromoAffaire).modal("hide");
-                    actualiseContent("/accepterSansSuite");
+                    window.location.href = "/accepterSansSuite";
                 }
                 traitementContact("validePromoAffaireByAdmin-"+idPromoAffaire, "fin", "BOOSTER")
             }
