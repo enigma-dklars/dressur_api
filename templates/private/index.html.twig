@@ -4,10 +4,8 @@
 
 {% block body %}
 
-    <div hidden>
-        <input type="text" id="uid" value="{{user.uid}}">
-    </div>
-    
+
+
     <div class="row g-3 mb-3">
         {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
             user.telIsVerified == false or
