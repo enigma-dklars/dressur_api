@@ -132,15 +132,12 @@
         var active = document.querySelector('.sidebar-wrapper .mm-active');
         if (!active) return;
         var scrollEl = document.querySelector('.sidebar-wrapper .simplebar-content-wrapper');
-        if (scrollEl) {
-            var top = active.offsetTop - 80;
-            scrollEl.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-        }
+        if (!scrollEl) return;
+        var activeRect = active.getBoundingClientRect();
+        var containerRect = scrollEl.getBoundingClientRect();
+        var offset = scrollEl.scrollTop + (activeRect.top - containerRect.top) - (scrollEl.clientHeight / 2) + (active.clientHeight / 2);
+        scrollEl.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
     }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () { setTimeout(scrollToActive, 300); });
-    } else {
-        setTimeout(scrollToActive, 300);
-    }
+    window.addEventListener('load', function () { setTimeout(scrollToActive, 200); });
 })();
 </script>
