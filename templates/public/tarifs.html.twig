@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% set description = "Sur cette page sont regroupé les tarifs de chacun des services de Dressur : Dressur Bot, Boost Contact, Campagne Mail, Promotion Affaire, Carte de visite numérique, Promotion réseau socixaux..." %}
+{% set description = "Sur cette page sont regroupés les tarifs de chacun des services de Dressur : Dressur Bot, Boost Contact, Campagne Mail, Promotion Affaire, Carte de visite numérique, Promotion réseaux sociaux..." %}
 {% set title = "Tarifs des services Dressur" %}
 {% block referencement %}
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
-    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:url" content="{{ url('app_tarifs') }}" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card Meta Tags (facultatif) -->

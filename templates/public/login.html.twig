@@ -7,7 +7,7 @@
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
-    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:url" content="{{ url('app_connexion') }}" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card Meta Tags (facultatif) -->
@@ -20,6 +20,8 @@
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="connexion à Dressur, se connecter à son compte, login Dressur, accès au profil Dressur, gestion de compte" />
 {% endblock %}
+
+{% block robots_meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {% block title %}{{title}}{% endblock %}
 
@@ -57,7 +59,7 @@
                                         <input type="password" class="form-control getInfo radius-30 ps-5" id="inputMotPasse" placeholder="Mot de passe">
                                     </div>
                                     </div>
-                                    <div class="col-12 text-end">	<a href="{{path('app_mot_de_passe_oublier')}}">Mot de passe oublié ?</a>
+                                    <div class="col-12 text-end">       <a href="{{path('app_mot_de_passe_oublier')}}">Mot de passe oublié ?</a>
                                     </div>
                                     <div class="col-12">
                                     <div class="d-grid">

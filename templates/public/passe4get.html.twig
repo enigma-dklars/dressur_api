@@ -8,7 +8,7 @@
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
-    <meta property="og:url" content="https://dressur.site" />
+    <meta property="og:url" content="{{ url('app_mot_de_passe_oublier') }}" />
     <meta property="og:type" content="website" />
 
     <!-- Twitter Card Meta Tags -->
@@ -21,6 +21,8 @@
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="mot de passe oublié, réinitialisation mot de passe, récupération mot de passe, Dressur" />
 {% endblock %}
+
+{% block robots_meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
 
 {% block title %}{{title}}{% endblock %}
 
