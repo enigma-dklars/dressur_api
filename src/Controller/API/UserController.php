@@ -126,9 +126,25 @@ class UserController extends AbstractController
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
         }
 
-        $password = sha1(sha1(sha1($datas->get('password'))));
+        $rawPassword = $datas->get('password');
 
-        $user = $userRepository->findOneBy(['mail' => $mail, 'password' => $password]);
+        $user = $userRepository->findOneBy(['mail' => $mail]);
+        if ($user) {
+            $storedHash = $user->getPassword();
+            if (str_starts_with((string) $storedHash, '$2y$') || str_starts_with((string) $storedHash, '$argon')) {
+                if (!password_verify($rawPassword, $storedHash)) {
+                    $user = null;
+                }
+            } else {
+                $sha1Hash = sha1(sha1(sha1($rawPassword)));
+                if ($sha1Hash !== $storedHash) {
+                    $user = null;
+                } else {
+                    $user->setPassword(password_hash($rawPassword, PASSWORD_BCRYPT));
+                    $this->em->flush();
+                }
+            }
+        }
 
         if($user) {
             // enregistrement de la langue du user et du last login
@@ -457,16 +473,16 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
 
-        $currentPassword = sha1(sha1(sha1($datas->get('currentPassword'))));
-        $newPassword = sha1(sha1(sha1($datas->get('newPassword'))));
-        $confirmNewPassword = sha1(sha1(sha1($datas->get('confirmNewPassword'))));
+        $rawCurrentPassword = $datas->get('currentPassword');
+        $rawNewPassword = $datas->get('newPassword');
+        $rawConfirmNewPassword = $datas->get('confirmNewPassword');
         
         $langUserPhone = $datas->get('langUserPhone');
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $datas->get('uid');
 
-        if(strlen($newPassword) < 6) {
+        if(strlen($rawNewPassword) < 6) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -481,7 +497,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if(!$currentPassword or !$newPassword or !$confirmNewPassword){
+        if(!$rawCurrentPassword or !$rawNewPassword or !$rawConfirmNewPassword){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -512,8 +528,13 @@ class UserController extends AbstractController
         ]);
         }
 
-        $user = $userRepository->findOneBy(['uid' => $uid, 'password' => $currentPassword]);
-        if(!$user){
+        $storedHash = $userUid->getPassword();
+        if (str_starts_with((string) $storedHash, '$2y$') || str_starts_with((string) $storedHash, '$argon')) {
+            $currentPasswordValid = password_verify($rawCurrentPassword, $storedHash);
+        } else {
+            $currentPasswordValid = sha1(sha1(sha1($rawCurrentPassword))) === $storedHash;
+        }
+        if (!$currentPasswordValid) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -527,8 +548,9 @@ class UserController extends AbstractController
                 'message' => 'Mots de passe actuel incorrecte!',
             ]);
         }
+        $user = $userUid;
 
-        if($newPassword != $confirmNewPassword){
+        if($rawNewPassword != $rawConfirmNewPassword){
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Attention!",
@@ -536,7 +558,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        $user->setPassword($newPassword);
+        $user->setPassword(password_hash($rawNewPassword, PASSWORD_BCRYPT));
         $this->em->flush();
 
         if ($user->getId()) {
@@ -786,7 +808,7 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         $newPassword = $traitementsDS->resetPassword();
-        $user->setPassword(sha1(sha1(sha1($newPassword))));
+        $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
         $this->em->flush();
 
         $html = $this->renderView("emails/passe_4got_mail.html.twig",[
@@ -857,7 +879,7 @@ class UserController extends AbstractController
         }
 
         $newPassword = $traitementsDS->resetPassword();
-        $user->setPassword(sha1(sha1(sha1($newPassword))));
+        $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
         $this->em->flush();
 
         $html = $this->renderView("emails/passe_4got_mail.html.twig",[
@@ -1038,10 +1060,10 @@ class UserController extends AbstractController
             ]);
         }
         
-        $password = sha1(sha1(sha1($datas->get('password'))));
-        $confirmPassword = sha1(sha1(sha1($datas->get('confirmPassword'))));
+        $rawPassword = $datas->get('password');
+        $rawConfirmPassword = $datas->get('confirmPassword');
 
-        if($password != $confirmPassword){
+        if($rawPassword != $rawConfirmPassword){
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -1060,7 +1082,7 @@ class UserController extends AbstractController
         $user->setPseudo($pseudo)
             ->setTel($tel)
             ->setMail($mail)
-            ->setPassword($password)
+            ->setPassword(password_hash($rawPassword, PASSWORD_BCRYPT))
             ->setPays($paysTel)
             ->setLang($langUserPhone)
             ->setLastLoginTo(new DateTime())
