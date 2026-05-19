@@ -27,11 +27,22 @@ class VerificationsDS extends AbstractController
     }
 
     public function remove_emoji($text){
-        $string = str_replace("?", "{%}", $text);
-        $string = mb_convert_encoding($string, "ISO-8859-1", "UTF-8");
-        $string = mb_convert_encoding($string, "UTF-8", "ISO-8859-1");
-        $string = str_replace(array("?", "? ", " ?"), array(""), $string);
-        $string = str_replace("{%}", "?", $string);
+        $string = (string) $text;
+        $string = preg_replace('/[\x{1F600}-\x{1F64F}]/u', '', $string);
+        $string = preg_replace('/[\x{1F300}-\x{1F5FF}]/u', '', $string);
+        $string = preg_replace('/[\x{1F680}-\x{1F6FF}]/u', '', $string);
+        $string = preg_replace('/[\x{1F700}-\x{1F77F}]/u', '', $string);
+        $string = preg_replace('/[\x{1F780}-\x{1F7FF}]/u', '', $string);
+        $string = preg_replace('/[\x{1F800}-\x{1F8FF}]/u', '', $string);
+        $string = preg_replace('/[\x{1F900}-\x{1F9FF}]/u', '', $string);
+        $string = preg_replace('/[\x{1FA00}-\x{1FA6F}]/u', '', $string);
+        $string = preg_replace('/[\x{1FA70}-\x{1FAFF}]/u', '', $string);
+        $string = preg_replace('/[\x{2600}-\x{26FF}]/u', '', $string);
+        $string = preg_replace('/[\x{2700}-\x{27BF}]/u', '', $string);
+        $string = preg_replace('/[\x{FE00}-\x{FE0F}]/u', '', $string);
+        $string = preg_replace('/[\x{1F1E0}-\x{1F1FF}]/u', '', $string);
+        $string = preg_replace('/[\x{200D}]/u', '', $string);
+        $string = preg_replace('/[\x{20E3}]/u', '', $string);
         return trim($string);
     }
 
