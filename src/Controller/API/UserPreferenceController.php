@@ -3,12 +3,9 @@
 namespace App\Controller\API;
 
 use App\Services\TraitementsDS;
-use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Entity\User;
-use App\Repository\PreferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Services\SessionDS;
 use Symfony\Component\Routing\Annotation\Route;

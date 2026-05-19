@@ -10,7 +10,6 @@ use App\Entity\Preference;
 use App\Utilities\SendMail;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
-use App\Repository\BoostRepository;
 use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
