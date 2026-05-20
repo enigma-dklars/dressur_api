@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Repository\FormuleDressurBotRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\FormulePromoReseauRepository;
-use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\FormulePromoAffaireRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -133,14 +132,13 @@ class PublicController extends AbstractController
     }
 
     #[Route('/tarifs', name: 'app_tarifs')]
-    public function tarifs(FormuleBoostRepository $formuleBoostRepository, FormuleCampagneMailRepository $formuleCampagneMailRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    public function tarifs(FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, FormulePromoReseauRepository $formulePromoReseauRepository): Response
     {
         return $this->render('public/tarifs.html.twig', [
             'controller_name' => 'PublicController',
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
             'formule_boosts' => $formuleBoostRepository->findAll(),
-            'formule_campagne_mails' => $formuleCampagneMailRepository->findAll(),
             'formule_dressur_bots' => $formuleDressurBotRepository->findBy(['activated' => true]),
             'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
             'formule_promo_reseaus' => $formulePromoReseauRepository->findBy([], ['parent' => 'ASC']),
