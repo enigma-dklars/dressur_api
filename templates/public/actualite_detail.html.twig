@@ -33,6 +33,27 @@
     "@type": "Offer",
     "availability": "https://schema.org/InStock",
     "url": "https://dressur.site/actualite/{{ promo.token }}",
+    "priceSpecification": {
+      "@type": "PriceSpecification",
+      "priceCurrency": "XOF",
+      "price": 0,
+      "minPrice": 0
+    },
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "BJ",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"},
+      "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"},
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"},
+        "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}
+      }
+    },
     "seller": {
       "@type": "Person",
       "name": "{{ promo.pseudoAnnonceur|e('js') }}"
@@ -77,7 +98,28 @@
   "offers": {
     "@type": "Offer",
     "availability": "https://schema.org/InStock",
-    "url": "https://dressur.site/actualite/{{ promo.token }}"
+    "url": "https://dressur.site/actualite/{{ promo.token }}",
+    "priceSpecification": {
+      "@type": "PriceSpecification",
+      "priceCurrency": "XOF",
+      "price": 0,
+      "minPrice": 0
+    },
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "BJ",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"},
+      "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"},
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"},
+        "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}
+      }
+    }
   }
 }
 {% endif %}
