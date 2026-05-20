@@ -276,7 +276,7 @@ class PublicController extends AbstractController
     #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
     public function promotion_reseau_sociaux(FormulePromoReseauRepository $formulePromoReseauRepository): Response
     {
-        $formulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->getAvailable());
+        $formulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->isAvailable());
         $prices = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulas);
         sort($prices);
         return $this->render('public/promotion_reseaux_sociaux.html.twig', [
