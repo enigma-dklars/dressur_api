@@ -51,7 +51,22 @@
     "price": "0",
     "priceCurrency": "XOF",
     "availability": "https://schema.org/InStock",
-    "url": "{{ url('app_tarifs') }}"
+    "url": "{{ url('app_tarifs') }}",
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "BJ",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"},
+      "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"},
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"},
+        "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}
+      }
+    }
   }
 }
 </script>

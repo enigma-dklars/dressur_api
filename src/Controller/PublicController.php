@@ -240,11 +240,14 @@ class PublicController extends AbstractController
     }
 
     #[Route('/dressur-bot', name: 'app_dressur_bot')]
-    public function dressur_bot(): Response
+    public function dressur_bot(FormuleDressurBotRepository $formuleDressurBotRepository): Response
     {
+        $prices = array_map(fn($f) => $f->getPrix(), $formuleDressurBotRepository->findAll());
+        sort($prices);
         return $this->render('public/dressur_bot.html.twig', [
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
+            'min_price' => !empty($prices) ? (int) $prices[0] : 0,
         ]);
     }
 
@@ -258,20 +261,27 @@ class PublicController extends AbstractController
     }
 
     #[Route('/promotion-affaire', name: 'app_promotion_affaire')]
-    public function promotion_affaire(): Response
+    public function promotion_affaire(FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
     {
+        $prices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
+        sort($prices);
         return $this->render('public/promotion_affaire.html.twig', [
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
+            'min_price' => !empty($prices) ? (int) $prices[0] : 0,
         ]);
     }
 
     #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
-    public function promotion_reseau_sociaux(): Response
+    public function promotion_reseau_sociaux(FormulePromoReseauRepository $formulePromoReseauRepository): Response
     {
+        $formulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->getAvailable());
+        $prices = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulas);
+        sort($prices);
         return $this->render('public/promotion_reseaux_sociaux.html.twig', [
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
+            'min_price' => !empty($prices) ? $prices[0] : 0,
         ]);
     }
 
