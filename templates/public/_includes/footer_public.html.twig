@@ -1,3 +1,126 @@
-<footer class="border-top p-3 text-center">
-    <p class="mb-0">Copyright © 2021 - {{ "now"|date("Y") }}. All right reserved.</p>
+<footer style="background-color: #1c3a6e; color: #e8edf5;">
+    <div class="container py-5">
+        <div class="row g-4">
+
+            <div class="col-lg-4 col-md-6">
+                <a href="{{ path('app_public') }}">
+                    <img src="/assets/images/brand-logo-2.png" width="130" alt="Dressur" class="mb-3" style="filter: brightness(0) invert(1);">
+                </a>
+                <p class="mb-4" style="color: #a8bbd4; font-size: 0.9rem; line-height: 1.7;">
+                    Dressur est une plateforme africaine de marketing digital — boostez vos contacts, promouvez votre affaire et développez votre présence en ligne en Afrique de l'Ouest.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="https://www.facebook.com/dressurds" target="_blank" rel="noopener"
+                       class="d-flex align-items-center justify-content-center rounded-circle text-white"
+                       style="width:38px;height:38px;background:rgba(255,255,255,0.12);transition:background .2s;"
+                       onmouseover="this.style.background='#4267B2'" onmouseout="this.style.background='rgba(255,255,255,0.12)'"
+                       title="Facebook Dressur">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@bluelife.tech" target="_blank" rel="noopener"
+                       class="d-flex align-items-center justify-content-center rounded-circle text-white"
+                       style="width:38px;height:38px;background:rgba(255,255,255,0.12);transition:background .2s;"
+                       onmouseover="this.style.background='#010101'" onmouseout="this.style.background='rgba(255,255,255,0.12)'"
+                       title="TikTok Dressur">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" rel="noopener"
+                       class="d-flex align-items-center justify-content-center rounded-circle text-white"
+                       style="width:38px;height:38px;background:rgba(255,255,255,0.12);transition:background .2s;"
+                       onmouseover="this.style.background='#01875f'" onmouseout="this.style.background='rgba(255,255,255,0.12)'"
+                       title="Dressur sur Google Play">
+                        <i class="fab fa-google-play"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="fw-bold text-white mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Navigation</h6>
+                <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                    <li class="mb-2">
+                        <a href="{{ path('app_public') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-house fa-xs me-2"></i>Accueil
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ path('app_actualite') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-newspaper fa-xs me-2"></i>Actualités
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ path('app_tarifs') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-tags fa-xs me-2"></i>Tarifs
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ path('app_contactez_nous') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-envelope fa-xs me-2"></i>Contacts
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-6">
+                <h6 class="fw-bold text-white mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Nos services</h6>
+                <ul class="list-unstyled mb-0" style="font-size: 0.9rem;">
+                    <li class="mb-2">
+                        <a href="{{ path('app_dressur_bot') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-robot fa-xs me-2"></i>Dressur Bot
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ path('app_boost_contact') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-bolt fa-xs me-2"></i>Boost Contact
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ path('app_promotion_affaire') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-briefcase fa-xs me-2"></i>Promotion Affaire
+                        </a>
+                    </li>
+                    <li class="mb-2">
+                        <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            <i class="fas fa-share-nodes fa-xs me-2"></i>Promotions Réseaux Sociaux
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="fw-bold text-white mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Application mobile</h6>
+                <p style="color:#a8bbd4; font-size:0.88rem;" class="mb-3">Accédez à Dressur depuis votre smartphone Android.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" rel="noopener"
+                   class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded text-white text-decoration-none mb-4"
+                   style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); font-size:0.88rem; transition:background .2s;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                    <i class="fab fa-google-play fa-lg"></i>
+                    <span>
+                        <small class="d-block" style="font-size:0.7rem; opacity:0.75;">Disponible sur</small>
+                        <strong>Google Play</strong>
+                    </span>
+                </a>
+                <h6 class="fw-bold text-white mb-3 text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Légal</h6>
+                <ul class="list-unstyled mb-0" style="font-size: 0.88rem;">
+                    <li class="mb-2">
+                        <a href="{{ path('app_conditions_utilisation') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            Conditions d'utilisation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ path('politique_confidentialite') }}" class="text-decoration-none" style="color:#a8bbd4;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a8bbd4'">
+                            Politique de confidentialité
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div style="border-top: 1px solid rgba(255,255,255,0.1);">
+        <div class="container py-3 d-flex flex-column flex-md-row align-items-center justify-content-between gap-2" style="font-size:0.82rem; color:#6b8aad;">
+            <span>© 2021 – {{ "now"|date("Y") }} <strong class="text-white">Dressur</strong>. Tous droits réservés.</span>
+            <span>Fait avec <span style="color:#e55;">♥</span> en Afrique de l'Ouest</span>
+        </div>
+    </div>
 </footer>
