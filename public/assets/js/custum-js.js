@@ -8,12 +8,10 @@ $(document).ready(function () {
     const services = [
         "Bot WhatsApp",
         "Boost Contact (Add)",
-        "Campagne Mail",
         "Promotion des Produits",
         "Promotion des Services",
         "Demande d'emploi",
         "Offre d'emploi",
-        "Carte de visite numérique",
         "Social Média Marketing"
     ];
 
