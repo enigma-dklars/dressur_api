@@ -259,12 +259,6 @@ class PublicController extends AbstractController
         ]);
     }
 
-    #[Route('/campagne-mail', name: 'app_campagne_mail')]
-    public function campagne_mail(): Response
-    {
-        return $this->redirectToRoute('app_index', [], 301);
-    }
-
     #[Route('/promotion-affaire', name: 'app_promotion_affaire')]
     public function promotion_affaire(): Response
     {
@@ -272,12 +266,6 @@ class PublicController extends AbstractController
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
         ]);
-    }
-
-    #[Route('/carte-visite-numerique', name: 'app_carte_visite_numerique')]
-    public function carte_visite_numerique(): Response
-    {
-        return $this->redirectToRoute('app_index', [], 301);
     }
 
     #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
