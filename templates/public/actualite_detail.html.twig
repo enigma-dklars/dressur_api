@@ -85,6 +85,41 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},{"@type":"ListItem","position":2,"name":"Actualités","item":"https://dressur.site/actualite"},{"@type":"ListItem","position":3,"name":"{{ promo.pseudoAnnonceur|e('js') }}","item":"https://dressur.site/actualite/{{ promo.token }}"}]}
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ title|e('js') }}",
+  "description": "{{ description|e('js') }}",
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://dressur.site/promotion/{{ promo.image }}"
+  },
+  "url": "https://dressur.site/actualite/{{ promo.token }}",
+  "datePublished": "{{ promo.datePublished }}",
+  "dateModified": "{{ promo.datePublished }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ promo.pseudoAnnonceur|e('js') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://dressur.site/assets/images/dressur_logo_blanc.png",
+      "width": 200,
+      "height": 60
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dressur.site/actualite/{{ promo.token }}"
+  }
+}
+</script>
 {% endif %}
 {% endblock %}
 

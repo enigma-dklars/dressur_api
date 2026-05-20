@@ -220,6 +220,7 @@ class PublicController extends AbstractController
             "annotherInfo"         => $promo->getAnnotherInfo(),
             "isFakeVue"            => $promo->getIsFakeVue(),
             "status"               => $promo->getStatus(),
+            "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime())->format('Y-m-d'),
         ];
 
         $rawAutres = array_filter(
