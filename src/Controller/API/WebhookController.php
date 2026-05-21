@@ -204,13 +204,6 @@ class WebhookController extends AbstractController
                                 }
                             }
 
-                            if($myTransaction->getTransactionFor() == "campagne_mail") {
-                                $campagneMail = $this->campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
-                                $campagneMail
-                                    ->setStatus(3)
-                                ;
-                            }
-
                             if($myTransaction->getTransactionFor() == "dressur_bot_activation") {
                                 $formuleDressurBot = $this->formuleDressurBotRepository->find($myTransaction->getAnnotherInfo()['formulDressurBotId']);
                                 $userBot = $myTransaction->getUserBot();
@@ -224,7 +217,7 @@ class WebhookController extends AbstractController
                             $this->em->commit();
                             return [200, "Transaction approved traitée"];
                         }
-                        return [200, "Transaction trouvée mais pas en statut pending"];
+                        return [200, "Transaction trouvée mais pas en statut pending ni canceled"];
                     }
                     return [200, "Transaction non trouvée"];
                     break;
