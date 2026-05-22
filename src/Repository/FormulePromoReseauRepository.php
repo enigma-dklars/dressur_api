@@ -39,28 +39,27 @@ class FormulePromoReseauRepository extends ServiceEntityRepository
         }
     }
 
-//    /**
-//     * @return FormulePromoReseau[] Returns an array of FormulePromoReseau objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('f')
-//            ->andWhere('f.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('f.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?FormulePromoReseau
-//    {
-//        return $this->createQueryBuilder('f')
-//            ->andWhere('f.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * Retourne toutes les formules parentes (plateformes) ayant au moins
+     * un enfant disponible — utilisé pour le sitemap.
+     *
+     * @return FormulePromoReseau[]
+     */
+    public function findAvailableParents(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->where('f.parent IS NULL')
+            ->andWhere(
+                $this->getEntityManager()->createQueryBuilder()
+                    ->select('1')
+                    ->from(FormulePromoReseau::class, 'c')
+                    ->where('c.parent = f')
+                    ->andWhere('c.available = true')
+                    ->getDQL()
+                    . ' IS NOT NULL'
+            )
+            ->orderBy('f.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
