@@ -286,6 +286,33 @@ class PublicController extends AbstractController
         ]);
     }
 
+    #[Route('/promotion-reseaux-sociaux/{id}', name: 'app_promo_reseau_detail', requirements: ['id' => '\d+'])]
+    public function promoReseauDetail(int $id, FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    {
+        $formule = $formulePromoReseauRepository->find($id);
+
+        if (!$formule || $formule->getParent() !== null) {
+            return $this->redirectToRoute('app_promotion_reseaux_sociaux');
+        }
+
+        $enfants = $formule->getSonFormulePromoReseaus()->filter(fn($f) => $f->isAvailable());
+        $prices  = $enfants->map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700))->toArray();
+        sort($prices);
+
+        $autresFormules = array_filter(
+            $formulePromoReseauRepository->findBy(['parent' => null]),
+            fn($f) => $f->getId() !== $id
+        );
+
+        return $this->render('public/promotion_reseau_detail.html.twig', [
+            'is_connect'      => $this->is_connect,
+            'theme'           => $this->theme,
+            'formule'         => $formule,
+            'min_price'       => !empty($prices) ? $prices[0] : 100,
+            'autres_formules' => array_values($autresFormules),
+        ]);
+    }
+
     #[Route('/services', name: 'app_services')]
     public function services(
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
@@ -307,17 +334,25 @@ class PublicController extends AbstractController
     }
 
     #[Route('/sitemap.xml', name: 'app_sitemap', defaults: ['_format' => 'xml'])]
-    public function sitemap(PromotionRepository $promotionRepository, CacheInterface $cache): Response
-    {
-        $xml = $cache->get('sitemap_xml', function (ItemInterface $item) use ($promotionRepository) {
-            $item->expiresAfter(86400); // 24 heures
+    public function sitemap(
+        PromotionRepository          $promotionRepository,
+        FormulePromoReseauRepository $formulePromoReseauRepository,
+        CacheInterface               $cache
+    ): Response {
+        $xml = $cache->get('sitemap_xml', function (ItemInterface $item) use ($promotionRepository, $formulePromoReseauRepository) {
+            $item->expiresAfter(86400);
 
             $rawPromos = $promotionRepository->findForSitemap();
             $promos = array_map(function ($promo) {
                 return ['token' => $this->encodePromoToken($promo->getId())];
             }, $rawPromos);
 
-            return $this->renderView('sitemap.xml.twig', ['promos' => $promos]);
+            $formulesReseau = $formulePromoReseauRepository->findAvailableParents();
+
+            return $this->renderView('sitemap.xml.twig', [
+                'promos'          => $promos,
+                'formules_reseau' => $formulesReseau,
+            ]);
         });
 
         return new Response($xml, 200, ['Content-Type' => 'application/xml']);
