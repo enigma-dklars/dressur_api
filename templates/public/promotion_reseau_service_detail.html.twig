@@ -3,20 +3,21 @@
 {% set platformName = service.parent.titre %}
 {% set serviceName  = service.titre %}
 {% set prix_fcfa    = (service.prix * 1.2 * 1.7 * 700)|round(0, 'ceil') %}
-{% set title        = serviceName ~ " " ~ platformName ~ " — À partir de " ~ prix_fcfa ~ " F CFA" %}
-{% set description  = "Achetez des " ~ serviceName|lower ~ " sur " ~ platformName ~ " avec Dressur. Livraison rapide et fiable. À partir de " ~ prix_fcfa ~ " F CFA." %}
+{% set prix_display = prix_fcfa >= 100 ? prix_fcfa : 100 %}
+{% set title        = serviceName ~ " " ~ platformName ~ " — À partir de " ~ prix_display ~ " F CFA" %}
+{% set description  = "Achetez des " ~ serviceName|lower ~ " sur " ~ platformName ~ " avec Dressur. Livraison rapide et fiable. À partir de " ~ prix_display ~ " F CFA. Paiement Mobile Money sécurisé." %}
 
 {% block referencement %}
     <meta property="og:title" content="{{ title }} | Dressur Web" />
     <meta property="og:description" content="{{ description }}" />
     <meta property="og:image" content="https://dressur.site/assets/img/og/og-promotion-reseaux-sociaux.jpg" />
     <meta property="og:url" content="{{ url('app_promo_reseau_service_detail', {token: current_token}) }}" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="product" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{ title }} | Dressur Web" />
     <meta name="twitter:description" content="{{ description }}" />
     <meta name="description" content="{{ description }}" />
-    <meta name="keywords" content="Dressur, {{ serviceName }}, {{ platformName }}, acheter {{ serviceName|lower }} {{ platformName }}, promotion réseaux sociaux, {{ serviceName|lower }} pas cher">
+    <meta name="keywords" content="Dressur, {{ serviceName }}, {{ platformName }}, acheter {{ serviceName|lower }} {{ platformName }}, {{ serviceName|lower }} pas cher Afrique, promotion réseaux sociaux Bénin">
 {% endblock %}
 
 {% block jsonld %}
@@ -28,13 +29,15 @@
   "name": "{{ serviceName }} {{ platformName }}",
   "description": "{{ description }}",
   "url": "{{ url('app_promo_reseau_service_detail', {token: current_token}) }}",
-  "brand": {"@type":"Brand","name":"Dressur"},
+  "brand": {"@type":"Brand","name":"Dressur","url":"https://dressur.site"},
+  "image": "https://dressur.site/assets/img/og/og-promotion-reseaux-sociaux.jpg",
   "offers": {
     "@type": "Offer",
-    "price": "{{ prix_fcfa }}",
+    "price": "{{ prix_display }}",
     "priceCurrency": "XOF",
     "availability": "https://schema.org/InStock",
     "url": "{{ url('app_inscription') }}",
+    "seller": {"@type":"Organization","name":"Dressur","url":"https://dressur.site"},
     "hasMerchantReturnPolicy": {"@type":"MerchantReturnPolicy","applicableCountry":"BJ","returnPolicyCategory":"https://schema.org/MerchantReturnNotPermitted"},
     "shippingDetails": {
       "@type":"OfferShippingDetails",
@@ -73,7 +76,7 @@
         <div class="container">
             <h1 class="display-5 fw-bold">{{ serviceName }} {{ platformName }}</h1>
             <p class="lead mb-2">{{ description }}</p>
-            <p class="fs-3 fw-bold mb-4">{{ prix_fcfa|number_format(0, ',', ' ') }} F CFA</p>
+            <p class="fs-3 fw-bold mb-4">{{ prix_display|number_format(0, ',', ' ') }} F CFA</p>
             <a href="{{ path('app_inscription') }}" class="btn btn-light btn-lg me-2">
                 <i class="fas fa-shopping-cart me-1"></i> Commander maintenant
             </a>
@@ -104,7 +107,7 @@
                                 </tr>
                                 <tr>
                                     <td class="text-muted fw-semibold">Prix</td>
-                                    <td class="fw-bold" style="color:#2a4b9a;">{{ prix_fcfa|number_format(0, ',', ' ') }} F CFA</td>
+                                    <td class="fw-bold" style="color:#2a4b9a;">{{ prix_display|number_format(0, ',', ' ') }} F CFA</td>
                                 </tr>
                                 {% if service.qteMin and service.qteMax %}
                                 <tr>
@@ -129,7 +132,7 @@
                         </table>
                         {% if service.description %}
                         <hr>
-                        <p class="text-muted mb-0">{{ service.description }}</p>
+                        <div class="text-muted" style="white-space: pre-wrap; line-height: 1.7;">{{ service.description|nl2br }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -195,12 +198,13 @@
         <div class="row g-3">
             {% for item in autres_services %}
             {% set p = (item.enfant.prix * 1.2 * 1.7 * 700)|round(0, 'ceil') %}
+            {% set p_display = p >= 100 ? p : 100 %}
             <div class="col-md-4 col-6 d-flex align-items-stretch">
                 <a href="{{ path('app_promo_reseau_service_detail', {token: item.token}) }}"
                    class="card mb-0 shadow-sm text-decoration-none w-100" style="border-top: 3px solid #2a4b9a;">
                     <div class="card-body py-3 px-3">
                         <div class="fw-semibold" style="color:#2a4b9a;">{{ item.enfant.titre }}</div>
-                        <small class="text-muted">{{ p|number_format(0, ',', ' ') }} F CFA</small>
+                        <small class="text-muted">{{ p_display|number_format(0, ',', ' ') }} F CFA</small>
                     </div>
                 </a>
             </div>
