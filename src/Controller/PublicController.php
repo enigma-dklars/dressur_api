@@ -286,6 +286,26 @@ class PublicController extends AbstractController
         ]);
     }
 
+    #[Route('/services', name: 'app_services')]
+    public function services(
+        FormulePromoAffaireRepository $formulePromoAffaireRepository,
+        FormulePromoReseauRepository  $formulePromoReseauRepository
+    ): Response {
+        $affairePrices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
+        sort($affairePrices);
+
+        $reseauFormulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->isAvailable());
+        $reseauPrices   = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $reseauFormulas);
+        sort($reseauPrices);
+
+        return $this->render('public/services.html.twig', [
+            'is_connect'        => $this->is_connect,
+            'theme'             => $this->theme,
+            'min_price_affaire' => !empty($affairePrices) ? (int) $affairePrices[0] : 0,
+            'min_price_reseau'  => !empty($reseauPrices)  ? $reseauPrices[0]        : 0,
+        ]);
+    }
+
     #[Route('/sitemap.xml', name: 'app_sitemap', defaults: ['_format' => 'xml'])]
     public function sitemap(PromotionRepository $promotionRepository, CacheInterface $cache): Response
     {
