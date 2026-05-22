@@ -23,40 +23,38 @@ class PublicController extends AbstractController
     private $is_connect;
     private $theme;
     private $traitementsDS;
+
     public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
     {
         $this->traitementsDS = $traitementsDS;
         $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
-        if($cookieDS->check("theme")) {
-            if($cookieDS->get("theme") == "dark-theme") {
-                $this->theme = "dark-theme";
-            } else {
-                $this->theme = "light-theme";
-            }
+        if ($cookieDS->check("theme")) {
+            $this->theme = $cookieDS->get("theme") === "dark-theme" ? "dark-theme" : "light-theme";
         } else {
             $this->theme = "light-theme";
         }
-        $this->is_connect = $cookieDS->check("uid") ? "oui" : "non";
     }
 
-    private function encodePromoToken(int $id): string
+    private function encodeId(int $id): string
     {
         $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
         $encrypted = openssl_encrypt((string) $id, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
         return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
     }
 
-    private function decodePromoToken(string $token): ?int
+    private function decodeId(string $token): ?int
     {
         $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
         $padded = strtr($token, '-_', '+/');
         $pad = strlen($padded) % 4;
-        if ($pad) {
-            $padded .= str_repeat('=', 4 - $pad);
-        }
+        if ($pad) { $padded .= str_repeat('=', 4 - $pad); }
         $decrypted = openssl_decrypt(base64_decode($padded), 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
         return ($decrypted !== false && ctype_digit($decrypted)) ? (int) $decrypted : null;
     }
+
+    // kept as alias for existing token usages (actualité)
+    private function encodePromoToken(int $id): string { return $this->encodeId($id); }
+    private function decodePromoToken(string $token): ?int { return $this->decodeId($token); }
 
     #[Route('/', name: 'app_public')]
     public function index(TraitementsDS $traitementsDS): Response
@@ -81,7 +79,7 @@ class PublicController extends AbstractController
     #[Route('/connexion', name: 'app_connexion')]
     public function connexion(PrivateController $privateController): Response
     {
-        if($this->traitementsDS->getUserByUidInCookies()){
+        if ($this->traitementsDS->getUserByUidInCookies()) {
             return $this->redirectToRoute('app_private');
         }
         return $this->render('public/login.html.twig', [
@@ -132,16 +130,20 @@ class PublicController extends AbstractController
     }
 
     #[Route('/tarifs', name: 'app_tarifs')]
-    public function tarifs(FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, FormulePromoReseauRepository $formulePromoReseauRepository): Response
-    {
+    public function tarifs(
+        FormuleBoostRepository       $formuleBoostRepository,
+        FormuleDressurBotRepository  $formuleDressurBotRepository,
+        FormulePromoAffaireRepository $formulePromoAffaireRepository,
+        FormulePromoReseauRepository  $formulePromoReseauRepository
+    ): Response {
         return $this->render('public/tarifs.html.twig', [
-            'controller_name' => 'PublicController',
-            'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
-            'formule_boosts' => $formuleBoostRepository->findAll(),
-            'formule_dressur_bots' => $formuleDressurBotRepository->findBy(['activated' => true]),
+            'controller_name'        => 'PublicController',
+            'is_connect'             => $this->is_connect,
+            'theme'                  => $this->theme,
+            'formule_boosts'         => $formuleBoostRepository->findAll(),
+            'formule_dressur_bots'   => $formuleDressurBotRepository->findBy(['activated' => true]),
             'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
-            'formule_promo_reseaus' => $formulePromoReseauRepository->findBy([], ['parent' => 'ASC']),
+            'formule_promo_reseaus'  => $formulePromoReseauRepository->findBy([], ['parent' => 'ASC']),
         ]);
     }
 
@@ -149,35 +151,32 @@ class PublicController extends AbstractController
     public function actualite(TraitementsDS $traitementsDS): Response
     {
         $rawActus = $traitementsDS->getAffaires(90);
-        $total = count($rawActus);
-        $actus = array_map(function ($a) {
+        $total    = count($rawActus);
+        $actus    = array_map(function ($a) {
             $a['token'] = $this->encodePromoToken($a['id']);
             return $a;
         }, array_slice($rawActus, 0, 12));
         return $this->render('public/actualite.html.twig', [
-            'actus' => $actus,
-            'total' => $total,
+            'actus'      => $actus,
+            'total'      => $total,
             'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
+            'theme'      => $this->theme,
         ]);
     }
 
     #[Route('/actualite/more', name: 'app_actualite_more')]
     public function actualiteMore(Request $request, TraitementsDS $traitementsDS): Response
     {
-        $offset = max(0, (int) $request->query->get('offset', 0));
-        $limit  = 12;
-
+        $offset   = max(0, (int) $request->query->get('offset', 0));
+        $limit    = 12;
         $rawActus = $traitementsDS->getAffaires(90);
         $total    = count($rawActus);
         $actus    = array_map(function ($a) {
             $a['token'] = $this->encodePromoToken($a['id']);
             return $a;
         }, array_slice($rawActus, $offset, $limit));
-
-        $hasMore = $total > $offset + $limit;
-        $html    = $this->renderView('public/actualite_cards.html.twig', ['actus' => $actus]);
-
+        $hasMore  = $total > $offset + $limit;
+        $html     = $this->renderView('public/actualite_cards.html.twig', ['actus' => $actus]);
         return new Response($html, 200, [
             'X-Has-More'   => $hasMore ? '1' : '0',
             'Content-Type' => 'text/html; charset=UTF-8',
@@ -188,24 +187,19 @@ class PublicController extends AbstractController
     public function actualiteDetail(string $token, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, EntityManagerInterface $em): Response
     {
         $id = $this->decodePromoToken($token);
-        if ($id === null) {
-            return $this->redirectToRoute('app_actualite');
-        }
-
+        if ($id === null) { return $this->redirectToRoute('app_actualite'); }
         $promo = $promotionRepository->find($id);
-        if (!$promo) {
-            return $this->redirectToRoute('app_actualite');
-        }
+        if (!$promo) { return $this->redirectToRoute('app_actualite'); }
 
         $promo->setNombreDeVue(($promo->getNombreDeVue() ?? 0) + 1);
         $em->flush();
 
         $descpPromo = $promo->getDescription();
-        if ($promo->getTypePromotionAffaire() == "offre_emploi") {
-            $descpPromo = $promo->getAnnotherInfo()["description_poste"] ?? $promo->getDescription();
+        if ($promo->getTypePromotionAffaire() === "offre_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_poste"] ?? $descpPromo;
         }
-        if ($promo->getTypePromotionAffaire() == "dmd_emploi") {
-            $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $promo->getDescription();
+        if ($promo->getTypePromotionAffaire() === "dmd_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $descpPromo;
         }
 
         $promoData = [
@@ -223,10 +217,7 @@ class PublicController extends AbstractController
             "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime())->format('Y-m-d'),
         ];
 
-        $rawAutres = array_filter(
-            $traitementsDS->getTopAffaires(10),
-            fn($p) => $p['id'] !== $id
-        );
+        $rawAutres   = array_filter($traitementsDS->getTopAffaires(10), fn($p) => $p['id'] !== $id);
         $autresPromos = array_map(function ($p) {
             $p['token'] = $this->encodePromoToken($p['id']);
             return $p;
@@ -247,8 +238,8 @@ class PublicController extends AbstractController
         sort($prices);
         return $this->render('public/dressur_bot.html.twig', [
             'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
-            'min_price' => !empty($prices) ? (int) $prices[0] : 0,
+            'theme'      => $this->theme,
+            'min_price'  => !empty($prices) ? (int) $prices[0] : 0,
         ]);
     }
 
@@ -257,7 +248,7 @@ class PublicController extends AbstractController
     {
         return $this->render('public/boost_contact.html.twig', [
             'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
+            'theme'      => $this->theme,
         ]);
     }
 
@@ -268,8 +259,8 @@ class PublicController extends AbstractController
         sort($prices);
         return $this->render('public/promotion_affaire.html.twig', [
             'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
-            'min_price' => !empty($prices) ? (int) $prices[0] : 0,
+            'theme'      => $this->theme,
+            'min_price'  => !empty($prices) ? (int) $prices[0] : 0,
         ]);
     }
 
@@ -277,39 +268,85 @@ class PublicController extends AbstractController
     public function promotion_reseau_sociaux(FormulePromoReseauRepository $formulePromoReseauRepository): Response
     {
         $formulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->isAvailable());
-        $prices = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulas);
+        $prices   = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulas);
         sort($prices);
         return $this->render('public/promotion_reseaux_sociaux.html.twig', [
             'is_connect' => $this->is_connect,
-            'theme' => $this->theme,
-            'min_price' => !empty($prices) ? $prices[0] : 0,
+            'theme'      => $this->theme,
+            'min_price'  => !empty($prices) ? $prices[0] : 0,
         ]);
     }
 
-    #[Route('/promotion-reseaux-sociaux/{id}', name: 'app_promo_reseau_detail', requirements: ['id' => '\d+'])]
-    public function promoReseauDetail(int $id, FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    // ── Page par plateforme (/promotion-reseaux-sociaux/{token}) ───────────────
+    #[Route('/promotion-reseaux-sociaux/{token}', name: 'app_promo_reseau_detail',
+        requirements: ['token' => '[A-Za-z0-9_-]+'],
+        priority: 10)]
+    public function promoReseauDetail(string $token, FormulePromoReseauRepository $repo): Response
     {
-        $formule = $formulePromoReseauRepository->find($id);
+        $id = $this->decodeId($token);
+        if ($id === null) { return $this->redirectToRoute('app_promotion_reseaux_sociaux'); }
 
+        $formule = $repo->find($id);
         if (!$formule || $formule->getParent() !== null) {
             return $this->redirectToRoute('app_promotion_reseaux_sociaux');
         }
 
-        $enfants = $formule->getSonFormulePromoReseaus()->filter(fn($f) => $f->isAvailable());
-        $prices  = $enfants->map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700))->toArray();
+        $enfantsRaw = $formule->getSonFormulePromoReseaus()->filter(fn($f) => $f->isAvailable());
+        $enfants    = array_map(fn($f) => [
+            'enfant' => $f,
+            'token'  => $this->encodeId($f->getId()),
+        ], $enfantsRaw->toArray());
+
+        $prices = array_map(fn($e) => (int) round($e['enfant']->getPrix() * 1.2 * 1.7 * 700), $enfants);
         sort($prices);
 
-        $autresFormules = array_filter(
-            $formulePromoReseauRepository->findBy(['parent' => null]),
-            fn($f) => $f->getId() !== $id
-        );
+        $autresFormules = array_values(array_map(
+            fn($f) => ['titre' => $f->getTitre(), 'token' => $this->encodeId($f->getId())],
+            array_filter($repo->findBy(['parent' => null]), fn($f) => $f->getId() !== $id)
+        ));
 
         return $this->render('public/promotion_reseau_detail.html.twig', [
+            'is_connect'     => $this->is_connect,
+            'theme'          => $this->theme,
+            'formule'        => $formule,
+            'current_token'  => $token,
+            'enfants'        => $enfants,
+            'min_price'      => !empty($prices) ? $prices[0] : 100,
+            'autres_formules' => $autresFormules,
+        ]);
+    }
+
+    // ── Page par service (/promotion-reseaux-sociaux/service/{token}) ──────────
+    #[Route('/promotion-reseaux-sociaux/service/{token}', name: 'app_promo_reseau_service_detail',
+        requirements: ['token' => '[A-Za-z0-9_-]+'])]
+    public function promoReseauServiceDetail(string $token, FormulePromoReseauRepository $repo): Response
+    {
+        $id = $this->decodeId($token);
+        if ($id === null) { return $this->redirectToRoute('app_promotion_reseaux_sociaux'); }
+
+        $service = $repo->find($id);
+        if (!$service || $service->getParent() === null || !$service->isAvailable()) {
+            return $this->redirectToRoute('app_promotion_reseaux_sociaux');
+        }
+
+        $parent       = $service->getParent();
+        $parent_token = $this->encodeId($parent->getId());
+
+        $autresServicesRaw = $parent->getSonFormulePromoReseaus()
+            ->filter(fn($f) => $f->isAvailable() && $f->getId() !== $id);
+
+        $autres_services = array_map(fn($f) => [
+            'enfant' => $f,
+            'token'  => $this->encodeId($f->getId()),
+        ], $autresServicesRaw->toArray());
+
+        return $this->render('public/promotion_reseau_service_detail.html.twig', [
             'is_connect'      => $this->is_connect,
             'theme'           => $this->theme,
-            'formule'         => $formule,
-            'min_price'       => !empty($prices) ? $prices[0] : 100,
-            'autres_formules' => array_values($autresFormules),
+            'service'         => $service,
+            'current_token'   => $token,
+            'parent_token'    => $parent_token,
+            'autres_services' => $autres_services,
         ]);
     }
 
@@ -342,16 +379,25 @@ class PublicController extends AbstractController
         $xml = $cache->get('sitemap_xml', function (ItemInterface $item) use ($promotionRepository, $formulePromoReseauRepository) {
             $item->expiresAfter(86400);
 
-            $rawPromos = $promotionRepository->findForSitemap();
-            $promos = array_map(function ($promo) {
-                return ['token' => $this->encodePromoToken($promo->getId())];
-            }, $rawPromos);
+            $promos = array_map(
+                fn($p) => ['token' => $this->encodeId($p->getId())],
+                $promotionRepository->findForSitemap()
+            );
 
-            $formulesReseau = $formulePromoReseauRepository->findAvailableParents();
+            $formulesReseauParents = array_map(
+                fn($f) => ['token' => $this->encodeId($f->getId()), 'titre' => $f->getTitre()],
+                $formulePromoReseauRepository->findAvailableParents()
+            );
+
+            $formulesReseauServices = array_map(
+                fn($f) => ['token' => $this->encodeId($f->getId()), 'titre' => $f->getTitre()],
+                $formulePromoReseauRepository->findAllAvailableChildren()
+            );
 
             return $this->renderView('sitemap.xml.twig', [
-                'promos'          => $promos,
-                'formules_reseau' => $formulesReseau,
+                'promos'                  => $promos,
+                'formules_reseau_parents' => $formulesReseauParents,
+                'formules_reseau_services' => $formulesReseauServices,
             ]);
         });
 
