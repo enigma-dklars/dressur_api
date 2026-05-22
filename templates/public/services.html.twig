@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% set title = "Nos Services" %}
-{% set description = "Découvrez tous les services proposés par Dressur : Boost Contact, Dressur Bot, Promotion Affaire, Promotion Réseaux Sociaux, Campagnes Mail et bien plus encore." %}
+{% set description = "Découvrez tous les services proposés par Dressur : Boost Contact, Dressur Bot, Promotion Affaire, Promotion Réseaux Sociaux et bien plus encore." %}
 
 {% block referencement %}
     <meta property="og:title" content="{{title}} | Dressur Web" />
@@ -13,7 +13,7 @@
     <meta name="twitter:title" content="{{title}} | Dressur Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="description" content="{{description}}" />
-    <meta name="keywords" content="Dressur, services, Boost Contact, Dressur Bot, Promotion Affaire, Réseaux Sociaux, Campagne Mail, WhatsApp, marketing digital">
+    <meta name="keywords" content="Dressur, services, Boost Contact, Dressur Bot, Promotion Affaire, Réseaux Sociaux, WhatsApp, marketing digital">
 {% endblock %}
 
 {% block jsonld %}
@@ -156,32 +156,7 @@
                 </div>
             </div>
 
-            {# ── Campagne Mail ── #}
-            <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
-                <div class="card mb-0 shadow-sm w-100 h-100" style="border-top: 4px solid #2a4b9a;">
-                    <div class="card-body d-flex flex-column text-center p-4">
-                        <div class="mb-3">
-                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
-                                  style="width:64px;height:64px;background:#eef2ff;">
-                                <i class="fas fa-envelope-open-text fs-2" style="color:#2a4b9a;"></i>
-                            </span>
-                        </div>
-                        <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Campagne Mail</h5>
-                        <p class="card-text text-muted flex-grow-1 mt-2">
-                            Envoyez des campagnes d'e-mailing ciblées à des milliers de destinataires. 
-                            Idéal pour les annonces, newsletters et communications professionnelles.
-                        </p>
-                        <div class="mt-3">
-                            <span class="badge bg-info text-dark mb-3">Disponible sur l'app</span><br>
-                            <a href="{{ path('app_inscription') }}" class="btn btn-primary">
-                                Commencer <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {# ── Actualités / Marketplace ── #}
+            {# ── Actualités & Marketplace ── #}
             <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
                 <div class="card mb-0 shadow-sm w-100 h-100" style="border-top: 4px solid #2a4b9a;">
                     <div class="card-body d-flex flex-column text-center p-4">
