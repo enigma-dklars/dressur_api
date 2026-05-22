@@ -8,11 +8,6 @@ use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<FormulePromoReseau>
- *
- * @method FormulePromoReseau|null find($id, $lockMode = null, $lockVersion = null)
- * @method FormulePromoReseau|null findOneBy(array $criteria, array $orderBy = null)
- * @method FormulePromoReseau[]    findAll()
- * @method FormulePromoReseau[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class FormulePromoReseauRepository extends ServiceEntityRepository
 {
@@ -24,41 +19,36 @@ class FormulePromoReseauRepository extends ServiceEntityRepository
     public function save(FormulePromoReseau $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        if ($flush) { $this->getEntityManager()->flush(); }
     }
 
     public function remove(FormulePromoReseau $entity, bool $flush = false): void
     {
         $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
+        if ($flush) { $this->getEntityManager()->flush(); }
     }
 
-    /**
-     * Retourne toutes les formules parentes (plateformes) ayant au moins
-     * un enfant disponible — utilisé pour le sitemap.
-     *
-     * @return FormulePromoReseau[]
-     */
+    /** Plateformes parentes ayant au moins un enfant disponible (pour sitemap / pages). */
     public function findAvailableParents(): array
     {
         return $this->createQueryBuilder('f')
+            ->leftJoin('f.sonFormulePromoReseaus', 'c')
             ->where('f.parent IS NULL')
-            ->andWhere(
-                $this->getEntityManager()->createQueryBuilder()
-                    ->select('1')
-                    ->from(FormulePromoReseau::class, 'c')
-                    ->where('c.parent = f')
-                    ->andWhere('c.available = true')
-                    ->getDQL()
-                    . ' IS NOT NULL'
-            )
+            ->andWhere('c.available = true')
+            ->groupBy('f.id')
             ->orderBy('f.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** Tous les services enfants disponibles (pour sitemap). */
+    public function findAllAvailableChildren(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->where('f.parent IS NOT NULL')
+            ->andWhere('f.available = true')
+            ->orderBy('f.parent', 'ASC')
+            ->addOrderBy('f.id', 'ASC')
             ->getQuery()
             ->getResult();
     }
