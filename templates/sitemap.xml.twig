@@ -43,6 +43,14 @@
         <priority>0.8</priority>
     </url>
 
+    {% for formule in formules_reseau %}
+    <url>
+        <loc>https://dressur.site/promotion-reseaux-sociaux/{{ formule.id }}</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    {% endfor %}
+
     <url>
         <loc>https://dressur.site/dressur-bot</loc>
         <changefreq>monthly</changefreq>
