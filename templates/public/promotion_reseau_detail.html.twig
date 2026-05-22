@@ -1,0 +1,208 @@
+{% extends 'base.html.twig' %}
+
+{% set platformName = formule.titre %}
+{% set title = "Promotion " ~ platformName ~ " - Abonnés, Likes, Vues" %}
+{% set description = "Boostez votre présence sur " ~ platformName ~ " avec Dressur : achetez des abonnés, likes, vues, commentaires et bien plus. Livraison rapide, prix à partir de 100 F CFA." %}
+
+{% block referencement %}
+    <meta property="og:title" content="{{ title }} | Dressur Web" />
+    <meta property="og:description" content="{{ description }}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/og/og-promotion-reseaux-sociaux.jpg" />
+    <meta property="og:url" content="{{ url('app_promo_reseau_detail', {id: formule.id}) }}" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ title }} | Dressur Web" />
+    <meta name="twitter:description" content="{{ description }}" />
+    <meta name="description" content="{{ description }}" />
+    <meta name="keywords" content="Dressur, {{ platformName }}, abonnés {{ platformName }}, likes {{ platformName }}, vues {{ platformName }}, promotion réseaux sociaux, marketing digital">
+{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": "{{ url('app_promo_reseau_detail', {id: formule.id}) }}#service",
+  "name": "Promotion {{ platformName }}",
+  "description": "{{ description }}",
+  "url": "{{ url('app_promo_reseau_detail', {id: formule.id}) }}",
+  "provider": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization"
+  },
+  "serviceType": "Promotion réseaux sociaux — {{ platformName }}",
+  "areaServed": "Afrique de l'Ouest",
+  "offers": {
+    "@type": "AggregateOffer",
+    "lowPrice": "{{ min_price }}",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ url('app_tarifs') }}"
+  }
+}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+  {"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},
+  {"@type":"ListItem","position":2,"name":"Promotions Réseaux Sociaux","item":"{{ url('app_promotion_reseaux_sociaux') }}"},
+  {"@type":"ListItem","position":3,"name":"{{ platformName }}","item":"{{ url('app_promo_reseau_detail', {id: formule.id}) }}"}
+]}
+</script>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-3">
+
+    {# Breadcrumb #}
+    <div class="mb-3 h6">
+        <span class="fw-bolder">Dressur</span> /
+        <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="text-decoration-none">Réseaux Sociaux</a> /
+        <span class="text-primary">{{ platformName }}</span>
+    </div>
+
+    {# Hero #}
+    <header class="text-white text-center py-5 rounded mb-4" style="background-color: #2a4b9a !important;">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Promotion {{ platformName }}</h1>
+            <p class="lead mb-4">
+                Boostez vos statistiques sur {{ platformName }} — abonnés, likes, vues et plus encore.<br>
+                Livraison rapide, à partir de <strong>{{ min_price }} F CFA</strong>.
+            </p>
+            <a href="{{ path('app_inscription') }}" class="btn btn-light btn-lg me-2">
+                <i class="fas fa-user-plus me-1"></i> Commencer
+            </a>
+            <a href="{{ path('app_tarifs') }}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-tags me-1"></i> Voir tous les tarifs
+            </a>
+        </div>
+    </header>
+
+    {# Liste des services disponibles #}
+    <section class="mb-5">
+        <h2 class="fw-semibold mb-1 text-center">Services disponibles pour {{ platformName }}</h2>
+        <p class="text-center text-muted mb-4">Choisissez le service qui correspond à vos besoins.</p>
+
+        {% set enfants = formule.sonFormulePromoReseaus|filter(f => f.available) %}
+        {% if enfants is empty %}
+            <div class="alert alert-info text-center">Aucun service disponible pour le moment. Revenez bientôt !</div>
+        {% else %}
+            <div class="row g-3">
+                {% for enfant in enfants %}
+                {% set prix_fcfa = (enfant.prix * 1.2 * 1.7 * 700)|round(0, 'ceil')|number_format(0, ',', ' ') %}
+                <div class="col-md-6 col-lg-4 d-flex align-items-stretch">
+                    <div class="card mb-0 shadow-sm w-100" style="border-top: 4px solid #2a4b9a;">
+                        <div class="card-body d-flex flex-column p-4">
+                            <h5 class="card-title fw-semibold" style="color:#2a4b9a;">{{ enfant.titre }}</h5>
+                            {% if enfant.description %}
+                                <p class="card-text text-muted mt-2 flex-grow-1">{{ enfant.description }}</p>
+                            {% else %}
+                                <p class="card-text text-muted mt-2 flex-grow-1">
+                                    Augmentez le nombre de {{ enfant.titre|lower }} sur votre compte {{ platformName }}.
+                                </p>
+                            {% endif %}
+                            <div class="mt-3 d-flex align-items-center justify-content-between">
+                                <span class="fw-bold" style="color:#2a4b9a; font-size:1.1rem;">{{ prix_fcfa }} F CFA</span>
+                                <a href="{{ path('app_inscription') }}" class="btn btn-sm btn-primary">
+                                    Commander <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    {# Comment ça marche #}
+    <section class="mb-5">
+        <h2 class="fw-semibold text-center mb-4">Comment ça marche ?</h2>
+        <div class="row g-3 text-center">
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                                  style="width:56px;height:56px;background:#eef2ff;">
+                                <span class="fw-bold fs-4" style="color:#2a4b9a;">1</span>
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Créez un compte</h5>
+                        <p class="card-text text-muted mt-2">Inscrivez-vous gratuitement sur Dressur en quelques secondes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                                  style="width:56px;height:56px;background:#eef2ff;">
+                                <span class="fw-bold fs-4" style="color:#2a4b9a;">2</span>
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Choisissez votre service</h5>
+                        <p class="card-text text-muted mt-2">Sélectionnez le service {{ platformName }} qui vous convient et rechargez votre compte.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                                  style="width:56px;height:56px;background:#eef2ff;">
+                                <span class="fw-bold fs-4" style="color:#2a4b9a;">3</span>
+                            </span>
+                        </div>
+                        <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Résultats garantis</h5>
+                        <p class="card-text text-muted mt-2">Votre commande est traitée rapidement. Observez vos statistiques augmenter en temps réel.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Autres plateformes #}
+    {% if autres_formules is not empty %}
+    <section class="mb-5">
+        <h2 class="fw-semibold mb-4"><i class="fas fa-play fs-5 me-2"></i>Autres plateformes disponibles</h2>
+        <div class="row g-3">
+            {% for autre in autres_formules %}
+            <div class="col-md-4 col-6">
+                <a href="{{ path('app_promo_reseau_detail', {id: autre.id}) }}"
+                   class="card mb-0 shadow-sm text-decoration-none h-100"
+                   style="border-top: 3px solid #2a4b9a;">
+                    <div class="card-body text-center py-3">
+                        <i class="fas fa-thumbs-up mb-2" style="color:#2a4b9a;"></i>
+                        <div class="fw-semibold" style="color:#2a4b9a;">{{ autre.titre }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {# CTA #}
+    <section class="pb-5">
+        <div class="card mb-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <h2 class="fw-bold mb-2">Prêt à booster votre {{ platformName }} ?</h2>
+                <p class="lead text-muted mb-4">Rejoignez des milliers d'utilisateurs qui font confiance à Dressur.</p>
+                <a href="{{ path('app_inscription') }}" class="btn btn-primary btn-lg me-2">
+                    <i class="fas fa-user-plus me-1"></i> Commencer maintenant
+                </a>
+                <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-arrow-left me-1"></i> Tous les réseaux
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}
