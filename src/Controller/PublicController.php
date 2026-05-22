@@ -311,7 +311,7 @@ class PublicController extends AbstractController
             'formule'        => $formule,
             'current_token'  => $token,
             'enfants'        => $enfants,
-            'min_price'      => !empty($prices) ? $prices[0] : 100,
+            'min_price'      => !empty($prices) ? max(100, $prices[0]) : 100,
             'autres_formules' => $autresFormules,
         ]);
     }
