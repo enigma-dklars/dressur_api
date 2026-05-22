@@ -18,6 +18,84 @@
 
 {% block jsonld %}
 <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Services Dressur",
+  "description": "{{ description }}",
+  "url": "{{ url('app_services') }}",
+  "numberOfItems": 5,
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Service",
+        "@id": "{{ url('app_boost_contact') }}#service",
+        "name": "Boost Contact",
+        "description": "Trouvez de nouveaux contacts qualifiés grâce à nos algorithmes intelligents. Vos contacts s'enregistrent mutuellement et automatiquement dans vos téléphones.",
+        "url": "{{ url('app_boost_contact') }}",
+        "provider": {"@type": "Organization", "name": "Dressur", "url": "https://dressur.site"},
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "XOF", "availability": "https://schema.org/InStock"}
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "SoftwareApplication",
+        "@id": "{{ url('app_dressur_bot') }}#software",
+        "name": "Dressur Bot",
+        "description": "Application Windows pour automatiser l'envoi de messages sur WhatsApp Web et WhatsApp Desktop. Envoyez à plus d'1 million de contacts sans bug.",
+        "url": "{{ url('app_dressur_bot') }}",
+        "operatingSystem": "Windows",
+        "applicationCategory": "BusinessApplication",
+        "provider": {"@type": "Organization", "name": "Dressur", "url": "https://dressur.site"}
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Service",
+        "@id": "{{ url('app_promotion_affaire') }}#service",
+        "name": "Promotion Affaire",
+        "description": "Promouvez vos produits, services, offres d'emploi et événements auprès d'un public ciblé. Vos annonces sont aussi référencées sur Google.",
+        "url": "{{ url('app_promotion_affaire') }}",
+        "provider": {"@type": "Organization", "name": "Dressur", "url": "https://dressur.site"},
+        "offers": {"@type": "Offer", "price": "{{ min_price_affaire|default('500') }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock"}
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "item": {
+        "@type": "Service",
+        "@id": "{{ url('app_promotion_reseaux_sociaux') }}#service",
+        "name": "Promotion Réseaux Sociaux",
+        "description": "Achetez des abonnés, likes, commentaires et partages sur Facebook, TikTok, Instagram, YouTube, Telegram et bien d'autres plateformes.",
+        "url": "{{ url('app_promotion_reseaux_sociaux') }}",
+        "provider": {"@type": "Organization", "name": "Dressur", "url": "https://dressur.site"},
+        "offers": {"@type": "Offer", "price": "100", "priceCurrency": "XOF", "availability": "https://schema.org/InStock"}
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 5,
+      "item": {
+        "@type": "Service",
+        "@id": "{{ url('app_actualite') }}#service",
+        "name": "Actualités & Marketplace",
+        "description": "Parcourez les dernières annonces, offres d'emploi, opportunités d'affaires et actualités publiées par la communauté Dressur.",
+        "url": "{{ url('app_actualite') }}",
+        "provider": {"@type": "Organization", "name": "Dressur", "url": "https://dressur.site"},
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "XOF", "availability": "https://schema.org/InStock"}
+      }
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},{"@type":"ListItem","position":2,"name":"Nos Services","item":"{{ url('app_services') }}"}]}
 </script>
 {% endblock %}
@@ -68,11 +146,12 @@
                         </div>
                         <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Boost Contact</h5>
                         <p class="card-text text-muted flex-grow-1 mt-2">
-                            Trouvez de nouveaux contacts qualifiés grâce à nos algorithmes intelligents. 
+                            Trouvez de nouveaux contacts qualifiés grâce à nos algorithmes intelligents.
                             Vos contacts s'enregistrent mutuellement et automatiquement dans vos téléphones.
                         </p>
                         <div class="mt-3">
-                            <span class="badge bg-success mb-3">Gratuit</span><br>
+                            <span class="badge bg-success mb-1">Gratuit</span>
+                            <span class="badge bg-warning text-dark mb-3">À partir de 100 F CFA</span><br>
                             <a href="{{ path('app_boost_contact') }}" class="btn btn-primary">
                                 Découvrir <i class="fas fa-arrow-right ms-1"></i>
                             </a>
@@ -93,7 +172,7 @@
                         </div>
                         <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Dressur Bot</h5>
                         <p class="card-text text-muted flex-grow-1 mt-2">
-                            Application Windows pour automatiser l'envoi de messages sur WhatsApp Web 
+                            Application Windows pour automatiser l'envoi de messages sur WhatsApp Web
                             et WhatsApp Desktop. Envoyez à plus d'1 million de contacts sans bug.
                         </p>
                         <div class="mt-3">
@@ -118,7 +197,7 @@
                         </div>
                         <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Promotion Affaire</h5>
                         <p class="card-text text-muted flex-grow-1 mt-2">
-                            Promouvez vos produits, services, offres d'emploi et événements auprès 
+                            Promouvez vos produits, services, offres d'emploi et événements auprès
                             d'un public ciblé. Vos annonces sont aussi référencées sur Google.
                         </p>
                         <div class="mt-3">
@@ -143,11 +222,11 @@
                         </div>
                         <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Promotion Réseaux Sociaux</h5>
                         <p class="card-text text-muted flex-grow-1 mt-2">
-                            Achetez des abonnés, likes, commentaires et partages sur Facebook, 
+                            Achetez des abonnés, likes, commentaires et partages sur Facebook,
                             TikTok, Instagram, YouTube, Telegram et bien d'autres plateformes.
                         </p>
                         <div class="mt-3">
-                            <span class="badge bg-warning text-dark mb-3">À partir de {{ min_price_reseau|default('500') }} F CFA</span><br>
+                            <span class="badge bg-warning text-dark mb-3">À partir de 100 F CFA</span><br>
                             <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="btn btn-primary">
                                 Découvrir <i class="fas fa-arrow-right ms-1"></i>
                             </a>
@@ -168,7 +247,7 @@
                         </div>
                         <h5 class="card-title fw-semibold" style="color:#2a4b9a;">Actualités & Marketplace</h5>
                         <p class="card-text text-muted flex-grow-1 mt-2">
-                            Parcourez les dernières annonces, offres d'emploi, opportunités d'affaires 
+                            Parcourez les dernières annonces, offres d'emploi, opportunités d'affaires
                             et actualités publiées par la communauté Dressur.
                         </p>
                         <div class="mt-3">
