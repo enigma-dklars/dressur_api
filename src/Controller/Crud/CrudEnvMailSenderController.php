@@ -48,20 +48,24 @@ class CrudEnvMailSenderController extends AbstractController
     #[Route('/remise-zero', name: 'app_crud_env_mail_sender_remise_zero', methods: ['GET'])]
     public function remise_zero(EnvMailSenderRepository $envMailSenderRepository, EntityManagerInterface $entityManager): Response
     {
-        foreach ($envMailSenderRepository->findBy([], ['id' => 'DESC']) as $unEnvPaiement) {
+        $senders = $envMailSenderRepository->findBy([], ['id' => 'DESC']);
+        foreach ($senders as $unEnvPaiement) {
             $unEnvPaiement->setCountMailSent(0);
         }
         $entityManager->flush();
+        $this->addFlash('success', count($senders) . ' compteur(s) remis à zéro avec succès.');
         return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/reactivate-all', name: 'app_crud_env_mail_sender_reactivate_all', methods: ['GET'])]
     public function reactivate_all(EnvMailSenderRepository $envMailSenderRepository, EntityManagerInterface $entityManager): Response
     {
-        foreach ($envMailSenderRepository->findBy(['activated' => false]) as $envMailSender) {
+        $senders = $envMailSenderRepository->findBy(['activated' => false]);
+        foreach ($senders as $envMailSender) {
             $envMailSender->setActivated(true);
         }
         $entityManager->flush();
+        $this->addFlash('success', count($senders) . ' sender(s) réactivé(s) avec succès.');
         return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
     }
 
