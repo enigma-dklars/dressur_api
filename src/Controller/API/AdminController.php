@@ -60,14 +60,22 @@ class AdminController extends AbstractController
         ]);
 
         try {
-            $sendMail->smtpMail(
+            $sent = $sendMail->smtpMail(
                 "dressur.ds@gmail.com", 
                 "Page Contact Web Dressur",
                 $html,
                 $email,
                 "Message From Web No ".time(), 
             );
-            
+
+            if (!$sent) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Mail non envoyé. Veuillez réessayer.",
+                ]);
+            }
+
             return new JsonResponse([
                 'error' => false,
             ]);
@@ -75,14 +83,8 @@ class AdminController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Mail non envoyer.",
+                'message' => "Mail non envoyé.",
             ]);
         }
-
-        return new JsonResponse([
-            'error' => true,
-            'titre' => 'Erreur!',
-            'message' => "Erreur de traitement.",
-        ]);
     }
 }
