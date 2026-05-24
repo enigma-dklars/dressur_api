@@ -221,6 +221,22 @@ class UserController extends AbstractController
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
+        if ($tel) {
+            $telClean = str_replace(" ", "", (string)$tel);
+            foreach (['+229', '+225'] as $indicatif) {
+                if (strpos($telClean, $indicatif) === 0) {
+                    $afterIndicatif = substr($telClean, strlen($indicatif));
+                    if (!preg_match('/^\d{10}$/', $afterIndicatif)) {
+                        if($sessionDS->get("langUserPhone") != "fr") {
+                            return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'For the '.$indicatif.' prefix, please enter exactly 10 digits after the prefix.']);
+                        }
+                        return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'Pour l\'indicatif '.$indicatif.', veuillez saisir exactement 10 chiffres après l\'indicatif.']);
+                    }
+                    break;
+                }
+            }
+        }
+
         if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
@@ -928,6 +944,19 @@ class UserController extends AbstractController
             // Vérifier s'il y a 8 caractères après +229 si oui je complete le 01
             if (strlen(substr($tel, 4)) == 8) {
                 $tel = str_replace("+229", "+22901", $tel);
+            }
+        }
+
+        foreach (['+229', '+225'] as $indicatif) {
+            if (strpos($tel, $indicatif) === 0) {
+                $afterIndicatif = substr($tel, strlen($indicatif));
+                if (!preg_match('/^\d{10}$/', $afterIndicatif)) {
+                    if($sessionDS->get("langUserPhone") != "fr") {
+                        return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'For the '.$indicatif.' prefix, please enter exactly 10 digits after the prefix.']);
+                    }
+                    return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'Pour l\'indicatif '.$indicatif.', veuillez saisir exactement 10 chiffres après l\'indicatif.']);
+                }
+                break;
             }
         }
 
