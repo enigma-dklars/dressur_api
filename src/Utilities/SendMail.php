@@ -30,6 +30,13 @@ class SendMail {
                 return $envMailSender;
             }
         }
+        if (!empty($envMailSenders)) {
+            foreach ($envMailSenders as $envMailSender) {
+                $envMailSender->setCountMailSent(0);
+            }
+            $this->em->flush();
+            return $envMailSenders[0];
+        }
         return false;
     }
 
