@@ -42,8 +42,10 @@ class SendMail {
                 $transport->stop();
                 return $candidate;
             } catch (\Exception $e) {
-                $candidate->setActivated(false);
-                $this->em->flush();
+                if ($candidate->isActivated()) {
+                    $candidate->setActivated(false);
+                    $this->em->flush();
+                }
                 $this->logger->error('SendMail init: sender désactivé (' . $candidate->getMailAdresse() . ') — connexion invalide : ' . $e->getMessage());
             }
         }
