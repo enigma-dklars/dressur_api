@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Utilities\SendMail;
 use DateTime;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -23,11 +24,13 @@ class CrudPromotionController extends AbstractController
     private $theme;
     private $cookieDS;
     private $traitementsDS;
+    private $sendMail;
 
-    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
+    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS, SendMail $sendMail)
     {
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
+        $this->sendMail = $sendMail;
         if($this->cookieDS->check("theme")) {
             if($this->cookieDS->get("theme") == "dark-theme") {
                 $this->theme = "dark-theme";
@@ -165,6 +168,22 @@ class CrudPromotionController extends AbstractController
     
             $promotion->setMotif("")->setStatus(3)->setDateDebut(new DateTime());
             $entityManager->flush();
+
+            $user = $promotion->getUser();
+            if ($user && $user->getMail()) {
+                $formulePromoAffaire = $promotion->getFormulePromoAffaire();
+                $htmlUser = $this->renderView('emails/promo_affaire_acceptee_user.html.twig', [
+                    'user_nom'        => $user->getNom(),
+                    'formule_titre'   => $formulePromoAffaire ? $formulePromoAffaire->getTitre() : null,
+                    'formule_nbr_jour'=> $formulePromoAffaire ? $formulePromoAffaire->getNbrJour() : null,
+                ]);
+                $this->sendMail->smtpMail(
+                    $user->getMail(),
+                    "Votre promotion a été acceptée 🎉",
+                    $htmlUser
+                );
+            }
+
             return new JsonResponse("Yes");
         } catch (\Throwable $th) {
             //throw $th;
@@ -178,6 +197,20 @@ class CrudPromotionController extends AbstractController
         try {
             $promotion->setMotif($motif)->setStatus(0);
             $entityManager->flush();
+
+            $user = $promotion->getUser();
+            if ($user && $user->getMail()) {
+                $htmlUser = $this->renderView('emails/promo_affaire_refusee_user.html.twig', [
+                    'user_nom' => $user->getNom(),
+                    'motif'    => $motif ?? '',
+                ]);
+                $this->sendMail->smtpMail(
+                    $user->getMail(),
+                    "Votre promotion a été refusée",
+                    $htmlUser
+                );
+            }
+
             return new JsonResponse("Yes");
         } catch (\Throwable $th) {
             //throw $th;
