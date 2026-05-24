@@ -184,12 +184,11 @@ class CrudPromotionController extends AbstractController
                 );
             }
 
-            $flashMessage = "Promotion #".$promotion->getId()." acceptée avec succès.";
-            $this->addFlash('success', $flashMessage);
+            $this->addFlash('success', "Promotion #".$promotion->getId()." acceptée avec succès.");
 
-            return new JsonResponse(['status' => 'Yes', 'flash' => ['type' => 'success', 'message' => $flashMessage]]);
+            return new JsonResponse("Yes");
         } catch (\Throwable $th) {
-            return new JsonResponse(['status' => 'No', 'flash' => ['type' => 'danger', 'message' => (string)$th]]);
+            return new JsonResponse("No. ".(string)$th);
         }
     }
 
@@ -214,12 +213,11 @@ class CrudPromotionController extends AbstractController
                 );
             }
 
-            $flashMessage = "Promotion #".$promotion->getId()." refusée.";
-            $this->addFlash('warning', $flashMessage);
+            $this->addFlash('warning', "Promotion #".$promotion->getId()." refusée.");
 
-            return new JsonResponse(['status' => 'Yes', 'flash' => ['type' => 'warning', 'message' => $flashMessage]]);
+            return new JsonResponse("Yes");
         } catch (\Throwable $th) {
-            return new JsonResponse(['status' => 'No', 'flash' => ['type' => 'danger', 'message' => (string)$th]]);
+            return new JsonResponse("No. ".(string)$th);
         }
     }
 
