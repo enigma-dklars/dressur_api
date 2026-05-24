@@ -9,6 +9,7 @@
             <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_env_mail_sender_new') }}">Create new</a>
         </div>
         <div class="col-md-6 text-end">
+            <button class="btn btn-sm btn-warning h4 me-2" onclick="confirmVerifyAll()">Vérifier tous</button>
             <button class="btn btn-sm btn-success h4 me-2" onclick="confirmReactivate()">Réactiver tous</button>
             <button class="btn btn-sm btn-danger h4" onclick="confirmRemiseZero()">Remise à zéro</button>
         </div>
@@ -63,6 +64,23 @@
 
 {% block script %}
 <script>
+function confirmVerifyAll() {
+    Swal.fire({
+        title: 'Vérifier tous les senders ?',
+        text: 'Une connexion SMTP sera testée pour chaque compte. Les comptes invalides seront désactivés automatiquement.',
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Oui, vérifier',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '{{ path('app_crud_env_mail_sender_verify_all') }}';
+        }
+    });
+}
+
 function confirmReactivate() {
     Swal.fire({
         title: 'Réactiver tous les senders ?',
