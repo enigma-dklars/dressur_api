@@ -26,7 +26,7 @@ class SendMail {
     public function getEnvMailSenderDisponible() {
         $envMailSenders = $this->envMailSenderRepository->findBy(['activated' => true]);
         foreach ($envMailSenders as $envMailSender) {
-            if($envMailSender->getCountMailSent() < 200) {
+            if($envMailSender->getCountMailSent() < 99) {
                 return $envMailSender;
             }
         }
