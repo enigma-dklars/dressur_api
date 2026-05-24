@@ -1166,8 +1166,9 @@ $(document).ready(function () {
                 if (text) {
                     thisElement.parent().parent().parent().addClass("bg-warning");
                     $.ajax({
-                        type: "GET",
-                        url: route_accepter+"/"+text,
+                        type: "POST",
+                        url: route_accepter,
+                        data: { motif: text },
                         success: function (response) {
                             if(response == "Yes") {
                                 thisElement.parent().parent().parent().remove()
