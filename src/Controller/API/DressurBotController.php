@@ -127,54 +127,48 @@ class DressurBotController extends AbstractController
                 "numero" => $numero,
             ]);
     
-            try {
-                $newUserBot = new UserBot();
-                $newUserBot->setNom($nom)
-                    ->setEmail($email)
-                    ->setNumero($numero)
-                    ->setAdresseMac($adresseMac)
-                    ->setUuidMachine($uuidMachine)
-                    ->setDiskSerialNumber($diskSerialNumber)
-                ;
-                $this->em->persist($newUserBot);
-                $this->em->flush();
+            $newUserBot = new UserBot();
+            $newUserBot->setNom($nom)
+                ->setEmail($email)
+                ->setNumero($numero)
+                ->setAdresseMac($adresseMac)
+                ->setUuidMachine($uuidMachine)
+                ->setDiskSerialNumber($diskSerialNumber)
+            ;
+            $this->em->persist($newUserBot);
+            $this->em->flush();
 
-                $sendMail->smtpMail(
-                    $email,
-                    "BIENVENU SUR DRESSUR BOT",
-                    $html,
-                    "dressur.ds@gmail.com", 
-                    "Dressur Bot No ".time(), 
+            $sent = $sendMail->smtpMail(
+                $email,
+                "BIENVENU SUR DRESSUR BOT",
+                $html,
+                "dressur.ds@gmail.com", 
+                "Dressur Bot No ".time(), 
+            );
+
+            if (!$sent) {
+                $this->sendMail->sendReport(
+                    "DressurBot — mail de bienvenue non envoyé",
+                    "Inscription réussie pour " . $email . " mais le mail de bienvenue n'a pas pu être envoyé (tous les senders SMTP ont échoué)."
                 );
-                
-                return new JsonResponse([
-                    'error' => false,
-                    'target' => "paiementPage",
-                    'userInfo' => [
-                        'nom' => $nom,
-                        'email' => $email,
-                        'numero' => $numero,
-                        'signature' => $newUserBot->getSignature(),
-                        'adresseMac' => $adresseMac,
-                        'uuidMachine' => $uuidMachine,
-                        'diskSerialNumber' => $diskSerialNumber,
-                        'createdAt' => $newUserBot->getCreatedAt(),
-                        'expiratedAt' => $newUserBot->getExpiratedAt(),
-                    ],
-                ]);
-            } catch (\Throwable $th) {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Mail non envoyer. Veuillez contactez l'assistance de Dressur Bot...",
-                ]);
             }
+
+            return new JsonResponse([
+                'error' => false,
+                'target' => "paiementPage",
+                'userInfo' => [
+                    'nom' => $nom,
+                    'email' => $email,
+                    'numero' => $numero,
+                    'signature' => $newUserBot->getSignature(),
+                    'adresseMac' => $adresseMac,
+                    'uuidMachine' => $uuidMachine,
+                    'diskSerialNumber' => $diskSerialNumber,
+                    'createdAt' => $newUserBot->getCreatedAt(),
+                    'expiratedAt' => $newUserBot->getExpiratedAt(),
+                ],
+            ]);
         }
-        return new JsonResponse([
-            'error' => true,
-            'titre' => 'Erreur!',
-            'message' => "Erreur de traitement. Veuillez contactez l'assistance de Dressur Bot...",
-        ]);
     }
 
     #[Route('/listeFormuleDressurBot', name: 'listeFormuleDressurBot', methods: ['POST', 'GET'])]
