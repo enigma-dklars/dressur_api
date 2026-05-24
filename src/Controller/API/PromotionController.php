@@ -730,6 +730,21 @@ class PromotionController extends AbstractController
 
         $this->em->flush();
 
+        $htmlAdmin = $this->renderView('emails/promo_affaire_edit_admin_notif.html.twig', [
+            'user_nom'             => $user->getNom(),
+            'user_mail'            => $user->getMail(),
+            'user_tel'             => $user->getTel() ?? '—',
+            'promotion_id'         => $promotionAffaire->getId(),
+            'description_modifiee' => (bool) $text,
+            'image_modifiee'       => (bool) $image,
+            'nouvelle_description' => $text ?? '',
+        ]);
+        $this->sendMail->smtpMail(
+            $_ENV['ADMIN_EMAIL'],
+            "Promotion Affaire modifiée — " . $user->getNom() . " (#" . $promotionAffaire->getId() . ")",
+            $htmlAdmin
+        );
+
         if($sessionDS->get("langUserPhone") != "fr") { 
             return new JsonResponse([
                 'error' => false
