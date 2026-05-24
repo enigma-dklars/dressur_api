@@ -142,8 +142,6 @@ class SendMail {
         $batches = array_chunk($to, 20); // Découpe en groupes de 20 emails
 
         foreach ($batches as $batch) {
-            $batchSent = false;
-
             for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
                 if (!$this->envMailSender) {
                     $this->logger->error('Aucun sender SMTP disponible pour ce lot après ' . $attempt . ' tentative(s).');
@@ -166,7 +164,6 @@ class SendMail {
                     if ($mailer->send($content)) {
                         $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 20);
                         $this->em->flush();
-                        $batchSent = true;
                     } else {
                         $this->logger->error('Échec de l\'envoi du lot d\'emails.');
                     }
