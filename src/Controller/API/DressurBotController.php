@@ -301,7 +301,7 @@ class DressurBotController extends AbstractController
                 "amount" => $formulDressurBot->getPrix(),
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
-                    "firstname" => $userBotFind->getNom(),
+                    "firstname" => "Dressur : ".$userBotFind->getNom(),
                     "lastname" => $userBotFind->getNom(),
                     "email" => $userBotFind->getEmail(),
                     "phone_number" => [

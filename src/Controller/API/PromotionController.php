@@ -472,7 +472,7 @@ class PromotionController extends AbstractController
                 "amount" => $montantTotal,
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
-                    "firstname" => $user->getPseudo(),
+                    "firstname" => "Dressur : ".$user->getPseudo(),
                     "lastname" => $user->getNom(),
                     "email" => $user->getMail(),
                     "phone_number" => [
@@ -1013,7 +1013,7 @@ class PromotionController extends AbstractController
                     "amount" => $montantTotal,
                     "currency" => ["iso" => "XOF"],
                     "customer" => [
-                        "firstname" => $user->getPseudo(),
+                        "firstname" => "Dressur : ".$user->getPseudo(),
                         "lastname" => $user->getNom(),
                         "email" => $user->getMail(),
                         "phone_number" => [

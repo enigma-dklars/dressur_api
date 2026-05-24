@@ -292,7 +292,7 @@ class BoostController extends AbstractController
                 "amount" => $formulBoost->getPrix(),
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
-                    "firstname" => $user->getPseudo(),
+                    "firstname" => "Dressur : ".$user->getPseudo(),
                     "lastname" => $user->getNom(),
                     "email" => $user->getMail(),
                     "phone_number" => [

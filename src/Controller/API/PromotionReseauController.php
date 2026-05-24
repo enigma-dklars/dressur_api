@@ -216,7 +216,7 @@ class PromotionReseauController extends AbstractController
                 "amount" => $prixQteDemander,
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
-                    "firstname" => $user->getPseudo(),
+                    "firstname" => "Dressur : ".$user->getPseudo(),
                     "lastname" => $user->getNom(),
                     "email" => $user->getMail(),
                     "phone_number" => [
