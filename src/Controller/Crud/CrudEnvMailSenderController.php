@@ -89,7 +89,7 @@ class CrudEnvMailSenderController extends AbstractController
                 $transport->start();
                 $transport->stop();
             } catch (\Exception $e) {
-                if ($sender->getActivated()) {
+                if ($sender->isActivated()) {
                     $sender->setActivated(false);
                     $deactivated++;
                 }
