@@ -191,10 +191,11 @@ class CrudPromotionController extends AbstractController
         }
     }
 
-    #[Route('/{id}/refuser/{motif?}', name: 'app_crud_promotion_refuser', methods: ['GET', 'POST'])]
-    public function refuser(Request $request, Promotion $promotion, $motif, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/refuser', name: 'app_crud_promotion_refuser', methods: ['POST'])]
+    public function refuser(Request $request, Promotion $promotion, EntityManagerInterface $entityManager): Response
     {
         try {
+            $motif = $request->request->get('motif', '');
             $promotion->setMotif($motif)->setStatus(0);
             $entityManager->flush();
 
