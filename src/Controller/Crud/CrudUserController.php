@@ -419,24 +419,23 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            $user = 
-                $userRepository->findOneBy(['pseudo' => $input]) ?? 
-                $userRepository->findOneBy(['mail' => $input]) ?? 
-                $userRepository->findOneBy(['uid' => $input]) ?? 
-                $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input])
-            ;
-            
-            if($user) {
-                $traitementsDS->execPurge($user);
-                // Add a flash message to confirm deletion
-                $this->addFlash('success', 'User and all related information have been deleted.');
-                
-                return $this->redirectToRoute('app_crud_user_check');
+            $found = [];
+            foreach (['pseudo', 'mail', 'uid', 'id', 'tel'] as $field) {
+                foreach ($userRepository->findBy([$field => $input]) as $u) {
+                    $found[$u->getId()] = $u;
+                }
             }
 
-            // Add a flash message if user is not found
-            $this->addFlash('danger', 'User not found.');
+            if (count($found) > 1) {
+                $this->addFlash('warning', count($found) . ' comptes trouvés pour "' . $input . '". Veuillez préciser la recherche avant de purger.');
+            } elseif (count($found) === 1) {
+                $user = array_values($found)[0];
+                $traitementsDS->execPurge($user);
+                $this->addFlash('success', 'User and all related information have been deleted.');
+                return $this->redirectToRoute('app_crud_user_check');
+            } else {
+                $this->addFlash('danger', 'User not found.');
+            }
         }
 
         return $this->render('crud_user/purge_user.html.twig', [
@@ -455,28 +454,27 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            $user = 
-                $userRepository->findOneBy(['pseudo' => $input]) ?? 
-                $userRepository->findOneBy(['mail' => $input]) ?? 
-                $userRepository->findOneBy(['uid' => $input]) ?? 
-                $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input])
-            ;
-            
-            if($user) {
+            $found = [];
+            foreach (['pseudo', 'mail', 'uid', 'id', 'tel'] as $field) {
+                foreach ($userRepository->findBy([$field => $input]) as $u) {
+                    $found[$u->getId()] = $u;
+                }
+            }
+
+            if (count($found) > 1) {
+                $this->addFlash('warning', count($found) . ' comptes trouvés pour "' . $input . '". Veuillez préciser la recherche avant de bannir.');
+            } elseif (count($found) === 1) {
+                $user = array_values($found)[0];
                 $this->env->addUserBanned($user->getTel());
                 $this->env->addUserBanned($user->getMail());
                 $this->env->addUserBanned($motif);
                 $this->em->flush();
                 $traitementsDS->execPurge($user);
-                // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User is Banned.');
-                
                 return $this->redirectToRoute('app_crud_user_check');
+            } else {
+                $this->addFlash('danger', 'User not found.');
             }
-
-            // Add a flash message if user is not found
-            $this->addFlash('danger', 'User not found.');
         }
 
         return $this->render('crud_user/banned_user.html.twig', [
