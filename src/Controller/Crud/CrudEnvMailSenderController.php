@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Swift_SmtpTransport;
 
 #[Route('/crud/env-mail-sender')]
 class CrudEnvMailSenderController extends AbstractController
@@ -66,6 +67,43 @@ class CrudEnvMailSenderController extends AbstractController
         }
         $entityManager->flush();
         $this->addFlash('success', count($senders) . ' sender(s) réactivé(s) avec succès.');
+        return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/verify-all', name: 'app_crud_env_mail_sender_verify_all', methods: ['GET'])]
+    public function verify_all(EnvMailSenderRepository $envMailSenderRepository, EntityManagerInterface $entityManager): Response
+    {
+        $senders = $envMailSenderRepository->findAll();
+        $total = count($senders);
+        $deactivated = 0;
+
+        foreach ($senders as $sender) {
+            try {
+                $transport = new Swift_SmtpTransport(
+                    $sender->getSmtpServer(),
+                    $sender->getSmtpPort(),
+                    $sender->getSmtpSecured()
+                );
+                $transport->setUsername($sender->getMailAdresse());
+                $transport->setPassword($sender->getPassword());
+                $transport->start();
+                $transport->stop();
+            } catch (\Exception $e) {
+                if ($sender->getActivated()) {
+                    $sender->setActivated(false);
+                    $deactivated++;
+                }
+            }
+        }
+
+        $entityManager->flush();
+
+        if ($deactivated > 0) {
+            $this->addFlash('danger', 'Vérification terminée : ' . $deactivated . ' sender(s) désactivé(s) sur ' . $total . ' testé(s) (connexion ou authentification invalide).');
+        } else {
+            $this->addFlash('success', 'Vérification terminée : tous les ' . $total . ' sender(s) sont opérationnels.');
+        }
+
         return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
     }
 
