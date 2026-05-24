@@ -3,343 +3,319 @@
 {% block title %}ADMIN DASHBOARD{% endblock %}
 
 {% block body %}
-
-
-
-    {% if user.admin == true %}
-        <div class="row g-2 mb-2 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-5">
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">U. Aléatoires</p>
-                                <h4 class="my-1">{{nbr_user}} <span class="text-warning">|</span> {{nbr_user_bot}}</h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Aléatoires</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-bars"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {# <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">U. Inutile</p>
-                                <h4 class="my-1">**** <span class="text-warning">|</span> ****</h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Inutile</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                                <a href="{{path('app_crud_user_inutiles')}}" class="text-white"><i class="fas fa-bars"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> #}
-            <div class="col">
+    <div class="row g-2 mb-2 row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5">
+        <div class="col">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary">Confirmation</p>
+                            <p class="mb-0 text-secondary">Solde</p>
                             <h4 class="my-1">
-                                <span class="text-danger">{{nbr_tel_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_tel_no_conf}}</span>
+                                <span class=" 
+                                    {% if soldeZefame <= 5 %}text-danger{% endif %} 
+                                    {% if soldeZefame > 5 and soldeZefame <= 10 %}text-warning{% endif %}
+                                    {% if soldeZefame > 10 %}text-success{% endif %}
+                                ">
+                                    {{ soldeZefame|number_format(2, '.', ' ') }} €
+                                </span>
                             </h4>
-                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Num. Whats</p>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Solde API PRS</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                            <a href="{{path('app_crud_user_not_verif_tel')}}" class="text-white"><i class="fab fa-whatsapp"></i></a>
+                        <div class="widget-icon-large 
+                            {% if soldeZefame <= 5 %}bg-gradient-danger{% endif %} 
+                            {% if soldeZefame > 5 and soldeZefame <= 10 %}bg-gradient-warning{% endif %}
+                            {% if soldeZefame > 10 %}bg-gradient-success{% endif %}
+                            text-white ms-auto">
+                            <i class="fas fa-euro-sign"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
+        </div>
+
+        <div class="col">
+            <div class="card radius-10 mb-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary">Confirmation</p>
-                            <h4 class="my-1">
-                                <span class="text-danger">{{nbr_mail_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_mail_no_conf}}</span>
-                            </h4>
-                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Addr. Mail</p>
+                            <p class="mb-0 text-secondary">U. Aléatoires</p>
+                            <h4 class="my-1">{{nbr_user}} <span class="text-warning">|</span> {{nbr_user_bot}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Aléatoires</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                            <a href="{{path('app_crud_user_not_verif_mail')}}" class="text-white"><i class="fas fa-envelope"></i></a>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-bars"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
+        </div>
+        {# <div class="col">
+            <div class="card radius-10 mb-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary">Confirmation</p>
-                            <h4 class="my-1">
-                                <span class="text-danger">{{nbr_tel_mail_no_conf}}</span> | <span class="text-success">{{nbr_tel_mail_yes_conf}}</span>
-                            </h4>
-                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Whats. Mail</p>
+                            <p class="mb-0 text-secondary">U. Inutile</p>
+                            <h4 class="my-1">**** <span class="text-warning">|</span> ****</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Inutile</p>
                         </div>
                         <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                            <a href="{{path('app_crud_user_not_verif_tel_mail')}}" class="text-white"><i class="fas fa-circle-stop"></i></a>
+                            <a href="{{path('app_crud_user_inutiles')}}" class="text-white"><i class="fas fa-bars"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
+        </div> #}
+        <div class="col">
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Confirmation</p>
+                        <h4 class="my-1">
+                            <span class="text-danger">{{nbr_tel_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_tel_no_conf}}</span>
+                        </h4>
+                        <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Num. Whats</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <a href="{{path('app_crud_user_not_verif_tel')}}" class="text-white"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
             </div>
-            {# <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">A. Sans Suite</p>
-                                <h4 class="my-1">{{affaire_valider_sans_payer}}</h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo. Affaire</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                                <a href="/accepterSansSuite" class="text-white"><i class="fas fa-list"></i></a>
-                            </div>
+        </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Confirmation</p>
+                        <h4 class="my-1">
+                            <span class="text-danger">{{nbr_mail_no_conf}}</span> | <span class="text-success">{{nbr_user - nbr_mail_no_conf}}</span>
+                        </h4>
+                        <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Addr. Mail</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <a href="{{path('app_crud_user_not_verif_mail')}}" class="text-white"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Confirmation</p>
+                        <h4 class="my-1">
+                            <span class="text-danger">{{nbr_tel_mail_no_conf}}</span> | <span class="text-success">{{nbr_tel_mail_yes_conf}}</span>
+                        </h4>
+                        <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Whats. Mail</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <a href="{{path('app_crud_user_not_verif_tel_mail')}}" class="text-white"><i class="fas fa-circle-stop"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        {# <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">A. Sans Suite</p>
+                            <h4 class="my-1">{{affaire_valider_sans_payer}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo. Affaire</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                            <a href="/accepterSansSuite" class="text-white"><i class="fas fa-list"></i></a>
                         </div>
                     </div>
                 </div>
-            </div> #}
-            <div class="col">
+            </div>
+        </div> #}
+        <div class="col">
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Validation</p>
+                        <h4 class="my-1">{{valid_promo_affaire}}</h4>
+                        <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Affaire</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <a href="{{path('app_crud_promotion_promo_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="col">
+        <div class="card radius-10 mb-0">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <p class="mb-0 text-secondary">Validation</p>
+                        <h4 class="my-1">{{valid_promo_reseau}}</h4>
+                        <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Réseau</p>
+                    </div>
+                    <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <a href="{{path('app_crud_promo_reseau_promo_reseau_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        {# <div class="col">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Validation</p>
-                            <h4 class="my-1">{{valid_promo_affaire}}</h4>
-                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Affaire</p>
+                            <h4 class="my-1">{{valid_camp_mail}}</h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Camp. Mail</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                            <a href="{{path('app_crud_promotion_promo_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list-ul"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            </div>
-            <div class="col">
+        </div> #}
+        <div class="col">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary">Validation</p>
-                            <h4 class="my-1">{{valid_promo_reseau}}</h4>
-                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> P. Réseau</p>
+                            <p class="mb-0 text-secondary">En cours</p>
+                            <h4 class="my-1">
+                                {{encour_boost}}
+                            </h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
-                            <a href="{{path('app_crud_promo_reseau_promo_reseau_en_attente')}}" class="text-white"><i class="fas fa-list"></i></a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-            {# <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Validation</p>
-                                <h4 class="my-1">{{valid_camp_mail}}</h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Camp. Mail</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-list-ul"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> #}
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">En cours</p>
-                                <h4 class="my-1">
-                                    {{encour_boost}}
-                                </h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Programmer</p>
-                                <h4 class="my-1">
-                                    {{programmer_boost}}
-                                </h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">En cours</p>
-                                <h4 class="my-1">
-                                    {{encour_affaire}}
-                                </h4>
-                                <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo Affaire</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Users</p>
-                                <h4 class="my-1">
-                                    {{users_prog_recomp}}
-                                </h4>
-                                <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Prog Recomp</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">P. Affaire</p>
-                                <h4 class="my-1">
-                                    {{p_aff_recomp}}
-                                </h4>
-                                <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Prog Recomp</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">P. Affaire</p>
-                                <h4 class="my-1">
-                                    {{p_aff_ds_statut}}
-                                </h4>
-                                <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i>DS Statut</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Deleted Users</p>
-                                <h4 class="my-1">
-                                    {{deleted_users}}
-                                </h4>
-                                <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Deleted Users</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 mb-0">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Banned Users</p>
-                                <h4 class="my-1">
-                                    {{banned_users}}
-                                </h4>
-                                <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Banned Users</p>
-                            </div>
-                            <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="fas fa-users-rectangle"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-    <div class="row g-2 mb-3 row-cols-1 row-cols-md-2 row-cols-lg-2 row-cols-xl-4">
-        <div class="col">
-        <div class="card radius-10 mb-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div>
-                        <p class="mb-0 text-secondary">Impressions</p>
-                        <h4 class="my-1">{{countImpressions}}</h4>
-                        <p class="mb-0 font-13 text-purple"><i class="bi bi-caret-up-fill"></i> Cumuler Affaires</p>
-                    </div>
-                    <div class="widget-icon-large bg-gradient-purple text-white ms-auto"><i class="bi bi-basket2-fill"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
         </div>
         <div class="col">
-        <div class="card radius-10 mb-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div>
-                        <p class="mb-0 text-secondary">Contacts</p>
-                        <h4 class="my-1">{{contacts_user}}</h4>
-                        <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Depuis Dressur</p>
-                    </div>
-                    <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="bi bi-people-fill"></i>
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Programmer</p>
+                            <h4 class="my-1">
+                                {{programmer_boost}}
+                            </h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Boost Contact</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         </div>
         <div class="col">
-        <div class="card radius-10 mb-0">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div>
-                        <p class="mb-0 text-secondary">Vues</p>
-                        <h4 class="my-1">{{countVues}}</h4>
-                        <p class="mb-0 font-13 text-info"><i class="bi bi-caret-up-fill"></i> Cumuler Affaires</p>
-                    </div>
-                    <div class="widget-icon-large bg-gradient-info text-white ms-auto"><i class="bi bi-bar-chart-line-fill"></i>
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">En cours</p>
+                            <h4 class="my-1">
+                                {{encour_affaire}}
+                            </h4>
+                            <p class="mb-0 font-13 text-warning"><i class="bi bi-caret-up-fill"></i> Promo Affaire</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Users</p>
+                            <h4 class="my-1">
+                                {{users_prog_recomp}}
+                            </h4>
+                            <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Prog Recomp</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">P. Affaire</p>
+                            <h4 class="my-1">
+                                {{p_aff_recomp}}
+                            </h4>
+                            <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i> Prog Recomp</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">P. Affaire</p>
+                            <h4 class="my-1">
+                                {{p_aff_ds_statut}}
+                            </h4>
+                            <p class="mb-0 font-13 text-success"><i class="bi bi-caret-up-fill"></i>DS Statut</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-success text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Deleted Users</p>
+                            <h4 class="my-1">
+                                {{deleted_users}}
+                            </h4>
+                            <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Deleted Users</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card radius-10 mb-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Banned Users</p>
+                            <h4 class="my-1">
+                                {{banned_users}}
+                            </h4>
+                            <p class="mb-0 font-13 text-danger"><i class="bi bi-caret-up-fill"></i> Banned Users</p>
+                        </div>
+                        <div class="widget-icon-large bg-gradient-danger text-white ms-auto"><i class="fas fa-users-rectangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

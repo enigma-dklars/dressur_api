@@ -37,57 +37,62 @@
     </div>
     <!--navigation-->
     <ul class="metismenu" id="menu">
-      <li class="{{ r == 'app_admin' ? 'mm-active' : '' }}">
-        <a href="{{path('app_admin')}}" class="{{ r == 'app_admin' ? 'active' : '' }}">
+      <li class="my-0 {{ r == 'app_admin' ? 'mm-active' : '' }}">
+        <a href="{{path('app_admin')}}" class="py-1 {{ r == 'app_admin' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-gauge text-warning"></i>
           </div>
           <div class="menu-title text-warning">Dashboard Admin</div>
         </a>
       </li>
-      <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
-        <a href="/private" class="{{ r == 'app_private' ? 'active' : '' }}">
+      <li class="my-0 {{ r == 'app_private' ? 'mm-active' : '' }}">
+        <a href="/private" class="py-1 {{ r == 'app_private' ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-house-user text-success"></i>
           </div>
           <div class="menu-title text-success">Espace User</div>
         </a>
       </li>
 
-      <li class="{{ is_user ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_index')}}" class="small-fort {{ is_user ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Utilisateurs</a></li>
-      <li class="{{ r == 'app_crud_user_check_and_confirme' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check_and_confirme')}}" class="small-fort bg-success text-white {{ r == 'app_crud_user_check_and_confirme' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User Confirm</a></li>
-      <li class="{{ r == 'app_crud_user_check' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check')}}" class="small-fort bg-info text-white {{ r == 'app_crud_user_check' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User</a></li>
-      <li class="{{ r == 'app_crud_user_purge' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_purge')}}" class="small-fort bg-danger text-white {{ r == 'app_crud_user_purge' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Purge User</a></li>
-      <li class="{{ r == 'app_crud_user_banned' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_banned')}}" class="small-fort bg-warning text-dark {{ r == 'app_crud_user_banned' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Bannir User</a></li>
+      <hr class="my-2">
+      
+      <li class="my-0 {{ is_user ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_index')}}" class="py-1 small-fort {{ is_user ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Utilisateurs</a></li>
+      <li class="my-0 {{ r == 'app_crud_user_check_and_confirme' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check_and_confirme')}}" class="py-1 small-fort bg-success text-white {{ r == 'app_crud_user_check_and_confirme' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User Confirm</a></li>
+      <li class="my-0 {{ r == 'app_crud_user_check' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check')}}" class="py-1 small-fort bg-info text-white {{ r == 'app_crud_user_check' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User</a></li>
+      <li class="my-0 {{ r == 'app_crud_user_purge' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_purge')}}" class="py-1 small-fort bg-danger text-white {{ r == 'app_crud_user_purge' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Purge User</a></li>
+      <li class="my-0 {{ r == 'app_crud_user_banned' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_banned')}}" class="py-1 small-fort bg-warning text-dark {{ r == 'app_crud_user_banned' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Bannir User</a></li>
       {% if user.id == 3 or user.id == 7 %}
-      <li class="{{ is_user_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_bot_index')}}" class="small-fort {{ is_user_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Users Bot</a></li>
+      <li class="my-0 {{ is_user_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_bot_index')}}" class="py-1 small-fort {{ is_user_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Users Bot</a></li>
       {% endif %}
-      <li class="{{ is_boost ? 'mm-active' : '' }}"> <a href="{{path('app_crud_boost_index')}}" class="small-fort {{ is_boost ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Boost Contact</a></li>
-      <li class="{{ is_promotion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promotion_index')}}" class="small-fort {{ is_promotion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Affaire</a></li>
-      <li class="{{ is_promo_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promo_reseau_index')}}" class="small-fort {{ is_promo_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
-      <li class="{{ is_histo_recomp ? 'mm-active' : '' }}"> <a href="{{path('app_historique_programme_recompense_index')}}" class="small-fort {{ is_histo_recomp ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>H. P. Récompense</a></li>
-      <li class="{{ is_preuve ? 'mm-active' : '' }}"> <a href="{{path('app_preuve_index')}}" class="small-fort {{ is_preuve ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Preuve Récompense</a></li>
 
       <hr class="my-2">
 
-      <li class="{{ is_f_boost ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_boost_index')}}" class="small-fort {{ is_f_boost ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Boosts</a></li>
-      <li class="{{ is_f_affaire ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_affaire_index')}}" class="small-fort {{ is_f_affaire ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Affaires</a></li>
-      <li class="{{ is_f_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="small-fort {{ is_f_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
-      <li class="{{ is_f_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="small-fort {{ is_f_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Dressur Bot</a></li>
-      <li class="{{ is_msg_ai ? 'mm-active' : '' }}"> <a href="{{path('app_crud_msg_ai_index')}}" class="small-fort {{ is_msg_ai ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Message Ai</a></li>
+      <li class="my-0 {{ is_boost ? 'mm-active' : '' }}"> <a href="{{path('app_crud_boost_index')}}" class="py-1 small-fort {{ is_boost ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Boost Contact</a></li>
+      <li class="my-0 {{ is_promotion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promotion_index')}}" class="py-1 small-fort {{ is_promotion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Affaire</a></li>
+      <li class="my-0 {{ is_promo_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promo_reseau_index')}}" class="py-1 small-fort {{ is_promo_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
+      <li class="my-0 {{ is_histo_recomp ? 'mm-active' : '' }}"> <a href="{{path('app_historique_programme_recompense_index')}}" class="py-1 small-fort {{ is_histo_recomp ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>H. P. Récompense</a></li>
+      <li class="my-0 {{ is_preuve ? 'mm-active' : '' }}"> <a href="{{path('app_preuve_index')}}" class="py-1 small-fort {{ is_preuve ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Preuve Récompense</a></li>
 
       <hr class="my-2">
-      
-      <li class="{{ is_env ? 'mm-active' : '' }}"> <a href="{{path('app_crud_env_index')}}" class="small-fort {{ is_env ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env</a></li>
-      <li class="{{ is_env_paiem ? 'mm-active' : '' }}"> <a href="{{path('app_env_paiement_api_index')}}" class="small-fort {{ is_env_paiem ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env Paiement Api</a></li>
-      <li class="{{ is_methode ? 'mm-active' : '' }}"> <a href="{{path('app_methode_paiement_index')}}" class="small-fort {{ is_methode ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env M. Paiement</a></li>
-      <li class="{{ is_env_mail ? 'mm-active' : '' }}"> <a href="{{path('app_crud_env_mail_sender_index')}}" class="small-fort {{ is_env_mail ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env Mail Sender</a></li>
+
+      <li class="my-0 {{ is_f_boost ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_boost_index')}}" class="py-1 small-fort {{ is_f_boost ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Boosts</a></li>
+      <li class="my-0 {{ is_f_affaire ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_affaire_index')}}" class="py-1 small-fort {{ is_f_affaire ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Affaires</a></li>
+      <li class="my-0 {{ is_f_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="py-1 small-fort {{ is_f_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
+      <li class="my-0 {{ is_f_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="py-1 small-fort {{ is_f_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Dressur Bot</a></li>
+      <li class="my-0 {{ is_msg_ai ? 'mm-active' : '' }}"> <a href="{{path('app_crud_msg_ai_index')}}" class="py-1 small-fort {{ is_msg_ai ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Message Ai</a></li>
 
       <hr class="my-2">
       
-      <li class="{{ is_mot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_mot_refuser_index')}}" class="small-fort {{ is_mot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Mot Refuser</a></li>
-      <li class="{{ is_deleted ? 'mm-active' : '' }}"> <a href="{{path('app_crud_deleted_d_s_index')}}" class="small-fort {{ is_deleted ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Deleted DS</a></li>
-      <li class="{{ is_transaction ? 'mm-active' : '' }}"> <a href="{{path('app_crud_transaction_index')}}" class="small-fort {{ is_transaction ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Transaction</a></li>
-      <li class="{{ is_suggestion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_suggestion_index')}}" class="small-fort {{ is_suggestion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
-      <li class="{{ is_signalement ? 'mm-active' : '' }}"> <a href="{{path('app_crud_signalement_index')}}" class="small-fort {{ is_signalement ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
+      <li class="my-0 {{ is_env ? 'mm-active' : '' }}"> <a href="{{path('app_crud_env_index')}}" class="py-1 small-fort {{ is_env ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env</a></li>
+      <li class="my-0 {{ is_env_paiem ? 'mm-active' : '' }}"> <a href="{{path('app_env_paiement_api_index')}}" class="py-1 small-fort {{ is_env_paiem ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env Paiement Api</a></li>
+      <li class="my-0 {{ is_methode ? 'mm-active' : '' }}"> <a href="{{path('app_methode_paiement_index')}}" class="py-1 small-fort {{ is_methode ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env M. Paiement</a></li>
+      <li class="my-0 {{ is_env_mail ? 'mm-active' : '' }}"> <a href="{{path('app_crud_env_mail_sender_index')}}" class="py-1 small-fort {{ is_env_mail ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Env Mail Sender</a></li>
+
+      <hr class="my-2">
+      
+      <li class="my-0 {{ is_mot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_mot_refuser_index')}}" class="py-1 small-fort {{ is_mot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Mot Refuser</a></li>
+      <li class="my-0 {{ is_deleted ? 'mm-active' : '' }}"> <a href="{{path('app_crud_deleted_d_s_index')}}" class="py-1 small-fort {{ is_deleted ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Deleted DS</a></li>
+      <li class="my-0 {{ is_transaction ? 'mm-active' : '' }}"> <a href="{{path('app_crud_transaction_index')}}" class="py-1 small-fort {{ is_transaction ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Transaction</a></li>
+      <li class="my-0 {{ is_suggestion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_suggestion_index')}}" class="py-1 small-fort {{ is_suggestion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
+      <li class="my-0 {{ is_signalement ? 'mm-active' : '' }}"> <a href="{{path('app_crud_signalement_index')}}" class="py-1 small-fort {{ is_signalement ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
     
     </ul>
     <!--end navigation-->

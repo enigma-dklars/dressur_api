@@ -150,6 +150,7 @@ class PrivateController extends AbstractController
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
+
             $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
             foreach ($actusList as &$a) {
                 $a['token'] = $this->encodePromoToken($a['id']);
@@ -184,8 +185,6 @@ class PrivateController extends AbstractController
             $user = $userRepository->findOneBy(['uid' => $uid]);
             $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
-            $userinfo = $this->traitementsDS->infosUser($user);
-
             if($user){
                 $user->setLastLoginTo(new DateTime());    
                 $this->em->flush();
@@ -214,6 +213,7 @@ class PrivateController extends AbstractController
                     'users_prog_recomp' => count($userRepository->findBy(['isInscritProgrammeRecompense' => true])),
                     'p_aff_recomp' => count($promotionRepository->findBy(['inProgrammeRecompense' => true])),
                     'p_aff_ds_statut' => count($promotionRepository->findBy(['publishOnDressurStatus' => true])),
+                    'soldeZefame' => $traitementsDS->getSoldeZefame(),
                 ]);
             }
         }
