@@ -685,12 +685,8 @@ class UserController extends AbstractController
             'username' => $user,
         ]);
 
-        try {
-            $sendMail->smtpMail($user->getMail(), "Confirmation du Mail", $html);
-            return new JsonResponse([
-                'error' => false,
-            ]);
-        } catch (Exception $e) {
+        $sent = $sendMail->smtpMail($user->getMail(), "Confirmation du Mail", $html);
+        if (!$sent) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -704,6 +700,9 @@ class UserController extends AbstractController
                 'message' => "Erreur d'envoi du mail.",
             ]);
         }
+        return new JsonResponse([
+            'error' => false,
+        ]);
     }
 
     #[Route('/mailVerification', name: 'mailVerification', methods: ['POST'])]
@@ -820,25 +819,24 @@ class UserController extends AbstractController
             'username' => $user,
         ]);
 
-        try {
-            $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
-            return new JsonResponse([
-                'error' => false,
-            ]);
-        } catch (Exception $e) {
+        $sent = $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
+        if (!$sent) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "Error sending email.",
+                    'message' => "Error sending email. Please try again.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Erreur d'envoi du mail.",
+                'message' => "Erreur d'envoi du mail. Veuillez réessayer.",
             ]);
         }
+        return new JsonResponse([
+            'error' => false,
+        ]);
     }
 
     #[Route('/sendMailPassForgot', name: 'sendMailPassForgot', methods: ['POST'])]
@@ -891,25 +889,24 @@ class UserController extends AbstractController
             'username' => $user,
         ]);
 
-        try {
-            $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
-            return new JsonResponse([
-                'error' => false,
-            ]);
-        } catch (Exception $e) {
+        $sent = $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
+        if (!$sent) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Mistake!',
-                    'message' => "Error sending email.",
+                    'message' => "Error sending email. Please try again.",
                 ]);
             }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Erreur d'envoi du mail.",
+                'message' => "Erreur d'envoi du mail. Veuillez réessayer.",
             ]);
         }
+        return new JsonResponse([
+            'error' => false,
+        ]);
     }   
 
     #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
