@@ -55,6 +55,16 @@ class CrudEnvMailSenderController extends AbstractController
         return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
     }
 
+    #[Route('/reactivate-all', name: 'app_crud_env_mail_sender_reactivate_all', methods: ['GET'])]
+    public function reactivate_all(EnvMailSenderRepository $envMailSenderRepository, EntityManagerInterface $entityManager): Response
+    {
+        foreach ($envMailSenderRepository->findBy(['activated' => false]) as $envMailSender) {
+            $envMailSender->setActivated(true);
+        }
+        $entityManager->flush();
+        return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/new', name: 'app_crud_env_mail_sender_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
