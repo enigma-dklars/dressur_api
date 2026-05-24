@@ -203,10 +203,6 @@ class CrudUserController extends AbstractController
     public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         $user = null;
-        $telcut = null;
-        $teladd1 = null;
-        $teladd2 = null;
-        $teladd3 = null;
         $paysChoisies = [];
 
         // Process the form submission
@@ -215,38 +211,12 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            if (strpos($input, '+225') === 0) {
-                // Vérifier s'il y a 10 caractères après +225
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +225
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+225", "+22501", $input);
-                    $teladd2 = str_replace("+225", "+22505", $input);
-                    $teladd3 = str_replace("+225", "+22507", $input);
-                }
-            }
-
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
-                }
-            }
-
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
                 $userRepository->findOneBy(['uid' => $input]) ?? 
                 $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $telcut]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd3])
+                $userRepository->findOneBy(['tel' => $input])
             ;
 
             $user_array = [];
@@ -278,10 +248,6 @@ class CrudUserController extends AbstractController
     public function check_and_confirme(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         $user = null;
-        $telcut = null;
-        $teladd1 = null;
-        $teladd2 = null;
-        $teladd3 = null;
         $message = [];
 
         // Process the form submission
@@ -290,38 +256,12 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            if (strpos($input, '+225') === 0) {
-                // Vérifier s'il y a 10 caractères après +225
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +225
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+225", "+22501", $input);
-                    $teladd2 = str_replace("+225", "+22505", $input);
-                    $teladd3 = str_replace("+225", "+22507", $input);
-                }
-            }
-
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
-                }
-            }
-
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
                 $userRepository->findOneBy(['uid' => $input]) ?? 
                 $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $telcut]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd3])
+                $userRepository->findOneBy(['tel' => $input])
             ;
 
             $user_array = [];
@@ -369,47 +309,13 @@ class CrudUserController extends AbstractController
     public function find_whatsapp_is_activatable(Request $request, string $tel, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
         $user = null;
-        $telcut = null;
-        $teladd1 = null;
-        $teladd2 = null;
-        $teladd3 = null;
         $count_compt = 0;
 
         $input = "+$tel";
         $input = str_replace(" ", "", $input);
         $input = str_replace("  ", "", $input);
 
-        if (strpos($input, '+225') === 0) {
-            if (strlen(substr($input, 4)) == 10) {
-                $telcut = substr($input, 0, 4) . substr($input, 6);
-            } else {
-                $teladd1 = str_replace("+225", "+22501", $input);
-                $teladd2 = str_replace("+225", "+22505", $input);
-                $teladd3 = str_replace("+225", "+22507", $input);
-            }
-        }
-
-        if (strpos($input, '+229') === 0) {
-            if (strlen(substr($input, 4)) == 10) {
-                $telcut = substr($input, 0, 4) . substr($input, 6);
-            } else {
-                $teladd1 = str_replace("+229", "+22901", $input);
-            }
-        }
-
         if (count($userRepository->findBy(['tel' => $input]))) {
-            $count_compt++;
-        }
-        if (count($userRepository->findBy(['tel' => $telcut]))) {
-            $count_compt++;
-        }
-        if (count($userRepository->findBy(['tel' => $teladd1]))) {
-            $count_compt++;
-        }
-        if (count($userRepository->findBy(['tel' => $teladd2]))) {
-            $count_compt++;
-        }
-        if (count($userRepository->findBy(['tel' => $teladd3]))) {
             $count_compt++;
         }
 
@@ -419,12 +325,7 @@ class CrudUserController extends AbstractController
             return new Response("Veuillez utiliser le numéro WhatsApp lié à votre compte Dressur pour effectuer la demande de confirmation du numéro WhatsApp.");
         }
 
-        $user = 
-            $userRepository->findOneBy(['tel' => $input]) ?? 
-            $userRepository->findOneBy(['tel' => $telcut]) ?? 
-            $userRepository->findOneBy(['tel' => $teladd1]) ?? 
-            $userRepository->findOneBy(['tel' => $teladd2]) ?? 
-            $userRepository->findOneBy(['tel' => $teladd3]);
+        $user = $userRepository->findOneBy(['tel' => $input]);
 
         if ($user) {
             if ($user->getTelIsVerified() == true) {
@@ -455,39 +356,12 @@ class CrudUserController extends AbstractController
     public function find_all_info_with_tel_user(Request $request, string $tel, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
         $user = null;
-        $telcut = null;
-        $teladd1 = null;
-        $teladd2 = null;
-        $teladd3 = null;
 
         $input = "+$tel";
         $input = str_replace(" ", "", $input);
         $input = str_replace("  ", "", $input);
 
-        if (strpos($input, '+225') === 0) {
-            if (strlen(substr($input, 4)) == 10) {
-                $telcut = substr($input, 0, 4) . substr($input, 6);
-            } else {
-                $teladd1 = str_replace("+225", "+22501", $input);
-                $teladd2 = str_replace("+225", "+22505", $input);
-                $teladd3 = str_replace("+225", "+22507", $input);
-            }
-        }
-
-        if (strpos($input, '+229') === 0) {
-            if (strlen(substr($input, 4)) == 10) {
-                $telcut = substr($input, 0, 4) . substr($input, 6);
-            } else {
-                $teladd1 = str_replace("+229", "+22901", $input);
-            }
-        }
-
-        $user = 
-            $userRepository->findOneBy(['tel' => $input]) ?? 
-            $userRepository->findOneBy(['tel' => $telcut]) ?? 
-            $userRepository->findOneBy(['tel' => $teladd1]) ?? 
-            $userRepository->findOneBy(['tel' => $teladd2]) ?? 
-            $userRepository->findOneBy(['tel' => $teladd3]);
+        $user = $userRepository->findOneBy(['tel' => $input]);
 
         if ($user) {
             $lines = [];
@@ -539,46 +413,18 @@ class CrudUserController extends AbstractController
     #[Route('/purge', name: 'app_crud_user_purge', methods: ['GET', 'POST'])]
     public function purge(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
-        $telcut = null;
-
         // Process the form submission
         if ($request->isMethod('POST')) {
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            if (strpos($input, '+225') === 0) {
-                // Vérifier s'il y a 10 caractères après +225
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +225
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+225", "+22501", $input);
-                    $teladd2 = str_replace("+225", "+22505", $input);
-                    $teladd3 = str_replace("+225", "+22507", $input);
-                }
-            }
-
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
-                }
-            }
-
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
                 $userRepository->findOneBy(['uid' => $input]) ?? 
                 $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $telcut]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd3])
+                $userRepository->findOneBy(['tel' => $input])
             ;
             
             if($user) {
@@ -602,8 +448,6 @@ class CrudUserController extends AbstractController
     #[Route('/banned', name: 'app_crud_user_banned', methods: ['GET', 'POST'])]
     public function banned(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
-        $telcut = null;
-
         // Process the form submission
         if ($request->isMethod('POST')) {
             $motif = $request->request->get('motif');
@@ -611,38 +455,12 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            if (strpos($input, '+225') === 0) {
-                // Vérifier s'il y a 10 caractères après +225
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +225
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+225", "+22501", $input);
-                    $teladd2 = str_replace("+225", "+22505", $input);
-                    $teladd3 = str_replace("+225", "+22507", $input);
-                }
-            }
-
-            if (strpos($input, '+229') === 0) {
-                // Vérifier s'il y a 10 caractères après +229
-                if (strlen(substr($input, 4)) == 10) {
-                    // Retirer les 2 caractères qui suivent +229
-                    $telcut = substr($input, 0, 4) . substr($input, 6);
-                } else {
-                    $teladd1 = str_replace("+229", "+22901", $input);
-                }
-            }
-
             $user = 
                 $userRepository->findOneBy(['pseudo' => $input]) ?? 
                 $userRepository->findOneBy(['mail' => $input]) ?? 
                 $userRepository->findOneBy(['uid' => $input]) ?? 
                 $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $telcut]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd1]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd2]) ?? 
-                $userRepository->findOneBy(['tel' => $teladd3])
+                $userRepository->findOneBy(['tel' => $input])
             ;
             
             if($user) {
