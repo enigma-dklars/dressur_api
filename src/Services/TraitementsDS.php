@@ -1272,6 +1272,11 @@ class TraitementsDS extends AbstractController
         
         foreach ($this->messageRepository->findBy(['recepteur' => $user]) as $element) { $this->em->remove($element); }
 
+        $this->em->getConnection()->executeStatement(
+            'DELETE FROM dsbonus_historique WHERE user_id = :id',
+            ['id' => $user->getId()]
+        );
+
         $deletedDS = new DeletedDS();
         $deletedDS->setMail($user->getMail())
             ->setTel($user->getTel())
