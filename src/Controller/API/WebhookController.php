@@ -138,6 +138,24 @@ class WebhookController extends AbstractController
                                     ->setPublishOnDressurStatus($publishOnDressurStatus)
                                 ;
                                 $this->em->persist($promotion);
+
+                                $user = $myTransaction->getUser();
+                                $htmlAdmin = $this->renderView('emails/promo_affaire_admin_notif.html.twig', [
+                                    'user_nom'                  => $user->getNom(),
+                                    'user_mail'                 => $user->getMail(),
+                                    'user_tel'                  => $user->getTel() ?? '—',
+                                    'formule_titre'             => $formulePromoAffaire->getTitre(),
+                                    'formule_prix'              => $formulePromoAffaire->getPrix(),
+                                    'formule_nbr_jour'          => $formulePromoAffaire->getNbrJour(),
+                                    'description'               => $myTransaction->getAnnotherInfo()['description'] ?? '—',
+                                    'in_programme_recompense'   => $inProgrammeRecompense,
+                                    'publish_on_dressur_status' => $publishOnDressurStatus,
+                                ]);
+                                $this->sendMail->smtpMail(
+                                    $_ENV['ADMIN_EMAIL'],
+                                    "Nouvelle Promotion Affaire en attente — " . $user->getNom(),
+                                    $htmlAdmin
+                                );
                             }
 
                             if($myTransaction->getTransactionFor() == "re_boost_affaire") {
