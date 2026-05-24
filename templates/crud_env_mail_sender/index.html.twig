@@ -9,8 +9,8 @@
             <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_env_mail_sender_new') }}">Create new</a>
         </div>
         <div class="col-md-6 text-end">
-            <a class="btn btn-sm btn-success h4 me-2" href="{{ path('app_crud_env_mail_sender_reactivate_all') }}">Réactiver tous</a>
-            <a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_env_mail_sender_remise_zero') }}">Remise à zéro</a>
+            <button class="btn btn-sm btn-success h4 me-2" onclick="confirmReactivate()">Réactiver tous</button>
+            <button class="btn btn-sm btn-danger h4" onclick="confirmRemiseZero()">Remise à zéro</button>
         </div>
     </div>
 
@@ -59,4 +59,42 @@
         </table>
     </div>
 
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function confirmReactivate() {
+    Swal.fire({
+        title: 'Réactiver tous les senders ?',
+        text: 'Tous les senders désactivés seront remis actifs.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Oui, réactiver',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '{{ path('app_crud_env_mail_sender_reactivate_all') }}';
+        }
+    });
+}
+
+function confirmRemiseZero() {
+    Swal.fire({
+        title: 'Remettre à zéro les compteurs ?',
+        text: "Tous les compteurs d'envoi seront réinitialisés à 0.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Oui, remettre à zéro',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '{{ path('app_crud_env_mail_sender_remise_zero') }}';
+        }
+    });
+}
+</script>
 {% endblock %}
