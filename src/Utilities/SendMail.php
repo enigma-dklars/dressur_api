@@ -58,78 +58,107 @@ class SendMail {
     }
 
     private function sendEmail($to, $subject, $message, $replyto, $title) {
-        try {
-            $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
-                ->setUsername($this->envMailSender->getMailAdresse())
-                ->setPassword($this->envMailSender->getPassword())
-            ;
-            $mailer = new Swift_Mailer($transport);
-            $content = (new Swift_Message())
-                ->setSubject($subject)
-                ->setFrom([$this->envMailSender->getMailAdresse() => $title])
-                ->setReplyTo($replyto)
-                ->setTo($to)
-                ->setBody($message, 'text/html')
-            ;
-            
-            if($mailer->send($content)){
-                $this->envMailSender->isUsed();
-                $this->em->flush();
-                return true;
-            }
-        } catch (\Exception $e) {
-            $msgError = (string)$e;
-            if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
-                $this->deactivateCurrentSender('hostinger_out_ratelimit');
-            } elseif ($this->isAuthError($msgError)) {
-                $this->deactivateCurrentSender('erreur d\'authentification SMTP');
-            }
-            $this->logger->error('Erreur lors de l\'envoi de l\'e-mail : ' . $e->getMessage());
-            return false;
-        }
-    }
+        $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
 
-    private function sendEmailMultiple(array $to, $subject, $message, $replyto, $title) {
-        try {
-            $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
-                ->setUsername($this->envMailSender->getMailAdresse())
-                ->setPassword($this->envMailSender->getPassword());
-    
-            $mailer = new Swift_Mailer($transport);
-            $batches = array_chunk($to, 20); // Découpe en groupes de 20 emails
-            
-            foreach ($batches as $batch) {
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            if (!$this->envMailSender) {
+                $this->logger->error('Aucun sender SMTP disponible après ' . $attempt . ' tentative(s).');
+                return false;
+            }
+
+            try {
+                $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
+                    ->setUsername($this->envMailSender->getMailAdresse())
+                    ->setPassword($this->envMailSender->getPassword())
+                ;
+                $mailer = new Swift_Mailer($transport);
                 $content = (new Swift_Message())
                     ->setSubject($subject)
                     ->setFrom([$this->envMailSender->getMailAdresse() => $title])
                     ->setReplyTo($replyto)
-                    ->setBcc($batch) // Utilisation de BCC pour cacher les destinataires
+                    ->setTo($to)
                     ->setBody($message, 'text/html')
                 ;
-    
+
                 if ($mailer->send($content)) {
-                    $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 20);
-                } else {
-                    $this->logger->error('Échec de l\'envoi du lot d\'emails.');
+                    $this->envMailSender->isUsed();
+                    $this->em->flush();
+                    return true;
                 }
-                
-                sleep(2); // Pause de 2 secondes pour éviter un éventuel blocage SMTP
+                return false;
+            } catch (\Exception $e) {
+                $msgError = (string)$e;
+                if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
+                    $this->deactivateCurrentSender('hostinger_out_ratelimit');
+                } elseif ($this->isAuthError($msgError)) {
+                    $this->deactivateCurrentSender('erreur d\'authentification SMTP');
+                } else {
+                    $this->logger->error('Erreur non récupérable lors de l\'envoi : ' . $e->getMessage());
+                    return false;
+                }
+                $this->logger->error('Tentative ' . ($attempt + 1) . ' échouée, basculement vers le sender suivant.');
                 $this->envMailSender = $this->getEnvMailSenderDisponible();
             }
-            
-            $this->em->flush();
-    
-            return true;
-        } catch (\Exception $e) {
-            $msgError = (string)$e;
-            if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
-                $this->deactivateCurrentSender('hostinger_out_ratelimit');
-            } elseif ($this->isAuthError($msgError)) {
-                $this->deactivateCurrentSender('erreur d\'authentification SMTP');
-            }
-            $this->logger->error('Erreur lors de l\'envoi de l\'e-mail : ' . $e->getMessage());
-            return false;
         }
+
+        $this->logger->error('Échec définitif : tous les senders SMTP ont été essayés.');
+        return false;
+    }
+
+    private function sendEmailMultiple(array $to, $subject, $message, $replyto, $title) {
+        $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
+        $batches = array_chunk($to, 20); // Découpe en groupes de 20 emails
+
+        foreach ($batches as $batch) {
+            $batchSent = false;
+
+            for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+                if (!$this->envMailSender) {
+                    $this->logger->error('Aucun sender SMTP disponible pour ce lot après ' . $attempt . ' tentative(s).');
+                    break;
+                }
+
+                try {
+                    $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
+                        ->setUsername($this->envMailSender->getMailAdresse())
+                        ->setPassword($this->envMailSender->getPassword());
+                    $mailer = new Swift_Mailer($transport);
+                    $content = (new Swift_Message())
+                        ->setSubject($subject)
+                        ->setFrom([$this->envMailSender->getMailAdresse() => $title])
+                        ->setReplyTo($replyto)
+                        ->setBcc($batch) // Utilisation de BCC pour cacher les destinataires
+                        ->setBody($message, 'text/html')
+                    ;
+
+                    if ($mailer->send($content)) {
+                        $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 20);
+                        $this->em->flush();
+                        $batchSent = true;
+                    } else {
+                        $this->logger->error('Échec de l\'envoi du lot d\'emails.');
+                    }
+                    break;
+                } catch (\Exception $e) {
+                    $msgError = (string)$e;
+                    if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
+                        $this->deactivateCurrentSender('hostinger_out_ratelimit');
+                    } elseif ($this->isAuthError($msgError)) {
+                        $this->deactivateCurrentSender('erreur d\'authentification SMTP');
+                    } else {
+                        $this->logger->error('Erreur non récupérable sur le lot : ' . $e->getMessage());
+                        break;
+                    }
+                    $this->logger->error('Lot : tentative ' . ($attempt + 1) . ' échouée, basculement vers le sender suivant.');
+                    $this->envMailSender = $this->getEnvMailSenderDisponible();
+                }
+            }
+
+            sleep(2); // Pause de 2 secondes pour éviter un éventuel blocage SMTP
+            $this->envMailSender = $this->getEnvMailSenderDisponible();
+        }
+
+        return true;
     }
 
     public function smtpMail($to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"): bool {
