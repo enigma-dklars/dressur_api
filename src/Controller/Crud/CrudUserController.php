@@ -218,6 +218,13 @@ class CrudUserController extends AbstractController
                 }
             }
 
+            if (strpos($input, '+229') === 0 && strpos($input, '+22901') !== 0) {
+                $teladd1 = str_replace('+229', '+22901', $input);
+                foreach ($userRepository->findBy(['tel' => $teladd1]) as $u) {
+                    $found[$u->getId()] = $u;
+                }
+            }
+
             $user_array = [];
 
             if (count($found) > 1) {
@@ -258,6 +265,13 @@ class CrudUserController extends AbstractController
             $found = [];
             foreach (['pseudo', 'mail', 'uid', 'id', 'tel'] as $field) {
                 foreach ($userRepository->findBy([$field => $input]) as $u) {
+                    $found[$u->getId()] = $u;
+                }
+            }
+
+            if (strpos($input, '+229') === 0 && strpos($input, '+22901') !== 0) {
+                $teladd1 = str_replace('+229', '+22901', $input);
+                foreach ($userRepository->findBy(['tel' => $teladd1]) as $u) {
                     $found[$u->getId()] = $u;
                 }
             }
