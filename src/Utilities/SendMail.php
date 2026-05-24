@@ -19,7 +19,37 @@ class SendMail {
         $this->em = $em;
         $this->logger = $logger;
         $this->envMailSenderRepository = $envMailSenderRepository;
-        $this->envMailSender = $this->getEnvMailSenderDisponible();
+        $this->envMailSender = $this->verifyAndSelectSender();
+    }
+
+    private function verifyAndSelectSender() {
+        $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
+
+        for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
+            $candidate = $this->getEnvMailSenderDisponible();
+            if (!$candidate) {
+                return false;
+            }
+            try {
+                $transport = new Swift_SmtpTransport(
+                    $candidate->getSmtpServer(),
+                    $candidate->getSmtpPort(),
+                    $candidate->getSmtpSecured()
+                );
+                $transport->setUsername($candidate->getMailAdresse());
+                $transport->setPassword($candidate->getPassword());
+                $transport->start();
+                $transport->stop();
+                return $candidate;
+            } catch (\Exception $e) {
+                $candidate->setActivated(false);
+                $this->em->flush();
+                $this->logger->error('SendMail init: sender désactivé (' . $candidate->getMailAdresse() . ') — connexion invalide : ' . $e->getMessage());
+            }
+        }
+
+        $this->logger->error('SendMail init: aucun sender SMTP valide disponible.');
+        return false;
     }
     
 
