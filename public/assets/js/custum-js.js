@@ -1122,11 +1122,10 @@ $(document).ready(function () {
                     type: "GET",
                     url: route_accepter,
                     success: function (response) {
-                        if(response.status == "Yes") {
-                            thisElement.parent().parent().parent().remove();
-                            Swal.fire({icon: "success", title: "Acceptée", text: response.flash.message, timer: 3000, showConfirmButton: false});
+                        if(response == "Yes") {
+                            window.location.reload();
                         } else {
-                            Swal.fire({icon: "error", title: "Oops...", text: response.flash ? response.flash.message : response,});
+                            Swal.fire({icon: "error", title: "Oops...", text: response,});
                         }
                     }
                 });
@@ -1171,11 +1170,10 @@ $(document).ready(function () {
                         url: route_accepter,
                         data: { motif: text },
                         success: function (response) {
-                            if(response.status == "Yes") {
-                                thisElement.parent().parent().parent().remove();
-                                Swal.fire({icon: "warning", title: "Refusée", text: response.flash.message, timer: 3000, showConfirmButton: false});
+                            if(response == "Yes") {
+                                window.location.reload();
                             } else {
-                                Swal.fire({icon: "error", title: "Oops...", text: response.flash ? response.flash.message : response,});
+                                Swal.fire({icon: "error", title: "Oops...", text: response,});
                             }
                         }
                     });
