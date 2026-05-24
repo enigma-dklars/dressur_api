@@ -211,22 +211,21 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            $user = 
-                $userRepository->findOneBy(['pseudo' => $input]) ?? 
-                $userRepository->findOneBy(['mail' => $input]) ?? 
-                $userRepository->findOneBy(['uid' => $input]) ?? 
-                $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input])
-            ;
+            $found = [];
+            foreach (['pseudo', 'mail', 'uid', 'id', 'tel'] as $field) {
+                foreach ($userRepository->findBy([$field => $input]) as $u) {
+                    $found[$u->getId()] = $u;
+                }
+            }
 
             $user_array = [];
 
-            if($user) {
-                // Add a flash message to confirm deletion
+            if (count($found) > 1) {
+                $this->addFlash('warning', count($found) . ' comptes trouvés pour "' . $input . '".');
+            } elseif (count($found) === 1) {
+                $user = array_values($found)[0];
                 $this->addFlash('success', 'User found.');
-
                 $user_array['user_info'] = $user;
-                
                 $paysChoisies = $user->getPreference()->getPaysChoisies();
             } else {
                 // Add a flash message if user is not found
@@ -256,18 +255,19 @@ class CrudUserController extends AbstractController
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
 
-            $user = 
-                $userRepository->findOneBy(['pseudo' => $input]) ?? 
-                $userRepository->findOneBy(['mail' => $input]) ?? 
-                $userRepository->findOneBy(['uid' => $input]) ?? 
-                $userRepository->findOneBy(['id' => $input]) ?? 
-                $userRepository->findOneBy(['tel' => $input])
-            ;
+            $found = [];
+            foreach (['pseudo', 'mail', 'uid', 'id', 'tel'] as $field) {
+                foreach ($userRepository->findBy([$field => $input]) as $u) {
+                    $found[$u->getId()] = $u;
+                }
+            }
 
             $user_array = [];
 
-            if($user) {
-                // Add a flash message to confirm deletion
+            if (count($found) > 1) {
+                $this->addFlash('warning', count($found) . ' comptes trouvés pour "' . $input . '". Veuillez préciser la recherche.');
+            } elseif (count($found) === 1) {
+                $user = array_values($found)[0];
                 $this->addFlash('info', 'User found.');
 
                 if(!$user->getMailIsVerified()) {
@@ -292,7 +292,7 @@ class CrudUserController extends AbstractController
                 $user_array['user_info'] = $user;
             } else {
                 $this->addFlash('danger', 'User not found.');
-                $message[] =  "Aucune correspondance avec le ".$input;
+                $message[] = "Aucune correspondance avec le " . $input;
             }
         }
 
