@@ -40,6 +40,23 @@ class SendMail {
         return false;
     }
 
+    private function isAuthError(string $msg): bool {
+        $authKeywords = ['535', '534', '530', 'authentication', 'credentials', 'password', 'username', 'login failed', 'auth'];
+        $lower = strtolower($msg);
+        foreach ($authKeywords as $keyword) {
+            if (strpos($lower, $keyword) !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function deactivateCurrentSender(string $reason): void {
+        $this->envMailSender->setActivated(false);
+        $this->em->flush();
+        $this->logger->error('Sender désactivé (' . $this->envMailSender->getMailAdresse() . ') — raison : ' . $reason);
+    }
+
     private function sendEmail($to, $subject, $message, $replyto, $title) {
         try {
             $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
@@ -63,8 +80,9 @@ class SendMail {
         } catch (\Exception $e) {
             $msgError = (string)$e;
             if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
-                $this->envMailSender->setActivated(false);
-                $this->em->flush();
+                $this->deactivateCurrentSender('hostinger_out_ratelimit');
+            } elseif ($this->isAuthError($msgError)) {
+                $this->deactivateCurrentSender('erreur d\'authentification SMTP');
             }
             $this->logger->error('Erreur lors de l\'envoi de l\'e-mail : ' . $e->getMessage());
             return false;
@@ -105,8 +123,9 @@ class SendMail {
         } catch (\Exception $e) {
             $msgError = (string)$e;
             if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
-                $this->envMailSender->setActivated(false);
-                $this->em->flush();
+                $this->deactivateCurrentSender('hostinger_out_ratelimit');
+            } elseif ($this->isAuthError($msgError)) {
+                $this->deactivateCurrentSender('erreur d\'authentification SMTP');
             }
             $this->logger->error('Erreur lors de l\'envoi de l\'e-mail : ' . $e->getMessage());
             return false;
