@@ -240,7 +240,7 @@ class TraitementsDS extends AbstractController
     {
         $dirty = false;
         foreach ($promos as $promo) {
-            if ($promo->getDateExp() && (new DateTime()) > $promo->getDateExp()) {
+            if ($promo->getDateExp() && (new DateTime()) > $promo->getDateExp() && $promo->getStatus() == 3) {
                 $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
                 $this->finishParticipationProgrammeRecompense($promo);
                 $dirty = true;
