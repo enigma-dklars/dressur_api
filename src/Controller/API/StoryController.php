@@ -16,6 +16,7 @@ class StoryController extends AbstractController
     {
         try {
             $stories = $storyRepository->findActiveStories();
+            shuffle($stories);
 
             $data = [];
             foreach ($stories as $story) {
