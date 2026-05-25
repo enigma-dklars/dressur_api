@@ -175,6 +175,16 @@ class CrudUserController extends AbstractController
         return $this->redirectToRoute('app_crud_user_check');
     }
 
+    #[Route('/supprimer-user-inutile-type2', name: 'app_crud_user_supprimer_user_inutile_type2')]
+    public function supprimer_user_inutile_type2(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    {
+        foreach ($userRepository->findBy(['mailIsVerified' => true, 'telIsVerified' => false], [], 20) as $user) {
+            $traitementsDS->execPurge($user);
+        }
+        $this->addFlash('success', '20 user inutile type 2 supprimer.');
+        return $this->redirectToRoute('app_crud_user_check');
+    }
+
     #[Route('/new', name: 'app_crud_user_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
