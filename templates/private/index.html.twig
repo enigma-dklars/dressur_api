@@ -114,7 +114,7 @@ const storiesData = [
             🔗 Voir le lien
         </a>
         <p id="storyDescText" style="margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;"></p>
-        <button id="storyVoirPlus" onclick="expandStoryDesc()" style="display:none;background:none;border:none;color:#90caf9;font-size:12px;padding:0;cursor:pointer;font-weight:600;">Voir plus</button>
+        <button id="storyVoirPlus" onclick="expandStoryDesc()" style="display:none;background:none;border:none;color:#90caf9;font-size:12px;padding:2px 0 0;cursor:pointer;font-weight:600;">Lire la suite</button>
     </div>
 
     {# Navigation prev/next #}
@@ -175,20 +175,22 @@ function renderStory() {
     const hasDesc = story.description && story.description.trim() !== '';
     const hasUrl  = story.url && story.url.trim() !== '';
     if (hasDesc) {
-        const MAX_CHARS = 120;
         const full = story.description.trim();
         descText.dataset.full = full;
-        if (full.length > MAX_CHARS) {
-            descText.innerHTML = linkify(full.slice(0, MAX_CHARS) + '…');
-            descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;';
-            voirPlus.style.display = 'inline';
-        } else {
-            descText.innerHTML = linkify(full);
-            descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;';
-            voirPlus.style.display = 'none';
-        }
+        // Afficher avec clamp 2 lignes
+        descText.innerHTML = linkify(full);
+        descText.style.cssText = 'margin:0 0 0;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+        voirPlus.style.display = 'none';
+        // Détecter si le texte dépasse 2 lignes après rendu
+        requestAnimationFrame(() => {
+            if (descText.scrollHeight > descText.clientHeight + 2) {
+                voirPlus.style.display = 'block';
+                descText.style.marginBottom = '2px';
+            }
+        });
     } else {
         descText.innerHTML = '';
+        descText.style.cssText = '';
         voirPlus.style.display = 'none';
     }
     // Afficher le bloc si url OU description présente
@@ -319,7 +321,8 @@ function expandStoryDesc() {
     const voirPlus = document.getElementById('storyVoirPlus');
     const full = descText.dataset.full || '';
     descText.innerHTML = linkify(full);
-    descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;max-height:60vh;overflow-y:auto;';
+    // Retirer le clamp — texte complet visible, scrollable si très long
+    descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;max-height:55vh;overflow-y:auto;display:block;';
     voirPlus.style.display = 'none';
 }
 </script>
