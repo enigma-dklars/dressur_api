@@ -940,9 +940,9 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         return [
             "totalVues" => 0,
-            "totalVuesText" => 0,
+            "totalVuesText" => "0",
             "totalImpressions" => 0,
-            "totalImpressionsText" => 0,
+            "totalImpressionsText" => "0",
 
             "boostEnCours" => $this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $user])),
             "myDressurVersion" => $this->env->getVersionApp(),
