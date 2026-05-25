@@ -9,6 +9,7 @@ use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -422,6 +423,34 @@ class CrudUserController extends AbstractController
         }
 
         return new Response("⚠️ Aucune information disponible sur cet utilisateur. Il ne possède pas encore de compte Dressur.");
+    }
+
+    #[Route('/find_number_not_have_lid', name: 'app_crud_user_find_number_not_have_lid', methods: ['GET'])]
+    public function findNumberNotHaveLid(UserRepository $userRepository): JsonResponse
+    {
+        try {
+            $rows = $userRepository->findUsersWithTelAndWithoutLid();
+
+            $numbers = [];
+            foreach ($rows as $row) {
+                $tel = $row['tel'] ?? null;
+                if ($tel === null) {
+                    continue;
+                }
+                $tel = str_replace(['+', ' ', "\t", "\n", "\r"], '', $tel);
+                if ($tel === '') {
+                    continue;
+                }
+                $numbers[$tel] = $tel;
+            }
+
+            return new JsonResponse(array_values($numbers), Response::HTTP_OK);
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Une erreur est survenue : ' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/purge', name: 'app_crud_user_purge', methods: ['GET', 'POST'])]
