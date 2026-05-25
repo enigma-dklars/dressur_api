@@ -66,6 +66,7 @@
 
       <hr class="my-2">
 
+      <li class="my-0 {{ is_story ? 'mm-active' : '' }}"> <a href="{{path('app_crud_story_index')}}" class="py-1 small-fort {{ is_story ? 'active' : '' }}"><i class="me-2 fas fa-film"></i>Stories</a></li>
       <li class="my-0 {{ is_boost ? 'mm-active' : '' }}"> <a href="{{path('app_crud_boost_index')}}" class="py-1 small-fort {{ is_boost ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Boost Contact</a></li>
       <li class="my-0 {{ is_promotion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promotion_index')}}" class="py-1 small-fort {{ is_promotion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Affaire</a></li>
       <li class="my-0 {{ is_promo_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promo_reseau_index')}}" class="py-1 small-fort {{ is_promo_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
@@ -95,10 +96,7 @@
       <li class="my-0 {{ is_suggestion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_suggestion_index')}}" class="py-1 small-fort {{ is_suggestion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
       <li class="my-0 {{ is_signalement ? 'mm-active' : '' }}"> <a href="{{path('app_crud_signalement_index')}}" class="py-1 small-fort {{ is_signalement ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
 
-      <hr class="my-2">
 
-      <li class="my-0 {{ is_story ? 'mm-active' : '' }}"> <a href="{{path('app_crud_story_index')}}" class="py-1 small-fort {{ is_story ? 'active' : '' }}"><i class="me-2 bi bi-film"></i>Stories</a></li>
-    
     </ul>
     <!--end navigation-->
 </aside>
