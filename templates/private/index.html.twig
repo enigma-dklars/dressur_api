@@ -251,6 +251,27 @@ document.addEventListener('keydown', e => {
     }
 });
 
+// Swipe tactile gauche/droite sur le viewer
+(function() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const modal = document.getElementById('storyModal');
+
+    modal.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    modal.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        // Ignorer si le mouvement est surtout vertical (scroll texte)
+        if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+        if (dx < 0) nextStoryItem();
+        else prevStoryItem();
+    }, { passive: true });
+})();
+
 function linkify(text) {
     const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return escaped.replace(
