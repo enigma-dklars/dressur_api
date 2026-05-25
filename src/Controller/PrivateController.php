@@ -213,37 +213,6 @@ class PrivateController extends AbstractController
         return $this->redirectToRoute('app_connexion');
     }
 
-    #[Route('/vue_user', name: 'app_vue_user')]
-    public function vue_user(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository): Response
-    {
-        if($cookieDS->get("uid")){
-            $uid = $cookieDS->get("uid");
-            $user = $userRepository->findOneBy(['uid' => $uid]);
-
-            $userinfo = $this->traitementsDS->infosUser($user);
-            $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
-            foreach ($actusList as &$a) {
-                $a['token'] = $this->encodePromoToken($a['id']);
-            }
-            unset($a);
-            $actu = $this->renderView('private/actu_partial.html.twig', [
-                'actus' => $actusList,
-            ]);
-
-            if($user){
-                $user->setLastLoginTo(new DateTime());    
-                $this->em->flush();
-                return $this->render('private/index.html.twig', [
-                    'theme' => $this->theme,
-                    'user' => $traitementsDS->infosUser($user),
-                    'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                    'actu' => $actu,
-                ]);
-            }
-        }
-        return $this->redirectToRoute('app_connexion');
-    }
-
     #[Route('/actu', name: 'app_actu')]
     public function actu(PromotionRepository $promotionRepository): Response
     {
