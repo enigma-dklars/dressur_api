@@ -9,7 +9,7 @@
         </div>
         <div class="col-auto">
             <a href="{{ path('app_crud_story_index') }}" class="btn btn-sm btn-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Retour
+                <i class="fas fa-arrow-left me-1"></i> Retour
             </a>
         </div>
     </div>
@@ -69,7 +69,7 @@
                 <div class="text-end">
                     <a href="{{ path('app_crud_story_index') }}" class="btn btn-secondary me-2">Annuler</a>
                     <button type="submit" id="submitBtn" class="btn btn-primary">
-                        <i class="bi bi-check-lg me-1"></i> Créer
+                        <i class="fas fa-check me-1"></i> Créer
                     </button>
                 </div>
             </form>
@@ -131,7 +131,7 @@ $(document).ready(function () {
                 row.classList.add('border-danger', 'bg-danger-subtle');
                 row.innerHTML =
                     '<div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded bg-danger-subtle" style="width:80px;height:80px;">' +
-                    '<i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i></div>' +
+                    '<i class="fas fa-exclamation-triangle text-danger fs-2"></i></div>' +
                     '<div class="flex-grow-1 overflow-hidden">' +
                     '<p class="mb-0 fw-semibold text-truncate">' + file.name + '</p>' +
                     '<p class="mb-0 text-danger small">' + formatSize(file.size) + ' — dépasse la limite de 3 Mo</p>' +

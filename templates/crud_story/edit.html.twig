@@ -9,10 +9,10 @@
         </div>
         <div class="col-auto">
             <a href="{{ path('app_crud_story_show', {'id': story.id}) }}" class="btn btn-sm btn-info me-2">
-                <i class="bi bi-eye me-1"></i> Voir
+                <i class="fas fa-eye me-1"></i> Voir
             </a>
             <a href="{{ path('app_crud_story_index') }}" class="btn btn-sm btn-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Retour
+                <i class="fas fa-arrow-left me-1"></i> Retour
             </a>
         </div>
     </div>
@@ -33,7 +33,7 @@
 
                 {% if story.images|length > 0 %}
                 <div class="mb-4">
-                    <label class="form-label fw-bold"><i class="bi bi-images me-1"></i> Images existantes</label>
+                    <label class="form-label fw-bold"><i class="fas fa-images me-1"></i> Images existantes</label>
                     <div class="d-flex flex-wrap gap-3">
                         {% for image in story.images %}
                         <div class="text-center flex-shrink-0" id="existing-img-{{ loop.index }}">
@@ -97,11 +97,11 @@
 
                 <div class="row g-2 mb-3 text-muted small">
                     <div class="col-auto">
-                        <i class="bi bi-calendar-plus me-1"></i> Créé le : <strong>{{ story.createdAt ? story.createdAt|date('d/m/Y H:i:s') : '—' }}</strong>
+                        <i class="fas fa-calendar-plus me-1"></i> Créé le : <strong>{{ story.createdAt ? story.createdAt|date('d/m/Y H:i:s') : '—' }}</strong>
                     </div>
                     {% if story.updatedAt %}
                     <div class="col-auto">
-                        <i class="bi bi-calendar-check me-1"></i> Dernière modification : <strong>{{ story.updatedAt|date('d/m/Y H:i:s') }}</strong>
+                        <i class="fas fa-calendar-check me-1"></i> Dernière modification : <strong>{{ story.updatedAt|date('d/m/Y H:i:s') }}</strong>
                     </div>
                     {% endif %}
                 </div>
@@ -109,7 +109,7 @@
                 <div class="text-end">
                     <a href="{{ path('app_crud_story_index') }}" class="btn btn-secondary me-2">Annuler</a>
                     <button type="submit" id="submitBtn" class="btn btn-success">
-                        <i class="bi bi-check-lg me-1"></i> Enregistrer
+                        <i class="fas fa-check me-1"></i> Enregistrer
                     </button>
                 </div>
             </form>
@@ -170,7 +170,7 @@ $(document).ready(function () {
                 row.classList.add('border-danger', 'bg-danger-subtle');
                 row.innerHTML =
                     '<div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded bg-danger-subtle" style="width:80px;height:80px;">' +
-                    '<i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i></div>' +
+                    '<i class="fas fa-exclamation-triangle text-danger fs-2"></i></div>' +
                     '<div class="flex-grow-1 overflow-hidden">' +
                     '<p class="mb-0 fw-semibold text-truncate">' + file.name + '</p>' +
                     '<p class="mb-0 text-danger small">' + formatSize(file.size) + ' — dépasse la limite de 3 Mo</p>' +

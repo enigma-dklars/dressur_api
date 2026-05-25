@@ -9,10 +9,10 @@
         </div>
         <div class="col-4 text-end">
             <a href="{{ path('app_crud_story_delete_images_no_use') }}" class="btn btn-sm btn-danger me-2 js-confirm-orphan">
-                <i class="bi bi-trash me-1"></i> Suppr. images orphelines
+                <i class="fas fa-trash me-1"></i> Suppr. images orphelines
             </a>
             <a href="{{ path('app_crud_story_new') }}" class="btn btn-sm btn-primary">
-                <i class="bi bi-plus-lg me-1"></i> Nouvelle Story
+                <i class="fas fa-plus me-1"></i> Nouvelle Story
             </a>
         </div>
     </div>
@@ -37,11 +37,11 @@
             {% for story in stories %}
                 <tr>
                     <td class="text-nowrap">
-                        <a href="{{ path('app_crud_story_show', {'id': story.id}) }}" class="btn btn-xs btn-info me-1"><i class="bi bi-eye"></i></a>
-                        <a href="{{ path('app_crud_story_edit', {'id': story.id}) }}" class="btn btn-xs btn-success me-1"><i class="bi bi-pencil"></i></a>
+                        <a href="{{ path('app_crud_story_show', {'id': story.id}) }}" class="btn btn-xs btn-info me-1"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('app_crud_story_edit', {'id': story.id}) }}" class="btn btn-xs btn-success me-1"><i class="fas fa-pencil"></i></a>
                         <form method="post" action="{{ path('app_crud_story_delete', {'id': story.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette story ?')">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ story.id) }}">
-                            <button class="btn btn-xs btn-danger"><i class="bi bi-trash"></i></button>
+                            <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
                         </form>
                     </td>
                     <td>{{ story.id }}</td>
