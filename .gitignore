@@ -1,4 +1,10 @@
 
+# Ignorer le contenu des dossiers d'uploads
+/public/story/*
+/public/promotion/*
+!/public/promotion/dmd_emploi.png
+!/public/promotion/offre_emploi.png
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
