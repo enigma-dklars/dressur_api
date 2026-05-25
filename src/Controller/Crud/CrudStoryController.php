@@ -10,6 +10,7 @@ use App\Services\TraitementsDS;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -39,6 +40,30 @@ class CrudStoryController extends AbstractController
             'user'    => $this->traitementsDS->getUserByUidInCookies(),
             'stories' => $storyRepository->findBy([], ['id' => 'DESC']),
         ]);
+    }
+
+    #[Route('/user-search', name: 'app_crud_story_user_search', methods: ['GET'])]
+    public function userSearch(Request $request, UserRepository $userRepository): JsonResponse
+    {
+        $q = trim((string) $request->query->get('q', ''));
+        $results = [];
+
+        if (strlen($q) >= 2) {
+            $qb = $userRepository->createQueryBuilder('u')
+                ->where('u.pseudo LIKE :q OR u.nom LIKE :q OR u.mail LIKE :q OR u.tel LIKE :q')
+                ->setParameter('q', '%' . $q . '%')
+                ->orderBy('u.pseudo', 'ASC')
+                ->setMaxResults(20);
+
+            foreach ($qb->getQuery()->getResult() as $user) {
+                $results[] = [
+                    'id'   => $user->getId(),
+                    'text' => $user->getPseudo() . ' — ' . $user->getNom() . ' (' . $user->getMail() . ')',
+                ];
+            }
+        }
+
+        return new JsonResponse(['results' => $results]);
     }
 
     #[Route('/new', name: 'app_crud_story_new', methods: ['GET', 'POST'])]

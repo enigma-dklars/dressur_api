@@ -42,8 +42,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Utilisateur <small class="text-muted">(optionnel — ID numérique)</small></label>
-                    <input type="number" name="user_id" class="form-control" placeholder="Ex: 42">
+                    <label class="form-label fw-bold">Utilisateur <small class="text-muted">(optionnel)</small></label>
+                    <select id="userSelect" name="user_id" class="form-select" style="width:100%">
+                        <option value=""></option>
+                    </select>
+                    <div class="form-text">Recherchez par pseudo, nom, email ou téléphone (min. 2 caractères)</div>
                 </div>
 
                 <div class="mb-3">
@@ -76,6 +79,28 @@
 
 {% block script %}
 <script>
+$(document).ready(function () {
+    $('#userSelect').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Rechercher un utilisateur...',
+        allowClear: true,
+        minimumInputLength: 2,
+        language: {
+            inputTooShort: function () { return 'Saisissez au moins 2 caractères'; },
+            searching:     function () { return 'Recherche en cours...'; },
+            noResults:     function () { return 'Aucun utilisateur trouvé'; },
+        },
+        ajax: {
+            url: '{{ path('app_crud_story_user_search') }}',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) { return { q: params.term }; },
+            processResults: function (data) { return { results: data.results }; },
+            cache: true,
+        },
+    });
+});
+
 (function () {
     const MAX_SIZE = 3 * 1024 * 1024;
     const imageInput   = document.getElementById('imageInput');
