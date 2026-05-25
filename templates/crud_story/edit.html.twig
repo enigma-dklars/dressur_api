@@ -29,17 +29,17 @@
 
     <div class="card radius-10">
         <div class="card-body">
-            <form method="post" enctype="multipart/form-data" action="{{ path('app_crud_story_edit', {'id': story.id}) }}">
+            <form id="storyForm" method="post" enctype="multipart/form-data" action="{{ path('app_crud_story_edit', {'id': story.id}) }}">
 
                 {% if story.images|length > 0 %}
                 <div class="mb-4">
                     <label class="form-label fw-bold"><i class="bi bi-images me-1"></i> Images existantes</label>
                     <div class="row g-2">
                         {% for image in story.images %}
-                        <div class="col-6 col-md-3 text-center">
-                            <img src="/story/{{ image }}" class="img-fluid rounded mb-1 shadow-sm" style="height:130px; object-fit:cover; width:100%;" alt="{{ image }}">
+                        <div class="col-6 col-md-3 text-center" id="existing-img-{{ loop.index }}">
+                            <img src="/story/{{ image }}" class="img-fluid rounded mb-1 shadow-sm existing-thumb" style="height:130px; object-fit:cover; width:100%;" alt="{{ image }}">
                             <div class="form-check justify-content-center d-flex">
-                                <input class="form-check-input me-2" type="checkbox" name="delete_images[]" value="{{ image }}" id="del_{{ loop.index }}">
+                                <input class="form-check-input me-2 delete-checkbox" type="checkbox" name="delete_images[]" value="{{ image }}" id="del_{{ loop.index }}">
                                 <label class="form-check-label text-danger small" for="del_{{ loop.index }}">Supprimer</label>
                             </div>
                         </div>
@@ -49,8 +49,10 @@
                 {% endif %}
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Ajouter des images <small class="text-muted">(max 1 Mo par image)</small></label>
-                    <input type="file" name="images[]" class="form-control" multiple accept="image/*">
+                    <label class="form-label fw-bold">Ajouter des images <small class="text-muted">(max 3 Mo par image)</small></label>
+                    <input type="file" id="imageInput" name="images[]" class="form-control" multiple accept="image/*">
+                    <div id="imageError" class="mt-1"></div>
+                    <div id="imagePreview" class="row g-2 mt-2"></div>
                 </div>
 
                 <div class="mb-3">
@@ -65,7 +67,8 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">URL <small class="text-muted">(optionnel)</small></label>
-                    <input type="url" name="url" class="form-control" value="{{ story.url }}" placeholder="https://...">
+                    <input type="url" id="urlInput" name="url" class="form-control" value="{{ story.url }}" placeholder="https://...">
+                    <div id="urlError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="mb-3">
@@ -75,8 +78,9 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Date d'expiration <small class="text-muted">(optionnel — laisser vide pour supprimer)</small></label>
-                    <input type="datetime-local" name="expired_at" class="form-control"
+                    <input type="datetime-local" id="expiredAtInput" name="expired_at" class="form-control"
                         value="{{ story.expiredAt ? story.expiredAt|date('Y-m-d\\TH:i') : '' }}">
+                    <div id="expiredAtError" class="invalid-feedback"></div>
                 </div>
 
                 <div class="row g-2 mb-3 text-muted small">
@@ -92,11 +96,147 @@
 
                 <div class="text-end">
                     <a href="{{ path('app_crud_story_index') }}" class="btn btn-secondary me-2">Annuler</a>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" id="submitBtn" class="btn btn-success">
                         <i class="bi bi-check-lg me-1"></i> Enregistrer
                     </button>
                 </div>
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block script %}
+<script>
+(function () {
+    const MAX_SIZE = 3 * 1024 * 1024;
+    const imageInput   = document.getElementById('imageInput');
+    const imageError   = document.getElementById('imageError');
+    const imagePreview = document.getElementById('imagePreview');
+    const urlInput     = document.getElementById('urlInput');
+    const urlError     = document.getElementById('urlError');
+    const expiredInput = document.getElementById('expiredAtInput');
+    const expiredError = document.getElementById('expiredAtError');
+    const form         = document.getElementById('storyForm');
+
+    function formatSize(bytes) {
+        return (bytes / (1024 * 1024)).toFixed(2) + ' Mo';
+    }
+
+    function validateImages(files) {
+        imageError.innerHTML = '';
+        imagePreview.innerHTML = '';
+        let hasError = false;
+
+        Array.from(files).forEach(function (file) {
+            const colDiv = document.createElement('div');
+            colDiv.className = 'col-6 col-md-3 position-relative';
+
+            if (file.size > MAX_SIZE) {
+                hasError = true;
+                colDiv.innerHTML =
+                    '<div class="border border-danger rounded p-2 text-center" style="height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
+                    '<i class="bi bi-exclamation-triangle-fill text-danger fs-3"></i>' +
+                    '<p class="text-danger small mb-0 mt-1 text-truncate w-100 px-1">' + file.name + '</p>' +
+                    '<p class="text-danger small mb-0">' + formatSize(file.size) + ' — max 3 Mo</p>' +
+                    '</div>';
+                const msg = document.createElement('div');
+                msg.className = 'alert alert-danger py-1 px-2 mb-1 small';
+                msg.textContent = '"' + file.name + '" dépasse 3 Mo (' + formatSize(file.size) + ').';
+                imageError.appendChild(msg);
+            } else {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    colDiv.innerHTML =
+                        '<img src="' + e.target.result + '" class="img-fluid rounded shadow-sm" style="height:130px;object-fit:cover;width:100%;" alt="">' +
+                        '<p class="text-muted small mt-1 text-truncate">' + file.name + '</p>' +
+                        '<span class="badge bg-success position-absolute top-0 end-0 m-1">' + formatSize(file.size) + '</span>';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            imagePreview.appendChild(colDiv);
+        });
+
+        return !hasError;
+    }
+
+    function validateUrl() {
+        const val = urlInput.value.trim();
+        if (val === '') {
+            urlInput.classList.remove('is-invalid', 'is-valid');
+            urlError.textContent = '';
+            return true;
+        }
+        try {
+            new URL(val);
+            urlInput.classList.remove('is-invalid');
+            urlInput.classList.add('is-valid');
+            urlError.textContent = '';
+            return true;
+        } catch (_) {
+            urlInput.classList.add('is-invalid');
+            urlInput.classList.remove('is-valid');
+            urlError.textContent = 'URL invalide. Ex : https://example.com';
+            return false;
+        }
+    }
+
+    function validateExpiredAt() {
+        const val = expiredInput.value;
+        if (!val) {
+            expiredInput.classList.remove('is-invalid', 'is-valid');
+            expiredError.textContent = '';
+            return true;
+        }
+        const chosen = new Date(val);
+        const now    = new Date();
+        if (chosen <= now) {
+            expiredInput.classList.add('is-invalid');
+            expiredInput.classList.remove('is-valid');
+            expiredError.textContent = 'La date d\'expiration doit être dans le futur.';
+            return false;
+        }
+        expiredInput.classList.remove('is-invalid');
+        expiredInput.classList.add('is-valid');
+        expiredError.textContent = '';
+        return true;
+    }
+
+    /* Visual feedback on existing image delete checkboxes */
+    document.querySelectorAll('.delete-checkbox').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            const container = this.closest('[id^="existing-img-"]');
+            if (!container) return;
+            const thumb = container.querySelector('.existing-thumb');
+            if (this.checked) {
+                thumb.style.opacity = '0.3';
+                thumb.style.filter  = 'grayscale(100%)';
+            } else {
+                thumb.style.opacity = '1';
+                thumb.style.filter  = 'none';
+            }
+        });
+    });
+
+    imageInput.addEventListener('change', function () {
+        validateImages(this.files);
+    });
+
+    urlInput.addEventListener('input', validateUrl);
+    expiredInput.addEventListener('change', validateExpiredAt);
+
+    /* Trigger URL validation on load if value already present */
+    if (urlInput.value.trim() !== '') validateUrl();
+
+    form.addEventListener('submit', function (e) {
+        const imgOk = imageInput.files.length === 0 || validateImages(imageInput.files);
+        const urlOk = validateUrl();
+        const expOk = validateExpiredAt();
+        if (!imgOk || !urlOk || !expOk) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+})();
+</script>
 {% endblock %}

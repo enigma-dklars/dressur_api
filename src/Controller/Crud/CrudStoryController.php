@@ -72,8 +72,8 @@ class CrudStoryController extends AbstractController
             foreach ($uploadedFiles as $file) {
                 if ($file === null) continue;
 
-                if ($file->getSize() > 1024 * 1024) {
-                    $errors[] = 'Image "' . $file->getClientOriginalName() . '" dépasse 1 Mo.';
+                if ($file->getSize() > 3 * 1024 * 1024) {
+                    $errors[] = 'Image "' . $file->getClientOriginalName() . '" dépasse 3 Mo.';
                     continue;
                 }
 
@@ -151,8 +151,8 @@ class CrudStoryController extends AbstractController
             foreach ($uploadedFiles as $file) {
                 if ($file === null) continue;
 
-                if ($file->getSize() > 1024 * 1024) {
-                    $errors[] = 'Image "' . $file->getClientOriginalName() . '" dépasse 1 Mo.';
+                if ($file->getSize() > 3 * 1024 * 1024) {
+                    $errors[] = 'Image "' . $file->getClientOriginalName() . '" dépasse 3 Mo.';
                     continue;
                 }
 
