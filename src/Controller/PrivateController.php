@@ -147,7 +147,6 @@ class PrivateController extends AbstractController
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
             $user = $userRepository->findOneBy(['uid' => $uid]);
-            $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
 
@@ -167,9 +166,6 @@ class PrivateController extends AbstractController
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
-                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                    'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
                     'actu' => $actu,
                 ]);
             }
@@ -183,7 +179,6 @@ class PrivateController extends AbstractController
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
             $user = $userRepository->findOneBy(['uid' => $uid]);
-            $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             if($user){
                 $user->setLastLoginTo(new DateTime());    
@@ -193,8 +188,6 @@ class PrivateController extends AbstractController
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
-                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
                     'nbr_tel_mail_no_conf' => count($userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false])),
                     'nbr_tel_mail_yes_conf' => count($userRepository->findBy(['telIsVerified' => true, 'mailIsVerified' => true])),
                     'nbr_tel_no_conf' => count($userRepository->findBy(['telIsVerified' => false])),
@@ -226,7 +219,6 @@ class PrivateController extends AbstractController
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
             $user = $userRepository->findOneBy(['uid' => $uid]);
-            $count = $traitementsDS->vuesImpressionsCumulerUserPromos($user->getPromotions());
 
             $userinfo = $this->traitementsDS->infosUser($user);
             $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
@@ -245,9 +237,6 @@ class PrivateController extends AbstractController
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                    'countVues' => $traitementsDS->formatNumber($count['countVues']),
-                    'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                    'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
                     'actu' => $actu,
                 ]);
             }

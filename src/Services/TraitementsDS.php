@@ -213,19 +213,6 @@ class TraitementsDS extends AbstractController
         return $userBoosts;
     }
 
-    public function vuesImpressionsCumulerUserPromos($promos){
-        $countVues = 0;
-        $countImpressions = 0;
-        foreach ($promos as $promo) {
-            $countVues += $promo->getNombreDeVue();
-            $countImpressions += $promo->getNombreImpression();
-        }
-        return [
-            "countVues" => $countVues,
-            "countImpressions" => $countImpressions,
-        ];
-    }
-
     public function finishParticipationProgrammeRecompense($promoAffaire) {
         $lesParticipations = $this->historiqueProgrammeRecompenseRepository->findBy(['promotion' => $promoAffaire]);
 
@@ -944,11 +931,6 @@ class TraitementsDS extends AbstractController
     }
 
     public function infosUser($user){
-        $count = $this->vuesImpressionsCumulerUserPromos($user->getPromotions());
-        $totalImpressions = $count['countImpressions'];
-        $totalVues = $count['countVues'];
-        $totalImpressionsText = $this->formatNumber($count['countImpressions']);
-        $totalVuesText = $this->formatNumber($count['countVues']);
         $lesPublicitesArray = $this->listePubliciteAffichageAuxUsers($user);
         $lesPublicites = json_encode($lesPublicitesArray);
         if(strlen(str_replace(" ", "", $user->getTiktok())) == 0 ) { $user->setTiktok(null); }
@@ -957,11 +939,12 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         return [
+            "totalVues" => 0,
+            "totalVuesText" => 0,
+            "totalImpressions" => 0,
+            "totalImpressionsText" => 0,
+
             "boostEnCours" => $this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $user])),
-            "totalImpressions" => $totalImpressions,
-            "totalVues" => $totalVues,
-            "totalImpressionsText" => $totalImpressionsText,
-            "totalVuesText" => $totalVuesText,
             "myDressurVersion" => $this->env->getVersionApp(),
             "mailIsMaxxFire" => ($user->getMail() == "equipe.test.dressur.ds@gmail.com") ? true : false,
             "id" => $user->getId(),
