@@ -120,6 +120,9 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $numeroRetrait = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $lid = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -671,6 +674,18 @@ class User
     public function setNumeroRetrait(?string $numeroRetrait): static
     {
         $this->numeroRetrait = $numeroRetrait;
+
+        return $this;
+    }
+
+    public function getLid(): ?string
+    {
+        return $this->lid;
+    }
+
+    public function setLid(?string $lid): static
+    {
+        $this->lid = $lid;
 
         return $this;
     }
