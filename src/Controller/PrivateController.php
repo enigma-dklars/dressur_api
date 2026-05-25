@@ -165,6 +165,7 @@ class PrivateController extends AbstractController
                 $this->em->flush();
 
                 $stories = $storyRepository->findActiveStories();
+                shuffle($stories);
 
                 return $this->render('private/index.html.twig', [
                     'theme' => $this->theme,
