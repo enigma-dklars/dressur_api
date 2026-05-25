@@ -212,10 +212,10 @@ $(document).ready(function () {
     expiredInput.addEventListener('change', validateExpiredAt);
 
     form.addEventListener('submit', function (e) {
-        const imgOk = imageInput.files.length === 0 || validateImages(imageInput.files);
+        if (imageInput.files.length > 0) validateImages(imageInput.files);
         const urlOk = validateUrl();
         const expOk = validateExpiredAt();
-        if (!imgOk || !urlOk || !expOk) {
+        if (!urlOk || !expOk) {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
