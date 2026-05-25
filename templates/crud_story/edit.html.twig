@@ -52,7 +52,7 @@
                     <label class="form-label fw-bold">Ajouter des images <small class="text-muted">(max 3 Mo par image)</small></label>
                     <input type="file" id="imageInput" name="images[]" class="form-control" multiple accept="image/*">
                     <div id="imageError" class="mt-1"></div>
-                    <div id="imagePreview" class="row g-2 mt-2"></div>
+                    <div id="imagePreview" class="d-flex flex-column gap-2 mt-2"></div>
                 </div>
 
                 <div class="mb-3">
@@ -128,33 +128,39 @@
         let hasError = false;
 
         Array.from(files).forEach(function (file) {
-            const colDiv = document.createElement('div');
-            colDiv.className = 'col-6 col-md-3 position-relative';
+            const row = document.createElement('div');
+            row.className = 'd-flex align-items-center gap-3 border rounded p-2';
 
             if (file.size > MAX_SIZE) {
                 hasError = true;
-                colDiv.innerHTML =
-                    '<div class="border border-danger rounded p-2 text-center" style="height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;">' +
-                    '<i class="bi bi-exclamation-triangle-fill text-danger fs-3"></i>' +
-                    '<p class="text-danger small mb-0 mt-1 text-truncate w-100 px-1">' + file.name + '</p>' +
-                    '<p class="text-danger small mb-0">' + formatSize(file.size) + ' — max 3 Mo</p>' +
+                row.classList.add('border-danger', 'bg-danger-subtle');
+                row.innerHTML =
+                    '<div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded bg-danger-subtle" style="width:80px;height:80px;">' +
+                    '<i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i></div>' +
+                    '<div class="flex-grow-1 overflow-hidden">' +
+                    '<p class="mb-0 fw-semibold text-truncate">' + file.name + '</p>' +
+                    '<p class="mb-0 text-danger small">' + formatSize(file.size) + ' — dépasse la limite de 3 Mo</p>' +
                     '</div>';
                 const msg = document.createElement('div');
                 msg.className = 'alert alert-danger py-1 px-2 mb-1 small';
                 msg.textContent = '"' + file.name + '" dépasse 3 Mo (' + formatSize(file.size) + ').';
                 imageError.appendChild(msg);
             } else {
+                row.classList.add('border-success-subtle');
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    colDiv.innerHTML =
-                        '<img src="' + e.target.result + '" class="img-fluid rounded shadow-sm" style="height:130px;object-fit:cover;width:100%;" alt="">' +
-                        '<p class="text-muted small mt-1 text-truncate">' + file.name + '</p>' +
-                        '<span class="badge bg-success position-absolute top-0 end-0 m-1">' + formatSize(file.size) + '</span>';
+                    row.innerHTML =
+                        '<img src="' + e.target.result + '" class="rounded flex-shrink-0" style="width:80px;height:80px;object-fit:cover;" alt="">' +
+                        '<div class="flex-grow-1 overflow-hidden">' +
+                        '<p class="mb-0 fw-semibold text-truncate">' + file.name + '</p>' +
+                        '<p class="mb-0 text-muted small">' + formatSize(file.size) + '</p>' +
+                        '</div>' +
+                        '<span class="badge bg-success flex-shrink-0">' + formatSize(file.size) + '</span>';
                 };
                 reader.readAsDataURL(file);
             }
 
-            imagePreview.appendChild(colDiv);
+            imagePreview.appendChild(row);
         });
 
         return !hasError;
