@@ -363,16 +363,19 @@ class CrudUserController extends AbstractController
         return new Response("$message\nVous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
     }
 
-    #[Route('/find_all_info_with_tel_user/{tel}', name: 'app_crud_user_find_all_info_with_tel_user', methods: ['GET', 'POST'])]
-    public function find_all_info_with_tel_user(Request $request, string $tel, UserRepository $userRepository, EntityManagerInterface $em): Response
+    #[Route('/find_all_info_with_tel_user/{search}', name: 'app_crud_user_find_all_info_with_tel_user', methods: ['GET', 'POST'])]
+    public function find_all_info_with_tel_user(Request $request, string $search, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
         $user = null;
 
-        $input = "+$tel";
-        $input = str_replace(" ", "", $input);
-        $input = str_replace("  ", "", $input);
+        // Tentative 1 : recherche par numéro de téléphone (ajout du préfixe +)
+        $telInput = "+" . str_replace([" ", "  "], "", $search);
+        $user = $userRepository->findOneBy(['tel' => $telInput]);
 
-        $user = $userRepository->findOneBy(['tel' => $input]);
+        // Tentative 2 : recherche par LID si non trouvé par numéro
+        if (!$user) {
+            $user = $userRepository->findOneBy(['lid' => $search]);
+        }
 
         if ($user) {
             $lines = [];
@@ -380,17 +383,16 @@ class CrudUserController extends AbstractController
             $lines[] = "Pseudo : " . ($user->getPseudo() ?? '—');
             $lines[] = "Nom : " . ($user->getNom() ?? '—');
             $lines[] = "Numéro WhatsApp : " . ($user->getTel() ?? '—');
+            $lines[] = "LID : " . ($user->getLid() ?? '—');
             $lines[] = "Adresse e-mail : " . ($user->getMail() ?? '—');
 
             $lines[] = "Pays : " . ($user->getPays() ?? '—');
 
-            // formatage des dates si présentes
             $createdAt = $user->getCreatedAt();
             $lines[] = "Date de création du compte : " . ($createdAt instanceof \DateTimeInterface ? $createdAt->format('Y-m-d H:i:s') : '—');
 
             $lines[] = "À propos : " . ($user->getApropos() ?? '—');
 
-            // attention à la priorité des opérateurs : mettre la ternaire entre parenthèses
             $lines[] = "Confirmation du numéro WhatsApp : " . ($user->getTelIsVerified() ? "Oui" : "Non");
             $lines[] = "Confirmation de l'adresse e-mail : " . ($user->getMailIsVerified() ? "Oui" : "Non");
 
@@ -405,7 +407,6 @@ class CrudUserController extends AbstractController
             $lines[] = "Nombre de Promotion Affaire effectuées : " . (is_countable($promotions) ? count($promotions) : 0);
             $lines[] = "Nombre de Promotion Réseaux Sociaux effectuées : " . (is_countable($promoReseaus) ? count($promoReseaus) : 0);
 
-            // préférences pays (vérifier null)
             $prefs = $user->getPreference();
             $paysChoisis = [];
             if ($prefs && method_exists($prefs, 'getPaysChoisies')) {
