@@ -214,7 +214,7 @@ class PublicController extends AbstractController
             "annotherInfo"         => $promo->getAnnotherInfo(),
             "isFakeVue"            => $promo->getIsFakeVue(),
             "status"               => $promo->getStatus(),
-            "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime())->format('Y-m-d'),
+            "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime('now', new \DateTimeZone('Africa/Lagos')))->format('Y-m-d'),
         ];
 
         $rawAutres   = array_filter($traitementsDS->getTopAffaires(10), fn($p) => $p['id'] !== $id);

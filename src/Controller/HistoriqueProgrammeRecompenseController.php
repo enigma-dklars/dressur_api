@@ -46,7 +46,7 @@ class HistoriqueProgrammeRecompenseController extends AbstractController
     {
         foreach ($historiqueProgrammeRecompenseRepository->findBy(['status' => 'en_cours']) as $oneHistorique) {
             $promotion = $oneHistorique->getPromotion();
-            if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
+            if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours', new \DateTimeZone('Africa/Lagos')))) {
                 $oneHistorique->setStatus('echouer');
             }
             if(!$promotion->isInProgrammeRecompense()) {
@@ -57,7 +57,7 @@ class HistoriqueProgrammeRecompenseController extends AbstractController
 
         foreach ($historiqueProgrammeRecompenseRepository->findBy(['status' => 'terminer']) as $oneHistorique) {
             $promotion = $oneHistorique->getPromotion();
-            if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
+            if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours', new \DateTimeZone('Africa/Lagos')))) {
                 $oneHistorique->setStatus('echouer');
             }
             if(!$promotion->isInProgrammeRecompense()) {
