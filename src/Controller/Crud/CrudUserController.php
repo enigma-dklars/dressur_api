@@ -424,7 +424,7 @@ class CrudUserController extends AbstractController
 
     #[Route('/find_number_not_have_lid', name: 'app_crud_user_find_number_not_have_lid', methods: ['GET'])]
     public function findNumberNotHaveLid(UserRepository $userRepository): JsonResponse
-    {
+    { 
         try {
             $rows = $userRepository->findUsersWithTelAndWithoutLid();
 
