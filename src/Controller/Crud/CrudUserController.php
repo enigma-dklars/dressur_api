@@ -440,6 +440,7 @@ class CrudUserController extends AbstractController
                 }
                 $numbers[$tel] = $tel;
             }
+            shuffle($numbers);
 
             return new JsonResponse(array_values($numbers), Response::HTTP_OK);
         } catch (\Throwable $e) {
