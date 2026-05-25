@@ -42,6 +42,40 @@ class CrudStoryController extends AbstractController
         ]);
     }
 
+    #[Route('/delete-images-no-use', name: 'app_crud_story_delete_images_no_use', methods: ['GET'])]
+    public function deleteImagesNoUse(StoryRepository $storyRepository): Response
+    {
+        $storyDirectory = $this->getParameter('story_directory');
+
+        if (!is_dir($storyDirectory)) {
+            $this->addFlash('danger', 'Le dossier story n\'existe pas.');
+            return $this->redirectToRoute('app_crud_story_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $usedImages = [];
+        foreach ($storyRepository->findAll() as $story) {
+            foreach ($story->getImages() as $filename) {
+                $usedImages[$filename] = true;
+            }
+        }
+
+        $deleted = 0;
+        foreach (scandir($storyDirectory) as $file) {
+            if ($file === '.' || $file === '..') continue;
+            if (str_starts_with($file, 'story_') && !isset($usedImages[$file])) {
+                unlink($storyDirectory . '/' . $file);
+                $deleted++;
+            }
+        }
+
+        $this->addFlash('success', $deleted > 0
+            ? $deleted . ' image(s) orpheline(s) supprimée(s).'
+            : 'Aucune image orpheline trouvée.'
+        );
+
+        return $this->redirectToRoute('app_crud_story_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/user-search', name: 'app_crud_story_user_search', methods: ['GET'])]
     public function userSearch(Request $request, UserRepository $userRepository): JsonResponse
     {
