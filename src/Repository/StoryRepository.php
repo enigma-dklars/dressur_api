@@ -38,4 +38,14 @@ class StoryRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function findActiveStories(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.expiredAt IS NULL OR s.expiredAt > :now')
+            ->setParameter('now', new \DateTime('now', new \DateTimeZone('Africa/Lagos')))
+            ->orderBy('s.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

@@ -14,6 +14,7 @@ use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
+use App\Repository\StoryRepository;
 use App\Repository\UserBotRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
@@ -142,7 +143,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/private', name: 'app_private')]
-    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository): Response
+    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, StoryRepository $storyRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -160,13 +161,17 @@ class PrivateController extends AbstractController
             ]);
 
             if($user){
-                $user->setLastLoginTo(new DateTime());    
+                $user->setLastLoginTo(new DateTime('now', new \DateTimeZone('Africa/Lagos')));
                 $this->em->flush();
+
+                $stories = $storyRepository->findActiveStories();
+
                 return $this->render('private/index.html.twig', [
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'actu' => $actu,
+                    'stories' => $stories,
                 ]);
             }
         }

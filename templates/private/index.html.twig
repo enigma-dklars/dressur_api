@@ -4,7 +4,194 @@
 
 {% block body %}
 
+{% if stories is not empty %}
+<div class="mb-3">
+    <div class="story-strip d-flex gap-2 overflow-x-auto pb-1" style="scrollbar-width:none;">
+        {% for story in stories %}
+        {% set hasMedia = (story.images is not empty) or (story.videos is not empty) %}
+        {% if hasMedia %}
+        <div class="story-item flex-shrink-0 text-center" style="cursor:pointer;width:70px;" onclick="openStory({{ loop.index0 }})">
+            <div class="story-avatar mx-auto mb-1" style="width:60px;height:60px;border-radius:50%;border:2.5px solid #0d6efd;overflow:hidden;background:#1a1a2e;display:flex;align-items:center;justify-content:center;">
+                {% if story.images is not empty %}
+                    <img src="/story/{{ story.images[0] }}" alt="story" style="width:100%;height:100%;object-fit:cover;">
+                {% else %}
+                    <i class="fas fa-play text-primary fs-5"></i>
+                {% endif %}
+            </div>
+            <small style="font-size:10px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px;">
+                {{ story.user ? story.user.pseudo|slice(0,10) : 'Story' }}
+            </small>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
 
+{# Données JSON pour le viewer JS #}
+<script>
+const storiesData = [
+    {% for story in stories %}
+    {% set hasMedia = (story.images is not empty) or (story.videos is not empty) %}
+    {% if hasMedia %}
+    {
+        id: {{ story.id }},
+        user: "{{ story.user ? story.user.pseudo|e('js') : 'Story' }}",
+        description: "{{ story.description ? story.description|e('js') : '' }}",
+        images: [{% for img in story.images %}"{{ img|e('js') }}"{% if not loop.last %},{% endif %}{% endfor %}],
+        videos: [{% for vid in story.videos %}"{{ vid|e('js') }}"{% if not loop.last %},{% endif %}{% endfor %}]
+    }{% if not loop.last %},{% endif %}
+    {% endif %}
+    {% endfor %}
+].filter(s => s.images.length > 0 || s.videos.length > 0);
+</script>
+
+{# Modal viewer de story #}
+<div id="storyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;">
+    {# Barre de progression #}
+    <div id="storyProgressBar" style="position:absolute;top:0;left:0;right:0;display:flex;gap:3px;padding:8px 10px;">
+    </div>
+
+    {# Header #}
+    <div style="position:absolute;top:28px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 12px;">
+        <span id="storyUserName" style="color:#fff;font-weight:600;font-size:14px;"></span>
+        <button onclick="closeStory()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+
+    {# Contenu media #}
+    <div id="storyContent" style="width:100%;max-width:420px;max-height:80vh;display:flex;align-items:center;justify-content:center;position:relative;">
+    </div>
+
+    {# Description #}
+    <div id="storyDescription" style="color:#eee;font-size:13px;text-align:center;max-width:380px;padding:8px 16px;position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);border-radius:8px;display:none;"></div>
+
+    {# Navigation prev/next #}
+    <button onclick="prevStoryItem()" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
+    <button onclick="nextStoryItem()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8250;</button>
+</div>
+
+<script>
+let currentStoryIndex = 0;
+let currentMediaIndex = 0;
+let storyTimer = null;
+const STORY_DURATION = 5000;
+
+function getStoryMedia(story) {
+    const media = [];
+    story.images.forEach(img => media.push({ type: 'image', src: '/story/' + img }));
+    story.videos.forEach(url => media.push({ type: 'video', src: url }));
+    return media;
+}
+
+function openStory(index) {
+    currentStoryIndex = index;
+    currentMediaIndex = 0;
+    document.getElementById('storyModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    renderStory();
+}
+
+function closeStory() {
+    clearTimeout(storyTimer);
+    document.getElementById('storyModal').style.display = 'none';
+    document.body.style.overflow = '';
+    document.getElementById('storyContent').innerHTML = '';
+}
+
+function renderStory() {
+    clearTimeout(storyTimer);
+    const story = storiesData[currentStoryIndex];
+    const media = getStoryMedia(story);
+
+    // Nom
+    document.getElementById('storyUserName').textContent = story.user;
+
+    // Description
+    const desc = document.getElementById('storyDescription');
+    if (story.description) {
+        desc.textContent = story.description;
+        desc.style.display = 'block';
+    } else {
+        desc.style.display = 'none';
+    }
+
+    // Barre de progression
+    const bar = document.getElementById('storyProgressBar');
+    bar.innerHTML = '';
+    media.forEach((_, i) => {
+        const seg = document.createElement('div');
+        seg.style.cssText = 'flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.3);overflow:hidden;';
+        const fill = document.createElement('div');
+        fill.style.cssText = 'height:100%;background:#fff;width:' + (i < currentMediaIndex ? '100' : i === currentMediaIndex ? '0' : '0') + '%;transition:width linear;';
+        seg.appendChild(fill);
+        bar.appendChild(seg);
+    });
+
+    // Media
+    const content = document.getElementById('storyContent');
+    content.innerHTML = '';
+    const item = media[currentMediaIndex];
+
+    if (item.type === 'image') {
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.style.cssText = 'max-width:100%;max-height:80vh;object-fit:contain;border-radius:6px;';
+        content.appendChild(img);
+    } else {
+        const vid = document.createElement('video');
+        vid.src = item.src;
+        vid.controls = true;
+        vid.autoplay = true;
+        vid.style.cssText = 'max-width:100%;max-height:80vh;border-radius:6px;';
+        content.appendChild(vid);
+    }
+
+    // Animer la barre du segment actif
+    setTimeout(() => {
+        const fills = bar.querySelectorAll('div > div');
+        if (fills[currentMediaIndex]) {
+            fills[currentMediaIndex].style.transition = 'width ' + (STORY_DURATION / 1000) + 's linear';
+            fills[currentMediaIndex].style.width = '100%';
+        }
+    }, 30);
+
+    storyTimer = setTimeout(() => nextStoryItem(), STORY_DURATION);
+}
+
+function nextStoryItem() {
+    const story = storiesData[currentStoryIndex];
+    const media = getStoryMedia(story);
+    if (currentMediaIndex < media.length - 1) {
+        currentMediaIndex++;
+        renderStory();
+    } else if (currentStoryIndex < storiesData.length - 1) {
+        currentStoryIndex++;
+        currentMediaIndex = 0;
+        renderStory();
+    } else {
+        closeStory();
+    }
+}
+
+function prevStoryItem() {
+    if (currentMediaIndex > 0) {
+        currentMediaIndex--;
+        renderStory();
+    } else if (currentStoryIndex > 0) {
+        currentStoryIndex--;
+        currentMediaIndex = 0;
+        renderStory();
+    }
+}
+
+document.addEventListener('keydown', e => {
+    if (document.getElementById('storyModal').style.display !== 'none') {
+        if (e.key === 'ArrowRight') nextStoryItem();
+        if (e.key === 'ArrowLeft') prevStoryItem();
+        if (e.key === 'Escape') closeStory();
+    }
+});
+</script>
+{% endif %}
 
     <div class="row g-3 mb-3">
         {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
