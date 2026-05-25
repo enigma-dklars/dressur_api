@@ -80,6 +80,7 @@ const storiesData = [
         id: {{ story.id }},
         user: "{{ story.user ? story.user.pseudo|e('js') : 'Story' }}",
         description: "{{ story.description ? story.description|e('js') : '' }}",
+        url: "{{ story.url ? story.url|e('js') : '' }}",
         images: [{% for img in story.images %}"{{ img|e('js') }}"{% if not loop.last %},{% endif %}{% endfor %}],
         videos: [{% for vid in story.videos %}"{{ vid|e('js') }}"{% if not loop.last %},{% endif %}{% endfor %}]
     }{% if not loop.last %},{% endif %}
@@ -106,6 +107,12 @@ const storiesData = [
 
     {# Description style WhatsApp — ancrée en bas, "Voir plus" si long #}
     <div id="storyDescBox" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:10px 14px 20px;background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.82));pointer-events:auto;">
+        {# Bouton lien de la story #}
+        <a id="storyLinkBtn" href="#" target="_blank" rel="noopener noreferrer"
+           onclick="event.stopPropagation()"
+           style="display:none;margin-bottom:10px;width:100%;text-align:center;padding:8px 16px;background:rgba(255,255,255,0.18);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.35);border-radius:24px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.3px;">
+            🔗 Voir le lien
+        </a>
         <p id="storyDescText" style="margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;"></p>
         <button id="storyVoirPlus" onclick="expandStoryDesc()" style="display:none;background:none;border:none;color:#90caf9;font-size:12px;padding:0;cursor:pointer;font-weight:600;">Voir plus</button>
     </div>
@@ -151,11 +158,23 @@ function renderStory() {
     // Nom
     document.getElementById('storyUserName').textContent = story.user;
 
+    // Bouton lien
+    const linkBtn = document.getElementById('storyLinkBtn');
+    if (story.url && story.url.trim() !== '') {
+        linkBtn.href = story.url;
+        linkBtn.style.display = 'block';
+    } else {
+        linkBtn.style.display = 'none';
+        linkBtn.href = '#';
+    }
+
     // Description style WhatsApp
     const descBox = document.getElementById('storyDescBox');
     const descText = document.getElementById('storyDescText');
     const voirPlus = document.getElementById('storyVoirPlus');
-    if (story.description && story.description.trim() !== '') {
+    const hasDesc = story.description && story.description.trim() !== '';
+    const hasUrl  = story.url && story.url.trim() !== '';
+    if (hasDesc) {
         const MAX_CHARS = 120;
         const full = story.description.trim();
         descText.dataset.full = full;
@@ -168,11 +187,12 @@ function renderStory() {
             descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;';
             voirPlus.style.display = 'none';
         }
-        descBox.style.display = 'block';
     } else {
-        descBox.style.display = 'none';
+        descText.innerHTML = '';
         voirPlus.style.display = 'none';
     }
+    // Afficher le bloc si url OU description présente
+    descBox.style.display = (hasDesc || hasUrl) ? 'block' : 'none';
 
     // Barre de progression
     const bar = document.getElementById('storyProgressBar');
