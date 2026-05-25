@@ -389,7 +389,7 @@ function expandStoryDesc() {
                     <div class="card radius-10 mb-0 h-100">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
-                                <div class="setting-icon"><i class="fas fa-user fs-4"></i></div>
+                                <div class="setting-icon"></div>
                                 <div class="setting-text ms-3 fs-6"><span>Compléter votre Profil</span></div>
                             </div>
                         </div>
@@ -400,13 +400,11 @@ function expandStoryDesc() {
 
         {% if user.nombreContactDispo <= 100 and user.boostEnCours == false %}
             <div class="col-12">
-                <a href="/newboostcontact" class="dropdown-item">
-                    <div class="card radius-10 mb-0 h-100">
+                <a href="/newboostcontact" style="text-decoration:none;" class="text-white">
+                    <div class="card radius-10 mb-0 h-100 bg-danger">
                         <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="setting-icon"><i class="fas fa-user-plus fs-4"></i></div>
-                                <div class="setting-text ms-3 fs-6"><span>Faire un Boost Contact pour avoir plus de contact</span></div>
-                            </div>
+                            <i class="fas fa-user fs-6"></i>
+                            <span class="ms-1 fs-6">Faire un Boost Contact pour avoir plus de contact</span>
                         </div>
                     </div>
                 </a>
