@@ -6,7 +6,18 @@
 
 {% if stories is not empty %}
 <div class="mb-3">
-    <div class="story-strip pb-1" style="display:flex;flex-wrap:nowrap;overflow-x:scroll;overflow-y:hidden;gap:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;">
+    {# Wrapper avec dégradés et flèches de navigation #}
+    <div style="position:relative;">
+        {# Flèche gauche #}
+        <button id="storyScrollLeft" onclick="scrollStrip(-1)" style="display:none;position:absolute;left:-4px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(13,110,253,0.85);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3);">&#8249;</button>
+        {# Flèche droite #}
+        <button id="storyScrollRight" onclick="scrollStrip(1)" style="position:absolute;right:-4px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(13,110,253,0.85);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3);">&#8250;</button>
+        {# Dégradé droit pour indiquer qu'il y a du contenu #}
+        <div id="storyFadeRight" style="pointer-events:none;position:absolute;right:0;top:0;bottom:8px;width:40px;background:linear-gradient(to right,transparent,rgba(0,0,0,0.35));z-index:5;border-radius:0 12px 12px 0;"></div>
+        {# Dégradé gauche #}
+        <div id="storyFadeLeft" style="pointer-events:none;position:absolute;left:0;top:0;bottom:8px;width:40px;background:linear-gradient(to left,transparent,rgba(0,0,0,0.35));z-index:5;border-radius:12px 0 0 12px;display:none;"></div>
+
+    <div class="story-strip pb-1" id="storyStrip" style="display:flex;flex-wrap:nowrap;overflow-x:scroll;overflow-y:hidden;gap:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;">
         {% for story in stories %}
         {% set hasMedia = (story.images is not empty) or (story.videos is not empty) %}
         {% if hasMedia %}
@@ -28,7 +39,36 @@
         {% endif %}
         {% endfor %}
     </div>
+    </div>{# fin wrapper position:relative #}
 </div>
+<script>
+(function() {
+    const strip = document.getElementById('storyStrip');
+    const btnLeft = document.getElementById('storyScrollLeft');
+    const btnRight = document.getElementById('storyScrollRight');
+    const fadeLeft = document.getElementById('storyFadeLeft');
+    const fadeRight = document.getElementById('storyFadeRight');
+
+    function updateIndicators() {
+        const atStart = strip.scrollLeft <= 4;
+        const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
+
+        btnLeft.style.display = atStart ? 'none' : 'flex';
+        fadeLeft.style.display = atStart ? 'none' : 'block';
+        btnRight.style.display = atEnd ? 'none' : 'flex';
+        fadeRight.style.display = atEnd ? 'none' : 'block';
+    }
+
+    strip.addEventListener('scroll', updateIndicators, { passive: true });
+    window.addEventListener('resize', updateIndicators);
+    updateIndicators();
+})();
+
+function scrollStrip(dir) {
+    const strip = document.getElementById('storyStrip');
+    strip.scrollBy({ left: dir * 230, behavior: 'smooth' });
+}
+</script>
 
 {# Données JSON pour le viewer JS #}
 <script>
