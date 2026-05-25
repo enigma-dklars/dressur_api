@@ -321,51 +321,46 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/find_whatsapp_is_activatable/{tel}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['GET', 'POST'])]
-    public function find_whatsapp_is_activatable(Request $request, string $tel, UserRepository $userRepository, EntityManagerInterface $em): Response
+    #[Route('/find_whatsapp_is_activatable/{lid}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['GET', 'POST'])]
+    public function find_whatsapp_is_activatable(Request $request, string $lid, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
-        $user = null;
-        $count_compt = 0;
+        $lid = trim($lid);
 
-        $input = "+$tel";
-        $input = str_replace(" ", "", $input);
-        $input = str_replace("  ", "", $input);
-
-        if (count($userRepository->findBy(['tel' => $input]))) {
-            $count_compt++;
-        }
-
-        if ($count_compt > 1) {
-            return new Response("Apparemment, vous avez plusieurs comptes Dressur liés au numéro +$tel.\nVeuillez patienter, un assistant vous aidera sous peu.");
-        } else if ($count_compt == 0) {
+        if ($lid === '') {
             return new Response("Veuillez utiliser le numéro WhatsApp lié à votre compte Dressur pour effectuer la demande de confirmation du numéro WhatsApp.");
         }
 
-        $user = $userRepository->findOneBy(['tel' => $input]);
+        $matches = $userRepository->findBy(['lid' => $lid]);
 
-        if ($user) {
-            if ($user->getTelIsVerified() == true) {
-                return new Response("Le compte lié au numéro +$tel est déjà confirmé.");
-            }
-
-            $message = "";
-            if (empty($user->getNom())) {
-                $message .= "Veuillez ajouter votre nom et prénom(s) sur Dressur.\n";
-            }
-            if ($user->getMailIsVerified() == false) {
-                $message .= "Veuillez confirmer votre adresse e-mail sur Dressur.\n";
-            }
-
-            if ($message == "") {
-                $user->setTelIsVerified(true);
-                $em->flush();
-                return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\nVous pouvez donc profiter pleinement des fonctionnalités de Dressur :\n\n* Boost Contact (ADD)\n* Promotion Affaire\n* Promotion Réseau Sociaux\n* Participé au programme des récompenses\n\n📢 *Suivez la chaîne sur WhatsApp* pour rester informé de toutes les nouveautés :  \nwhatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t\n\nNous restons disponibles pour toutes vos préoccupations.");
-            }
-            
-            return new Response("$message\n\nVous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
+        if (count($matches) > 1) {
+            return new Response("Apparemment, vous avez plusieurs comptes Dressur liés à cet identifiant.\nVeuillez patienter, un assistant vous aidera sous peu.");
         }
-        
-        return new Response("Nous avons rencontré une erreur lors de la confirmation de votre numéro WhatsApp.\nVeuillez patienter, un assistant vous aidera sous peu.");
+
+        if (count($matches) === 0) {
+            return new Response("Veuillez utiliser le numéro WhatsApp lié à votre compte Dressur pour effectuer la demande de confirmation du numéro WhatsApp.");
+        }
+
+        $user = $matches[0];
+
+        if ($user->getTelIsVerified() == true) {
+            return new Response("Le compte lié à cet identifiant est déjà confirmé.");
+        }
+
+        $message = "";
+        if (empty($user->getNom())) {
+            $message .= "Veuillez ajouter votre nom et prénom(s) sur Dressur.\n";
+        }
+        if ($user->getMailIsVerified() == false) {
+            $message .= "Veuillez confirmer votre adresse e-mail sur Dressur.\n";
+        }
+
+        if ($message == "") {
+            $user->setTelIsVerified(true);
+            $em->flush();
+            return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\nVous pouvez donc profiter pleinement des fonctionnalités de Dressur :\n\n* Boost Contact (ADD)\n* Promotion Affaire\n* Promotion Réseau Sociaux\n* Participé au programme des récompenses\n\n📢 *Suivez la chaîne sur WhatsApp* pour rester informé de toutes les nouveautés :  \nwhatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t\n\nNous restons disponibles pour toutes vos préoccupations.");
+        }
+
+        return new Response("$message\nVous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
     }
 
     #[Route('/find_all_info_with_tel_user/{tel}', name: 'app_crud_user_find_all_info_with_tel_user', methods: ['GET', 'POST'])]
