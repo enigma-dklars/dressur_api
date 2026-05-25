@@ -1457,7 +1457,7 @@ class UserController extends AbstractController
                 $gainsTotales += $oneHistorique->getRecompense();
 
                 if(in_array($oneHistorique->getstatus(), ['en_cours', 'terminer'])) {
-                    if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours'))) {
+                    if ($oneHistorique->getCreatedAt() <= (new \DateTime('-23 hours', new \DateTimeZone('Africa/Lagos')))) {
                         $oneHistorique->setStatus('echouer');
                     }
                     if(!$promotion->isInProgrammeRecompense()) {

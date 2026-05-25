@@ -37,7 +37,7 @@ class ExportDatabase extends AbstractController
         }
 
         // Define the filename and path for the backup file
-        $dateTime = (new \DateTime())->format('d_m_Y-H_i_s');
+        $dateTime = (new \DateTime('now', new \DateTimeZone('Africa/Lagos')))->format('d_m_Y-H_i_s');
         $fileName = sprintf('db-%s.sql', $dateTime);
         $filePath = $backupDir . DIRECTORY_SEPARATOR . $fileName;
 
