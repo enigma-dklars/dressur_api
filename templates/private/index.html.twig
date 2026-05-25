@@ -329,6 +329,14 @@ function expandStoryDesc() {
 {% endif %}
 
     <div class="row g-3 mb-3">
+        <div class="col-12">
+            <div class="card radius-10 mb-0 h-100">
+                <div class="card-body text-center">
+                    Pour ajouter quelque chose à la story, veuillez contacter le support via WhatsApp.
+                </div>
+            </div>
+        </div>
+        
         {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
             user.telIsVerified == false or
             user.mailIsVerified == false or
