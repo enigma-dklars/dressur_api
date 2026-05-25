@@ -1,0 +1,76 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Stories{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-3">
+        <div class="col-8">
+            <span class="h4">Stories Dressur</span>
+        </div>
+        <div class="col-4 text-end">
+            <a href="{{ path('app_crud_story_new') }}" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Nouvelle Story
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Images</th>
+                    <th>Vidéos</th>
+                    <th>User</th>
+                    <th>URL</th>
+                    <th>Description</th>
+                    <th>Créé le</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for story in stories %}
+                <tr>
+                    <td class="text-nowrap">
+                        <a href="{{ path('app_crud_story_show', {'id': story.id}) }}" class="btn btn-xs btn-info me-1"><i class="bi bi-eye"></i></a>
+                        <a href="{{ path('app_crud_story_edit', {'id': story.id}) }}" class="btn btn-xs btn-success me-1"><i class="bi bi-pencil"></i></a>
+                        <form method="post" action="{{ path('app_crud_story_delete', {'id': story.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette story ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ story.id) }}">
+                            <button class="btn btn-xs btn-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                    <td>{{ story.id }}</td>
+                    <td class="text-center">
+                        {% if story.images|length > 0 %}
+                            <span class="badge bg-success">{{ story.images|length }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if story.videos|length > 0 %}
+                            <span class="badge bg-info">{{ story.videos|length }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">0</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ story.user ? story.user.pseudo : '<span class="text-muted">—</span>'|raw }}</td>
+                    <td>
+                        {% if story.url %}
+                            <a href="{{ story.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width:150px">{{ story.url }}</a>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-truncate" style="max-width:200px">{{ story.description }}</td>
+                    <td class="text-nowrap">{{ story.createdAt ? story.createdAt|date('d/m/Y H:i') : '' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Aucune story trouvée</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

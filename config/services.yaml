@@ -8,6 +8,7 @@ parameters:
     preuve_recompense: '%kernel.project_dir%/public/preuve_recompense'
     database_url: '%env(resolve:DATABASE_URL)%'
     backup_directory: '%kernel.project_dir%/backups'
+    story_directory: '%kernel.project_dir%/public/story'
 
 services:
     # default configuration for services in *this* file

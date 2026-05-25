@@ -23,6 +23,7 @@
 {% set is_transaction = r starts with 'app_crud_transaction' %}
 {% set is_suggestion  = r starts with 'app_crud_suggestion' %}
 {% set is_signalement = r starts with 'app_crud_signalement' %}
+{% set is_story       = r starts with 'app_crud_story' %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
@@ -93,6 +94,10 @@
       <li class="my-0 {{ is_transaction ? 'mm-active' : '' }}"> <a href="{{path('app_crud_transaction_index')}}" class="py-1 small-fort {{ is_transaction ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Transaction</a></li>
       <li class="my-0 {{ is_suggestion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_suggestion_index')}}" class="py-1 small-fort {{ is_suggestion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
       <li class="my-0 {{ is_signalement ? 'mm-active' : '' }}"> <a href="{{path('app_crud_signalement_index')}}" class="py-1 small-fort {{ is_signalement ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
+
+      <hr class="my-2">
+
+      <li class="my-0 {{ is_story ? 'mm-active' : '' }}"> <a href="{{path('app_crud_story_index')}}" class="py-1 small-fort {{ is_story ? 'active' : '' }}"><i class="me-2 bi bi-film"></i>Stories</a></li>
     
     </ul>
     <!--end navigation-->

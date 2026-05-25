@@ -1,0 +1,66 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Nouvelle Story{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-3">
+        <div class="col">
+            <h4>Nouvelle Story</h4>
+        </div>
+        <div class="col-auto">
+            <a href="{{ path('app_crud_story_index') }}" class="btn btn-sm btn-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    {% if errors is defined and errors|length > 0 %}
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="card radius-10">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" action="{{ path('app_crud_story_new') }}">
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Images <small class="text-muted">(plusieurs, max 1 Mo par image)</small></label>
+                    <input type="file" name="images[]" class="form-control" multiple accept="image/*">
+                    <div class="form-text">Formats acceptés : JPG, PNG, GIF, WebP...</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Vidéos <small class="text-muted">(URLs, une par ligne — YouTube, Google Drive, etc.)</small></label>
+                    <textarea name="videos" class="form-control" rows="4" placeholder="https://www.youtube.com/watch?v=...&#10;https://drive.google.com/..."></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Utilisateur <small class="text-muted">(optionnel — ID numérique)</small></label>
+                    <input type="number" name="user_id" class="form-control" placeholder="Ex: 42">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">URL <small class="text-muted">(optionnel)</small></label>
+                    <input type="url" name="url" class="form-control" placeholder="https://...">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Description</label>
+                    <textarea name="description" class="form-control" rows="5" placeholder="Texte descriptif de la story..."></textarea>
+                </div>
+
+                <div class="text-end">
+                    <a href="{{ path('app_crud_story_index') }}" class="btn btn-secondary me-2">Annuler</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i> Créer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
