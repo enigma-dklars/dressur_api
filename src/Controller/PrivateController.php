@@ -169,9 +169,6 @@ class PrivateController extends AbstractController
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                    'count_boost_contact' => $traitementsDS->formatNumber(count($boostRepository->findBy(['user' => $user]))),
-                    'count_promo_affaire' => $traitementsDS->formatNumber(count($promotionRepository->findBy(['user' => $user]))),
-                    'count_promo_reseau' => $traitementsDS->formatNumber(count($promoReseauRepository->findBy(['user' => $user]))),
                     'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
                     'actu' => $actu,
                 ]);
@@ -224,7 +221,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/vue_user', name: 'app_vue_user')]
-    public function vue_user(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, BoostRepository $boostRepository): Response
+    public function vue_user(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -250,9 +247,6 @@ class PrivateController extends AbstractController
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'countVues' => $traitementsDS->formatNumber($count['countVues']),
                     'countImpressions' => $traitementsDS->formatNumber($count['countImpressions']),
-                    'count_boost_contact' => $traitementsDS->formatNumber(count($boostRepository->findBy(['user' => $user]))),
-                    'count_promo_affaire' => $traitementsDS->formatNumber(count($promotionRepository->findBy(['user' => $user]))),
-                    'count_promo_reseau' => $traitementsDS->formatNumber(count($promoReseauRepository->findBy(['user' => $user]))),
                     'top_trois_affaires' => $traitementsDS->getTopAffaires(3),
                     'actu' => $actu,
                 ]);
