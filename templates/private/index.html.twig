@@ -104,8 +104,11 @@ const storiesData = [
     <div id="storyContent" style="width:100%;max-width:420px;max-height:80vh;display:flex;align-items:center;justify-content:center;position:relative;">
     </div>
 
-    {# Description #}
-    <div id="storyDescription" style="color:#eee;font-size:13px;text-align:center;max-width:380px;padding:8px 16px;position:absolute;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);border-radius:8px;display:none;"></div>
+    {# Description style WhatsApp — ancrée en bas, "Voir plus" si long #}
+    <div id="storyDescBox" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:10px 14px 20px;background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.82));pointer-events:auto;">
+        <p id="storyDescText" style="margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;"></p>
+        <button id="storyVoirPlus" onclick="expandStoryDesc()" style="display:none;background:none;border:none;color:#90caf9;font-size:12px;padding:0;cursor:pointer;font-weight:600;">Voir plus</button>
+    </div>
 
     {# Navigation prev/next #}
     <button onclick="prevStoryItem()" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
@@ -148,13 +151,27 @@ function renderStory() {
     // Nom
     document.getElementById('storyUserName').textContent = story.user;
 
-    // Description
-    const desc = document.getElementById('storyDescription');
-    if (story.description) {
-        desc.textContent = story.description;
-        desc.style.display = 'block';
+    // Description style WhatsApp
+    const descBox = document.getElementById('storyDescBox');
+    const descText = document.getElementById('storyDescText');
+    const voirPlus = document.getElementById('storyVoirPlus');
+    if (story.description && story.description.trim() !== '') {
+        const MAX_CHARS = 120;
+        const full = story.description.trim();
+        descText.dataset.full = full;
+        if (full.length > MAX_CHARS) {
+            descText.innerHTML = linkify(full.slice(0, MAX_CHARS) + '…');
+            descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;';
+            voirPlus.style.display = 'inline';
+        } else {
+            descText.innerHTML = linkify(full);
+            descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;';
+            voirPlus.style.display = 'none';
+        }
+        descBox.style.display = 'block';
     } else {
-        desc.style.display = 'none';
+        descBox.style.display = 'none';
+        voirPlus.style.display = 'none';
     }
 
     // Barre de progression
@@ -233,6 +250,23 @@ document.addEventListener('keydown', e => {
         if (e.key === 'Escape') closeStory();
     }
 });
+
+function linkify(text) {
+    const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return escaped.replace(
+        /(https?:\/\/[^\s<>"']+)/gi,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;" onclick="event.stopPropagation()">$1</a>'
+    );
+}
+
+function expandStoryDesc() {
+    const descText = document.getElementById('storyDescText');
+    const voirPlus = document.getElementById('storyVoirPlus');
+    const full = descText.dataset.full || '';
+    descText.innerHTML = linkify(full);
+    descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;max-height:60vh;overflow-y:auto;';
+    voirPlus.style.display = 'none';
+}
 </script>
 {% endif %}
 
