@@ -9,6 +9,7 @@ use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -445,6 +446,83 @@ class CrudUserController extends AbstractController
             }
 
             return new JsonResponse(array_values($numbers), Response::HTTP_OK);
+        } catch (\Throwable $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Une erreur est survenue : ' . $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/number_and_lid', name: 'app_crud_user_number_and_lid', methods: ['POST'])]
+    public function numberAndLid(Request $request, UserRepository $userRepository, LoggerInterface $logger): Response
+    {
+        try {
+            $body = json_decode($request->getContent(), true);
+
+            if (!is_array($body) || !isset($body['number_and_lid']) || !is_array($body['number_and_lid'])) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Clé "number_and_lid" manquante ou invalide.',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            $pairs = $body['number_and_lid'];
+            $updated = 0;
+            $skipped = 0;
+
+            foreach ($pairs as $number => $lid) {
+                $number = (string) $number;
+                $lid    = trim((string) $lid);
+
+                if ($lid === '') {
+                    $logger->info('[number_and_lid] LID vide pour le numéro ' . $number . ', ignoré.');
+                    $skipped++;
+                    continue;
+                }
+
+                $clean = str_replace(['+', ' ', "\t", "\n", "\r"], '', $number);
+                if ($clean === '') {
+                    $logger->info('[number_and_lid] Numéro vide après nettoyage, ignoré.');
+                    $skipped++;
+                    continue;
+                }
+
+                $telFormatted = '+' . $clean;
+
+                $user = $userRepository->findOneBy(['tel' => $telFormatted]);
+
+                if (!$user && str_starts_with($clean, '229') && !str_starts_with($clean, '22901')) {
+                    $telWithO1 = '+22901' . substr($clean, 3);
+                    $user = $userRepository->findOneBy(['tel' => $telWithO1]);
+                    if ($user) {
+                        $logger->info('[number_and_lid] Trouvé via fallback +22901 pour ' . $telFormatted);
+                    }
+                }
+
+                if (!$user) {
+                    $logger->warning('[number_and_lid] Aucun utilisateur trouvé pour ' . $telFormatted . ', ignoré.');
+                    $skipped++;
+                    continue;
+                }
+
+                if ($user->getLid() !== null && $user->getLid() !== '') {
+                    $logger->info('[number_and_lid] LID déjà présent pour ' . $telFormatted . ' (lid=' . $user->getLid() . '), ignoré.');
+                    $skipped++;
+                    continue;
+                }
+
+                $user->setLid($lid);
+                $updated++;
+                $logger->info('[number_and_lid] LID mis à jour : ' . $telFormatted . ' => ' . $lid);
+            }
+
+            $this->em->flush();
+
+            $logger->info('[number_and_lid] Traitement terminé : ' . $updated . ' mis à jour, ' . $skipped . ' ignorés.');
+
+            return new Response('OK', Response::HTTP_OK);
+
         } catch (\Throwable $e) {
             return new JsonResponse([
                 'success' => false,
