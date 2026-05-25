@@ -6,7 +6,7 @@
 
 {% if stories is not empty %}
 <div class="mb-3">
-    <div class="story-strip d-flex gap-2 overflow-x-auto pb-1" style="scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+    <div class="story-strip pb-1" style="display:flex;flex-wrap:nowrap;overflow-x:scroll;overflow-y:hidden;gap:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;">
         {% for story in stories %}
         {% set hasMedia = (story.images is not empty) or (story.videos is not empty) %}
         {% if hasMedia %}
