@@ -54,6 +54,11 @@
                     <textarea name="description" class="form-control" rows="5" placeholder="Texte descriptif de la story..."></textarea>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Date d'expiration <small class="text-muted">(optionnel)</small></label>
+                    <input type="datetime-local" name="expired_at" class="form-control">
+                </div>
+
                 <div class="text-end">
                     <a href="{{ path('app_crud_story_index') }}" class="btn btn-secondary me-2">Annuler</a>
                     <button type="submit" class="btn btn-primary">

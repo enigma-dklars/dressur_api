@@ -26,6 +26,8 @@
                     <th>URL</th>
                     <th>Description</th>
                     <th>Créé le</th>
+                    <th>Modifié le</th>
+                    <th>Expire le</th>
                 </tr>
             </thead>
             <tbody>
@@ -57,17 +59,35 @@
                     <td>{{ story.user ? story.user.pseudo : '<span class="text-muted">—</span>'|raw }}</td>
                     <td>
                         {% if story.url %}
-                            <a href="{{ story.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width:150px">{{ story.url }}</a>
+                            <a href="{{ story.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width:120px">{{ story.url }}</a>
                         {% else %}
                             <span class="text-muted">—</span>
                         {% endif %}
                     </td>
-                    <td class="text-truncate" style="max-width:200px">{{ story.description }}</td>
+                    <td class="text-truncate" style="max-width:160px">{{ story.description }}</td>
                     <td class="text-nowrap">{{ story.createdAt ? story.createdAt|date('d/m/Y H:i') : '' }}</td>
+                    <td class="text-nowrap">
+                        {% if story.updatedAt %}
+                            {{ story.updatedAt|date('d/m/Y H:i') }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-nowrap">
+                        {% if story.expiredAt %}
+                            {% if story.expiredAt < date() %}
+                                <span class="badge bg-danger">{{ story.expiredAt|date('d/m/Y') }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ story.expiredAt|date('d/m/Y') }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="8" class="text-center text-muted">Aucune story trouvée</td>
+                    <td colspan="10" class="text-center text-muted">Aucune story trouvée</td>
                 </tr>
             {% endfor %}
             </tbody>

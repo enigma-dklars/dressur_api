@@ -81,7 +81,31 @@
                         </tr>
                         <tr>
                             <th class="text-muted">Créé le</th>
-                            <td>{{ story.createdAt ? story.createdAt|date('d/m/Y à H:i') : '—' }}</td>
+                            <td>{{ story.createdAt ? story.createdAt|date('d/m/Y à H:i:s') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Modifié le</th>
+                            <td>
+                                {% if story.updatedAt %}
+                                    {{ story.updatedAt|date('d/m/Y à H:i:s') }}
+                                {% else %}
+                                    <span class="text-muted">Jamais modifié</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Expire le</th>
+                            <td>
+                                {% if story.expiredAt %}
+                                    {% if story.expiredAt < date() %}
+                                        <span class="badge bg-danger">Expiré — {{ story.expiredAt|date('d/m/Y à H:i') }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">{{ story.expiredAt|date('d/m/Y à H:i') }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Pas d'expiration</span>
+                                {% endif %}
+                            </td>
                         </tr>
                     </table>
                 </div>

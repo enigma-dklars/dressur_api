@@ -35,8 +35,8 @@ class CrudStoryController extends AbstractController
     public function index(StoryRepository $storyRepository): Response
     {
         return $this->render('crud_story/index.html.twig', [
-            'theme' => $this->theme,
-            'user'  => $this->traitementsDS->getUserByUidInCookies(),
+            'theme'   => $this->theme,
+            'user'    => $this->traitementsDS->getUserByUidInCookies(),
             'stories' => $storyRepository->findBy([], ['id' => 'DESC']),
         ]);
     }
@@ -54,6 +54,11 @@ class CrudStoryController extends AbstractController
             if ($userId) {
                 $user = $userRepository->find((int) $userId);
                 $story->setUser($user);
+            }
+
+            $expiredAtRaw = $request->request->get('expired_at');
+            if ($expiredAtRaw) {
+                $story->setExpiredAt(new DateTime($expiredAtRaw));
             }
 
             $videosRaw = $request->request->get('videos', '');
@@ -121,6 +126,9 @@ class CrudStoryController extends AbstractController
 
             $userId = $request->request->get('user_id');
             $story->setUser($userId ? $userRepository->find((int) $userId) : null);
+
+            $expiredAtRaw = $request->request->get('expired_at');
+            $story->setExpiredAt($expiredAtRaw ? new DateTime($expiredAtRaw) : null);
 
             $videosRaw = $request->request->get('videos', '');
             $videos = array_values(array_filter(array_map('trim', explode("\n", $videosRaw))));

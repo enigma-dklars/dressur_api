@@ -73,6 +73,23 @@
                     <textarea name="description" class="form-control" rows="5">{{ story.description }}</textarea>
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Date d'expiration <small class="text-muted">(optionnel — laisser vide pour supprimer)</small></label>
+                    <input type="datetime-local" name="expired_at" class="form-control"
+                        value="{{ story.expiredAt ? story.expiredAt|date('Y-m-d\\TH:i') : '' }}">
+                </div>
+
+                <div class="row g-2 mb-3 text-muted small">
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-plus me-1"></i> Créé le : <strong>{{ story.createdAt ? story.createdAt|date('d/m/Y H:i:s') : '—' }}</strong>
+                    </div>
+                    {% if story.updatedAt %}
+                    <div class="col-auto">
+                        <i class="bi bi-calendar-check me-1"></i> Dernière modification : <strong>{{ story.updatedAt|date('d/m/Y H:i:s') }}</strong>
+                    </div>
+                    {% endif %}
+                </div>
+
                 <div class="text-end">
                     <a href="{{ path('app_crud_story_index') }}" class="btn btn-secondary me-2">Annuler</a>
                     <button type="submit" class="btn btn-success">
