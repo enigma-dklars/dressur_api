@@ -124,6 +124,18 @@ class UserRepository extends ServiceEntityRepository
         return $paginator;
     }
 
+    public function findUsersWithTelAndWithoutLid(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.tel')
+            ->where('u.tel IS NOT NULL')
+            ->andWhere('u.tel != :empty')
+            ->andWhere('u.lid IS NULL OR u.lid = :empty')
+            ->setParameter('empty', '')
+            ->getQuery()
+            ->getScalarResult();
+    }
+
 //    /**
 //     * @return User[] Returns an array of User objects
 //     */
