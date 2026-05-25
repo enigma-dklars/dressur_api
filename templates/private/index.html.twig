@@ -260,6 +260,20 @@ function linkify(text) {
 }
 
 function expandStoryDesc() {
+    // Pause le défilement automatique tant que le texte est ouvert
+    clearTimeout(storyTimer);
+    storyTimer = null;
+    // Figer la barre de progression sur sa position actuelle
+    const bar = document.getElementById('storyProgressBar');
+    if (bar) {
+        const fills = bar.querySelectorAll('div > div');
+        fills.forEach(f => {
+            const current = getComputedStyle(f).width;
+            f.style.transition = 'none';
+            f.style.width = current;
+        });
+    }
+
     const descText = document.getElementById('storyDescText');
     const voirPlus = document.getElementById('storyVoirPlus');
     const full = descText.dataset.full || '';
