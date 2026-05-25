@@ -8,7 +8,7 @@
             <span class="h4 me-3">Promotion index</span>
         </div>
         <div class="col-4 text-end fs-5">
-            <a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_promotion_delete_images_no_use') }}">Delete Images No Used</a>
+            <a class="btn btn-sm btn-danger h4 js-confirm-orphan" href="{{ path('app_crud_promotion_delete_images_no_use') }}">Delete Images No Used</a>
         </div>
     </div>
 
@@ -92,4 +92,29 @@
         </table>
     </div>
 
+{% endblock %}
+
+{% block script %}
+<script>
+document.querySelectorAll('.js-confirm-orphan').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var href = this.href;
+        Swal.fire({
+            title: 'Supprimer les images non utilisées ?',
+            text: 'Toutes les images non liées à une promotion seront définitivement supprimées.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

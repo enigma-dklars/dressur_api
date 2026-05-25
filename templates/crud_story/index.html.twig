@@ -8,8 +8,7 @@
             <span class="h4">Stories Dressur</span>
         </div>
         <div class="col-4 text-end">
-            <a href="{{ path('app_crud_story_delete_images_no_use') }}" class="btn btn-sm btn-danger me-2"
-               onclick="return confirm('Supprimer toutes les images non liées à une story ?')">
+            <a href="{{ path('app_crud_story_delete_images_no_use') }}" class="btn btn-sm btn-danger me-2 js-confirm-orphan">
                 <i class="bi bi-trash me-1"></i> Suppr. images orphelines
             </a>
             <a href="{{ path('app_crud_story_new') }}" class="btn btn-sm btn-primary">
@@ -97,4 +96,29 @@
             </tbody>
         </table>
     </div>
+{% endblock %}
+
+{% block script %}
+<script>
+document.querySelectorAll('.js-confirm-orphan').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var href = this.href;
+        Swal.fire({
+            title: 'Supprimer les images orphelines ?',
+            text: 'Toutes les images non liées à une story seront définitivement supprimées.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
