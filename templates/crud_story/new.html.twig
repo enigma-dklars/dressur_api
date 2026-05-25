@@ -145,7 +145,8 @@ $(document).ready(function () {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     row.innerHTML =
-                        '<img src="' + e.target.result + '" class="rounded flex-shrink-0" style="width:80px;height:80px;object-fit:cover;" alt="">' +
+                        '<div class="rounded overflow-hidden flex-shrink-0 shadow-sm" style="width:60px;height:107px;">' +
+                        '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block;" alt=""></div>' +
                         '<div class="flex-grow-1 overflow-hidden">' +
                         '<p class="mb-0 fw-semibold text-truncate">' + file.name + '</p>' +
                         '<p class="mb-0 text-muted small">' + formatSize(file.size) + '</p>' +
