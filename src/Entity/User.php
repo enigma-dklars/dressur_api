@@ -123,6 +123,12 @@ class User
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lid = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $registerSource = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $lastLoginSource = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -686,6 +692,30 @@ class User
     public function setLid(?string $lid): static
     {
         $this->lid = $lid;
+
+        return $this;
+    }
+
+    public function getRegisterSource(): ?string
+    {
+        return $this->registerSource;
+    }
+
+    public function setRegisterSource(?string $registerSource): static
+    {
+        $this->registerSource = $registerSource;
+
+        return $this;
+    }
+
+    public function getLastLoginSource(): ?string
+    {
+        return $this->lastLoginSource;
+    }
+
+    public function setLastLoginSource(?string $lastLoginSource): static
+    {
+        $this->lastLoginSource = $lastLoginSource;
 
         return $this;
     }
