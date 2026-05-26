@@ -95,6 +95,8 @@ class BoostController extends AbstractController
             ]);
         }
 
+        $source = ($request->request->get('source') === 'web') ? 'web' : 'mobile';
+
         $error = false;
         $lastBoostContact = $boostRepository->findOneBy(['user' => $user], ['id' => 'DESC']);
         
@@ -116,6 +118,7 @@ class BoostController extends AbstractController
             $boost = new Boost();
             $boost->setFormuleBoost($formuleBoostRepository->find(7))
                 ->setUser($user)
+                ->setSource($source)
                 ->setDateDebut(new DateTime())
                 ->setDateExp(new DateTime("+ 5days"))
             ;
@@ -127,6 +130,7 @@ class BoostController extends AbstractController
             $boost = new Boost();
             $boost->setFormuleBoost($formuleBoostRepository->find(7))
                 ->setUser($user)
+                ->setSource($source)
                 ->setDateDebut(new DateTime())
                 ->setDateExp(new DateTime("+ 5days"))
             ;
@@ -319,6 +323,7 @@ class BoostController extends AbstractController
                         'userId' => $user->getId(),
                         'userUid' => $user->getUid(),
                         'formulBoostId' => $formulBoost->getId(),
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ])
                 ;
                 $this->em->persist($myTransaction);
