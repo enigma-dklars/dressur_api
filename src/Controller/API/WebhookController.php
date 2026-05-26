@@ -103,6 +103,7 @@ class WebhookController extends AbstractController
                                 $boost->setFormuleBoost($formuleBoost)
                                     ->setMode("Payant")
                                     ->setUser($myTransaction->getUser())
+                                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
                                 ;
                                 if($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
                                     $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $myTransaction->getUser()], ["id" => "DESC"]))->getDateExp();
@@ -136,6 +137,7 @@ class WebhookController extends AbstractController
                                     ->setDescription($myTransaction->getAnnotherInfo()['description'])
                                     ->setInProgrammeRecompense($inProgrammeRecompense)
                                     ->setPublishOnDressurStatus($publishOnDressurStatus)
+                                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
                                 ;
                                 $this->em->persist($promotion);
 
@@ -176,6 +178,7 @@ class WebhookController extends AbstractController
                                     ->setStatus(3)
                                     ->setInProgrammeRecompense($inProgrammeRecompense)
                                     ->setPublishOnDressurStatus($publishOnDressurStatus)
+                                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
                                 ;
                             }
 
@@ -187,6 +190,7 @@ class WebhookController extends AbstractController
                                     ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
                                     ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
                                     ->setUrl($myTransaction->getAnnotherInfo()['lien'])
+                                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
                                 ;
                                 $this->em->persist($boost);
 
@@ -320,7 +324,8 @@ class WebhookController extends AbstractController
                 $boost = new Boost();
                 $boost->setFormuleBoost($formuleBoost)
                     ->setMode('Payant')
-                    ->setUser($myTransaction->getUser());
+                    ->setUser($myTransaction->getUser())
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
                 if ($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
                     $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $myTransaction->getUser()], ['id' => 'DESC']))->getDateExp();
                     $boost->setDateDebut($lastBoostDateExp)
@@ -343,7 +348,8 @@ class WebhookController extends AbstractController
                     ->setImage($myTransaction->getAnnotherInfo()['image'])
                     ->setDescription($myTransaction->getAnnotherInfo()['description'])
                     ->setInProgrammeRecompense($inProgrammeRecompense)
-                    ->setPublishOnDressurStatus($publishOnDressurStatus);
+                    ->setPublishOnDressurStatus($publishOnDressurStatus)
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
                 $this->em->persist($promotion);
             }
 
@@ -358,7 +364,8 @@ class WebhookController extends AbstractController
                     ->setReferencement($formulePromoAffaire->getReferencement())
                     ->setStatus(3)
                     ->setInProgrammeRecompense($inProgrammeRecompense)
-                    ->setPublishOnDressurStatus($publishOnDressurStatus);
+                    ->setPublishOnDressurStatus($publishOnDressurStatus)
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
             }
 
             if ($myTransaction->getTransactionFor() === 'boost_reseau_sociaux') {
@@ -368,7 +375,8 @@ class WebhookController extends AbstractController
                     ->setUser($myTransaction->getUser())
                     ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
                     ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
-                    ->setUrl($myTransaction->getAnnotherInfo()['lien']);
+                    ->setUrl($myTransaction->getAnnotherInfo()['lien'])
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
                 $this->em->persist($boost);
 
                 $formule = $boost->getFormulePromoReseau();
