@@ -231,6 +231,7 @@ $(document).ready(function () {
                 mail : inputEmail,
                 password : inputMotPasse,
                 confirmPassword : inputConfirmerMotPasse,
+                source : 'web',
             },
             success: function (response) {
                 if(response.error == true){
@@ -445,6 +446,7 @@ $(document).ready(function () {
                 langUserPhone : 'fr',
                 mail : inputEmail,
                 password : inputMotPasse,
+                source : 'web',
             },
             success: function (response) {
                 if(response.error == true){
