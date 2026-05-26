@@ -33,6 +33,7 @@
                     <th>DateExp</th>
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
+                    <th>Source</th>
                 </tr>
             </thead>
             <tbody>
@@ -82,6 +83,15 @@
                     <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promotion.nombreDeVue }}</td>
                     <td>{{ promotion.nombreImpression }}</td>
+                    <td class="text-center">
+                        {% if promotion.source == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif promotion.source == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr>
