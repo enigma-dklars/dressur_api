@@ -128,8 +128,11 @@ class PromotionController extends AbstractController
             ]);
         }
 
+        $source = ($request->request->get('source') === 'web') ? 'web' : 'mobile';
+
         $promotion = new Promotion();
         $promotion->setUser($user)
+            ->setSource($source)
             ->setTypePromotionAffaire("dmd_emploi")
             ->setImage("dmd_emploi.png")
             ->setAnnotherInfo([
@@ -229,8 +232,11 @@ class PromotionController extends AbstractController
             ]);
         }
 
+        $source = ($request->request->get('source') === 'web') ? 'web' : 'mobile';
+
         $promotion = new Promotion();
         $promotion->setUser($user)
+            ->setSource($source)
             ->setTypePromotionAffaire("offre_emploi")
             ->setImage("offre_emploi.png")
             ->setAnnotherInfo([
@@ -503,6 +509,7 @@ class PromotionController extends AbstractController
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ])
                 ;
                 $this->em->persist($myTransaction);
@@ -1041,6 +1048,7 @@ class PromotionController extends AbstractController
                             'userUid' => $user->getUid(),
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
+                            'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                         ])
                     ;
                     $this->em->persist($myTransaction);
@@ -1117,6 +1125,7 @@ class PromotionController extends AbstractController
                             'userUid' => $user->getUid(),
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
+                            'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                         ],
                         $user
                     );
