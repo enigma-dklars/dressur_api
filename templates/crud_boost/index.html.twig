@@ -17,6 +17,7 @@
                 <th>Formule</th>
                 <th>DateDebut</th>
                 <th>DateExp</th>
+                <th>Source</th>
             </tr>
         </thead>
         <tbody>
@@ -47,6 +48,15 @@
                 <td>{{ boost.formuleBoost }}</td>
                 <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                <td class="text-center">
+                    {% if boost.source == 'web' %}
+                        <span class="badge bg-primary">web</span>
+                    {% elseif boost.source == 'mobile' %}
+                        <span class="badge bg-warning text-dark">mobile</span>
+                    {% else %}
+                        <span class="badge bg-secondary">none</span>
+                    {% endif %}
+                </td>
             </tr>
         {% else %}
             <tr>
