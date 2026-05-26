@@ -22,6 +22,7 @@
                     <th>CurrencyId</th>
                     <th>CreatedAt</th>
                     <th>UpdatedAt</th>
+                    <th>Source</th>
                     <th>Id</th>
                 </tr>
             </thead>
@@ -59,6 +60,16 @@
                     <td>{{ transaction.currencyId }}</td>
                     <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ transaction.updatedAt ? transaction.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td class="text-center">
+                        {% set _src = transaction.user ? transaction.user.registerSource : null %}
+                        {% if _src == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif _src == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
                     <td>{{ transaction.id }}</td>
                     {# <td>{{ transaction.annotherInfo ? transaction.annotherInfo|join(', ') : '' }}</td> #}
                 </tr>
