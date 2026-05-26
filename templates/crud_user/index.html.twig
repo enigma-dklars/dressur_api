@@ -57,6 +57,7 @@
                     <th>Lock</th>
                     <th>LastLoginTo</th>
                     <th>CreatedAt</th>
+                    <th>Source</th>
                     <th>Uid</th>
                     <th>Id</th>
                 </tr>
@@ -120,6 +121,15 @@
                     </td>
                     <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td class="text-center">
+                        {% if user.registerSource == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif user.registerSource == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
                     <td>{{ user.uid }}</td>
                     <td>{{ user.id }}</td>
                 </tr>
