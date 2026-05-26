@@ -72,6 +72,12 @@ class Promotion
     #[ORM\Column]
     private ?bool $publishOnDressurStatus = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $source = null;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $createdAt = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -79,6 +85,7 @@ class Promotion
         $this->isFakeVue = false;
         $this->limited = true;
         $this->mode = "Gratuit";
+        $this->createdAt = new \DateTime();
         $this->nombreDeVue = 0;
         $this->nombreImpression = 0;
         $this->whoSaw = [];
@@ -357,6 +364,30 @@ class Promotion
     public function setPublishOnDressurStatus(bool $publishOnDressurStatus): static
     {
         $this->publishOnDressurStatus = $publishOnDressurStatus;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
