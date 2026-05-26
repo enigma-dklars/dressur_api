@@ -151,7 +151,9 @@ class UserController extends AbstractController
 
         if($user) {
             // enregistrement de la langue du user et du last login
-            $user->setLastLoginTo(new DateTime());
+            $lastLoginSource = ($datas->get('source') === 'web') ? 'web' : 'mobile';
+            $user->setLastLoginTo(new DateTime())
+                ->setLastLoginSource($lastLoginSource);
             if($user->getLang() != $langUserPhone) { 
                 $user->setLang($langUserPhone);
             }
@@ -1101,6 +1103,8 @@ class UserController extends AbstractController
             ]);
         }
 
+        $registerSource = ($datas->get('source') === 'web') ? 'web' : 'mobile';
+
         $user = new User();
         $user->setPseudo($pseudo)
             ->setTel($tel)
@@ -1109,6 +1113,8 @@ class UserController extends AbstractController
             ->setPays($paysTel)
             ->setLang($langUserPhone)
             ->setLastLoginTo(new DateTime())
+            ->setRegisterSource($registerSource)
+            ->setLastLoginSource($registerSource)
         ;
         if(!in_array($tel, $this->env->getUsersTel())) {
             $this->env->addUsersTel($tel);
