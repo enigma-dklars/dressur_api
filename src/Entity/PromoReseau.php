@@ -53,6 +53,9 @@ class PromoReseau
     #[ORM\Column(nullable: true)]
     private ?float $prixZefame = null;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $source = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -215,6 +218,18 @@ class PromoReseau
     public function setPrixZefame(?float $prixZefame): static
     {
         $this->prixZefame = $prixZefame;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): static
+    {
+        $this->source = $source;
 
         return $this;
     }
