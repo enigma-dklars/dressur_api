@@ -33,6 +33,9 @@ class Boost
     #[ORM\Column(type: 'string', length: 255)]
     private $mode;
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $source = null;
+
     public function __construct()
     {
         $this->dateDebut = new DateTime();
@@ -114,6 +117,18 @@ class Boost
     public function setMode(string $mode): self
     {
         $this->mode = $mode;
+
+        return $this;
+    }
+
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setSource(?string $source): self
+    {
+        $this->source = $source;
 
         return $this;
     }
