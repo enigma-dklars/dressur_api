@@ -604,6 +604,7 @@
             formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
             formData.append('totalViewsGoal', $('#viewsGoal').val());
             formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+            formData.append('source', 'web');
 
             const response = await fetch(`${API_BASE_URL}/addProduitService`, {
                 method: 'POST',
@@ -663,6 +664,7 @@
             formData.append('langues_parle', $('#languesParle').val());
             formData.append('lien_portfolio', $('#lienPortfolio').val());
             formData.append('coordonne_demandeur', $('#coordonneesDemandeur').val());
+            formData.append('source', 'web');
 
             const response = await fetch(`${API_BASE_URL}/newDmdEmploi`, {
                 method: 'POST',
@@ -718,6 +720,7 @@
             formData.append('contact_emploiyeur', $('#contactEmployeur').val());
             formData.append('date_limite_candidature', $('#dateLimiteCandidature').val());
             formData.append('lien_information_otionel', $('#lienInformation').val());
+            formData.append('source', 'web');
 
             const response = await fetch(`${API_BASE_URL}/newOffreEmploi`, {
                 method: 'POST',
