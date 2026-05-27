@@ -85,7 +85,8 @@ class CrudUserController extends AbstractController
             'totalItems' => $totalItems,
             'search' => $search,
             'limit' => $limit,
-            'sourceFilter' => $sourceFilter
+            'sourceFilter' => $sourceFilter,
+            'sourceCounts' => $userRepository->getRegisterSourceCounts()
         ]);
     }
 
