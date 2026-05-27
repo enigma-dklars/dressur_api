@@ -53,6 +53,7 @@ class CrudBoostController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'boosts' => $boosts,
             'sourceFilter' => $sourceFilter,
+            'sourceCounts' => $boostRepository->getSourceCounts(),
         ]);
     }
 
