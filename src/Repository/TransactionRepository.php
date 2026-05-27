@@ -39,6 +39,23 @@ class TransactionRepository extends ServiceEntityRepository
         }
     }
 
+    public function findBySourceFilter(string $source): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->leftJoin('t.user', 'u')
+            ->orderBy('t.id', 'DESC');
+
+        if ($source === 'none') {
+            $qb->andWhere('t.user IS NULL OR u.registerSource IS NULL');
+        } elseif (in_array($source, ['web', 'mobile'])) {
+            $qb->andWhere('t.user IS NOT NULL')
+               ->andWhere('u.registerSource = :source')
+               ->setParameter('source', $source);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
 //    /**
 //     * @return Transaction[] Returns an array of Transaction objects
 //     */
