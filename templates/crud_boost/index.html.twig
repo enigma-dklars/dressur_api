@@ -6,6 +6,15 @@
     <p class="h4 me-3">Boost index</p>
     {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_boost_new') }}">Create new</a> #}
 
+    <!-- Filtre Source -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <span class="small fw-semibold me-1">Source :</span>
+        <a href="{{ path('app_crud_boost_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark' : 'bg-secondary' }}">Tous</a>
+        <a href="{{ path('app_crud_boost_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary' : 'bg-secondary' }}">web</a>
+        <a href="{{ path('app_crud_boost_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary' }}">mobile</a>
+        <a href="{{ path('app_crud_boost_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark' : 'bg-secondary' }}">none</a>
+    </div>
+
     <table class="data-table table table-bordered table-striped">
         <thead>
             <tr>
