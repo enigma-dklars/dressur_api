@@ -58,6 +58,23 @@ class PromotionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function getSourceCounts(): array
+    {
+        $rows = $this->createQueryBuilder('p')
+            ->select('p.source as source, COUNT(p.id) as cnt')
+            ->groupBy('p.source')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = ['web' => 0, 'mobile' => 0, 'none' => 0, 'total' => 0];
+        foreach ($rows as $row) {
+            $key = isset($row['source']) && in_array($row['source'], ['web', 'mobile']) ? $row['source'] : 'none';
+            $result[$key] += (int) $row['cnt'];
+            $result['total'] += (int) $row['cnt'];
+        }
+        return $result;
+    }
+
 //    /**
 //     * @return Promotion[] Returns an array of Promotion objects
 //     */
