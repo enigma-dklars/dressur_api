@@ -39,6 +39,24 @@ class TransactionRepository extends ServiceEntityRepository
         }
     }
 
+    public function getSourceCounts(): array
+    {
+        $rows = $this->createQueryBuilder('t')
+            ->select('u.registerSource as source, COUNT(t.id) as cnt')
+            ->leftJoin('t.user', 'u')
+            ->groupBy('u.registerSource')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = ['web' => 0, 'mobile' => 0, 'none' => 0, 'total' => 0];
+        foreach ($rows as $row) {
+            $key = isset($row['source']) && in_array($row['source'], ['web', 'mobile']) ? $row['source'] : 'none';
+            $result[$key] += (int) $row['cnt'];
+            $result['total'] += (int) $row['cnt'];
+        }
+        return $result;
+    }
+
     public function findBySourceFilter(string $source): array
     {
         $qb = $this->createQueryBuilder('t')
