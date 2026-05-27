@@ -38,14 +38,25 @@ class CrudPromoReseauController extends AbstractController
     }
     
     #[Route('/', name: 'app_crud_promo_reseau_index', methods: ['GET'])]
-    public function index(PromoReseauRepository $promoReseauRepository, TraitementsDS $traitementsDS): Response
+    public function index(PromoReseauRepository $promoReseauRepository, TraitementsDS $traitementsDS, Request $request): Response
     {
         $traitementsDS->checkAndUpdateStatusZefame();
+        $sourceFilter = $request->query->get('source', '');
+
+        if ($sourceFilter === 'none') {
+            $promo_reseaus = $promoReseauRepository->findBy(['source' => null], ['id' => 'DESC']);
+        } elseif (in_array($sourceFilter, ['web', 'mobile'])) {
+            $promo_reseaus = $promoReseauRepository->findBy(['source' => $sourceFilter], ['id' => 'DESC']);
+        } else {
+            $promo_reseaus = $promoReseauRepository->findBy([], ['id' => 'DESC']);
+        }
+
         return $this->render('crud_promo_reseau/index.html.twig', [
             'theme' => $this->theme,
             'soldeZefame' => $traitementsDS->getSoldeZefame(),
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'promo_reseaus' => $promoReseauRepository->findBy([], ['id' => 'DESC']),
+            'promo_reseaus' => $promo_reseaus,
+            'sourceFilter' => $sourceFilter,
         ]);
     }
 
