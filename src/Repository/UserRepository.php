@@ -145,6 +145,23 @@ class UserRepository extends ServiceEntityRepository
         return $this->paginate($qb->getQuery(), $page, $limit);
     }
 
+    public function getRegisterSourceCounts(): array
+    {
+        $rows = $this->createQueryBuilder('u')
+            ->select('u.registerSource as source, COUNT(u.id) as cnt')
+            ->groupBy('u.registerSource')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = ['web' => 0, 'mobile' => 0, 'none' => 0, 'total' => 0];
+        foreach ($rows as $row) {
+            $key = isset($row['source']) && in_array($row['source'], ['web', 'mobile']) ? $row['source'] : 'none';
+            $result[$key] += (int) $row['cnt'];
+            $result['total'] += (int) $row['cnt'];
+        }
+        return $result;
+    }
+
     public function findUsersWithTelAndWithoutLid(): array
     {
         return $this->createQueryBuilder('u')
