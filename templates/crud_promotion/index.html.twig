@@ -14,11 +14,11 @@
 
     <!-- Filtre Source -->
     <div class="mb-3 d-flex align-items-center gap-2">
-        <span class="small fw-semibold me-1">Source :</span>
-        <a href="{{ path('app_crud_promotion_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark' : 'bg-secondary' }}">Tous ({{ sourceCounts.total }})</a>
-        <a href="{{ path('app_crud_promotion_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary' : 'bg-secondary' }}">web ({{ sourceCounts.web }})</a>
-        <a href="{{ path('app_crud_promotion_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary' }}">mobile ({{ sourceCounts.mobile }})</a>
-        <a href="{{ path('app_crud_promotion_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark' : 'bg-secondary' }}">none ({{ sourceCounts.none }})</a>
+        <span class="fw-semibold me-1">Source :</span>
+        <a href="{{ path('app_crud_promotion_index') }}" class="badge fs-6 text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'mobile'}) }}" class="badge fs-6 text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'web'}) }}" class="badge fs-6 text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'none'}) }}" class="badge fs-6 text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}">none ({{ sourceCounts.none }})</a>
     </div>
 
     <div class="table-responsive">
