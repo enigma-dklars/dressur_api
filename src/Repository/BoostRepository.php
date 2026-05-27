@@ -51,6 +51,23 @@ class BoostRepository extends ServiceEntityRepository
         ;
     }
 
+    public function getSourceCounts(): array
+    {
+        $rows = $this->createQueryBuilder('b')
+            ->select('b.source as source, COUNT(b.id) as cnt')
+            ->groupBy('b.source')
+            ->getQuery()
+            ->getScalarResult();
+
+        $result = ['web' => 0, 'mobile' => 0, 'none' => 0, 'total' => 0];
+        foreach ($rows as $row) {
+            $key = isset($row['source']) && in_array($row['source'], ['web', 'mobile']) ? $row['source'] : 'none';
+            $result[$key] += (int) $row['cnt'];
+            $result['total'] += (int) $row['cnt'];
+        }
+        return $result;
+    }
+
 //    /**
 //     * @return Boost[] Returns an array of Boost objects
 //     */
