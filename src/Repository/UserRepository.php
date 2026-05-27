@@ -174,6 +174,16 @@ class UserRepository extends ServiceEntityRepository
             ->getScalarResult();
     }
 
+    public function countByDateRange(\DateTime $from, \DateTime $to): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql  = 'SELECT COUNT(id) FROM `user` WHERE created_at >= :from AND created_at < :to';
+        return (int) $conn->prepare($sql)->executeQuery([
+            'from' => $from->format('Y-m-d'),
+            'to'   => $to->format('Y-m-d'),
+        ])->fetchOne();
+    }
+
     public function getDailyStats30Days(): array
     {
         $conn = $this->getEntityManager()->getConnection();

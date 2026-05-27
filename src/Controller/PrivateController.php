@@ -201,6 +201,42 @@ class PrivateController extends AbstractController
                 $chartBoosts     = array_values($boostsStats);
                 $chartPromoAff   = array_values($promoAffStats);
                 $chartPromoRes   = array_values($promoResStats);
+
+                // Totals current period (last 30 days including today)
+                $curStart = new DateTime('-29 days');
+                $curEnd   = new DateTime('tomorrow');
+                $prevStart = new DateTime('-59 days');
+                $prevEnd  = new DateTime('-29 days');
+
+                $totalCurUsers    = array_sum($chartUsers);
+                $totalCurBoosts   = array_sum($chartBoosts);
+                $totalCurPromoAff = array_sum($chartPromoAff);
+                $totalCurPromoRes = array_sum($chartPromoRes);
+
+                $totalPrevUsers    = $userRepository->countByDateRange($prevStart, $prevEnd);
+                $totalPrevBoosts   = $boostRepository->countByDateRange($prevStart, $prevEnd);
+                $totalPrevPromoAff = $promotionRepository->countByDateRange($prevStart, $prevEnd);
+                $totalPrevPromoRes = $promoReseauRepository->countByDateRange($prevStart, $prevEnd);
+
+                $calcVariation = function(int $cur, int $prev): float|null {
+                    if ($prev === 0) return $cur > 0 ? 100.0 : null;
+                    return round(($cur - $prev) / $prev * 100, 1);
+                };
+
+                $chartSummary = [
+                    ['label' => 'Inscriptions utilisateurs', 'color' => '#4e73df', 'icon' => 'fas fa-users',
+                     'current' => $totalCurUsers, 'previous' => $totalPrevUsers,
+                     'variation' => $calcVariation($totalCurUsers, $totalPrevUsers)],
+                    ['label' => 'Boost Contact', 'color' => '#f6a21e', 'icon' => 'fas fa-users-rectangle',
+                     'current' => $totalCurBoosts, 'previous' => $totalPrevBoosts,
+                     'variation' => $calcVariation($totalCurBoosts, $totalPrevBoosts)],
+                    ['label' => 'Promotion Affaire', 'color' => '#1cc88a', 'icon' => 'fas fa-briefcase',
+                     'current' => $totalCurPromoAff, 'previous' => $totalPrevPromoAff,
+                     'variation' => $calcVariation($totalCurPromoAff, $totalPrevPromoAff)],
+                    ['label' => 'Promo Réseau Sociaux', 'color' => '#9b59b6', 'icon' => 'fas fa-share-nodes',
+                     'current' => $totalCurPromoRes, 'previous' => $totalPrevPromoRes,
+                     'variation' => $calcVariation($totalCurPromoRes, $totalPrevPromoRes)],
+                ];
                 
                 return $this->render('private/index_admin.html.twig', [
                     'theme' => $this->theme,
@@ -235,6 +271,7 @@ class PrivateController extends AbstractController
                     'chartBoosts'   => $chartBoosts,
                     'chartPromoAff' => $chartPromoAff,
                     'chartPromoRes' => $chartPromoRes,
+                    'chartSummary'  => $chartSummary,
                 ]);
             }
         }
