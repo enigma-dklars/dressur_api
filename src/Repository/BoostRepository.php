@@ -92,4 +92,30 @@ class BoostRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+
+    public function getDailyStats30Days(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $from = (new \DateTime('-29 days'))->format('Y-m-d');
+        $to   = (new \DateTime())->format('Y-m-d');
+
+        $sql = 'SELECT DATE(date_debut) AS day, COUNT(id) AS cnt
+                FROM boost
+                WHERE DATE(date_debut) >= :from AND DATE(date_debut) <= :to
+                GROUP BY day
+                ORDER BY day ASC';
+
+        $rows = $conn->prepare($sql)->executeQuery(['from' => $from, 'to' => $to])->fetchAllAssociative();
+
+        $result = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $result[(new \DateTime("-{$i} days"))->format('Y-m-d')] = 0;
+        }
+        foreach ($rows as $row) {
+            if (isset($result[$row['day']])) {
+                $result[$row['day']] = (int) $row['cnt'];
+            }
+        }
+        return $result;
+    }
 }
