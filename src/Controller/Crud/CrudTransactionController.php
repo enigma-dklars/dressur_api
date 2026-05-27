@@ -36,12 +36,21 @@ class CrudTransactionController extends AbstractController
     }
     
     #[Route('/', name: 'app_crud_transaction_index', methods: ['GET'])]
-    public function index(TransactionRepository $transactionRepository): Response
+    public function index(TransactionRepository $transactionRepository, Request $request): Response
     {
+        $sourceFilter = $request->query->get('source', '');
+
+        if ($sourceFilter) {
+            $transactions = $transactionRepository->findBySourceFilter($sourceFilter);
+        } else {
+            $transactions = $transactionRepository->findBy([], ['id' => 'DESC']);
+        }
+
         return $this->render('crud_transaction/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'transactions' => $transactionRepository->findBy([], ['id' => 'DESC']),
+            'transactions' => $transactions,
+            'sourceFilter' => $sourceFilter,
         ]);
     }
 
