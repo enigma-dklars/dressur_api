@@ -43,12 +43,23 @@ class CrudPromotionController extends AbstractController
     }
     
     #[Route('/', name: 'app_crud_promotion_index', methods: ['GET'])]
-    public function index(PromotionRepository $promotionRepository): Response
+    public function index(PromotionRepository $promotionRepository, Request $request): Response
     {
+        $sourceFilter = $request->query->get('source', '');
+
+        if ($sourceFilter === 'none') {
+            $promotions = $promotionRepository->findBy(['source' => null], ['id' => 'DESC']);
+        } elseif (in_array($sourceFilter, ['web', 'mobile'])) {
+            $promotions = $promotionRepository->findBy(['source' => $sourceFilter], ['id' => 'DESC']);
+        } else {
+            $promotions = $promotionRepository->findBy([], ['id' => 'DESC']);
+        }
+
         return $this->render('crud_promotion/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'promotions' => $promotionRepository->findBy([], ['id' => 'DESC']),
+            'promotions' => $promotions,
+            'sourceFilter' => $sourceFilter,
         ]);
     }
 
