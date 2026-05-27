@@ -21,8 +21,8 @@
                 <tr>
                     <th></th>
                     <th></th>
-                    <th>User</th>
                     <th>Source</th>
+                    <th>User</th>
                     <th>Status</th>
                     <th>TransactionFor</th>
                     <th>IdTransaction</th>
@@ -40,16 +40,6 @@
                 <tr>
                     <td></td>
                     <td>{% include "crud_transaction/_delete_form.html.twig" %}</td>
-                    <td>
-                        {% if transaction.user %}
-                            {{ transaction.user.pseudo }}
-                        {% elseif transaction.userBot %}
-                            {{ transaction.userBot.nom }}
-                            <span class="badge bg-secondary ms-1">bot</span>
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
                     <td class="text-center">
                         {% set _src = transaction.user ? transaction.user.registerSource : null %}
                         {% if _src == 'web' %}
@@ -58,6 +48,16 @@
                             <span class="badge bg-warning text-dark">mobile</span>
                         {% else %}
                             <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transaction.user %}
+                            {{ transaction.user.pseudo }}
+                        {% elseif transaction.userBot %}
+                            {{ transaction.userBot.nom }}
+                            <span class="badge bg-secondary ms-1">bot</span>
+                        {% else %}
+                            -
                         {% endif %}
                     </td>
                     <td>                        
