@@ -20,10 +20,10 @@
     <!-- Filtre Source -->
     <div class="mb-3 d-flex align-items-center gap-2">
         <span class="small fw-semibold me-1">Source :</span>
-        <a href="{{ path('app_crud_promo_reseau_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.875rem">Tous ({{ sourceCounts.total }})</a>
-        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.875rem">mobile ({{ sourceCounts.mobile }})</a>
-        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.875rem">web ({{ sourceCounts.web }})</a>
-        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.875rem">none ({{ sourceCounts.none }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
     </div>
 
     <div class="table-responsive">
