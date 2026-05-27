@@ -57,6 +57,7 @@ class CrudPromoReseauController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'promo_reseaus' => $promo_reseaus,
             'sourceFilter' => $sourceFilter,
+            'sourceCounts' => $promoReseauRepository->getSourceCounts(),
         ]);
     }
 
