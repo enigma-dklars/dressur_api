@@ -405,15 +405,48 @@
     <div class="mt-4 mb-2">
         <h6 class="text-secondary fw-semibold mb-2"><i class="bi bi-graph-up me-1"></i>Évolution sur 30 jours</h6>
     </div>
-    <div class="card radius-10 mb-4">
+    <div class="card radius-10 mb-3">
         <div class="card-body">
             <canvas id="evolutionChart" style="max-height: 380px;"></canvas>
         </div>
     </div>
+
+    <!-- Tableau récapitulatif 30 jours vs 30 jours précédents -->
+    <div class="row g-2 mb-4">
+        {% for item in chartSummary %}
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card radius-10 h-100" style="border-left: 4px solid {{ item.color }};">
+                <div class="card-body py-3">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="{{ item.icon }} me-2" style="color:{{ item.color }};font-size:1.1rem;"></i>
+                        <span class="text-secondary small fw-semibold">{{ item.label }}</span>
+                    </div>
+                    <div class="d-flex align-items-end justify-content-between">
+                        <div>
+                            <div class="fs-3 fw-bold" style="color:{{ item.color }};">{{ item.current }}</div>
+                            <div class="text-secondary" style="font-size:.75rem;">30 derniers jours</div>
+                        </div>
+                        <div class="text-end">
+                            {% if item.variation is null %}
+                                <span class="badge bg-secondary">–</span>
+                            {% elseif item.variation > 0 %}
+                                <span class="badge bg-success"><i class="bi bi-arrow-up-short"></i> +{{ item.variation }}%</span>
+                            {% elseif item.variation < 0 %}
+                                <span class="badge bg-danger"><i class="bi bi-arrow-down-short"></i> {{ item.variation }}%</span>
+                            {% else %}
+                                <span class="badge bg-secondary">0%</span>
+                            {% endif %}
+                            <div class="text-secondary mt-1" style="font-size:.72rem;">vs {{ item.previous }} période préc.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock %}
 
-{% block javascripts %}
-{{ parent() }}
+{% block script %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 (function () {

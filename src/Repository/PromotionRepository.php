@@ -100,6 +100,16 @@ class PromotionRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+    public function countByDateRange(\DateTime $from, \DateTime $to): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql  = 'SELECT COUNT(id) FROM promotion WHERE date_debut >= :from AND date_debut < :to';
+        return (int) $conn->prepare($sql)->executeQuery([
+            'from' => $from->format('Y-m-d'),
+            'to'   => $to->format('Y-m-d'),
+        ])->fetchOne();
+    }
+
     public function getDailyStats30Days(): array
     {
         $conn = $this->getEntityManager()->getConnection();
