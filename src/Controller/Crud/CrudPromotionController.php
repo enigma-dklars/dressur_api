@@ -60,6 +60,7 @@ class CrudPromotionController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'promotions' => $promotions,
             'sourceFilter' => $sourceFilter,
+            'sourceCounts' => $promotionRepository->getSourceCounts(),
         ]);
     }
 
