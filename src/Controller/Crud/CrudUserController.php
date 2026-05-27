@@ -61,13 +61,10 @@ class CrudUserController extends AbstractController
     {
         $page = $request->query->getInt('page', 1);
         $search = $request->query->get('search', '');
+        $sourceFilter = $request->query->get('source', '');
         $limit = 100; // Nombre d'utilisateurs par page
-        
-        if ($search) {
-            $usersPaginator = $userRepository->searchUsers($search, $page, $limit);
-        } else {
-            $usersPaginator = $userRepository->findAllPaginated($page, $limit);
-        }
+
+        $usersPaginator = $userRepository->findAllPaginatedFiltered($search, $sourceFilter, $page, $limit);
         
         $totalItems = $usersPaginator->count();
         $totalPages = ceil($totalItems / $limit);
@@ -87,7 +84,8 @@ class CrudUserController extends AbstractController
             'totalPages' => $totalPages,
             'totalItems' => $totalItems,
             'search' => $search,
-            'limit' => $limit
+            'limit' => $limit,
+            'sourceFilter' => $sourceFilter
         ]);
     }
 
@@ -165,27 +163,17 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile')]
+    #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile', methods: ['POST'])]
     public function supprimer_user_inutile(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
     {
-        $count = 0;
+        if (!$this->isCsrfTokenValid('supprimer_user_inutile', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_crud_user_check');
+        }
         foreach ($userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], [], 20) as $user) {
             $traitementsDS->execPurge($user);
-            $count++;
         }
-        $this->addFlash('success', $count . ' user inutile supprimer.');
-        return $this->redirectToRoute('app_crud_user_check');
-    }
-
-    #[Route('/supprimer-user-inutile-type2', name: 'app_crud_user_supprimer_user_inutile_type2')]
-    public function supprimer_user_inutile_type2(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
-    {
-        $count = 0;
-        foreach ($userRepository->findBy(['mailIsVerified' => true, 'telIsVerified' => false], [], 20) as $user) {
-            $traitementsDS->execPurge($user);
-            $count++;
-        }
-        $this->addFlash('success', $count . ' user inutile type 2 supprimer.');
+        $this->addFlash('success', '20 user inutile supprimer.');
         return $this->redirectToRoute('app_crud_user_check');
     }
 
