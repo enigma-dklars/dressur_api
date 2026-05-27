@@ -22,6 +22,7 @@
             <thead>
                 <tr>
                     <th></th>
+                    <th>Source</th>
                     <th>Service</th>
                     <th>User</th>
                     <th>Qte.</th>
@@ -35,13 +36,21 @@
                     <th>Id</th>
                     <th>CreatedAt</th>
                     <th>UpdatedAt</th>
-                    <th>Source</th>
                 </tr>
             </thead>
             <tbody>
             {% for promo_reseau in promo_reseaus %}
                 <tr>
                     <td>{% include "crud_promo_reseau/_delete_form.html.twig" %}</td>
+                    <td class="text-center">
+                        {% if promo_reseau.source == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif promo_reseau.source == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
                     <td>{{ promo_reseau.formulePromoReseau }}</td>
                     <td>{{ promo_reseau.user.pseudo }}</td>
                     <td>{{ promo_reseau.qteDemander }}</td>
@@ -67,15 +76,6 @@
                     <td>{{ promo_reseau.id }}</td>
                     <td>{{ promo_reseau.createdAt ? promo_reseau.createdAt|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promo_reseau.updatedAt ? promo_reseau.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
-                    <td class="text-center">
-                        {% if promo_reseau.source == 'web' %}
-                            <span class="badge bg-primary">web</span>
-                        {% elseif promo_reseau.source == 'mobile' %}
-                            <span class="badge bg-warning text-dark">mobile</span>
-                        {% else %}
-                            <span class="badge bg-secondary">none</span>
-                        {% endif %}
-                    </td>
                 </tr>
             {% else %}
                 <tr>
