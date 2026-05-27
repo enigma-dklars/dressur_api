@@ -15,6 +15,7 @@ use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\StoryRepository;
+use App\Repository\TransactionRepository;
 use App\Repository\UserBotRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
@@ -180,7 +181,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin')]
-    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository): Response
+    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -213,6 +214,11 @@ class PrivateController extends AbstractController
                     'p_aff_recomp' => count($promotionRepository->findBy(['inProgrammeRecompense' => true])),
                     'p_aff_ds_statut' => count($promotionRepository->findBy(['publishOnDressurStatus' => true])),
                     'soldeZefame' => $traitementsDS->getSoldeZefame(),
+                    'userSourceCounts' => $userRepository->getRegisterSourceCounts(),
+                    'promotionSourceCounts' => $promotionRepository->getSourceCounts(),
+                    'promoReseauSourceCounts' => $promoReseauRepository->getSourceCounts(),
+                    'boostSourceCounts' => $boostRepository->getSourceCounts(),
+                    'transactionSourceCounts' => $transactionRepository->getSourceCounts(),
                 ]);
             }
         }
