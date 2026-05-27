@@ -51,6 +51,7 @@ class CrudTransactionController extends AbstractController
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'transactions' => $transactions,
             'sourceFilter' => $sourceFilter,
+            'sourceCounts' => $transactionRepository->getSourceCounts(),
         ]);
     }
 
