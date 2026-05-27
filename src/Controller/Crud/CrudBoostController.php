@@ -36,12 +36,23 @@ class CrudBoostController extends AbstractController
     }
     
     #[Route('/', name: 'app_crud_boost_index', methods: ['GET'])]
-    public function index(BoostRepository $boostRepository): Response
+    public function index(BoostRepository $boostRepository, Request $request): Response
     {
+        $sourceFilter = $request->query->get('source', '');
+
+        if ($sourceFilter === 'none') {
+            $boosts = $boostRepository->findBy(['source' => null], ['id' => 'DESC']);
+        } elseif (in_array($sourceFilter, ['web', 'mobile'])) {
+            $boosts = $boostRepository->findBy(['source' => $sourceFilter], ['id' => 'DESC']);
+        } else {
+            $boosts = $boostRepository->findBy([], ['id' => 'DESC']);
+        }
+
         return $this->render('crud_boost/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'boosts' => $boostRepository->findBy([], ['id' => 'DESC']),
+            'boosts' => $boosts,
+            'sourceFilter' => $sourceFilter,
         ]);
     }
 
