@@ -20,13 +20,13 @@
             <tr>
                 <th></th>
                 <th>Source</th>
-                <th>Id</th>
                 <th>User</th>
                 <th width="1">Status</th>
                 <th width="1">Mode</th>
                 <th>Formule</th>
                 <th>DateDebut</th>
                 <th>DateExp</th>
+                <th>Id</th>
             </tr>
         </thead>
         <tbody>
@@ -43,7 +43,6 @@
                         <span class="badge bg-secondary">none</span>
                     {% endif %}
                 </td>
-                <td>{{ boost.id }}</td>
                 <td>{{ boost.user.pseudo }}</td>
                 <td class="text-center">
                     {% if date() < boost.dateDebut and date() < boost.dateExp %}
@@ -66,6 +65,7 @@
                 <td>{{ boost.formuleBoost }}</td>
                 <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
                 <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ boost.id }}</td>
             </tr>
         {% else %}
             <tr>
