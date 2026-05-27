@@ -9,10 +9,10 @@
     <!-- Filtre Source -->
     <div class="mb-3 d-flex align-items-center gap-2">
         <span class="small fw-semibold me-1">Source :</span>
-        <a href="{{ path('app_crud_transaction_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark' : 'bg-secondary' }}">Tous</a>
-        <a href="{{ path('app_crud_transaction_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary' : 'bg-secondary' }}">web</a>
-        <a href="{{ path('app_crud_transaction_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary' }}">mobile</a>
-        <a href="{{ path('app_crud_transaction_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark' : 'bg-secondary' }}">none</a>
+        <a href="{{ path('app_crud_transaction_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark' : 'bg-secondary' }}">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_transaction_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary' : 'bg-secondary' }}">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_transaction_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary' }}">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_transaction_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark' : 'bg-secondary' }}">none ({{ sourceCounts.none }})</a>
     </div>
 
     <div class="table-responsive">
