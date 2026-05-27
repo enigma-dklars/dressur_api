@@ -124,6 +124,27 @@ class UserRepository extends ServiceEntityRepository
         return $paginator;
     }
 
+    public function findAllPaginatedFiltered(string $search, string $source, int $page, int $limit): Paginator
+    {
+        $qb = $this->createQueryBuilder('u');
+
+        if ($search) {
+            $qb->andWhere('u.pseudo LIKE :search OR u.nom LIKE :search OR u.mail LIKE :search OR u.tel LIKE :search OR u.uid LIKE :search OR u.id LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($source === 'none') {
+            $qb->andWhere('u.registerSource IS NULL');
+        } elseif (in_array($source, ['web', 'mobile'])) {
+            $qb->andWhere('u.registerSource = :source')
+               ->setParameter('source', $source);
+        }
+
+        $qb->orderBy('u.id', 'DESC');
+
+        return $this->paginate($qb->getQuery(), $page, $limit);
+    }
+
     public function findUsersWithTelAndWithoutLid(): array
     {
         return $this->createQueryBuilder('u')
