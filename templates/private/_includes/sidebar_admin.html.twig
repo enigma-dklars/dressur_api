@@ -13,7 +13,6 @@
 {% set is_f_affaire   = r starts with 'app_crud_formule_promo_affaire' %}
 {% set is_f_reseau    = r starts with 'app_crud_formule_promo_reseau' %}
 {% set is_f_bot       = r starts with 'app_crud_formule_dressur_bot' %}
-{% set is_msg_ai      = r starts with 'app_crud_msg_ai' %}
 {% set is_env         = (r starts with 'app_crud_env') and not (r starts with 'app_crud_env_mail') %}
 {% set is_env_paiem   = r starts with 'app_env_paiement_api' %}
 {% set is_methode     = r starts with 'app_methode_paiement' %}
@@ -79,7 +78,6 @@
       <li class="my-0 {{ is_f_affaire ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_affaire_index')}}" class="py-1 small-fort {{ is_f_affaire ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Affaires</a></li>
       <li class="my-0 {{ is_f_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_promo_reseau_index')}}" class="py-1 small-fort {{ is_f_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Réseaux Sociaux</a></li>
       <li class="my-0 {{ is_f_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_formule_dressur_bot_index')}}" class="py-1 small-fort {{ is_f_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>F. Dressur Bot</a></li>
-      <li class="my-0 {{ is_msg_ai ? 'mm-active' : '' }}"> <a href="{{path('app_crud_msg_ai_index')}}" class="py-1 small-fort {{ is_msg_ai ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Message Ai</a></li>
 
       <hr class="my-2">
       
