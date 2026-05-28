@@ -22,7 +22,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\PromoReseauRepository;
 use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
-use App\Repository\CampagneMailRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\EnvMailSenderRepository;
 use App\Repository\EnvPaiementApiRepository;
@@ -53,7 +52,6 @@ class TraitementsDS extends AbstractController
     private $formuleBoostRepository;
     private $formuleDressurBotRepository;
     private $cookieDS;
-    private $campagneMailRepository;
     private $promoReseauRepository;
     private $suggestionRepository;
     private $messageRepository;
@@ -65,7 +63,7 @@ class TraitementsDS extends AbstractController
     private $methodePaiementRepository;
     private $historiqueProgrammeRecompenseRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
@@ -74,7 +72,6 @@ class TraitementsDS extends AbstractController
         $this->messageRepository = $messageRepository;
         $this->suggestionRepository = $suggestionRepository;
         $this->promoReseauRepository = $promoReseauRepository;
-        $this->campagneMailRepository = $campagneMailRepository;
         $this->em = $em;
         $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
@@ -1230,8 +1227,6 @@ class TraitementsDS extends AbstractController
     }
 
     public function execPurge($user){
-        foreach ($this->campagneMailRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
         foreach ($this->promoReseauRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
         
         foreach ($this->promotionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }

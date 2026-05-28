@@ -5,11 +5,9 @@ namespace App\Controller;
 use App\Controller\API\UserController;
 use App\Entity\FormulePromoReseau;
 use App\Repository\BoostRepository;
-use App\Repository\CampagneMailRepository;
 use App\Repository\DeletedDSRepository;
 use App\Repository\EnvRepository;
 use App\Repository\FormuleBoostRepository;
-use App\Repository\FormuleCampagneMailRepository;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromoReseauRepository;
@@ -144,7 +142,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/private', name: 'app_private')]
-    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, StoryRepository $storyRepository): Response
+    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, StoryRepository $storyRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -181,7 +179,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin')]
-    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository): Response
+    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -249,7 +247,6 @@ class PrivateController extends AbstractController
                     'affaire_valider_sans_payer' => count($promotionRepository->findBy(['status' => 2])),
                     'valid_promo_affaire' => count($promotionRepository->findBy(['status' => 1])),
                     'valid_promo_reseau' => count($promoReseauRepository->findBy(['status' => 1])),
-                    'valid_camp_mail' => count($campagneMailRepository->findBy(['status' => 1])),
                     'nbr_user' => count($userRepository->findAll()),
                     'nbr_user_bot' => count($userBotRepository->findAll()),
                     'deleted_users' => count($deletedDSRepository->findAll()),
@@ -367,17 +364,6 @@ class PrivateController extends AbstractController
         ]);
     }
 
-    #[Route('/newcampagemail', name: 'app_newcampagemail')]
-    public function newcampagemail(FormuleCampagneMailRepository $formuleCampagneMailRepository, TraitementsDS $traitementsDS): Response
-    {
-        $user = $this->traitementsDS->getUserByUidInCookies();
-        // dd($formuleCampageMails);
-        return $this->render('private/newcampagemail.html.twig', [
-            'formuleCampageMails' => $formuleCampagneMailRepository->findAll(),
-            'user' => $traitementsDS->infosUser($user),
-            'theme' => $this->theme,
-        ]);
-    }
 
     #[Route('/newpromoreseau', name: 'app_newpromoreseau')]
     public function newpromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response

@@ -16,7 +16,6 @@ use App\Repository\TransactionRepository;
 use App\Repository\FormuleBoostRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\CampagneMailRepository;
 use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Repository\FormulePromoAffaireRepository;
@@ -36,7 +35,6 @@ class WebhookController extends AbstractController
     private $transactionRepository;
     private $formuleBoostRepository;
     private $formulePromoAffaireRepository;
-    private $campagneMailRepository;
     private $promotionRepository;
     private $formulePromoReseauRepository;
     private $verificationsDS;
@@ -45,13 +43,12 @@ class WebhookController extends AbstractController
     private $sendMail;
     private $zefameApi;
 
-    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, CampagneMailRepository $campagneMailRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi)
     {
         $this->em = $em;
         $this->transactionRepository = $transactionRepository;
         $this->formuleBoostRepository = $formuleBoostRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
-        $this->campagneMailRepository = $campagneMailRepository;
         $this->promotionRepository = $promotionRepository;
         $this->formulePromoReseauRepository = $formulePromoReseauRepository;
         $this->verificationsDS = $verificationsDS;
@@ -405,10 +402,6 @@ class WebhookController extends AbstractController
                 }
             }
 
-            if ($myTransaction->getTransactionFor() === 'campagne_mail') {
-                $campagneMail = $this->campagneMailRepository->find($myTransaction->getAnnotherInfo()['idCampagneMail']);
-                $campagneMail->setStatus(3);
-            }
 
             if ($myTransaction->getTransactionFor() === 'dressur_bot_activation') {
                 $formuleDressurBot = $this->formuleDressurBotRepository->find($myTransaction->getAnnotherInfo()['formulDressurBotId']);
