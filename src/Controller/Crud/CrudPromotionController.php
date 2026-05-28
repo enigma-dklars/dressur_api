@@ -155,7 +155,7 @@ class CrudPromotionController extends AbstractController
                     ->setDateDebut(new DateTime())
                     ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
                     ->setMode('Gratuit')
-                    ->setSource('admin')
+                    ->setSource('web')
                 ;
 
                 $entityManager->persist($promotion);
