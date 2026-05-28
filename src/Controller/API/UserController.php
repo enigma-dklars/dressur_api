@@ -1337,7 +1337,6 @@ class UserController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1364,7 +1363,6 @@ class UserController extends AbstractController
                 'promotions' => $traitementsDS->listePromotionAffaireInProgrammeRecompense($user),
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1428,7 +1426,6 @@ class UserController extends AbstractController
                 'referenceParticipation' => $oldProgRecomp->getReferenceParticipation(),
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1498,7 +1495,6 @@ class UserController extends AbstractController
                 'allHistorique' => $allHistorique,
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1585,7 +1581,6 @@ class UserController extends AbstractController
                 'message' => "Votre preuve a été enregistrée, elle est en attente de vérification. Veuillez joindre la capture vidéo sur WhatsApp au numéro de l’assistance Dressur. Merci.",
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1620,7 +1615,6 @@ class UserController extends AbstractController
                 'message' => "Configuration enregistrer.",
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1648,7 +1642,6 @@ class UserController extends AbstractController
                 'numeroRetrait' => $user->getNumeroRetrait(),
             ]);
         } catch (\Throwable $th) {
-            //throw $th;
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
