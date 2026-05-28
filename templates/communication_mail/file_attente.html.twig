@@ -32,8 +32,7 @@
         <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-deselect-all">
             <i class="fas fa-square me-1"></i>Tout désélectionner
         </button>
-        <button type="submit" class="btn btn-sm btn-danger ms-auto" id="btn-delete-selected" disabled
-                onclick="return confirm('Supprimer les éléments sélectionnés ?')">
+        <button type="button" class="btn btn-sm btn-danger ms-auto" id="btn-delete-selected" disabled>
             <i class="fas fa-trash me-1"></i>Supprimer la sélection
             <span class="badge bg-light text-danger ms-1" id="count-selected">0</span>
         </button>
@@ -132,12 +131,13 @@
 
 <script>
 (function () {
-    const master        = document.getElementById('checkbox-master');
-    const checkboxes    = () => document.querySelectorAll('.row-checkbox');
-    const btnSelectAll  = document.getElementById('btn-select-all');
-    const btnDeselectAll= document.getElementById('btn-deselect-all');
-    const btnDelete     = document.getElementById('btn-delete-selected');
-    const countBadge    = document.getElementById('count-selected');
+    const master         = document.getElementById('checkbox-master');
+    const checkboxes     = () => document.querySelectorAll('.row-checkbox');
+    const btnSelectAll   = document.getElementById('btn-select-all');
+    const btnDeselectAll = document.getElementById('btn-deselect-all');
+    const btnDelete      = document.getElementById('btn-delete-selected');
+    const countBadge     = document.getElementById('count-selected');
+    const formMultiple   = document.getElementById('form-delete-multiple');
 
     if (!master) return;
 
@@ -146,8 +146,8 @@
         const checked = document.querySelectorAll('.row-checkbox:checked');
         const n       = checked.length;
 
-        countBadge.textContent  = n;
-        btnDelete.disabled      = n === 0;
+        countBadge.textContent = n;
+        btnDelete.disabled     = n === 0;
 
         master.indeterminate = n > 0 && n < all.length;
         master.checked       = n === all.length && all.length > 0;
@@ -176,14 +176,44 @@
         checkboxes().forEach(cb => { cb.checked = false; });
         updateUI();
     });
+
+    btnDelete.addEventListener('click', function () {
+        const n = document.querySelectorAll('.row-checkbox:checked').length;
+        Swal.fire({
+            title: 'Confirmer la suppression',
+            text: n + ' élément(s) sélectionné(s) seront supprimés définitivement.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-trash me-1"></i>Supprimer',
+            cancelButtonText: 'Annuler'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                formMultiple.submit();
+            }
+        });
+    });
 })();
 
-function deleteSingle(id, token, btn) {
-    if (!confirm('Supprimer cet envoi ?')) return;
-    const form   = document.getElementById('form-delete-single');
-    form.action  = '/crud/communication-mail/file-attente/' + id + '/delete';
-    document.getElementById('single-token').value = token;
-    form.submit();
+function deleteSingle(id, token) {
+    Swal.fire({
+        title: 'Supprimer cet envoi ?',
+        text: 'Cette action est irréversible.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fas fa-trash me-1"></i>Supprimer',
+        cancelButtonText: 'Annuler'
+    }).then(function (result) {
+        if (result.isConfirmed) {
+            const form  = document.getElementById('form-delete-single');
+            form.action = '/crud/communication-mail/file-attente/' + id + '/delete';
+            document.getElementById('single-token').value = token;
+            form.submit();
+        }
+    });
 }
 </script>
 
