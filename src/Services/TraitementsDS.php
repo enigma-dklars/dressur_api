@@ -12,7 +12,6 @@ use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use App\Repository\MessageRepository;
-use App\Controller\API\BoostController;
 use App\Repository\DeletedDSRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\VerifMailRepository;
@@ -20,7 +19,6 @@ use App\Repository\MotRefuserRepository;
 use App\Repository\PreferenceRepository;
 use App\Repository\SuggestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Controller\API\ContactController;
 use App\Repository\PromoReseauRepository;
 use App\Repository\SignalementRepository;
 use App\Repository\TransactionRepository;
@@ -29,7 +27,6 @@ use App\Repository\FormuleBoostRepository;
 use App\Repository\EnvMailSenderRepository;
 use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleDressurBotRepository;
-use App\Controller\API\UserPreferenceController;
 use App\Entity\FormulePromoReseau;
 use App\Entity\Transaction;
 use App\Repository\FormulePromoAffaireRepository;
@@ -68,7 +65,7 @@ class TraitementsDS extends AbstractController
     private $methodePaiementRepository;
     private $historiqueProgrammeRecompenseRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostController $boostController, UserPreferenceController $userPreferenceController, ContactController $contactController, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, CampagneMailRepository $campagneMailRepository, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
