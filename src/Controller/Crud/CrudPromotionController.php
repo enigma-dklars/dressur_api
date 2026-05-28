@@ -251,7 +251,6 @@ class CrudPromotionController extends AbstractController
                 try {
                     unlink($this->getParameter('promotion_directory')."/".$promotion->getImage());
                 } catch (\Throwable $th) {
-                    //throw $th;
                 }
             }
 
