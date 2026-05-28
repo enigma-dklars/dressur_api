@@ -20,6 +20,22 @@
     {% endfor %}
 {% endfor %}
 
+<div class="card mb-3 border-primary">
+    <div class="card-body py-2 px-3 d-flex align-items-center flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-2">
+            <span id="batch-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></span>
+            <span id="batch-status" class="small text-muted">En attente du prochain envoi…</span>
+        </div>
+        <div class="ms-auto d-flex align-items-center gap-2">
+            <span class="small text-muted">Prochain envoi dans <strong id="countdown">5:00</strong></span>
+            <button type="button" class="btn btn-sm btn-primary" id="btn-send-now">
+                <i class="fas fa-paper-plane me-1"></i>Envoyer maintenant
+            </button>
+        </div>
+    </div>
+    <div id="batch-log" class="px-3 pb-2" style="display:none;max-height:120px;overflow-y:auto;font-size:0.8rem;"></div>
+</div>
+
 {% if entries|length > 0 %}
 <form id="form-delete-multiple" method="post"
       action="{{ path('app_communication_mail_file_attente_delete_multiple') }}">
@@ -130,6 +146,7 @@
 {% endif %}
 
 <script>
+// ── Sélection multiple ───────────────────────────────────────────────────────
 (function () {
     const master         = document.getElementById('checkbox-master');
     const checkboxes     = () => document.querySelectorAll('.row-checkbox');
@@ -167,17 +184,17 @@
         cb.addEventListener('change', updateUI);
     });
 
-    btnSelectAll.addEventListener('click', function () {
+    if (btnSelectAll) btnSelectAll.addEventListener('click', function () {
         checkboxes().forEach(cb => { cb.checked = true; });
         updateUI();
     });
 
-    btnDeselectAll.addEventListener('click', function () {
+    if (btnDeselectAll) btnDeselectAll.addEventListener('click', function () {
         checkboxes().forEach(cb => { cb.checked = false; });
         updateUI();
     });
 
-    btnDelete.addEventListener('click', function () {
+    if (btnDelete) btnDelete.addEventListener('click', function () {
         const n = document.querySelectorAll('.row-checkbox:checked').length;
         Swal.fire({
             title: 'Confirmer la suppression',
@@ -189,9 +206,7 @@
             confirmButtonText: '<i class="fas fa-trash me-1"></i>Supprimer',
             cancelButtonText: 'Annuler'
         }).then(function (result) {
-            if (result.isConfirmed) {
-                formMultiple.submit();
-            }
+            if (result.isConfirmed) { formMultiple.submit(); }
         });
     });
 })();
@@ -215,6 +230,113 @@ function deleteSingle(id, token) {
         }
     });
 }
+
+// ── Envoi automatique par lot (Ajax toutes les 5 min) ────────────────────────
+(function () {
+    const INTERVAL_MS   = 5 * 60 * 1000;
+    const BATCH_URL     = '{{ path('app_communication_mail_file_attente_process_batch') }}';
+
+    const elStatus      = document.getElementById('batch-status');
+    const elSpinner     = document.getElementById('batch-spinner');
+    const elCountdown   = document.getElementById('countdown');
+    const elLog         = document.getElementById('batch-log');
+    const btnSendNow    = document.getElementById('btn-send-now');
+
+    let secondsLeft = INTERVAL_MS / 1000;
+    let countdownTimer = null;
+    let sending = false;
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function startCountdown() {
+        secondsLeft = INTERVAL_MS / 1000;
+        clearInterval(countdownTimer);
+        countdownTimer = setInterval(function () {
+            secondsLeft--;
+            const m = Math.floor(secondsLeft / 60);
+            const s = secondsLeft % 60;
+            elCountdown.textContent = m + ':' + pad(s);
+            if (secondsLeft <= 0) {
+                clearInterval(countdownTimer);
+                sendBatch();
+            }
+        }, 1000);
+    }
+
+    function addLog(html) {
+        elLog.style.display = 'block';
+        const line = document.createElement('div');
+        line.innerHTML = html;
+        elLog.prepend(line);
+    }
+
+    function updateRowStatut(id, statut) {
+        const row = document.querySelector('tr.row-entry [name="ids[]"][value="' + id + '"]');
+        if (!row) return;
+        const tr  = row.closest('tr');
+        const td  = tr.querySelector('td:nth-child(5)');
+        if (!td) return;
+        const badges = {
+            'envoye': '<span class="badge bg-success">Envoyé</span>',
+            'erreur': '<span class="badge bg-danger">Erreur</span>',
+        };
+        td.innerHTML = badges[statut] || td.innerHTML;
+    }
+
+    function sendBatch() {
+        if (sending) return;
+        sending = true;
+        elSpinner.classList.remove('d-none');
+        elStatus.textContent = 'Envoi en cours…';
+        btnSendNow.disabled  = true;
+
+        fetch(BATCH_URL, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            const now = new Date().toLocaleTimeString('fr-FR');
+            if (data.processed === 0) {
+                elStatus.textContent = 'File d\'attente vide.';
+                addLog('<span class="text-muted">[' + now + '] Aucun mail en attente.</span>');
+            } else {
+                const ok  = data.results.filter(function (r) { return r.statut === 'envoye'; }).length;
+                const err = data.results.filter(function (r) { return r.statut === 'erreur'; }).length;
+
+                elStatus.textContent = data.processed + ' mail(s) traité(s) — ' + data.remaining + ' restant(s).';
+
+                data.results.forEach(function (r) {
+                    updateRowStatut(r.id, r.statut);
+                    const icon   = r.statut === 'envoye' ? '✅' : '❌';
+                    addLog('<span class="text-muted">[' + now + ']</span> ' + icon + ' ' + r.sendto);
+                });
+
+                addLog(
+                    '<strong>[' + now + '] Lot envoyé : ' + ok + ' ✅ ' + err + ' ❌ — ' +
+                    data.remaining + ' en attente</strong>'
+                );
+            }
+        })
+        .catch(function () {
+            elStatus.textContent = 'Erreur lors de la requête.';
+            addLog('<span class="text-danger">[Erreur réseau] La requête a échoué.</span>');
+        })
+        .finally(function () {
+            sending = false;
+            elSpinner.classList.add('d-none');
+            btnSendNow.disabled = false;
+            startCountdown();
+        });
+    }
+
+    btnSendNow.addEventListener('click', function () {
+        clearInterval(countdownTimer);
+        sendBatch();
+    });
+
+    startCountdown();
+})();
 </script>
 
 {% endblock %}
