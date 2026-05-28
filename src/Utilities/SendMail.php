@@ -89,6 +89,37 @@ class SendMail {
         $this->logger->error('Sender désactivé (' . $this->envMailSender->getMailAdresse() . ') — raison : ' . $reason);
     }
 
+    private function htmlToText(string $html): string
+    {
+        $text = preg_replace('/<br\s*\/?>/i', "\n", $html);
+        $text = preg_replace('/<\/p>/i', "\n\n", $text);
+        $text = preg_replace('/<\/li>/i', "\n", $text);
+        $text = preg_replace('/<\/h[1-6]>/i', "\n\n", $text);
+        $text = strip_tags($text);
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace("/\n{3,}/", "\n\n", $text);
+        return trim($text);
+    }
+
+    private function buildSwiftMessage(string $to, string $subject, string $html, string $replyto, string $title): \Swift_Message
+    {
+        $msg = (new Swift_Message())
+            ->setSubject($subject)
+            ->setFrom([$this->envMailSender->getMailAdresse() => $title])
+            ->setReplyTo($replyto)
+            ->setTo($to)
+            ->setBody($html, 'text/html')
+            ->addPart($this->htmlToText($html), 'text/plain')
+        ;
+
+        $headers = $msg->getHeaders();
+        $headers->addTextHeader('List-Unsubscribe', '<mailto:' . $replyto . '?subject=D%C3%A9sabonnement>');
+        $headers->addTextHeader('List-Unsubscribe-Post', 'List-Unsubscribe=One-Click');
+        $headers->addTextHeader('X-Mailer', 'Dressur Mailer');
+
+        return $msg;
+    }
+
     private function sendEmail($to, $subject, $message, $replyto, $title) {
         $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
 
@@ -103,14 +134,8 @@ class SendMail {
                     ->setUsername($this->envMailSender->getMailAdresse())
                     ->setPassword($this->envMailSender->getPassword())
                 ;
-                $mailer = new Swift_Mailer($transport);
-                $content = (new Swift_Message())
-                    ->setSubject($subject)
-                    ->setFrom([$this->envMailSender->getMailAdresse() => $title])
-                    ->setReplyTo($replyto)
-                    ->setTo($to)
-                    ->setBody($message, 'text/html')
-                ;
+                $mailer  = new Swift_Mailer($transport);
+                $content = $this->buildSwiftMessage($to, $subject, $message, $replyto, $title);
 
                 if ($mailer->send($content)) {
                     $this->envMailSender->isUsed();
