@@ -154,7 +154,7 @@ class CrudPromotionController extends AbstractController
                     ->setStatus(3)
                     ->setDateDebut(new DateTime())
                     ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
-                    ->setMode('Admin')
+                    ->setMode('Gratuit')
                     ->setSource('admin')
                 ;
 
