@@ -13,6 +13,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Utilities\SendMail;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 #[Route('/crud/communication-mail')]
 class CommunicationMailController extends AbstractController
@@ -176,6 +178,56 @@ class CommunicationMailController extends AbstractController
             'theme'   => $this->theme,
             'user'    => $this->traitementsDS->getUserByUidInCookies(),
             'entries' => $fileAttenteRepo->findBy([], ['id' => 'DESC']),
+        ]);
+    }
+
+    // ─── Traitement d'un lot de 10 mails en file d'attente (Ajax) ───────────
+
+    #[Route('/file-attente/process-batch', name: 'app_communication_mail_file_attente_process_batch', methods: ['POST'])]
+    public function processBatch(
+        FileAttenteProspectMailRepository $fileAttenteRepo,
+        EntityManagerInterface $entityManager,
+        SendMail $sendMail
+    ): JsonResponse {
+        $entries = $fileAttenteRepo->findBy(
+            ['statut' => 'en_attente'],
+            ['id'     => 'ASC'],
+            10
+        );
+
+        if (empty($entries)) {
+            return $this->json([
+                'processed' => 0,
+                'results'   => [],
+                'remaining' => 0,
+            ]);
+        }
+
+        $results = [];
+        foreach ($entries as $entry) {
+            $sent   = $sendMail->smtpMail(
+                $entry->getSendto(),
+                $entry->getSujet(),
+                $entry->getContentmail(),
+                $entry->getReplyto(),
+                $entry->getTitre()
+            );
+            $statut = $sent ? 'envoye' : 'erreur';
+            $entry->setStatut($statut);
+            $results[] = [
+                'id'     => $entry->getId(),
+                'sendto' => $entry->getSendto(),
+                'statut' => $statut,
+            ];
+        }
+        $entityManager->flush();
+
+        $remaining = count($fileAttenteRepo->findBy(['statut' => 'en_attente']));
+
+        return $this->json([
+            'processed' => count($results),
+            'results'   => $results,
+            'remaining' => $remaining,
         ]);
     }
 
