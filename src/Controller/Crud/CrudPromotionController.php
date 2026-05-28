@@ -7,6 +7,7 @@ use App\Form\PromotionType;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -101,6 +102,78 @@ class CrudPromotionController extends AbstractController
         return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
     }
 
+
+    #[Route('/admin-new', name: 'app_crud_promotion_admin_new', methods: ['GET', 'POST'])]
+    public function newAdmin(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        FormulePromoAffaireRepository $formulePromoAffaireRepository
+    ): Response {
+        $users   = $userRepository->findBy([], ['pseudo' => 'ASC']);
+        $formules = $formulePromoAffaireRepository->findBy(['activated' => true], ['titre' => 'ASC']);
+        $errors  = [];
+
+        if ($request->isMethod('POST')) {
+            $userId              = $request->request->get('user_id');
+            $formuleId           = $request->request->get('formule_id');
+            $description         = trim((string) $request->request->get('description', ''));
+            $typePromotionAffaire = $request->request->get('type_promotion_affaire', 'produit_service');
+            $imageFile           = $request->files->get('image');
+
+            $user    = $userId    ? $userRepository->find($userId)                          : null;
+            $formule = $formuleId ? $formulePromoAffaireRepository->find($formuleId)        : null;
+
+            if (!$user)    { $errors[] = "Utilisateur invalide."; }
+            if (!$formule) { $errors[] = "Formule invalide."; }
+            if (empty($description)) { $errors[] = "La description est obligatoire."; }
+
+            if ($imageFile) {
+                if ($imageFile->getSize() > 1 * 1024 * 1024) {
+                    $errors[] = "L'image ne doit pas dépasser 1 Mo (taille reçue : " . round($imageFile->getSize() / 1024) . " Ko).";
+                }
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!in_array($imageFile->getMimeType(), $allowedMimes)) {
+                    $errors[] = "Format d'image non supporté (jpg, png, gif, webp uniquement).";
+                }
+            } else {
+                $errors[] = "Une image est obligatoire.";
+            }
+
+            if (empty($errors)) {
+                $fileName = 'dressur_pro_' . uniqid() . '.' . $imageFile->guessExtension();
+                $imageFile->move($this->getParameter('promotion_directory'), $fileName);
+
+                $promotion = new Promotion();
+                $promotion
+                    ->setUser($user)
+                    ->setFormulePromoAffaire($formule)
+                    ->setDescription($description)
+                    ->setImage($fileName)
+                    ->setTypePromotionAffaire($typePromotionAffaire)
+                    ->setStatus(3)
+                    ->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
+                    ->setMode('Admin')
+                    ->setSource('admin')
+                ;
+
+                $entityManager->persist($promotion);
+                $entityManager->flush();
+
+                $this->addFlash('success', "Promotion admin #" . $promotion->getId() . " créée et acceptée automatiquement.");
+                return $this->redirectToRoute('app_crud_promotion_index', [], Response::HTTP_SEE_OTHER);
+            }
+        }
+
+        return $this->render('crud_promotion/new_admin.html.twig', [
+            'theme'   => $this->theme,
+            'user'    => $this->traitementsDS->getUserByUidInCookies(),
+            'users'   => $users,
+            'formules' => $formules,
+            'errors'  => $errors,
+        ]);
+    }
 
     #[Route('/new', name: 'app_crud_promotion_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response

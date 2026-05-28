@@ -7,7 +7,10 @@
         <div class="col-8">
             <span class="h4 me-3">Promotion index</span>
         </div>
-        <div class="col-4 text-end fs-5">
+        <div class="col-4 text-end fs-5 d-flex gap-2 justify-content-end align-items-center">
+            <a class="btn btn-sm btn-success h4" href="{{ path('app_crud_promotion_admin_new') }}">
+                <i class="fas fa-plus-circle me-1"></i>Nouvelle Promotion
+            </a>
             <a class="btn btn-sm btn-danger h4 js-confirm-orphan" href="{{ path('app_crud_promotion_delete_images_no_use') }}">Delete Images No Used</a>
         </div>
     </div>
