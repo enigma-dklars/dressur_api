@@ -1,0 +1,60 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Communication Mail — Importer des prospects{% endblock %}
+
+{% block body %}
+
+<div class="d-flex align-items-center mb-3">
+    <p class="h4 me-3 mb-0"><i class="fas fa-envelope me-2 text-primary"></i>Importer des adresses mail prospects</p>
+    <a class="btn btn-sm btn-outline-secondary ms-auto" href="{{ path('app_communication_mail_prospect_index') }}">
+        <i class="fas fa-list me-1"></i>Voir la liste
+    </a>
+</div>
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+<div class="card">
+    <div class="card-header fw-semibold">
+        Saisie des adresses mail
+    </div>
+    <div class="card-body">
+        <p class="text-muted small mb-3">
+            Collez une ou plusieurs adresses mail ci-dessous.<br>
+            Les séparateurs acceptés sont : <strong>virgule, point-virgule, espace, retour à la ligne</strong>.<br>
+            Chaque adresse sera enregistrée individuellement. Les doublons et les adresses invalides sont automatiquement ignorés.
+        </p>
+
+        <form method="post" action="{{ path('app_communication_mail_prospect_new') }}">
+
+            <div class="mb-3">
+                <label for="emails" class="form-label fw-semibold">Adresses mail <span class="text-danger">*</span></label>
+                <textarea
+                    id="emails"
+                    name="emails"
+                    class="form-control font-monospace"
+                    rows="10"
+                    placeholder="exemple@mail.com, autre@mail.com&#10;encore@mail.com"
+                    required
+                ></textarea>
+                <div class="form-text">Une adresse par ligne, ou séparées par des virgules / points-virgules.</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Enregistrer
+                </button>
+                <a href="{{ path('app_communication_mail_prospect_index') }}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}
