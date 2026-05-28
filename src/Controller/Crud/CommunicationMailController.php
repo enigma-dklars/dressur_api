@@ -195,6 +195,41 @@ class CommunicationMailController extends AbstractController
         return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
     }
 
+    // ─── Suppression multiple d'entrées file d'attente ───────────────────────
+
+    #[Route('/file-attente/delete-multiple', name: 'app_communication_mail_file_attente_delete_multiple', methods: ['POST'])]
+    public function deleteMultipleFileAttente(
+        Request $request,
+        FileAttenteProspectMailRepository $fileAttenteRepo,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete_multiple_file_attente', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $ids = $request->request->all('ids');
+
+        if (empty($ids)) {
+            $this->addFlash('warning', 'Aucun élément sélectionné.');
+            return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $entry = $fileAttenteRepo->find((int) $id);
+            if ($entry) {
+                $entityManager->remove($entry);
+                $deleted++;
+            }
+        }
+        $entityManager->flush();
+
+        $this->addFlash('success', $deleted . ' entrée(s) supprimée(s).');
+
+        return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
+    }
+
     // ─── Contenu HTML du mail prospect ───────────────────────────────────────
 
     private static function buildProspectMailContent(): string
