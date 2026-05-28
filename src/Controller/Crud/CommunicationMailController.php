@@ -6,7 +6,6 @@ use App\Entity\MailProspect;
 use App\Entity\FileAttenteProspectMail;
 use App\Repository\MailProspectRepository;
 use App\Repository\FileAttenteProspectMailRepository;
-use App\Repository\EnvMailSenderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,11 +44,11 @@ class CommunicationMailController extends AbstractController
         MailProspectRepository $prospectRepo
     ): Response {
         return $this->render('communication_mail/portal.html.twig', [
-            'theme'          => $this->theme,
-            'user'           => $this->traitementsDS->getUserByUidInCookies(),
-            'nb_attente'     => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
-            'nb_envoye'      => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
-            'nb_prospects'   => count($prospectRepo->findAll()),
+            'theme'        => $this->theme,
+            'user'         => $this->traitementsDS->getUserByUidInCookies(),
+            'nb_attente'   => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
+            'nb_envoye'    => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
+            'nb_prospects' => count($prospectRepo->findAll()),
         ]);
     }
 
@@ -59,23 +58,20 @@ class CommunicationMailController extends AbstractController
     public function campagneProspect(
         Request $request,
         EntityManagerInterface $entityManager,
-        MailProspectRepository $mailProspectRepository,
-        EnvMailSenderRepository $envMailSenderRepository
+        MailProspectRepository $mailProspectRepository
     ): Response {
-        $envSender = $envMailSenderRepository->findOneBy(['activated' => true]);
-        $replyto   = $envSender ? $envSender->getMailAdresse() : 'noreply@dressur.site';
-
-        $titre  = 'Boostez votre activité avec Dressur';
-        $sujet  = 'Rejoignez Dressur – La plateforme qui vous connecte à de nouveaux clients';
+        $replyto     = 'dressur.ds@gmail.com';
+        $titre       = 'Boostez votre activité avec Dressur';
+        $sujet       = 'Rejoignez Dressur – La plateforme qui vous connecte à de nouveaux clients';
         $contentmail = self::buildProspectMailContent();
 
         if ($request->isMethod('POST')) {
             $rawEmails = $request->request->get('emails', '');
             $parts     = preg_split('/[\s,;]+/', $rawEmails);
 
-            $seen     = [];
-            $imported = 0;
-            $doublons = 0;
+            $seen      = [];
+            $imported  = 0;
+            $doublons  = 0;
             $invalides = [];
 
             foreach ($parts as $part) {
@@ -106,7 +102,7 @@ class CommunicationMailController extends AbstractController
                     $doublons++;
                 }
 
-                // Ajout en file d'attente (toujours — même si l'adresse était déjà connue)
+                // Ajout en file d'attente (toujours)
                 $fileAttente = (new FileAttenteProspectMail())
                     ->setSendto($email)
                     ->setTitre($titre)
@@ -141,6 +137,34 @@ class CommunicationMailController extends AbstractController
             'replyto'     => $replyto,
             'contentmail' => $contentmail,
         ]);
+    }
+
+    // ─── Liste des adresses en base (MailProspect) ───────────────────────────
+
+    #[Route('/prospects', name: 'app_communication_mail_prospects', methods: ['GET'])]
+    public function prospects(MailProspectRepository $mailProspectRepository): Response
+    {
+        return $this->render('communication_mail/prospect_list.html.twig', [
+            'theme'     => $this->theme,
+            'user'      => $this->traitementsDS->getUserByUidInCookies(),
+            'prospects' => $mailProspectRepository->findBy([], ['id' => 'DESC']),
+        ]);
+    }
+
+    // ─── Suppression d'une adresse prospect ──────────────────────────────────
+
+    #[Route('/prospects/{id}/delete', name: 'app_communication_mail_prospect_delete', methods: ['POST'])]
+    public function deleteProspect(
+        Request $request,
+        MailProspect $prospect,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($this->isCsrfTokenValid('delete' . $prospect->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($prospect);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_communication_mail_prospects', [], Response::HTTP_SEE_OTHER);
     }
 
     // ─── File d'attente ──────────────────────────────────────────────────────
