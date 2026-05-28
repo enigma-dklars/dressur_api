@@ -33,13 +33,13 @@
                 <form method="post" action="{{ path('app_communication_mail_campagne_prospect') }}">
 
                     <div class="mb-3">
-                        <label class="form-label small text-muted">Sujet du mail</label>
-                        <div class="form-control-plaintext fw-semibold small border rounded px-2 py-1 bg-light">{{ sujet }}</div>
+                        <label class="form-label small fw-semibold">Sujet du mail</label>
+                        <p class="mb-0 border rounded px-2 py-2 small fw-semibold">{{ sujet }}</p>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small text-muted">Reply-to (expéditeur)</label>
-                        <div class="form-control-plaintext small border rounded px-2 py-1 bg-light">{{ replyto }}</div>
+                        <label class="form-label small fw-semibold">Reply-to</label>
+                        <p class="mb-0 border rounded px-2 py-2 small font-monospace">{{ replyto }}</p>
                     </div>
 
                     <div class="mb-3">
@@ -50,20 +50,20 @@
                             id="emails"
                             name="emails"
                             class="form-control font-monospace"
-                            rows="12"
+                            rows="10"
                             placeholder="exemple@mail.com, autre@mail.com&#10;encore@mail.com"
                             required
                         ></textarea>
                         <div class="form-text">
-                            Séparateurs acceptés : virgule, point-virgule, espace, retour à la ligne.<br>
-                            Les doublons et adresses invalides sont ignorés automatiquement.<br>
+                            Séparateurs : virgule, point-virgule, espace, retour à la ligne.<br>
+                            Doublons et adresses invalides ignorés automatiquement.<br>
                             Chaque adresse est conservée dans la base de prospects.
                         </div>
                     </div>
 
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane me-1"></i>Valider et envoyer en file d'attente
+                            <i class="fas fa-paper-plane me-1"></i>Valider et mettre en file d'attente
                         </button>
                     </div>
 
@@ -78,7 +78,7 @@
             <div class="card-header fw-semibold">
                 <i class="fas fa-eye me-1"></i>Aperçu du mail envoyé
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-0" style="background:#f8f9fa;">
                 <div class="p-3">
                     {{ contentmail|raw }}
                 </div>
