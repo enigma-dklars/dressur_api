@@ -39,19 +39,17 @@
     </div>
 </div>
 
-{# ── Campagnes disponibles ── #}
+{# ── Campagnes & outils ── #}
 <h5 class="mb-3 fw-semibold">Campagnes</h5>
-<div class="row g-3">
+<div class="row g-3 mb-4">
 
     <div class="col-md-6">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body d-flex flex-column">
-                <div class="mb-3">
-                    <span class="fs-1">🚀</span>
-                </div>
+                <div class="mb-3"><span class="fs-1">🚀</span></div>
                 <h5 class="card-title fw-semibold">Attirer de nouveaux utilisateurs</h5>
                 <p class="card-text text-muted small flex-grow-1">
-                    Envoyez un mail engageant à des adresses externes pour les inviter à rejoindre la plateforme Dressur via le web ou l'application mobile.
+                    Envoyez un mail engageant à des adresses externes pour les inviter à rejoindre Dressur via le web ou l'application mobile.
                 </p>
                 <a href="{{ path('app_communication_mail_campagne_prospect') }}" class="btn btn-primary mt-2">
                     <i class="fas fa-paper-plane me-1"></i>Lancer la campagne
@@ -63,9 +61,7 @@
     <div class="col-md-6">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body d-flex flex-column">
-                <div class="mb-3">
-                    <span class="fs-1">📋</span>
-                </div>
+                <div class="mb-3"><span class="fs-1">📋</span></div>
                 <h5 class="card-title fw-semibold">File d'attente d'envoi</h5>
                 <p class="card-text text-muted small flex-grow-1">
                     Consultez et gérez les mails en attente d'envoi, envoyés ou en erreur.
@@ -75,6 +71,27 @@
                 </p>
                 <a href="{{ path('app_communication_mail_file_attente') }}" class="btn btn-outline-secondary mt-2">
                     <i class="fas fa-list me-1"></i>Voir la file d'attente
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<h5 class="mb-3 fw-semibold">Base de données</h5>
+<div class="row g-3">
+
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">🗂️</span></div>
+                <h5 class="card-title fw-semibold">Adresses en base</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Consultez toutes les adresses mail collectées lors des campagnes. Ces adresses sont conservées pour des réutilisations futures.
+                    <br><span class="badge bg-primary mt-1">{{ nb_prospects }} adresse(s)</span>
+                </p>
+                <a href="{{ path('app_communication_mail_prospects') }}" class="btn btn-outline-primary mt-2">
+                    <i class="fas fa-database me-1"></i>Voir la liste
                 </a>
             </div>
         </div>
