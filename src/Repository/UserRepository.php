@@ -88,12 +88,10 @@ class UserRepository extends ServiceEntityRepository
                 'u.id',
                 'COUNT(DISTINCT b.id) AS boostsCount',
                 'COUNT(DISTINCT p.id) AS promotionsCount',
-                'COUNT(DISTINCT cm.id) AS campagneMailsCount',
                 'COUNT(DISTINCT pr.id) AS promoReseausCount'
             )
             ->leftJoin('u.boosts', 'b')
             ->leftJoin('u.promotions', 'p')
-            ->leftJoin('u.campagneMails', 'cm')
             ->leftJoin('u.promoReseaus', 'pr')
             ->where('u.id IN (:ids)')
             ->setParameter('ids', $userIds)
@@ -106,7 +104,6 @@ class UserRepository extends ServiceEntityRepository
             $result[$row['id']] = [
                 'boosts'       => (int) $row['boostsCount'],
                 'promotions'   => (int) $row['promotionsCount'],
-                'campagneMails' => (int) $row['campagneMailsCount'],
                 'promoReseaus' => (int) $row['promoReseausCount'],
             ];
         }
