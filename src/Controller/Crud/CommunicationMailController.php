@@ -316,7 +316,7 @@ class CommunicationMailController extends AbstractController
          style="display:inline-block;padding:14px 28px;background:#0d6efd;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin:0 8px 12px;">
         🌐 Accéder à Dressur
       </a>
-      <a href="https://play.google.com/store/apps/details?id=site.dressur.dressurapp"
+      <a href="https://play.google.com/store/apps/details?id=com.dressur.ds"
          style="display:inline-block;padding:14px 28px;background:#198754;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin:0 8px 12px;">
         📱 Télécharger sur Play Store
       </a>
