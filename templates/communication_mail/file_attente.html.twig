@@ -4,8 +4,24 @@
 
 {% block body %}
 
+<style>
+@keyframes badge-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+}
+.badge-pop { animation: badge-pop .35s ease; }
+</style>
+
 <div class="d-flex align-items-center mb-3">
-    <h4 class="mb-0"><i class="fas fa-list me-2 text-primary"></i>File d'attente d'envoi</h4>
+    <h4 class="mb-0">
+        <i class="fas fa-list me-2 text-primary"></i>File d'attente d'envoi
+        <span id="badge-attente"
+              class="badge bg-warning text-dark ms-2"
+              style="font-size:.65rem;vertical-align:middle;">
+            {{ entries|filter(e => e.statut == 'en_attente')|length }} en attente
+        </span>
+    </h4>
     <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary ms-auto">
         <i class="fas fa-arrow-left me-1"></i>Retour au portail
     </a>
@@ -108,9 +124,9 @@
         <div class="card-footer text-muted small d-flex justify-content-between">
             <span>{{ entries|length }} entrée(s) au total</span>
             <span>
-                {{ entries|filter(e => e.statut == 'en_attente')|length }} en attente ·
-                {{ entries|filter(e => e.statut == 'envoye')|length }} envoyés ·
-                {{ entries|filter(e => e.statut == 'erreur')|length }} erreurs
+                <span id="footer-attente">{{ entries|filter(e => e.statut == 'en_attente')|length }}</span> en attente ·
+                <span id="footer-envoye">{{ entries|filter(e => e.statut == 'envoye')|length }}</span> envoyés ·
+                <span id="footer-erreur">{{ entries|filter(e => e.statut == 'erreur')|length }}</span> erreurs
             </span>
         </div>
     </div>
@@ -241,6 +257,29 @@ function deleteSingle(id, token) {
     const elCountdown   = document.getElementById('countdown');
     const elLog         = document.getElementById('batch-log');
     const btnSendNow    = document.getElementById('btn-send-now');
+    const elBadge       = document.getElementById('badge-attente');
+    const elFooterAtt   = document.getElementById('footer-attente');
+    const elFooterEnv   = document.getElementById('footer-envoye');
+    const elFooterErr   = document.getElementById('footer-erreur');
+
+    function updateCounters(remaining, newEnvoye, newErreur) {
+        // Badge dans le titre
+        if (elBadge) {
+            elBadge.textContent = remaining + ' en attente';
+            elBadge.classList.toggle('bg-warning', remaining > 0);
+            elBadge.classList.toggle('text-dark',  remaining > 0);
+            elBadge.classList.toggle('bg-success', remaining === 0);
+            elBadge.classList.toggle('text-white', remaining === 0);
+            // Animation pop subtile
+            elBadge.classList.remove('badge-pop');
+            void elBadge.offsetWidth; // reflow pour relancer l'animation
+            elBadge.classList.add('badge-pop');
+        }
+        // Footer
+        if (elFooterAtt) elFooterAtt.textContent = remaining;
+        if (elFooterEnv && newEnvoye !== undefined) elFooterEnv.textContent = parseInt(elFooterEnv.textContent || 0) + newEnvoye;
+        if (elFooterErr && newErreur !== undefined) elFooterErr.textContent = parseInt(elFooterErr.textContent || 0) + newErreur;
+    }
 
     let secondsLeft = INTERVAL_MS / 1000;
     let countdownTimer = null;
@@ -300,6 +339,7 @@ function deleteSingle(id, token) {
             if (data.processed === 0) {
                 elStatus.textContent = 'File d\'attente vide.';
                 addLog('<span class="text-muted">[' + now + '] Aucun mail en attente.</span>');
+                updateCounters(0);
             } else {
                 const ok  = data.results.filter(function (r) { return r.statut === 'envoye'; }).length;
                 const err = data.results.filter(function (r) { return r.statut === 'erreur'; }).length;
@@ -316,6 +356,8 @@ function deleteSingle(id, token) {
                     '<strong>[' + now + '] Lot envoyé : ' + ok + ' ✅ ' + err + ' ❌ — ' +
                     data.remaining + ' en attente</strong>'
                 );
+
+                updateCounters(data.remaining, ok, err);
             }
         })
         .catch(function () {
