@@ -2,6 +2,8 @@
 
 namespace App\Utilities;
 
+use DateTime;
+use App\Entity\LogBoiteMail;
 use App\Repository\EnvMailSenderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Swift_Mailer;
@@ -9,24 +11,74 @@ use Swift_Message;
 use Swift_SmtpTransport;
 use Psr\Log\LoggerInterface;
 
-class SendMail {
+class SendMail
+{
     private $em;
     private $logger;
     private $envMailSender;
     private $envMailSenderRepository;
 
-    public function __construct(LoggerInterface $logger, EntityManagerInterface $em, EnvMailSenderRepository $envMailSenderRepository) {
-        $this->em = $em;
-        $this->logger = $logger;
+    public function __construct(
+        LoggerInterface $logger,
+        EntityManagerInterface $em,
+        EnvMailSenderRepository $envMailSenderRepository
+    ) {
+        $this->em                      = $em;
+        $this->logger                  = $logger;
         $this->envMailSenderRepository = $envMailSenderRepository;
-        $this->envMailSender = $this->verifyAndSelectSender();
+        $this->envMailSender           = $this->verifyAndSelectSender();
     }
 
-    private function verifyAndSelectSender() {
+    // ─── Sélection round-robin ────────────────────────────────────────────────
+    //
+    //  Principe : parmi les comptes activés, on choisit celui dont
+    //  lastUsedAt est le plus ancien (ou null = jamais utilisé → priorité max).
+    //  Ainsi chaque envoi tourne automatiquement au compte suivant.
+
+    private function getNextSenderRoundRobin()
+    {
+        $senders = $this->envMailSenderRepository->findBy(['activated' => true]);
+
+        if (empty($senders)) {
+            return false;
+        }
+
+        usort($senders, function ($a, $b) {
+            $aDate = $a->getLastUsedAt();
+            $bDate = $b->getLastUsedAt();
+
+            // null (jamais utilisé) passe en premier
+            if ($aDate === null && $bDate === null) {
+                return 0;
+            }
+            if ($aDate === null) {
+                return -1;
+            }
+            if ($bDate === null) {
+                return 1;
+            }
+
+            // Le plus ancien passe en premier
+            return $aDate <=> $bDate;
+        });
+
+        return $senders[0];
+    }
+
+    // Alias public conservé pour la rétrocompatibilité (utilisé dans TraitementsDS, etc.)
+    public function getEnvMailSenderDisponible()
+    {
+        return $this->getNextSenderRoundRobin();
+    }
+
+    // ─── Connexion SMTP de vérification initiale ──────────────────────────────
+
+    private function verifyAndSelectSender()
+    {
         $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
 
         for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
-            $candidate = $this->getEnvMailSenderDisponible();
+            $candidate = $this->getNextSenderRoundRobin();
             if (!$candidate) {
                 return false;
             }
@@ -40,106 +92,130 @@ class SendMail {
                 $transport->setPassword($candidate->getPassword());
                 $transport->start();
                 $transport->stop();
+
                 return $candidate;
             } catch (\Exception $e) {
                 if ($candidate->isActivated()) {
                     $candidate->setActivated(false);
                     $this->em->flush();
                 }
-                $this->logger->error('SendMail init: sender désactivé (' . $candidate->getMailAdresse() . ') — connexion invalide : ' . $e->getMessage());
+                $this->logger->error(
+                    'SendMail init: sender désactivé (' . $candidate->getMailAdresse() . ') — ' . $e->getMessage()
+                );
             }
         }
 
         $this->logger->error('SendMail init: aucun sender SMTP valide disponible.');
-        return false;
-    }
-    
 
-    public function getEnvMailSenderDisponible() {
-        $envMailSenders = $this->envMailSenderRepository->findBy(['activated' => true]);
-        foreach ($envMailSenders as $envMailSender) {
-            if($envMailSender->getCountMailSent() < 99) {
-                return $envMailSender;
-            }
-        }
-        if (!empty($envMailSenders)) {
-            foreach ($envMailSenders as $envMailSender) {
-                $envMailSender->setCountMailSent(0);
-            }
-            $this->em->flush();
-            return $envMailSenders[0];
-        }
         return false;
     }
 
-    private function isAuthError(string $msg): bool {
-        $authKeywords = ['535', '534', '530', 'authentication', 'credentials', 'password', 'username', 'login failed', 'auth'];
-        $lower = strtolower($msg);
-        foreach ($authKeywords as $keyword) {
-            if (strpos($lower, $keyword) !== false) {
+    // ─── Désactivation du sender courant ─────────────────────────────────────
+
+    private function deactivateCurrentSender(string $reason): void
+    {
+        $this->envMailSender->setActivated(false);
+        $this->em->flush();
+        $this->logger->error(
+            'Sender désactivé (' . $this->envMailSender->getMailAdresse() . ') — raison : ' . $reason
+        );
+    }
+
+    private function isAuthError(string $msg): bool
+    {
+        $keywords = ['535', '534', '530', 'authentication', 'credentials', 'password', 'username', 'login failed', 'auth'];
+        $lower    = strtolower($msg);
+        foreach ($keywords as $kw) {
+            if (strpos($lower, $kw) !== false) {
                 return true;
             }
         }
+
         return false;
     }
 
-    private function deactivateCurrentSender(string $reason): void {
-        $this->envMailSender->setActivated(false);
-        $this->em->flush();
-        $this->logger->error('Sender désactivé (' . $this->envMailSender->getMailAdresse() . ') — raison : ' . $reason);
+    // ─── Enregistrement du log ────────────────────────────────────────────────
+
+    private function logSend(string $raison, string $emailSender, string $emailRecepteur): void
+    {
+        try {
+            $log = new LogBoiteMail($raison, $emailSender, $emailRecepteur);
+            $this->em->persist($log);
+            // flush différé : sera inclus dans le flush suivant du contexte appelant
+        } catch (\Exception $e) {
+            $this->logger->error('LogBoiteMail: impossible d\'enregistrer le log — ' . $e->getMessage());
+        }
     }
 
-    private function sendEmail($to, $subject, $message, $replyto, $title) {
+    // ─── Envoi individuel ─────────────────────────────────────────────────────
+
+    private function sendEmail(string $to, string $subject, string $message, string $replyto, string $title, string $raison): bool
+    {
         $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
 
         for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
             if (!$this->envMailSender) {
                 $this->logger->error('Aucun sender SMTP disponible après ' . $attempt . ' tentative(s).');
+
                 return false;
             }
 
             try {
-                $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
+                $transport = (new Swift_SmtpTransport(
+                    $this->envMailSender->getSmtpServer(),
+                    $this->envMailSender->getSmtpPort(),
+                    $this->envMailSender->getSmtpSecured()
+                ))
                     ->setUsername($this->envMailSender->getMailAdresse())
-                    ->setPassword($this->envMailSender->getPassword())
-                ;
-                $mailer = new Swift_Mailer($transport);
+                    ->setPassword($this->envMailSender->getPassword());
+
+                $mailer  = new Swift_Mailer($transport);
                 $content = (new Swift_Message())
                     ->setSubject($subject)
                     ->setFrom([$this->envMailSender->getMailAdresse() => $title])
                     ->setReplyTo($replyto)
                     ->setTo($to)
-                    ->setBody($message, 'text/html')
-                ;
+                    ->setBody($message, 'text/html');
 
                 if ($mailer->send($content)) {
+                    // Round-robin : marquer comme utilisé (lastUsedAt = now) + compteur
                     $this->envMailSender->isUsed();
+                    $this->logSend($raison, $this->envMailSender->getMailAdresse(), $to);
                     $this->em->flush();
+
                     return true;
                 }
+
                 return false;
             } catch (\Exception $e) {
-                $msgError = (string)$e;
-                if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
+                $msgError = (string) $e;
+                if (strpos($msgError, 'hostinger_out_ratelimit') !== false) {
                     $this->deactivateCurrentSender('hostinger_out_ratelimit');
                 } elseif ($this->isAuthError($msgError)) {
                     $this->deactivateCurrentSender('erreur d\'authentification SMTP');
                 } else {
                     $this->logger->error('Erreur non récupérable lors de l\'envoi : ' . $e->getMessage());
+
                     return false;
                 }
-                $this->logger->error('Tentative ' . ($attempt + 1) . ' échouée, basculement vers le sender suivant.');
-                $this->envMailSender = $this->getEnvMailSenderDisponible();
+
+                $this->logger->error('Tentative ' . ($attempt + 1) . ' échouée — basculement vers le prochain sender (round-robin).');
+                // Fallback : le prochain sender dans la rotation
+                $this->envMailSender = $this->getNextSenderRoundRobin();
             }
         }
 
         $this->logger->error('Échec définitif : tous les senders SMTP ont été essayés.');
+
         return false;
     }
 
-    private function sendEmailMultiple(array $to, $subject, $message, $replyto, $title) {
+    // ─── Envoi multiple (BCC par lots de 20) ─────────────────────────────────
+
+    private function sendEmailMultiple(array $to, string $subject, string $message, string $replyto, string $title, string $raison): bool
+    {
         $maxAttempts = max(count($this->envMailSenderRepository->findBy(['activated' => true])), 1);
-        $batches = array_chunk($to, 20); // Découpe en groupes de 20 emails
+        $batches     = array_chunk($to, 20);
 
         foreach ($batches as $batch) {
             for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
@@ -149,28 +225,36 @@ class SendMail {
                 }
 
                 try {
-                    $transport = (new Swift_SmtpTransport($this->envMailSender->getSmtpServer(), $this->envMailSender->getSmtpPort(), $this->envMailSender->getSmtpSecured()))
+                    $transport = (new Swift_SmtpTransport(
+                        $this->envMailSender->getSmtpServer(),
+                        $this->envMailSender->getSmtpPort(),
+                        $this->envMailSender->getSmtpSecured()
+                    ))
                         ->setUsername($this->envMailSender->getMailAdresse())
                         ->setPassword($this->envMailSender->getPassword());
-                    $mailer = new Swift_Mailer($transport);
+
+                    $mailer  = new Swift_Mailer($transport);
                     $content = (new Swift_Message())
                         ->setSubject($subject)
                         ->setFrom([$this->envMailSender->getMailAdresse() => $title])
                         ->setReplyTo($replyto)
-                        ->setBcc($batch) // Utilisation de BCC pour cacher les destinataires
-                        ->setBody($message, 'text/html')
-                    ;
+                        ->setBcc($batch)
+                        ->setBody($message, 'text/html');
 
                     if ($mailer->send($content)) {
-                        $this->envMailSender->setCountMailSent($this->envMailSender->getCountMailSent() + 20);
+                        // Round-robin : marquer comme utilisé
+                        $this->envMailSender->isUsed();
+                        foreach ($batch as $recipient) {
+                            $this->logSend($raison, $this->envMailSender->getMailAdresse(), $recipient);
+                        }
                         $this->em->flush();
                     } else {
                         $this->logger->error('Échec de l\'envoi du lot d\'emails.');
                     }
                     break;
                 } catch (\Exception $e) {
-                    $msgError = (string)$e;
-                    if (strpos($msgError, "hostinger_out_ratelimit") !== false) {
+                    $msgError = (string) $e;
+                    if (strpos($msgError, 'hostinger_out_ratelimit') !== false) {
                         $this->deactivateCurrentSender('hostinger_out_ratelimit');
                     } elseif ($this->isAuthError($msgError)) {
                         $this->deactivateCurrentSender('erreur d\'authentification SMTP');
@@ -178,30 +262,42 @@ class SendMail {
                         $this->logger->error('Erreur non récupérable sur le lot : ' . $e->getMessage());
                         break;
                     }
-                    $this->logger->error('Lot : tentative ' . ($attempt + 1) . ' échouée, basculement vers le sender suivant.');
-                    $this->envMailSender = $this->getEnvMailSenderDisponible();
+                    $this->logger->error('Lot : tentative ' . ($attempt + 1) . ' échouée — basculement round-robin.');
+                    $this->envMailSender = $this->getNextSenderRoundRobin();
                 }
             }
 
-            sleep(2); // Pause de 2 secondes pour éviter un éventuel blocage SMTP
-            $this->envMailSender = $this->getEnvMailSenderDisponible();
+            sleep(2);
+            // Rotation : après chaque lot, passer au sender suivant
+            $this->envMailSender = $this->getNextSenderRoundRobin();
         }
 
         return true;
     }
 
-    public function smtpMail($to, string $subject, string $message, string $replyto = "dressur.ds@gmail.com", string $title = "Dressur Assistance"): bool {
-        if(is_array($to)) {
-            return $this->sendEmailMultiple($to, $subject, $message, $replyto, $title);
-        } else {
-            return $this->sendEmail($to, $subject, $message, $replyto, $title);
+    // ─── Point d'entrée public ────────────────────────────────────────────────
+
+    public function smtpMail(
+        $to,
+        string $subject,
+        string $message,
+        string $replyto  = 'dressur.ds@gmail.com',
+        string $title    = 'Dressur Assistance',
+        string $raison   = 'general'
+    ): bool {
+        if (is_array($to)) {
+            return $this->sendEmailMultiple($to, $subject, $message, $replyto, $title, $raison);
         }
+
+        return $this->sendEmail($to, $subject, $message, $replyto, $title, $raison);
     }
 
-    public function sendReport(string $subject, string $message): bool {
-        $to = "dressur.ds@gmail.com";
-        $replyto = "dressur.ds@gmail.com";
-        $title = "Dressur Report : " . time();
-        return $this->sendEmail($to, $subject, $message, $replyto, $title);
+    public function sendReport(string $subject, string $message): bool
+    {
+        $to      = 'dressur.ds@gmail.com';
+        $replyto = 'dressur.ds@gmail.com';
+        $title   = 'Dressur Report : ' . time();
+
+        return $this->sendEmail($to, $subject, $message, $replyto, $title, 'report');
     }
 }
