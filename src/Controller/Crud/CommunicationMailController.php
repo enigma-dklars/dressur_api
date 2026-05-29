@@ -6,6 +6,7 @@ use App\Entity\MailProspect;
 use App\Entity\FileAttenteProspectMail;
 use App\Repository\MailProspectRepository;
 use App\Repository\FileAttenteProspectMailRepository;
+use App\Repository\LogBoiteMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +44,8 @@ class CommunicationMailController extends AbstractController
     #[Route('/', name: 'app_communication_mail_portal', methods: ['GET'])]
     public function portal(
         FileAttenteProspectMailRepository $fileAttenteRepo,
-        MailProspectRepository $prospectRepo
+        MailProspectRepository $prospectRepo,
+        LogBoiteMailRepository $logRepo
     ): Response {
         return $this->render('communication_mail/portal.html.twig', [
             'theme'        => $this->theme,
@@ -51,6 +53,7 @@ class CommunicationMailController extends AbstractController
             'nb_attente'   => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
             'nb_envoye'    => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
             'nb_prospects' => count($prospectRepo->findAll()),
+            'nb_logs'      => count($logRepo->findAll()),
         ]);
     }
 
@@ -88,14 +91,12 @@ class CommunicationMailController extends AbstractController
                     continue;
                 }
 
-                // Dédoublonnage dans la saisie courante
                 if (in_array($email, $seen)) {
                     $doublons++;
                     continue;
                 }
                 $seen[] = $email;
 
-                // Sauvegarde dans la base d'adresses (si nouvelle)
                 $existingProspect = $mailProspectRepository->findOneBy(['email' => $email]);
                 if ($existingProspect === null) {
                     $prospect = (new MailProspect())->setEmail($email);
@@ -104,7 +105,6 @@ class CommunicationMailController extends AbstractController
                     $doublons++;
                 }
 
-                // Ajout en file d'attente (toujours)
                 $fileAttente = (new FileAttenteProspectMail())
                     ->setSendto($email)
                     ->setTitre($titre)
@@ -210,7 +210,8 @@ class CommunicationMailController extends AbstractController
                 $entry->getSujet(),
                 $entry->getContentmail(),
                 $entry->getReplyto(),
-                $entry->getTitre()
+                $entry->getTitre(),
+                'campagne_prospect'
             );
             $statut = $sent ? 'envoye' : 'erreur';
             $entry->setStatut($statut);
@@ -280,6 +281,36 @@ class CommunicationMailController extends AbstractController
         $this->addFlash('success', $deleted . ' entrée(s) supprimée(s).');
 
         return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
+    }
+
+    // ─── Historique des envois (LogBoiteMail) ────────────────────────────────
+
+    #[Route('/log-boite-mail', name: 'app_communication_mail_log', methods: ['GET'])]
+    public function logBoiteMail(
+        Request $request,
+        LogBoiteMailRepository $logRepo
+    ): Response {
+        $filters = [
+            'raison'    => $request->query->get('raison', ''),
+            'sender'    => $request->query->get('sender', ''),
+            'date_from' => $request->query->get('date_from', ''),
+            'date_to'   => $request->query->get('date_to', ''),
+        ];
+
+        $logs        = $logRepo->findFiltered($filters);
+        $statsSender = $logRepo->getStatsBySender();
+        $raisons     = $logRepo->getDistinctRaisons();
+        $senders     = $logRepo->getDistinctSenders();
+
+        return $this->render('communication_mail/log_boite_mail.html.twig', [
+            'theme'        => $this->theme,
+            'user'         => $this->traitementsDS->getUserByUidInCookies(),
+            'logs'         => $logs,
+            'stats_sender' => $statsSender,
+            'raisons'      => $raisons,
+            'senders'      => $senders,
+            'filters'      => $filters,
+        ]);
     }
 
     // ─── Contenu HTML du mail prospect ───────────────────────────────────────
