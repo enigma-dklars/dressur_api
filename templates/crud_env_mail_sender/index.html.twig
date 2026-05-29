@@ -22,6 +22,7 @@
                     <th></th>
                     <th>Id</th>
                     <th>Count.MS</th>
+                    <th>Dernier envoi</th>
                     <th>Activ.</th>
                     <th>MailAdresse</th>
                     <th>Password</th>
@@ -38,6 +39,13 @@
                     </td>
                     <td>{{ env_mail_sender.id }}</td>
                     <td>{{ env_mail_sender.countMailSent }}</td>
+                    <td class="small text-nowrap">
+                        {% if env_mail_sender.lastUsedAt %}
+                            {{ env_mail_sender.lastUsedAt|date('d/m/Y H:i:s') }}
+                        {% else %}
+                            <span class="badge bg-secondary">Jamais</span>
+                        {% endif %}
+                    </td>
                     <td class="text-center">
                         {% if env_mail_sender.activated %}
                             <span class="badge bg-success">Oui</span>
