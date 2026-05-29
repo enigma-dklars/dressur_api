@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EnvMailSenderRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EnvMailSenderRepository::class)]
@@ -34,15 +35,19 @@ class EnvMailSender
     #[ORM\Column]
     private ?int $countMailSent = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $lastUsedAt = null;
+
     public function __construct()
     {
-        $this->mailAdresse = "noreply1@dressur.site";
-        $this->password = "nunewqi_DS3";
-        $this->smtpServer = "smtp.hostinger.com";
-        $this->smtpPort = "465";
-        $this->smtpSecured = "ssl";
-        $this->activated = true;
+        $this->mailAdresse  = "noreply1@dressur.site";
+        $this->password     = "nunewqi_DS3";
+        $this->smtpServer   = "smtp.hostinger.com";
+        $this->smtpPort     = "465";
+        $this->smtpSecured  = "ssl";
+        $this->activated    = true;
         $this->countMailSent = 0;
+        $this->lastUsedAt   = null;
     }
 
     public function getId(): ?int
@@ -137,6 +142,19 @@ class EnvMailSender
     public function isUsed(): static
     {
         $this->countMailSent++;
+        $this->lastUsedAt = new \DateTime();
+
+        return $this;
+    }
+
+    public function getLastUsedAt(): ?\DateTimeInterface
+    {
+        return $this->lastUsedAt;
+    }
+
+    public function setLastUsedAt(?\DateTimeInterface $lastUsedAt): static
+    {
+        $this->lastUsedAt = $lastUsedAt;
 
         return $this;
     }
