@@ -11,7 +11,8 @@
         <div class="col-md-6 text-end">
             <button class="btn btn-sm btn-warning h4 me-2" onclick="confirmVerifyAll()">Vérifier tous</button>
             <button class="btn btn-sm btn-success h4 me-2" onclick="confirmReactivate()">Réactiver tous</button>
-            <button class="btn btn-sm btn-danger h4" onclick="confirmRemiseZero()">Remise à zéro</button>
+            <button class="btn btn-sm btn-danger h4 me-2" onclick="confirmRemiseZero()">Remise à zéro</button>
+            <button class="btn btn-sm btn-secondary h4" onclick="confirmResetLastUsedAt()">Reset rotation</button>
         </div>
     </div>
 
@@ -102,6 +103,23 @@ function confirmReactivate() {
     }).then((result) => {
         if (result.isConfirmed) {
             window.location.href = '{{ path('app_crud_env_mail_sender_reactivate_all') }}';
+        }
+    });
+}
+
+function confirmResetLastUsedAt() {
+    Swal.fire({
+        title: 'Réinitialiser la rotation ?',
+        text: 'La date de dernier envoi de tous les comptes sera effacée. Le prochain envoi repartira du premier compte disponible.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-sync-alt me-1"></i>Oui, réinitialiser',
+        cancelButtonText: 'Annuler',
+        confirmButtonColor: '#6c757d',
+        cancelButtonColor: '#6c757d',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '{{ path('app_crud_env_mail_sender_reset_last_used_at') }}';
         }
     });
 }
