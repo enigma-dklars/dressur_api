@@ -46,6 +46,18 @@ class CrudEnvMailSenderController extends AbstractController
         ]);
     }
 
+    #[Route('/reset-last-used-at', name: 'app_crud_env_mail_sender_reset_last_used_at', methods: ['GET'])]
+    public function resetLastUsedAt(EnvMailSenderRepository $envMailSenderRepository, EntityManagerInterface $entityManager): Response
+    {
+        $senders = $envMailSenderRepository->findAll();
+        foreach ($senders as $sender) {
+            $sender->setLastUsedAt(null);
+        }
+        $entityManager->flush();
+        $this->addFlash('success', count($senders) . ' compte(s) réinitialisé(s) — rotation repart de zéro.');
+        return $this->redirectToRoute('app_crud_env_mail_sender_index', [], Response::HTTP_SEE_OTHER);
+    }
+
     #[Route('/remise-zero', name: 'app_crud_env_mail_sender_remise_zero', methods: ['GET'])]
     public function remise_zero(EnvMailSenderRepository $envMailSenderRepository, EntityManagerInterface $entityManager): Response
     {
