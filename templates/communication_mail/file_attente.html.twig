@@ -247,9 +247,9 @@ function deleteSingle(id, token) {
     });
 }
 
-// ── Envoi automatique par lot (Ajax toutes les 5 min) ────────────────────────
+// ── Envoi automatique par lot (Ajax toutes les 1 min) ────────────────────────
 (function () {
-    const INTERVAL_MS   = 5 * 60 * 1000;
+    const INTERVAL_MS   = 1 * 60 * 1000;
     const BATCH_URL     = '{{ path('app_communication_mail_file_attente_process_batch') }}';
 
     const elStatus      = document.getElementById('batch-status');
