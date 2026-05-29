@@ -183,6 +183,10 @@ class SendMail
                     $this->logSend($raison, $this->envMailSender->getMailAdresse(), $to);
                     $this->em->flush();
 
+                    // Rotation immédiate : le prochain appel smtpMail() dans la même
+                    // requête utilisera le compte suivant dans la file round-robin.
+                    $this->envMailSender = $this->getNextSenderRoundRobin();
+
                     return true;
                 }
 
