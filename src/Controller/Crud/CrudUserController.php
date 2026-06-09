@@ -332,7 +332,7 @@ class CrudUserController extends AbstractController
         $matches = $userRepository->findBy(['lid' => $lid]);
 
         if (count($matches) > 1) {
-            return new Response("Apparemment, vous avez plusieurs comptes Dressur liés à cet identifiant.\nVeuillez patienter, un assistant vous aidera sous peu.");
+            return new Response("Apparemment, vous avez plusieurs comptes Dressur liés à ce numéro.\nVeuillez patienter, un assistant vous aidera sous peu.");
         }
 
         if (count($matches) === 0) {
@@ -342,7 +342,7 @@ class CrudUserController extends AbstractController
         $user = $matches[0];
 
         if ($user->getTelIsVerified() == true) {
-            return new Response("Le compte lié à cet identifiant est déjà confirmé.");
+            return new Response("Le compte lié à ce numéro est déjà confirmé.");
         }
 
         $message = "";
