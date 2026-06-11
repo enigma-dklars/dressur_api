@@ -43,11 +43,16 @@
                     <dt class="col-sm-5">Reply-to</dt>
                     <dd class="col-sm-7 font-monospace">{{ replyto }}</dd>
 
+                    {% if config.group == 'service' %}
+                    <dt class="col-sm-5">Fenêtre analysée</dt>
+                    <dd class="col-sm-7">90 derniers jours</dd>
+                    {% else %}
                     <dt class="col-sm-5">Inactivité ciblée</dt>
                     <dd class="col-sm-7">
                         {{ config.minDays }}j
                         {% if config.maxDays %}→ {{ config.maxDays }}j{% else %}+{% endif %}
                     </dd>
+                    {% endif %}
                 </dl>
 
             </div>
