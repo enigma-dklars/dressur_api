@@ -302,7 +302,7 @@ class CommunicationMailController extends AbstractController
         $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
             array_values($allEmails),
             self::REACTIVATION_COOLDOWN_DAYS,
-            self::getReactivationTitres()
+            [$config['titre']]
         );
 
         ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent);
@@ -358,7 +358,7 @@ class CommunicationMailController extends AbstractController
         $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
             array_values($allEmails),
             self::REACTIVATION_COOLDOWN_DAYS,
-            self::getReactivationTitres()
+            [$config['titre']]
         );
 
         ['toSend' => $toSend] = self::splitByRecentContact($users, $recentlySent);
