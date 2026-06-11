@@ -145,10 +145,10 @@ class CommunicationMailController extends AbstractController
             ],
             // ── Relance par service ──────────────────────────────────────────
             'boost' => [
-                'label'      => 'Boost Contact expiré (90 j)',
+                'label'      => 'Boost Contact expiré (7 j)',
                 'minDays'    => null,
                 'maxDays'    => null,
-                'maxDaysAgo' => 90,
+                'maxDaysAgo' => 7,
                 'emoji'      => '📢',
                 'color'      => 'primary',
                 'sujet'      => 'Votre Boost Contact a expiré — relancez votre visibilité !',
@@ -158,10 +158,10 @@ class CommunicationMailController extends AbstractController
                 'group'      => 'service',
             ],
             'promo' => [
-                'label'      => 'Promotion Affaire terminée (90 j)',
+                'label'      => 'Promotion Affaire terminée (7 j)',
                 'minDays'    => null,
                 'maxDays'    => null,
-                'maxDaysAgo' => 90,
+                'maxDaysAgo' => 7,
                 'emoji'      => '🎯',
                 'color'      => 'success',
                 'sujet'      => 'Votre Promotion Affaire est terminée — remettez-vous en avant !',
@@ -171,10 +171,10 @@ class CommunicationMailController extends AbstractController
                 'group'      => 'service',
             ],
             'reseau' => [
-                'label'      => 'Promo Réseaux Sociaux terminée (90 j)',
+                'label'      => 'Promo Réseaux Sociaux terminée (15 j)',
                 'minDays'    => null,
                 'maxDays'    => null,
-                'maxDaysAgo' => 90,
+                'maxDaysAgo' => 15,
                 'emoji'      => '📱',
                 'color'      => 'info',
                 'sujet'      => 'Boostez à nouveau vos réseaux sociaux avec Dressur !',
