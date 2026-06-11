@@ -55,9 +55,39 @@ class CommunicationMailController extends AbstractController
         PromotionRepository $promotionRepository,
         PromoReseauRepository $promoReseauRepository
     ): Response {
-        $allTypes      = self::getReactivationTypes();
-        $inactifTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
-        $serviceTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'service');
+        $allTypes     = self::getReactivationTypes();
+        $inactifTypes = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
+        $serviceTypes = array_filter($allTypes, fn($t) => $t['group'] === 'service');
+
+        $sqlErrors = [];
+
+        $reactivation = [];
+        foreach ($inactifTypes as $key => $cfg) {
+            try {
+                $nb = $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']);
+            } catch (\Throwable $e) {
+                $nb = 0;
+                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
+            }
+            $reactivation[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+        }
+
+        $services = [];
+        foreach ($serviceTypes as $key => $cfg) {
+            try {
+                $nb = $this->countServiceCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository);
+            } catch (\Throwable $e) {
+                $nb = 0;
+                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
+            }
+            $services[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+        }
+
+        if (!empty($sqlErrors)) {
+            foreach ($sqlErrors as $err) {
+                $this->addFlash('warning', 'Erreur comptage : ' . $err);
+            }
+        }
 
         return $this->render('communication_mail/portal.html.twig', [
             'theme'        => $this->theme,
@@ -66,20 +96,8 @@ class CommunicationMailController extends AbstractController
             'nb_envoye'    => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
             'nb_prospects' => count($prospectRepo->findAll()),
             'nb_logs'      => count($logRepo->findAll()),
-            'reactivation' => array_values(array_map(
-                fn($key, $cfg) => array_merge($cfg, [
-                    'key' => $key,
-                    'nb'  => $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']),
-                ]),
-                array_keys($inactifTypes), $inactifTypes
-            )),
-            'services'     => array_values(array_map(
-                fn($key, $cfg) => array_merge($cfg, [
-                    'key' => $key,
-                    'nb'  => $this->countServiceCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository),
-                ]),
-                array_keys($serviceTypes), $serviceTypes
-            )),
+            'reactivation' => $reactivation,
+            'services'     => $services,
         ]);
     }
 
