@@ -58,6 +58,7 @@ class CommunicationMailController extends AbstractController
         $allTypes     = self::getReactivationTypes();
         $inactifTypes = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
         $serviceTypes = array_filter($allTypes, fn($t) => $t['group'] === 'service');
+        $confirmTypes = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
 
         $sqlErrors = [];
 
@@ -83,6 +84,17 @@ class CommunicationMailController extends AbstractController
             $services[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
         }
 
+        $confirm = [];
+        foreach ($confirmTypes as $key => $cfg) {
+            try {
+                $nb = $userRepository->countUsersWithUnconfirmedMail();
+            } catch (\Throwable $e) {
+                $nb = 0;
+                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
+            }
+            $confirm[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+        }
+
         if (!empty($sqlErrors)) {
             foreach ($sqlErrors as $err) {
                 $this->addFlash('warning', 'Erreur comptage : ' . $err);
@@ -98,6 +110,7 @@ class CommunicationMailController extends AbstractController
             'nb_logs'      => count($logRepo->findAll()),
             'reactivation' => $reactivation,
             'services'     => $services,
+            'confirm'      => $confirm,
         ]);
     }
 
@@ -183,6 +196,19 @@ class CommunicationMailController extends AbstractController
                 'queryType'  => 'service_reseau',
                 'group'      => 'service',
             ],
+            // ── Confirmation d'adresse mail ──────────────────────────────────
+            'mail_non_confirme' => [
+                'label'     => 'Adresse mail non confirmée',
+                'minDays'   => null,
+                'maxDays'   => null,
+                'emoji'     => '✉️',
+                'color'     => 'warning',
+                'sujet'     => 'Confirmez votre adresse mail Dressur',
+                'titre'     => 'Vérifiez votre adresse mail sur Dressur',
+                'desc'      => 'Utilisateurs inscrits n\'ayant jamais confirmé leur adresse mail.',
+                'queryType' => 'confirm_mail',
+                'group'     => 'confirm',
+            ],
         ];
     }
 
@@ -232,6 +258,7 @@ class CommunicationMailController extends AbstractController
             'service_boost'  => $boostRepository->findUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
             'service_promo'  => $promotionRepository->findUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
             'service_reseau' => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
+            'confirm_mail'   => $userRepository->findUsersWithUnconfirmedMail(),
             default          => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
         };
     }
@@ -627,8 +654,58 @@ class CommunicationMailController extends AbstractController
             'service_boost'  => self::buildBoostMailContent($pseudo),
             'service_promo'  => self::buildPromoAffaireMailContent($pseudo),
             'service_reseau' => self::buildPromoReseauMailContent($pseudo),
+            'confirm_mail'   => self::buildConfirmMailContent($pseudo),
             default          => self::buildReactivationMailContent($config['titre'], $pseudo),
         };
+    }
+
+    // ─── Contenu HTML : Confirmation d'adresse mail ──────────────────────────
+
+    private static function buildConfirmMailContent(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
+
+        return <<<HTML
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
+
+  <div style="background:#ffc107;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
+    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
+    <h1 style="color:#212529;margin:0;font-size:24px;">✉️ Confirmez votre adresse mail</h1>
+  </div>
+
+  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
+
+    <p>{$salutation}</p>
+
+    <p>Vous êtes inscrit(e) sur <strong>Dressur</strong> mais votre adresse mail n'a pas encore été confirmée. Sans confirmation, certaines fonctionnalités sont limitées et vous ne pouvez pas recevoir nos notifications importantes.</p>
+
+    <div style="background:#fff8e1;border-left:4px solid #ffc107;padding:16px;border-radius:0 6px 6px 0;margin:20px 0;">
+      <strong style="color:#856404;">Pourquoi confirmer votre mail ?</strong>
+      <ul style="margin:8px 0 0;padding-left:20px;color:#495057;">
+        <li>Sécurisez votre compte contre toute prise en main non autorisée</li>
+        <li>Recevez les notifications de vos contacts et commandes</li>
+        <li>Accédez à toutes les fonctionnalités de la plateforme</li>
+        <li>Récupérez facilement votre mot de passe si nécessaire</li>
+      </ul>
+    </div>
+
+    <p>La confirmation ne prend que quelques secondes. Connectez-vous à votre compte et suivez les instructions pour valider votre adresse.</p>
+
+    <div style="text-align:center;margin:32px 0;">
+      <a href="https://dressur.site/profil"
+         style="display:inline-block;padding:14px 36px;background:#ffc107;color:#212529;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
+        ✉️ Confirmer mon adresse mail
+      </a>
+    </div>
+
+    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
+      <a href="https://dressur.site" style="color:#856404;">dressur.site</a> —
+      <a href="mailto:dressur.ds@gmail.com" style="color:#856404;">dressur.ds@gmail.com</a>
+    </p>
+
+  </div>
+</div>
+HTML;
     }
 
     // ─── Contenu HTML : Boost Contact ────────────────────────────────────────
