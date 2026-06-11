@@ -223,6 +223,36 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getQuery()->getScalarResult();
     }
 
+    public function countUsersWithUnconfirmedMail(): int
+    {
+        return (int) $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('u.mail IS NOT NULL')
+            ->andWhere('u.mail != :empty')
+            ->andWhere('u.blocked = :blocked')
+            ->andWhere('u.mailIsVerified IS NULL OR u.mailIsVerified = :notVerified')
+            ->setParameter('empty', '')
+            ->setParameter('blocked', false)
+            ->setParameter('notVerified', false)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function findUsersWithUnconfirmedMail(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u.mail', 'u.pseudo')
+            ->where('u.mail IS NOT NULL')
+            ->andWhere('u.mail != :empty')
+            ->andWhere('u.blocked = :blocked')
+            ->andWhere('u.mailIsVerified IS NULL OR u.mailIsVerified = :notVerified')
+            ->setParameter('empty', '')
+            ->setParameter('blocked', false)
+            ->setParameter('notVerified', false)
+            ->getQuery()
+            ->getScalarResult();
+    }
+
     public function getDailyStats30Days(): array
     {
         $conn = $this->getEntityManager()->getConnection();
