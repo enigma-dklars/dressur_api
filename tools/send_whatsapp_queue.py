@@ -49,13 +49,13 @@ def click_write_number_and_focus(number, search_bar, focus):
     time.sleep(0.2)
     pyautogui.write(str(number))
     if speedClickAfterWrite == "hyper":
-        time.sleep(1)
+        time.sleep(3)
     elif speedClickAfterWrite == "yes":
-        time.sleep(2.5)
+        time.sleep(5)
     else:
-        time.sleep(10)
+        time.sleep(12)
     pyautogui_click(focus)
-    time.sleep(0.5 if speedClickAfterWrite in ("hyper", "yes") else 10)
+    time.sleep(1.5 if speedClickAfterWrite in ("hyper", "yes") else 12)
 
 def fin_code():
     elapsed = time.time() - start_time
