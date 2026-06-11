@@ -7,6 +7,7 @@ use App\Entity\FileAttenteProspectMail;
 use App\Repository\MailProspectRepository;
 use App\Repository\FileAttenteProspectMailRepository;
 use App\Repository\LogBoiteMailRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,16 +46,140 @@ class CommunicationMailController extends AbstractController
     public function portal(
         FileAttenteProspectMailRepository $fileAttenteRepo,
         MailProspectRepository $prospectRepo,
-        LogBoiteMailRepository $logRepo
+        LogBoiteMailRepository $logRepo,
+        UserRepository $userRepository
     ): Response {
+        $types = self::getReactivationTypes();
+
         return $this->render('communication_mail/portal.html.twig', [
-            'theme'        => $this->theme,
-            'user'         => $this->traitementsDS->getUserByUidInCookies(),
-            'nb_attente'   => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
-            'nb_envoye'    => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
-            'nb_prospects' => count($prospectRepo->findAll()),
-            'nb_logs'      => count($logRepo->findAll()),
+            'theme'           => $this->theme,
+            'user'            => $this->traitementsDS->getUserByUidInCookies(),
+            'nb_attente'      => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
+            'nb_envoye'       => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
+            'nb_prospects'    => count($prospectRepo->findAll()),
+            'nb_logs'         => count($logRepo->findAll()),
+            'reactivation'    => array_map(function (string $key, array $cfg) use ($userRepository): array {
+                return array_merge($cfg, [
+                    'key'     => $key,
+                    'nb'      => $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']),
+                ]);
+            }, array_keys($types), $types),
         ]);
+    }
+
+    // ─── Réactivation : définitions des types ────────────────────────────────
+
+    private static function getReactivationTypes(): array
+    {
+        return [
+            '30j' => [
+                'label'   => 'Inactifs depuis 30 à 60 jours',
+                'minDays' => 30,
+                'maxDays' => 60,
+                'emoji'   => '💤',
+                'color'   => 'warning',
+                'sujet'   => 'Dressur vous attend — des opportunités vous ont manqué !',
+                'titre'   => 'Des opportunités vous attendent sur Dressur',
+                'desc'    => 'Rappel doux pour les utilisateurs récemment moins actifs.',
+            ],
+            '60j' => [
+                'label'   => 'Inactifs depuis 60 à 90 jours',
+                'minDays' => 60,
+                'maxDays' => 90,
+                'emoji'   => '😴',
+                'color'   => 'orange',
+                'sujet'   => 'Ça fait un moment… Revenez découvrir les nouveautés Dressur !',
+                'titre'   => 'Revenez sur Dressur — il y a du nouveau !',
+                'desc'    => 'Relance avec mise en avant des nouveautés pour les utilisateurs absents.',
+            ],
+            '90j' => [
+                'label'   => 'Inactifs depuis plus de 90 jours',
+                'minDays' => 90,
+                'maxDays' => null,
+                'emoji'   => '🚨',
+                'color'   => 'danger',
+                'sujet'   => 'Votre compte Dressur vous attend toujours !',
+                'titre'   => 'Votre compte Dressur est toujours actif',
+                'desc'    => 'Dernier rappel pour les utilisateurs très longtemps inactifs.',
+            ],
+        ];
+    }
+
+    // ─── Réactivation : aperçu ───────────────────────────────────────────────
+
+    #[Route('/campagne/reactivation/{type}', name: 'app_communication_mail_campagne_reactivation', methods: ['GET'])]
+    public function campagneReactivation(
+        string $type,
+        UserRepository $userRepository
+    ): Response {
+        $types = self::getReactivationTypes();
+        if (!isset($types[$type])) {
+            throw $this->createNotFoundException('Type de réactivation inconnu.');
+        }
+
+        $config  = $types[$type];
+        $content = self::buildReactivationMailContent($config['titre']);
+
+        return $this->render('communication_mail/campagne_reactivation.html.twig', [
+            'theme'       => $this->theme,
+            'user'        => $this->traitementsDS->getUserByUidInCookies(),
+            'type'        => $type,
+            'config'      => $config,
+            'nb_users'    => $userRepository->countInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
+            'contentmail' => $content,
+            'sujet'       => $config['sujet'],
+            'replyto'     => 'dressur.ds@gmail.com',
+        ]);
+    }
+
+    // ─── Réactivation : lancer la campagne en 1 clic ─────────────────────────
+
+    #[Route('/campagne/reactivation/{type}/lancer', name: 'app_communication_mail_campagne_reactivation_lancer', methods: ['POST'])]
+    public function lancerReactivation(
+        string $type,
+        Request $request,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $types = self::getReactivationTypes();
+        if (!isset($types[$type])) {
+            throw $this->createNotFoundException('Type de réactivation inconnu.');
+        }
+
+        if (!$this->isCsrfTokenValid('reactivation_' . $type, $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_communication_mail_portal');
+        }
+
+        $config  = $types[$type];
+        $users   = $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']);
+        $replyto = 'dressur.ds@gmail.com';
+        $added   = 0;
+
+        foreach ($users as $u) {
+            $mail = trim((string) ($u['mail'] ?? ''));
+            if ($mail === '' || !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+
+            $pseudo  = trim((string) ($u['pseudo'] ?? ''));
+            $content = self::buildReactivationMailContent($config['titre'], $pseudo ?: null);
+
+            $entry = (new FileAttenteProspectMail())
+                ->setSendto($mail)
+                ->setTitre($config['titre'])
+                ->setSujet($config['sujet'])
+                ->setReplyto($replyto)
+                ->setContentmail($content);
+
+            $entityManager->persist($entry);
+            $added++;
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', $added . ' mail(s) de réactivation ajouté(s) à la file d\'attente.');
+        return $this->redirectToRoute('app_communication_mail_file_attente');
     }
 
     // ─── Campagne : Attirer de nouveaux utilisateurs ─────────────────────────
@@ -311,6 +436,79 @@ class CommunicationMailController extends AbstractController
             'senders'      => $senders,
             'filters'      => $filters,
         ]);
+    }
+
+    // ─── Contenu HTML du mail de réactivation ────────────────────────────────
+
+    private static function buildReactivationMailContent(string $titre, ?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? "Bonjour <strong>" . htmlspecialchars($pseudo) . "</strong>," : "Bonjour,";
+
+        return <<<HTML
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
+
+  <div style="background:#0d6efd;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
+    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
+    <h1 style="color:white;margin:0;font-size:24px;">{$titre}</h1>
+  </div>
+
+  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
+
+    <p>{$salutation}</p>
+
+    <p>Nous avons remarqué que vous ne vous êtes plus connecté(e) à <strong>Dressur</strong> depuis un moment. Vous nous manquez !</p>
+
+    <p>Depuis votre dernière visite, voici ce que vous avez peut-être manqué :</p>
+
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <tr>
+        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
+          <strong style="color:#0d6efd;">📢 Boost Contact</strong><br>
+          <span style="font-size:13px;color:#6c757d;">Soyez visible auprès de nouveaux clients dans votre zone.</span>
+        </td>
+        <td style="padding:10px;width:4%;"></td>
+        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
+          <strong style="color:#0d6efd;">🎯 Promotion Affaire</strong><br>
+          <span style="font-size:13px;color:#6c757d;">Promouvez vos produits et services à toute la communauté.</span>
+        </td>
+      </tr>
+      <tr><td colspan="3" style="height:8px;"></td></tr>
+      <tr>
+        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
+          <strong style="color:#0d6efd;">📱 Réseaux Sociaux</strong><br>
+          <span style="font-size:13px;color:#6c757d;">Boostez vos abonnés sur TikTok, Instagram, YouTube et plus.</span>
+        </td>
+        <td style="padding:10px;width:4%;"></td>
+        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
+          <strong style="color:#0d6efd;">🏆 Programme Récompenses</strong><br>
+          <span style="font-size:13px;color:#6c757d;">Vos points vous attendent ! Consultez votre solde de récompenses.</span>
+        </td>
+      </tr>
+    </table>
+
+    <p>Revenez dès maintenant — c'est <strong>100% gratuit</strong> et vos informations sont toujours là !</p>
+
+    <div style="text-align:center;margin:32px 0;">
+      <a href="https://dressur.site"
+         style="display:inline-block;padding:14px 32px;background:#0d6efd;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin:0 8px 12px;">
+        🌐 Revenir sur Dressur
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.dressur.ds"
+         style="display:inline-block;padding:14px 32px;background:#198754;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin:0 8px 12px;">
+        📱 Ouvrir l'application
+      </a>
+    </div>
+
+    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
+      Cet email vous a été envoyé par l'équipe Dressur car vous êtes inscrit(e) sur notre plateforme.<br>
+      <a href="https://dressur.site" style="color:#0d6efd;">dressur.site</a> — 
+      <a href="mailto:dressur.ds@gmail.com" style="color:#0d6efd;">dressur.ds@gmail.com</a>
+    </p>
+
+  </div>
+
+</div>
+HTML;
     }
 
     // ─── Contenu HTML du mail prospect ───────────────────────────────────────
