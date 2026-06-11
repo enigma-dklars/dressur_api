@@ -51,7 +51,7 @@ class BoostRepository extends ServiceEntityRepository
 
         $sql = "SELECT COUNT(DISTINCT u.id)
                 FROM boost b
-                INNER JOIN \`user\` u ON b.user_id = u.id
+                INNER JOIN `user` u ON b.user_id = u.id
                 WHERE u.mail IS NOT NULL AND u.mail != '' AND u.blocked = 0
                   AND b.date_exp BETWEEN :cutoff AND :now
                   AND NOT EXISTS (
@@ -69,7 +69,7 @@ class BoostRepository extends ServiceEntityRepository
 
         $sql = "SELECT DISTINCT u.mail, u.pseudo
                 FROM boost b
-                INNER JOIN \`user\` u ON b.user_id = u.id
+                INNER JOIN `user` u ON b.user_id = u.id
                 WHERE u.mail IS NOT NULL AND u.mail != '' AND u.blocked = 0
                   AND b.date_exp BETWEEN :cutoff AND :now
                   AND NOT EXISTS (
