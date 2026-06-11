@@ -105,12 +105,46 @@ class CommunicationMailController extends AbstractController
         ];
     }
 
+    private const REACTIVATION_COOLDOWN_DAYS = 5;
+
+    // ─── Helper : tous les titres de réactivation (pour la détection des doublons) ─
+
+    private static function getReactivationTitres(): array
+    {
+        return array_column(self::getReactivationTypes(), 'titre');
+    }
+
+    // ─── Helper : sépare les users inactifs en deux listes (à envoyer / déjà contactés) ─
+
+    private static function splitByRecentContact(
+        array $users,
+        array $recentlyContactedEmails
+    ): array {
+        $excluded = [];
+        $toSend   = [];
+
+        foreach ($users as $u) {
+            $mail = strtolower(trim((string) ($u['mail'] ?? '')));
+            if ($mail === '') {
+                continue;
+            }
+            if (in_array($mail, $recentlyContactedEmails, true)) {
+                $excluded[] = $u;
+            } else {
+                $toSend[] = $u;
+            }
+        }
+
+        return ['toSend' => $toSend, 'excluded' => $excluded];
+    }
+
     // ─── Réactivation : aperçu ───────────────────────────────────────────────
 
     #[Route('/campagne/reactivation/{type}', name: 'app_communication_mail_campagne_reactivation', methods: ['GET'])]
     public function campagneReactivation(
         string $type,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        FileAttenteProspectMailRepository $fileAttenteRepo
     ): Response {
         $types = self::getReactivationTypes();
         if (!isset($types[$type])) {
@@ -118,17 +152,28 @@ class CommunicationMailController extends AbstractController
         }
 
         $config  = $types[$type];
-        $content = self::buildReactivationMailContent($config['titre']);
+        $users   = $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']);
+
+        $allEmails   = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
+        $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
+            array_values($allEmails),
+            self::REACTIVATION_COOLDOWN_DAYS,
+            self::getReactivationTitres()
+        );
+
+        ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent);
 
         return $this->render('communication_mail/campagne_reactivation.html.twig', [
-            'theme'       => $this->theme,
-            'user'        => $this->traitementsDS->getUserByUidInCookies(),
-            'type'        => $type,
-            'config'      => $config,
-            'nb_users'    => $userRepository->countInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
-            'contentmail' => $content,
-            'sujet'       => $config['sujet'],
-            'replyto'     => 'dressur.ds@gmail.com',
+            'theme'         => $this->theme,
+            'user'          => $this->traitementsDS->getUserByUidInCookies(),
+            'type'          => $type,
+            'config'        => $config,
+            'nb_to_send'    => count($toSend),
+            'nb_excluded'   => count($excluded),
+            'cooldown_days' => self::REACTIVATION_COOLDOWN_DAYS,
+            'contentmail'   => self::buildReactivationMailContent($config['titre']),
+            'sujet'         => $config['sujet'],
+            'replyto'       => 'dressur.ds@gmail.com',
         ]);
     }
 
@@ -139,6 +184,7 @@ class CommunicationMailController extends AbstractController
         string $type,
         Request $request,
         UserRepository $userRepository,
+        FileAttenteProspectMailRepository $fileAttenteRepo,
         EntityManagerInterface $entityManager
     ): Response {
         $types = self::getReactivationTypes();
@@ -154,9 +200,18 @@ class CommunicationMailController extends AbstractController
         $config  = $types[$type];
         $users   = $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']);
         $replyto = 'dressur.ds@gmail.com';
-        $added   = 0;
 
-        foreach ($users as $u) {
+        $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
+        $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
+            array_values($allEmails),
+            self::REACTIVATION_COOLDOWN_DAYS,
+            self::getReactivationTitres()
+        );
+
+        ['toSend' => $toSend] = self::splitByRecentContact($users, $recentlySent);
+
+        $added = 0;
+        foreach ($toSend as $u) {
             $mail = trim((string) ($u['mail'] ?? ''));
             if ($mail === '' || !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
                 continue;
@@ -178,7 +233,13 @@ class CommunicationMailController extends AbstractController
 
         $entityManager->flush();
 
-        $this->addFlash('success', $added . ' mail(s) de réactivation ajouté(s) à la file d\'attente.');
+        $skipped = count($users) - $added;
+        $msg = $added . ' mail(s) ajouté(s) à la file d\'attente.';
+        if ($skipped > 0) {
+            $msg .= ' ' . $skipped . ' ignoré(s) (déjà contacté(s) dans les ' . self::REACTIVATION_COOLDOWN_DAYS . ' derniers jours).';
+        }
+
+        $this->addFlash('success', $msg);
         return $this->redirectToRoute('app_communication_mail_file_attente');
     }
 
