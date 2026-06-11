@@ -189,6 +189,44 @@
     {% endfor %}
 </div>
 
+{# ── Confirmation numéro WhatsApp ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fab fa-whatsapp me-1 text-success"></i>Confirmation numéro WhatsApp
+    {% if nb_whatsapp_attente is defined and nb_whatsapp_attente > 0 %}
+        <span class="badge bg-success ms-2">{{ nb_whatsapp_attente }} en attente d'envoi</span>
+    {% endif %}
+</h5>
+<div class="row g-3 mb-4">
+    {% for w in confirm_wa %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ w.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ w.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ w.label }}</div>
+                        <div class="small text-muted">{{ w.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ w.color }}">{{ w.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: w.key}) }}"
+                   class="btn btn-{{ w.color }} mt-auto {% if w.nb == 0 %}disabled{% endif %}">
+                    <i class="fab fa-whatsapp me-1"></i>
+                    {% if w.nb > 0 %}
+                        Voir & préparer ({{ w.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 <h5 class="mb-3 fw-semibold">Base de données & historique</h5>
 <div class="row g-3">
 
