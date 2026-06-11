@@ -315,7 +315,13 @@ class CommunicationMailController extends AbstractController
             'nb_to_send'    => count($toSend),
             'nb_excluded'   => count($excluded),
             'cooldown_days' => self::REACTIVATION_COOLDOWN_DAYS,
-            'contentmail'   => self::buildMailContentForType($config),
+            'contentmail'   => self::buildMailContentForType(
+                $config,
+                null,
+                ($config['queryType'] ?? '') === 'confirm_mail'
+                    ? 'https://dressur.site/confirmer-mail/[uid-utilisateur]/[token-securise]'
+                    : null
+            ),
             'sujet'         => $config['sujet'],
             'replyto'       => 'dressur.ds@gmail.com',
         ]);
@@ -365,7 +371,15 @@ class CommunicationMailController extends AbstractController
             }
 
             $pseudo  = trim((string) ($u['pseudo'] ?? ''));
-            $content = self::buildMailContentForType($config, $pseudo ?: null);
+            $uid     = trim((string) ($u['uid'] ?? ''));
+
+            $confirmUrl = null;
+            if (($config['queryType'] ?? '') === 'confirm_mail' && $uid !== '') {
+                $token      = $this->generateConfirmToken($uid, $mail);
+                $confirmUrl = 'https://dressur.site/confirmer-mail/' . rawurlencode($uid) . '/' . $token;
+            }
+
+            $content = self::buildMailContentForType($config, $pseudo ?: null, $confirmUrl);
 
             $entry = (new FileAttenteProspectMail())
                 ->setSendto($mail)
@@ -648,22 +662,29 @@ class CommunicationMailController extends AbstractController
 
     // ─── Dispatcher : choisit le bon template selon le type ──────────────────
 
-    private static function buildMailContentForType(array $config, ?string $pseudo = null): string
+    private static function buildMailContentForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null): string
     {
         return match ($config['queryType'] ?? 'inactif') {
             'service_boost'  => self::buildBoostMailContent($pseudo),
             'service_promo'  => self::buildPromoAffaireMailContent($pseudo),
             'service_reseau' => self::buildPromoReseauMailContent($pseudo),
-            'confirm_mail'   => self::buildConfirmMailContent($pseudo),
+            'confirm_mail'   => self::buildConfirmMailContent($pseudo, $confirmUrl),
             default          => self::buildReactivationMailContent($config['titre'], $pseudo),
         };
     }
 
+    private function generateConfirmToken(string $uid, string $mail): string
+    {
+        $secret = $this->getParameter('kernel.secret');
+        return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($mail)), $secret), 0, 40);
+    }
+
     // ─── Contenu HTML : Confirmation d'adresse mail ──────────────────────────
 
-    private static function buildConfirmMailContent(?string $pseudo = null): string
+    private static function buildConfirmMailContent(?string $pseudo = null, ?string $confirmUrl = null): string
     {
         $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
+        $btnUrl     = $confirmUrl ?? 'https://dressur.site/profil';
 
         return <<<HTML
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
@@ -692,7 +713,7 @@ class CommunicationMailController extends AbstractController
     <p>La confirmation ne prend que quelques secondes. Connectez-vous à votre compte et suivez les instructions pour valider votre adresse.</p>
 
     <div style="text-align:center;margin:32px 0;">
-      <a href="https://dressur.site/profil"
+      <a href="{$btnUrl}"
          style="display:inline-block;padding:14px 36px;background:#ffc107;color:#212529;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
         ✉️ Confirmer mon adresse mail
       </a>
