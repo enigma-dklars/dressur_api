@@ -4,8 +4,10 @@ namespace App\Controller\Crud;
 
 use App\Entity\MailProspect;
 use App\Entity\FileAttenteProspectMail;
+use App\Entity\FileAttenteWhatsapp;
 use App\Repository\MailProspectRepository;
 use App\Repository\FileAttenteProspectMailRepository;
+use App\Repository\FileAttenteWhatsappRepository;
 use App\Repository\LogBoiteMailRepository;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
@@ -48,6 +50,7 @@ class CommunicationMailController extends AbstractController
     #[Route('/', name: 'app_communication_mail_portal', methods: ['GET'])]
     public function portal(
         FileAttenteProspectMailRepository $fileAttenteRepo,
+        FileAttenteWhatsappRepository $whatsappRepo,
         MailProspectRepository $prospectRepo,
         LogBoiteMailRepository $logRepo,
         UserRepository $userRepository,
@@ -55,10 +58,11 @@ class CommunicationMailController extends AbstractController
         PromotionRepository $promotionRepository,
         PromoReseauRepository $promoReseauRepository
     ): Response {
-        $allTypes     = self::getReactivationTypes();
-        $inactifTypes = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
-        $serviceTypes = array_filter($allTypes, fn($t) => $t['group'] === 'service');
-        $confirmTypes = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
+        $allTypes      = self::getReactivationTypes();
+        $inactifTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
+        $serviceTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'service');
+        $confirmTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
+        $confirmWaTypes = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
 
         $sqlErrors = [];
 
@@ -95,6 +99,17 @@ class CommunicationMailController extends AbstractController
             $confirm[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
         }
 
+        $confirmWa = [];
+        foreach ($confirmWaTypes as $key => $cfg) {
+            try {
+                $nb = $userRepository->countUsersWithUnconfirmedTel();
+            } catch (\Throwable $e) {
+                $nb = 0;
+                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
+            }
+            $confirmWa[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+        }
+
         if (!empty($sqlErrors)) {
             foreach ($sqlErrors as $err) {
                 $this->addFlash('warning', 'Erreur comptage : ' . $err);
@@ -102,15 +117,17 @@ class CommunicationMailController extends AbstractController
         }
 
         return $this->render('communication_mail/portal.html.twig', [
-            'theme'        => $this->theme,
-            'user'         => $this->traitementsDS->getUserByUidInCookies(),
-            'nb_attente'   => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
-            'nb_envoye'    => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
-            'nb_prospects' => count($prospectRepo->findAll()),
-            'nb_logs'      => count($logRepo->findAll()),
-            'reactivation' => $reactivation,
-            'services'     => $services,
-            'confirm'      => $confirm,
+            'theme'               => $this->theme,
+            'user'                => $this->traitementsDS->getUserByUidInCookies(),
+            'nb_attente'          => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
+            'nb_envoye'           => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
+            'nb_prospects'        => count($prospectRepo->findAll()),
+            'nb_logs'             => count($logRepo->findAll()),
+            'nb_whatsapp_attente' => count($whatsappRepo->findBy(['statut' => 'en_attente'])),
+            'reactivation'        => $reactivation,
+            'services'            => $services,
+            'confirm'             => $confirm,
+            'confirm_wa'          => $confirmWa,
         ]);
     }
 
@@ -208,6 +225,21 @@ class CommunicationMailController extends AbstractController
                 'desc'      => 'Utilisateurs inscrits n\'ayant jamais confirmé leur adresse mail.',
                 'queryType' => 'confirm_mail',
                 'group'     => 'confirm',
+                'channel'   => 'email',
+            ],
+            // ── Confirmation numéro WhatsApp ─────────────────────────────────
+            'tel_non_confirme' => [
+                'label'     => 'Numéro de téléphone non confirmé',
+                'minDays'   => null,
+                'maxDays'   => null,
+                'emoji'     => '📱',
+                'color'     => 'success',
+                'sujet'     => 'Confirmez votre numéro WhatsApp',
+                'titre'     => 'Vérifiez votre numéro sur Dressur',
+                'desc'      => 'Utilisateurs avec un numéro de téléphone non confirmé.',
+                'queryType' => 'confirm_tel',
+                'group'     => 'confirm_wa',
+                'channel'   => 'whatsapp',
             ],
         ];
     }
@@ -225,17 +257,18 @@ class CommunicationMailController extends AbstractController
 
     private static function splitByRecentContact(
         array $users,
-        array $recentlyContactedEmails
+        array $recentlyContacted,
+        string $contactKey = 'mail'
     ): array {
         $excluded = [];
         $toSend   = [];
 
         foreach ($users as $u) {
-            $mail = strtolower(trim((string) ($u['mail'] ?? '')));
-            if ($mail === '') {
+            $contact = strtolower(trim((string) ($u[$contactKey] ?? '')));
+            if ($contact === '') {
                 continue;
             }
-            if (in_array($mail, $recentlyContactedEmails, true)) {
+            if (in_array($contact, $recentlyContacted, true)) {
                 $excluded[] = $u;
             } else {
                 $toSend[] = $u;
@@ -259,6 +292,7 @@ class CommunicationMailController extends AbstractController
             'service_promo'  => $promotionRepository->findUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
             'service_reseau' => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
             'confirm_mail'   => $userRepository->findUsersWithUnconfirmedMail(),
+            'confirm_tel'    => $userRepository->findUsersWithUnconfirmedTel(),
             default          => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
         };
     }
@@ -288,24 +322,45 @@ class CommunicationMailController extends AbstractController
         BoostRepository $boostRepository,
         PromotionRepository $promotionRepository,
         PromoReseauRepository $promoReseauRepository,
-        FileAttenteProspectMailRepository $fileAttenteRepo
+        FileAttenteProspectMailRepository $fileAttenteRepo,
+        FileAttenteWhatsappRepository $whatsappRepo
     ): Response {
         $types = self::getReactivationTypes();
         if (!isset($types[$type])) {
             throw $this->createNotFoundException('Type de campagne inconnu.');
         }
 
-        $config = $types[$type];
-        $users  = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
+        $config     = $types[$type];
+        $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
+        $users      = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
 
-        $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
-        $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
-            array_values($allEmails),
-            self::REACTIVATION_COOLDOWN_DAYS,
-            [$config['titre']]
-        );
+        if ($isWhatsapp) {
+            $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
+            $recentlySent = $whatsappRepo->findRecentlyContactedPhones(
+                array_values($allPhones),
+                self::REACTIVATION_COOLDOWN_DAYS,
+                [$config['titre']]
+            );
+            ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent, 'tel');
+        } else {
+            $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
+            $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
+                array_values($allEmails),
+                self::REACTIVATION_COOLDOWN_DAYS,
+                [$config['titre']]
+            );
+            ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent);
+        }
 
-        ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent);
+        $previewContent = $isWhatsapp
+            ? self::buildWhatsappConfirmMessage(null, 'https://dressur.site/confirmer-tel/[uid-utilisateur]/[token-securise]')
+            : self::buildMailContentForType(
+                $config,
+                null,
+                ($config['queryType'] ?? '') === 'confirm_mail'
+                    ? 'https://dressur.site/confirmer-mail/[uid-utilisateur]/[token-securise]'
+                    : null
+            );
 
         return $this->render('communication_mail/campagne_reactivation.html.twig', [
             'theme'         => $this->theme,
@@ -315,15 +370,10 @@ class CommunicationMailController extends AbstractController
             'nb_to_send'    => count($toSend),
             'nb_excluded'   => count($excluded),
             'cooldown_days' => self::REACTIVATION_COOLDOWN_DAYS,
-            'contentmail'   => self::buildMailContentForType(
-                $config,
-                null,
-                ($config['queryType'] ?? '') === 'confirm_mail'
-                    ? 'https://dressur.site/confirmer-mail/[uid-utilisateur]/[token-securise]'
-                    : null
-            ),
+            'contentmail'   => $previewContent,
             'sujet'         => $config['sujet'],
             'replyto'       => 'dressur.ds@gmail.com',
+            'is_whatsapp'   => $isWhatsapp,
         ]);
     }
 
@@ -338,6 +388,7 @@ class CommunicationMailController extends AbstractController
         PromotionRepository $promotionRepository,
         PromoReseauRepository $promoReseauRepository,
         FileAttenteProspectMailRepository $fileAttenteRepo,
+        FileAttenteWhatsappRepository $whatsappFileRepo,
         EntityManagerInterface $entityManager
     ): Response {
         $types = self::getReactivationTypes();
@@ -350,8 +401,60 @@ class CommunicationMailController extends AbstractController
             return $this->redirectToRoute('app_communication_mail_portal');
         }
 
-        $config  = $types[$type];
-        $users   = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
+        $config     = $types[$type];
+        $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
+        $users      = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
+
+        // ── Canal WhatsApp ────────────────────────────────────────────────────
+        if ($isWhatsapp) {
+            $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
+            $recentlySent = $whatsappFileRepo->findRecentlyContactedPhones(
+                array_values($allPhones),
+                self::REACTIVATION_COOLDOWN_DAYS,
+                [$config['titre']]
+            );
+            ['toSend' => $toSend] = self::splitByRecentContact($users, $recentlySent, 'tel');
+
+            $added = 0;
+            foreach ($toSend as $u) {
+                $tel = trim((string) ($u['tel'] ?? ''));
+                if ($tel === '') {
+                    continue;
+                }
+
+                $pseudo = trim((string) ($u['pseudo'] ?? ''));
+                $uid    = trim((string) ($u['uid'] ?? ''));
+
+                $confirmUrl = null;
+                if ($uid !== '') {
+                    $token      = $this->generateConfirmTelToken($uid, $tel);
+                    $confirmUrl = 'https://dressur.site/confirmer-tel/' . rawurlencode($uid) . '/' . $token;
+                }
+
+                $message = self::buildWhatsappConfirmMessage($pseudo ?: null, $confirmUrl);
+
+                $entry = (new FileAttenteWhatsapp())
+                    ->setSendto($tel)
+                    ->setTitre($config['titre'])
+                    ->setMessage($message);
+
+                $entityManager->persist($entry);
+                $added++;
+            }
+
+            $entityManager->flush();
+
+            $skipped = count($users) - $added;
+            $msg = $added . ' message(s) WhatsApp ajouté(s) à la file d\'attente.';
+            if ($skipped > 0) {
+                $msg .= ' ' . $skipped . ' ignoré(s) (déjà contacté(s) dans les ' . self::REACTIVATION_COOLDOWN_DAYS . ' derniers jours).';
+            }
+
+            $this->addFlash('success', $msg);
+            return $this->redirectToRoute('app_communication_mail_portal');
+        }
+
+        // ── Canal Email (comportement par défaut) ─────────────────────────────
         $replyto = 'dressur.ds@gmail.com';
 
         $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
@@ -677,6 +780,26 @@ class CommunicationMailController extends AbstractController
     {
         $secret = $this->getParameter('kernel.secret');
         return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($mail)), $secret), 0, 40);
+    }
+
+    private function generateConfirmTelToken(string $uid, string $tel): string
+    {
+        $secret = $this->getParameter('kernel.secret');
+        return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($tel)), $secret), 0, 40);
+    }
+
+    private static function buildWhatsappConfirmMessage(?string $pseudo = null, ?string $confirmUrl = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
+        $url        = $confirmUrl ?? 'https://dressur.site/confirmer-tel/[uid]/[token]';
+
+        return $salutation . "\n\n"
+            . "Votre numéro a été enregistré sur *Dressur* 🐴\n"
+            . "Confirmez-le en un clic :\n"
+            . $url . "\n\n"
+            . "🚫 *Vous n'êtes pas à l'origine de cette inscription ?*\n"
+            . "Répondez simplement *SUPPRIMER* à ce message et nous supprimerons votre numéro immédiatement.\n\n"
+            . "— L'équipe Dressur";
     }
 
     // ─── Contenu HTML : Confirmation d'adresse mail ──────────────────────────
