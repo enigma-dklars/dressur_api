@@ -241,7 +241,7 @@ class UserRepository extends ServiceEntityRepository
     public function findUsersWithUnconfirmedMail(): array
     {
         return $this->createQueryBuilder('u')
-            ->select('u.mail', 'u.pseudo')
+            ->select('u.mail', 'u.pseudo', 'u.uid')
             ->where('u.mail IS NOT NULL')
             ->andWhere('u.mail != :empty')
             ->andWhere('u.blocked = :blocked')
