@@ -8,6 +8,9 @@ use App\Repository\MailProspectRepository;
 use App\Repository\FileAttenteProspectMailRepository;
 use App\Repository\LogBoiteMailRepository;
 use App\Repository\UserRepository;
+use App\Repository\BoostRepository;
+use App\Repository\PromotionRepository;
+use App\Repository\PromoReseauRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -47,23 +50,36 @@ class CommunicationMailController extends AbstractController
         FileAttenteProspectMailRepository $fileAttenteRepo,
         MailProspectRepository $prospectRepo,
         LogBoiteMailRepository $logRepo,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository
     ): Response {
-        $types = self::getReactivationTypes();
+        $allTypes      = self::getReactivationTypes();
+        $inactifTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
+        $serviceTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'service');
 
         return $this->render('communication_mail/portal.html.twig', [
-            'theme'           => $this->theme,
-            'user'            => $this->traitementsDS->getUserByUidInCookies(),
-            'nb_attente'      => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
-            'nb_envoye'       => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
-            'nb_prospects'    => count($prospectRepo->findAll()),
-            'nb_logs'         => count($logRepo->findAll()),
-            'reactivation'    => array_map(function (string $key, array $cfg) use ($userRepository): array {
-                return array_merge($cfg, [
-                    'key'     => $key,
-                    'nb'      => $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']),
-                ]);
-            }, array_keys($types), $types),
+            'theme'        => $this->theme,
+            'user'         => $this->traitementsDS->getUserByUidInCookies(),
+            'nb_attente'   => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
+            'nb_envoye'    => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
+            'nb_prospects' => count($prospectRepo->findAll()),
+            'nb_logs'      => count($logRepo->findAll()),
+            'reactivation' => array_values(array_map(
+                fn($key, $cfg) => array_merge($cfg, [
+                    'key' => $key,
+                    'nb'  => $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']),
+                ]),
+                array_keys($inactifTypes), $inactifTypes
+            )),
+            'services'     => array_values(array_map(
+                fn($key, $cfg) => array_merge($cfg, [
+                    'key' => $key,
+                    'nb'  => $this->countServiceCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository),
+                ]),
+                array_keys($serviceTypes), $serviceTypes
+            )),
         ]);
     }
 
@@ -72,35 +88,82 @@ class CommunicationMailController extends AbstractController
     private static function getReactivationTypes(): array
     {
         return [
+            // ── Inactivité générale ──────────────────────────────────────────
             '30j' => [
-                'label'   => 'Inactifs depuis 30 à 60 jours',
-                'minDays' => 30,
-                'maxDays' => 60,
-                'emoji'   => '💤',
-                'color'   => 'warning',
-                'sujet'   => 'Dressur vous attend — des opportunités vous ont manqué !',
-                'titre'   => 'Des opportunités vous attendent sur Dressur',
-                'desc'    => 'Rappel doux pour les utilisateurs récemment moins actifs.',
+                'label'     => 'Inactifs depuis 30 à 60 jours',
+                'minDays'   => 30,
+                'maxDays'   => 60,
+                'emoji'     => '💤',
+                'color'     => 'warning',
+                'sujet'     => 'Dressur vous attend — des opportunités vous ont manqué !',
+                'titre'     => 'Des opportunités vous attendent sur Dressur',
+                'desc'      => 'Rappel doux pour les utilisateurs récemment moins actifs.',
+                'queryType' => 'inactif',
+                'group'     => 'inactif',
             ],
             '60j' => [
-                'label'   => 'Inactifs depuis 60 à 90 jours',
-                'minDays' => 60,
-                'maxDays' => 90,
-                'emoji'   => '😴',
-                'color'   => 'orange',
-                'sujet'   => 'Ça fait un moment… Revenez découvrir les nouveautés Dressur !',
-                'titre'   => 'Revenez sur Dressur — il y a du nouveau !',
-                'desc'    => 'Relance avec mise en avant des nouveautés pour les utilisateurs absents.',
+                'label'     => 'Inactifs depuis 60 à 90 jours',
+                'minDays'   => 60,
+                'maxDays'   => 90,
+                'emoji'     => '😴',
+                'color'     => 'orange',
+                'sujet'     => 'Ça fait un moment… Revenez découvrir les nouveautés Dressur !',
+                'titre'     => 'Revenez sur Dressur — il y a du nouveau !',
+                'desc'      => 'Relance avec mise en avant des nouveautés pour les utilisateurs absents.',
+                'queryType' => 'inactif',
+                'group'     => 'inactif',
             ],
             '90j' => [
-                'label'   => 'Inactifs depuis plus de 90 jours',
-                'minDays' => 90,
-                'maxDays' => null,
-                'emoji'   => '🚨',
-                'color'   => 'danger',
-                'sujet'   => 'Votre compte Dressur vous attend toujours !',
-                'titre'   => 'Votre compte Dressur est toujours actif',
-                'desc'    => 'Dernier rappel pour les utilisateurs très longtemps inactifs.',
+                'label'     => 'Inactifs depuis plus de 90 jours',
+                'minDays'   => 90,
+                'maxDays'   => null,
+                'emoji'     => '🚨',
+                'color'     => 'danger',
+                'sujet'     => 'Votre compte Dressur vous attend toujours !',
+                'titre'     => 'Votre compte Dressur est toujours actif',
+                'desc'      => 'Dernier rappel pour les utilisateurs très longtemps inactifs.',
+                'queryType' => 'inactif',
+                'group'     => 'inactif',
+            ],
+            // ── Relance par service ──────────────────────────────────────────
+            'boost' => [
+                'label'      => 'Boost Contact expiré (90 j)',
+                'minDays'    => null,
+                'maxDays'    => null,
+                'maxDaysAgo' => 90,
+                'emoji'      => '📢',
+                'color'      => 'primary',
+                'sujet'      => 'Votre Boost Contact a expiré — relancez votre visibilité !',
+                'titre'      => 'Renouvelez votre Boost Contact sur Dressur',
+                'desc'       => 'Utilisateurs dont le dernier Boost a expiré, sans Boost actif.',
+                'queryType'  => 'service_boost',
+                'group'      => 'service',
+            ],
+            'promo' => [
+                'label'      => 'Promotion Affaire terminée (90 j)',
+                'minDays'    => null,
+                'maxDays'    => null,
+                'maxDaysAgo' => 90,
+                'emoji'      => '🎯',
+                'color'      => 'success',
+                'sujet'      => 'Votre Promotion Affaire est terminée — remettez-vous en avant !',
+                'titre'      => 'Relancez votre Promotion Affaire sur Dressur',
+                'desc'       => 'Utilisateurs dont la dernière Promo est terminée, sans Promo active.',
+                'queryType'  => 'service_promo',
+                'group'      => 'service',
+            ],
+            'reseau' => [
+                'label'      => 'Promo Réseaux Sociaux terminée (90 j)',
+                'minDays'    => null,
+                'maxDays'    => null,
+                'maxDaysAgo' => 90,
+                'emoji'      => '📱',
+                'color'      => 'info',
+                'sujet'      => 'Boostez à nouveau vos réseaux sociaux avec Dressur !',
+                'titre'      => 'Relancez votre Promotion Réseaux Sociaux',
+                'desc'       => 'Utilisateurs dont la dernière Promo Réseau est terminée, sans commande active.',
+                'queryType'  => 'service_reseau',
+                'group'      => 'service',
             ],
         ];
     }
@@ -114,7 +177,7 @@ class CommunicationMailController extends AbstractController
         return array_column(self::getReactivationTypes(), 'titre');
     }
 
-    // ─── Helper : sépare les users inactifs en deux listes (à envoyer / déjà contactés) ─
+    // ─── Helper : sépare les users en deux listes (à envoyer / déjà contactés) ─
 
     private static function splitByRecentContact(
         array $users,
@@ -138,23 +201,59 @@ class CommunicationMailController extends AbstractController
         return ['toSend' => $toSend, 'excluded' => $excluded];
     }
 
+    // ─── Helper : récupère les candidats selon le type de campagne ────────────
+
+    private function fetchCandidateUsers(
+        array $config,
+        UserRepository $userRepository,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository
+    ): array {
+        return match ($config['queryType'] ?? 'inactif') {
+            'service_boost'  => $boostRepository->findUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_promo'  => $promotionRepository->findUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_reseau' => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
+            default          => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
+        };
+    }
+
+    // ─── Helper : count rapide pour le portail ────────────────────────────────
+
+    private function countServiceCandidates(
+        array $config,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository
+    ): int {
+        return match ($config['queryType'] ?? 'inactif') {
+            'service_boost'  => $boostRepository->countUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_promo'  => $promotionRepository->countUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_reseau' => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
+            default          => 0,
+        };
+    }
+
     // ─── Réactivation : aperçu ───────────────────────────────────────────────
 
     #[Route('/campagne/reactivation/{type}', name: 'app_communication_mail_campagne_reactivation', methods: ['GET'])]
     public function campagneReactivation(
         string $type,
         UserRepository $userRepository,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository,
         FileAttenteProspectMailRepository $fileAttenteRepo
     ): Response {
         $types = self::getReactivationTypes();
         if (!isset($types[$type])) {
-            throw $this->createNotFoundException('Type de réactivation inconnu.');
+            throw $this->createNotFoundException('Type de campagne inconnu.');
         }
 
-        $config  = $types[$type];
-        $users   = $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']);
+        $config = $types[$type];
+        $users  = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
 
-        $allEmails   = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
+        $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
         $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
             array_values($allEmails),
             self::REACTIVATION_COOLDOWN_DAYS,
@@ -171,25 +270,28 @@ class CommunicationMailController extends AbstractController
             'nb_to_send'    => count($toSend),
             'nb_excluded'   => count($excluded),
             'cooldown_days' => self::REACTIVATION_COOLDOWN_DAYS,
-            'contentmail'   => self::buildReactivationMailContent($config['titre']),
+            'contentmail'   => self::buildMailContentForType($config),
             'sujet'         => $config['sujet'],
             'replyto'       => 'dressur.ds@gmail.com',
         ]);
     }
 
-    // ─── Réactivation : lancer la campagne en 1 clic ─────────────────────────
+    // ─── Campagne : lancer en 1 clic (inactifs ou services) ──────────────────
 
     #[Route('/campagne/reactivation/{type}/lancer', name: 'app_communication_mail_campagne_reactivation_lancer', methods: ['POST'])]
     public function lancerReactivation(
         string $type,
         Request $request,
         UserRepository $userRepository,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository,
         FileAttenteProspectMailRepository $fileAttenteRepo,
         EntityManagerInterface $entityManager
     ): Response {
         $types = self::getReactivationTypes();
         if (!isset($types[$type])) {
-            throw $this->createNotFoundException('Type de réactivation inconnu.');
+            throw $this->createNotFoundException('Type de campagne inconnu.');
         }
 
         if (!$this->isCsrfTokenValid('reactivation_' . $type, $request->request->get('_token'))) {
@@ -198,7 +300,7 @@ class CommunicationMailController extends AbstractController
         }
 
         $config  = $types[$type];
-        $users   = $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']);
+        $users   = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
         $replyto = 'dressur.ds@gmail.com';
 
         $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
@@ -218,7 +320,7 @@ class CommunicationMailController extends AbstractController
             }
 
             $pseudo  = trim((string) ($u['pseudo'] ?? ''));
-            $content = self::buildReactivationMailContent($config['titre'], $pseudo ?: null);
+            $content = self::buildMailContentForType($config, $pseudo ?: null);
 
             $entry = (new FileAttenteProspectMail())
                 ->setSendto($mail)
@@ -497,6 +599,168 @@ class CommunicationMailController extends AbstractController
             'senders'      => $senders,
             'filters'      => $filters,
         ]);
+    }
+
+    // ─── Dispatcher : choisit le bon template selon le type ──────────────────
+
+    private static function buildMailContentForType(array $config, ?string $pseudo = null): string
+    {
+        return match ($config['queryType'] ?? 'inactif') {
+            'service_boost'  => self::buildBoostMailContent($pseudo),
+            'service_promo'  => self::buildPromoAffaireMailContent($pseudo),
+            'service_reseau' => self::buildPromoReseauMailContent($pseudo),
+            default          => self::buildReactivationMailContent($config['titre'], $pseudo),
+        };
+    }
+
+    // ─── Contenu HTML : Boost Contact ────────────────────────────────────────
+
+    private static function buildBoostMailContent(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
+
+        return <<<HTML
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
+
+  <div style="background:#0d6efd;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
+    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
+    <h1 style="color:white;margin:0;font-size:24px;">📢 Renouvelez votre Boost Contact</h1>
+  </div>
+
+  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
+
+    <p>{$salutation}</p>
+
+    <p>Votre <strong>Boost Contact</strong> sur Dressur a expiré. Sans Boost actif, votre profil est moins visible auprès de vos futurs clients et partenaires.</p>
+
+    <div style="background:#e7f3ff;border-left:4px solid #0d6efd;padding:16px;border-radius:0 6px 6px 0;margin:20px 0;">
+      <strong style="color:#0d6efd;">Qu'est-ce que vous perdez sans Boost ?</strong>
+      <ul style="margin:8px 0 0;padding-left:20px;color:#495057;">
+        <li>Votre profil n'apparaît plus en priorité dans les recherches</li>
+        <li>Moins de demandes de contact directes</li>
+        <li>Vos concurrents boostés vous devancent</li>
+      </ul>
+    </div>
+
+    <p>Réactivez votre Boost dès maintenant et retrouvez votre visibilité sur la plateforme !</p>
+
+    <div style="text-align:center;margin:32px 0;">
+      <a href="https://dressur.site/boost"
+         style="display:inline-block;padding:14px 36px;background:#0d6efd;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
+        📢 Renouveler mon Boost Contact
+      </a>
+    </div>
+
+    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
+      <a href="https://dressur.site" style="color:#0d6efd;">dressur.site</a> —
+      <a href="mailto:dressur.ds@gmail.com" style="color:#0d6efd;">dressur.ds@gmail.com</a>
+    </p>
+
+  </div>
+</div>
+HTML;
+    }
+
+    // ─── Contenu HTML : Promotion Affaire ────────────────────────────────────
+
+    private static function buildPromoAffaireMailContent(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
+
+        return <<<HTML
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
+
+  <div style="background:#198754;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
+    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
+    <h1 style="color:white;margin:0;font-size:24px;">🎯 Relancez votre Promotion Affaire</h1>
+  </div>
+
+  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
+
+    <p>{$salutation}</p>
+
+    <p>Votre <strong>Promotion Affaire</strong> est arrivée à terme. C'est le moment idéal pour en lancer une nouvelle et remettre votre activité en avant auprès de toute la communauté Dressur !</p>
+
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <tr>
+        <td style="padding:12px;background:#f0fdf4;border-radius:6px;width:48%;vertical-align:top;border:1px solid #bbf7d0;">
+          <strong style="color:#198754;">📣 Produit ou Service</strong><br>
+          <span style="font-size:13px;color:#6c757d;">Mettez en avant vos offres directement auprès des acheteurs.</span>
+        </td>
+        <td style="width:4%;"></td>
+        <td style="padding:12px;background:#f0fdf4;border-radius:6px;width:48%;vertical-align:top;border:1px solid #bbf7d0;">
+          <strong style="color:#198754;">💼 Offre ou Demande d'emploi</strong><br>
+          <span style="font-size:13px;color:#6c757d;">Recrutez ou trouvez un poste dans votre domaine.</span>
+        </td>
+      </tr>
+    </table>
+
+    <p>Une promotion bien placée peut générer des dizaines de contacts qualifiés. Ne laissez pas vos concurrents occuper cet espace.</p>
+
+    <div style="text-align:center;margin:32px 0;">
+      <a href="https://dressur.site/promotion"
+         style="display:inline-block;padding:14px 36px;background:#198754;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
+        🎯 Lancer une nouvelle Promotion
+      </a>
+    </div>
+
+    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
+      <a href="https://dressur.site" style="color:#198754;">dressur.site</a> —
+      <a href="mailto:dressur.ds@gmail.com" style="color:#198754;">dressur.ds@gmail.com</a>
+    </p>
+
+  </div>
+</div>
+HTML;
+    }
+
+    // ─── Contenu HTML : Promotion Réseaux Sociaux ────────────────────────────
+
+    private static function buildPromoReseauMailContent(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
+
+        return <<<HTML
+<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
+
+  <div style="background:#0dcaf0;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
+    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
+    <h1 style="color:white;margin:0;font-size:24px;">📱 Boostez à nouveau vos réseaux !</h1>
+  </div>
+
+  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
+
+    <p>{$salutation}</p>
+
+    <p>Votre dernière <strong>Promotion Réseaux Sociaux</strong> est terminée. Votre compteur d'abonnés a progressé — il est temps de continuer sur cette lancée !</p>
+
+    <div style="background:#e0f9ff;border-left:4px solid #0dcaf0;padding:16px;border-radius:0 6px 6px 0;margin:20px 0;">
+      <strong style="color:#0dcaf0;">Nos services de promotion réseau</strong>
+      <ul style="margin:8px 0 0;padding-left:20px;color:#495057;">
+        <li><strong>TikTok</strong> — vues, likes, abonnés</li>
+        <li><strong>Instagram</strong> — followers, likes, commentaires</li>
+        <li><strong>YouTube</strong> — vues, abonnés, likes</li>
+        <li><strong>Facebook, Twitter et plus…</strong></li>
+      </ul>
+    </div>
+
+    <p>Commandez une nouvelle promotion en quelques clics et boostez votre présence en ligne dès aujourd'hui !</p>
+
+    <div style="text-align:center;margin:32px 0;">
+      <a href="https://dressur.site/promo-reseau"
+         style="display:inline-block;padding:14px 36px;background:#0dcaf0;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
+        📱 Lancer une nouvelle Promo Réseau
+      </a>
+    </div>
+
+    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
+      <a href="https://dressur.site" style="color:#0dcaf0;">dressur.site</a> —
+      <a href="mailto:dressur.ds@gmail.com" style="color:#0dcaf0;">dressur.ds@gmail.com</a>
+    </p>
+
+  </div>
+</div>
+HTML;
     }
 
     // ─── Contenu HTML du mail de réactivation ────────────────────────────────
