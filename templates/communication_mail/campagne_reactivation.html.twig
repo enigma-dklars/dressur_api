@@ -45,7 +45,10 @@
 
                     {% if config.group == 'service' %}
                     <dt class="col-sm-5">Fenêtre analysée</dt>
-                    <dd class="col-sm-7">90 derniers jours</dd>
+                    <dd class="col-sm-7">{{ config.maxDaysAgo }} derniers jours</dd>
+                    {% elseif config.group == 'confirm' %}
+                    <dt class="col-sm-5">Critère</dt>
+                    <dd class="col-sm-7">Mail non confirmé</dd>
                     {% else %}
                     <dt class="col-sm-5">Inactivité ciblée</dt>
                     <dd class="col-sm-7">
@@ -123,7 +126,9 @@
                 {% else %}
                     <div class="text-center text-muted py-3">
                         <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
-                        {% if config.group == 'service' %}
+                        {% if config.group == 'confirm' %}
+                            Tous les utilisateurs ont confirmé leur adresse mail.
+                        {% elseif config.group == 'service' %}
                             Aucun utilisateur ciblé pour ce service actuellement.
                         {% else %}
                             Aucun utilisateur inactif dans cette tranche actuellement.
