@@ -51,7 +51,7 @@ class PromotionRepository extends ServiceEntityRepository
 
         $sql = "SELECT COUNT(DISTINCT u.id)
                 FROM promotion p
-                INNER JOIN \`user\` u ON p.user_id = u.id
+                INNER JOIN `user` u ON p.user_id = u.id
                 WHERE u.mail IS NOT NULL AND u.mail != '' AND u.blocked = 0
                   AND p.status = 4
                   AND p.date_exp IS NOT NULL AND p.date_exp BETWEEN :cutoff AND :now
@@ -70,7 +70,7 @@ class PromotionRepository extends ServiceEntityRepository
 
         $sql = "SELECT DISTINCT u.mail, u.pseudo
                 FROM promotion p
-                INNER JOIN \`user\` u ON p.user_id = u.id
+                INNER JOIN `user` u ON p.user_id = u.id
                 WHERE u.mail IS NOT NULL AND u.mail != '' AND u.blocked = 0
                   AND p.status = 4
                   AND p.date_exp IS NOT NULL AND p.date_exp BETWEEN :cutoff AND :now
