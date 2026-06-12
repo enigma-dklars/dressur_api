@@ -3,8 +3,7 @@
 namespace App\Controller\API;
 
 use App\Entity\User;
-use FedaPay\FedaPay;
-use FedaPay\Transaction;
+use App\Services\CookieDS;
 use App\Services\SessionDS;
 use App\Entity\Promotion;
 use App\Services\TraitementsDS;
@@ -13,6 +12,7 @@ use App\Services\VerificationsDS;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\FormuleBoostRepository;
+use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\PromotionRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,6 +81,214 @@ class AdminController extends AbstractController
                 'error' => true,
                 'titre' => 'Erreur!',
                 'message' => "Mail non envoyé.",
+            ]);
+        }
+    }
+
+    /**
+     * Retourne la liste des promotions en attente de validation (status = 1).
+     * Réservé aux administrateurs.
+     */
+    #[Route('/admin/promos-en-attente', name: 'admin_promos_en_attente', methods: ['GET'])]
+    public function promosEnAttente(
+        Request $request,
+        CookieDS $cookieDS,
+        VerificationsDS $verificationsDS,
+        PromotionRepository $promotionRepository
+    ): JsonResponse {
+        $uid = $cookieDS->getWithFallback('uid', $request) ?: null;
+        $verificationUser = $verificationsDS->verifUSer($uid);
+
+        if ($verificationUser['error'] == true) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => $verificationUser['message'],
+            ]);
+        }
+
+        $adminUser = $verificationUser['user'];
+        if (!$adminUser->getAdmin()) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Accès refusé. Droits administrateur requis.',
+            ]);
+        }
+
+        $promotions = $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']);
+
+        $data = [];
+        foreach ($promotions as $promo) {
+            $promoUser = $promo->getUser();
+            $data[] = [
+                'id'          => $promo->getId(),
+                'type'        => $promo->getTypePromotionAffaire(),
+                'description' => $promo->getDescription(),
+                'image'       => $promo->getImage(),
+                'source'      => $promo->getSource(),
+                'createdAt'   => $promo->getCreatedAt()
+                    ? $promo->getCreatedAt()->format('d/m/Y H:i')
+                    : null,
+                'user' => $promoUser ? [
+                    'pseudo' => $promoUser->getPseudo(),
+                    'nom'    => $promoUser->getNom(),
+                    'mail'   => $promoUser->getMail(),
+                    'tel'    => $promoUser->getTel(),
+                ] : null,
+            ];
+        }
+
+        return new JsonResponse(['error' => false, 'promotions' => $data]);
+    }
+
+    /**
+     * Accepte une promotion en attente.
+     * Réservé aux administrateurs.
+     */
+    #[Route('/admin/promos/{id}/accepter', name: 'admin_promos_accepter', methods: ['POST'])]
+    public function accepterPromo(
+        Request $request,
+        int $id,
+        CookieDS $cookieDS,
+        VerificationsDS $verificationsDS,
+        PromotionRepository $promotionRepository,
+        FormulePromoAffaireRepository $formulePromoAffaireRepository,
+        SendMail $sendMail
+    ): JsonResponse {
+        $uid = $cookieDS->getWithFallback('uid', $request) ?: null;
+        $verificationUser = $verificationsDS->verifUSer($uid);
+
+        if ($verificationUser['error'] == true) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => $verificationUser['message'],
+            ]);
+        }
+
+        $adminUser = $verificationUser['user'];
+        if (!$adminUser->getAdmin()) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Accès refusé. Droits administrateur requis.',
+            ]);
+        }
+
+        $promotion = $promotionRepository->find($id);
+        if (!$promotion) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => "Promotion #{$id} introuvable.",
+            ]);
+        }
+
+        try {
+            if ($promotion->getTypePromotionAffaire() === 'produit_service') {
+                $promotion->setDateExp(
+                    new \DateTime('+ ' . $promotion->getFormulePromoAffaire()->getNbrJour() . ' days')
+                );
+            }
+
+            if ($promotion->getTypePromotionAffaire() === 'dmd_emploi') {
+                $formule = $formulePromoAffaireRepository->find(4);
+                $promotion
+                    ->setFormulePromoAffaire($formule)
+                    ->setDateExp(new \DateTime('+ ' . $formule->getNbrJour() . ' days'));
+            }
+
+            if ($promotion->getTypePromotionAffaire() === 'offre_emploi') {
+                $formule = $formulePromoAffaireRepository->find(4);
+                $promotion
+                    ->setFormulePromoAffaire($formule)
+                    ->setDateExp(new \DateTime('+ ' . $formule->getNbrJour() . ' days'));
+            }
+
+            $promotion->setMotif('')->setStatus(3)->setDateDebut(new \DateTime());
+            $this->em->flush();
+
+            $promoUser = $promotion->getUser();
+            if ($promoUser && $promoUser->getMail()) {
+                $formulePromoAffaire = $promotion->getFormulePromoAffaire();
+                $html = $this->renderView('emails/promo_affaire_acceptee_user.html.twig', [
+                    'user_nom'         => $promoUser->getNom(),
+                    'formule_titre'    => $formulePromoAffaire ? $formulePromoAffaire->getTitre() : null,
+                    'formule_nbr_jour' => $formulePromoAffaire ? $formulePromoAffaire->getNbrJour() : null,
+                ]);
+                $sendMail->smtpMail($promoUser->getMail(), 'Votre promotion a été acceptée 🎉', $html);
+            }
+
+            return new JsonResponse([
+                'error'   => false,
+                'message' => "Promotion #{$id} acceptée avec succès.",
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Erreur : ' . $th->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Refuse une promotion en attente avec un motif.
+     * Réservé aux administrateurs.
+     */
+    #[Route('/admin/promos/{id}/refuser', name: 'admin_promos_refuser', methods: ['POST'])]
+    public function refuserPromo(
+        Request $request,
+        int $id,
+        CookieDS $cookieDS,
+        VerificationsDS $verificationsDS,
+        PromotionRepository $promotionRepository,
+        SendMail $sendMail
+    ): JsonResponse {
+        $uid = $cookieDS->getWithFallback('uid', $request) ?: null;
+        $verificationUser = $verificationsDS->verifUSer($uid);
+
+        if ($verificationUser['error'] == true) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => $verificationUser['message'],
+            ]);
+        }
+
+        $adminUser = $verificationUser['user'];
+        if (!$adminUser->getAdmin()) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Accès refusé. Droits administrateur requis.',
+            ]);
+        }
+
+        $promotion = $promotionRepository->find($id);
+        if (!$promotion) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => "Promotion #{$id} introuvable.",
+            ]);
+        }
+
+        $motif = trim((string) $request->request->get('motif', ''));
+
+        try {
+            $promotion->setMotif($motif)->setStatus(0);
+            $this->em->flush();
+
+            $promoUser = $promotion->getUser();
+            if ($promoUser && $promoUser->getMail()) {
+                $html = $this->renderView('emails/promo_affaire_refusee_user.html.twig', [
+                    'user_nom' => $promoUser->getNom(),
+                    'motif'    => $motif,
+                ]);
+                $sendMail->smtpMail($promoUser->getMail(), 'Votre promotion a été refusée', $html);
+            }
+
+            return new JsonResponse([
+                'error'   => false,
+                'message' => "Promotion #{$id} refusée.",
+            ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Erreur : ' . $th->getMessage(),
             ]);
         }
     }
