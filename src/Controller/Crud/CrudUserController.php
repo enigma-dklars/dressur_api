@@ -254,8 +254,9 @@ class CrudUserController extends AbstractController
     #[Route('/check-and-confirme', name: 'app_crud_user_check_and_confirme', methods: ['GET', 'POST'])]
     public function check_and_confirme(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
-        $user = null;
-        $message = [];
+        $user      = null;
+        $message   = [];
+        $waMessage = null;
 
         // Process the form submission
         if ($request->isMethod('POST')) {
@@ -299,6 +300,23 @@ class CrudUserController extends AbstractController
                         $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
                     } else {
                         $this->addFlash('danger', 'Echec de confirmation du numéro fournis.');
+
+                        $tel = strtolower(trim((string) $user->getTel()));
+                        if ($tel !== '') {
+                            $uid        = (string) $user->getUid();
+                            $secret     = $this->getParameter('kernel.secret');
+                            $token      = substr(hash_hmac('sha256', $uid . ':' . $tel, $secret), 0, 40);
+                            $confirmUrl = 'https://dressur.site/confirmer-tel/' . rawurlencode($uid) . '/' . $token;
+                            $pseudo     = trim((string) $user->getNom()) ?: null;
+                            $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
+                            $waMessage  = $salutation . "\n\n"
+                                . "Votre numéro a été enregistré sur *Dressur* 🐴\n"
+                                . "Confirmez-le en un clic :\n"
+                                . $confirmUrl . "\n\n"
+                                . "🚫 *Vous n'êtes pas à l'origine de cette inscription ?*\n"
+                                . "Répondez simplement *SUPPRIMER* à ce message et nous supprimerons votre numéro immédiatement.\n\n"
+                                . "— L'équipe Dressur";
+                        }
                     }
                 } else {
                     $message[] = "Le numéro WhatsApp (".$user->getTel().") avais déja été confirmé.";
@@ -312,11 +330,12 @@ class CrudUserController extends AbstractController
         }
 
         return $this->render('crud_user/check_and_confirme.html.twig', [
-            'theme' => $this->theme,
-            'users' => $userRepository->findAll(),
-            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'theme'      => $this->theme,
+            'users'      => $userRepository->findAll(),
+            'user'       => $this->traitementsDS->getUserByUidInCookies(),
             'user_check' => $user ? $user_array : null,
-            'message' => implode("<br>", $message),
+            'message'    => implode("<br>", $message),
+            'wa_message' => $waMessage,
         ]);
     }
 
