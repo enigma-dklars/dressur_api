@@ -111,6 +111,127 @@ class GoogleAuthController extends AbstractController
         ]);
     }
 
+    // ── Mobile : callback HTTPS appelé par Google (redirect_uri HTTPS valide) ─
+    #[Route('/auth/google/mobile/callback', name: 'auth_google_mobile_callback', methods: ['GET'])]
+    public function mobileGoogleCallback(Request $request): Response
+    {
+        $code = $request->query->get('code');
+        if (!$code) {
+            return new RedirectResponse('com.dressur.ds://auth?error=no_code');
+        }
+
+        $redirectUri = 'https://dressur.site/auth/google/mobile/callback';
+
+        try {
+            $tokenResponse = $this->http->request('POST', 'https://oauth2.googleapis.com/token', [
+                'body' => [
+                    'code'          => $code,
+                    'client_id'     => getenv('GOOGLE_WEB_CLIENT_ID'),
+                    'client_secret' => getenv('GOOGLE_WEB_CLIENT_SECRET'),
+                    'redirect_uri'  => $redirectUri,
+                    'grant_type'    => 'authorization_code',
+                ],
+            ]);
+            $tokenData = $tokenResponse->toArray(false);
+        } catch (\Throwable) {
+            return new RedirectResponse('com.dressur.ds://auth?error=token_exchange_failed');
+        }
+
+        $accessToken = $tokenData['access_token'] ?? null;
+        if (!$accessToken) {
+            return new RedirectResponse('com.dressur.ds://auth?error=no_access_token');
+        }
+
+        try {
+            $uiResponse = $this->http->request('GET', 'https://www.googleapis.com/oauth2/v3/userinfo', [
+                'headers' => ['Authorization' => 'Bearer ' . $accessToken],
+            ]);
+            $googleUser = $uiResponse->toArray(false);
+        } catch (\Throwable) {
+            return new RedirectResponse('com.dressur.ds://auth?error=userinfo_failed');
+        }
+
+        $email         = strtolower(trim($googleUser['email'] ?? ''));
+        $emailVerified = $googleUser['email_verified'] ?? false;
+        $givenName     = $googleUser['given_name'] ?? 'User';
+        $familyName    = $googleUser['family_name'] ?? '';
+
+        if (!$email || !$emailVerified) {
+            return new RedirectResponse('com.dressur.ds://auth?error=email_unverified');
+        }
+
+        $user = $this->findOrCreateGoogleUser($email, $givenName, $familyName, 'google_mobile');
+
+        // Générer un token signé à courte durée de vie (5 min)
+        $uid     = $user->getUid();
+        $ts      = time();
+        $payload = $uid . '|' . $ts;
+        $sig     = hash_hmac('sha256', $payload, getenv('APP_SECRET'));
+        $token   = rtrim(base64_encode($payload . '|' . $sig), '=');
+
+        return new RedirectResponse('com.dressur.ds://auth?t=' . urlencode($token));
+    }
+
+    // ── Mobile : échange du token signé contre les données utilisateur ─────────
+    #[Route('/api/auth/google/mobile-finalize', name: 'api_auth_google_mobile_finalize', methods: ['POST'])]
+    public function mobileGoogleFinalize(Request $request, SessionDS $sessionDS): JsonResponse
+    {
+        $rawToken      = $request->request->get('t');
+        $langUserPhone = $request->request->get('langUserPhone') ?? 'fr';
+        $sessionDS->set('langUserPhone', $langUserPhone);
+
+        if (!$rawToken) {
+            return new JsonResponse(['error' => true, 'message' => 'Token manquant.']);
+        }
+
+        $padLen  = (4 - strlen($rawToken) % 4) % 4;
+        $decoded = base64_decode($rawToken . str_repeat('=', $padLen));
+        $parts   = explode('|', $decoded, 3);
+
+        if (count($parts) !== 3) {
+            return new JsonResponse(['error' => true, 'message' => 'Token invalide.']);
+        }
+
+        [$uid, $ts, $sig] = $parts;
+
+        $expectedSig = hash_hmac('sha256', $uid . '|' . $ts, getenv('APP_SECRET'));
+        if (!hash_equals($expectedSig, $sig)) {
+            return new JsonResponse(['error' => true, 'message' => 'Token invalide.']);
+        }
+
+        if (time() - (int)$ts > 300) {
+            return new JsonResponse(['error' => true, 'message' => 'Token expiré. Veuillez réessayer.']);
+        }
+
+        $user = $this->userRepository->findOneBy(['uid' => $uid]);
+        if (!$user) {
+            return new JsonResponse(['error' => true, 'message' => 'Utilisateur introuvable.']);
+        }
+
+        $verif = $this->verificationsDS->verifUSer($uid);
+        if ($verif['error'] === true) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => $verif['titre'],
+                'message' => $verif['message'],
+            ]);
+        }
+
+        $user->setLastLoginTo(new DateTime())->setLastLoginSource('google_mobile');
+        if ($user->getLang() !== $langUserPhone) {
+            $user->setLang($langUserPhone);
+        }
+        $this->em->flush();
+
+        $this->cookieDS->set('uid', $user->getUid());
+
+        return new JsonResponse([
+            'error'   => false,
+            'message' => 'Connecté avec Google !',
+            'user'    => $this->traitementsDS->infosUser($user),
+        ]);
+    }
+
     // ── Web : redirection vers la page de consentement Google ────────────────
     #[Route('/auth/google', name: 'auth_google_redirect', methods: ['GET'])]
     public function webGoogleRedirect(Request $request): RedirectResponse
