@@ -23,9 +23,6 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GoogleAuthController extends AbstractController
 {
-    // Client ID Web (type 3) du projet Firebase — audience attendue dans l'idToken Flutter
-    private const MOBILE_CLIENT_ID = '7474516834-vq1se3sjkmg3e1gjblqrcgm556mdttma.apps.googleusercontent.com';
-
     public function __construct(
         private EntityManagerInterface $em,
         private UserRepository $userRepository,
@@ -35,37 +32,54 @@ class GoogleAuthController extends AbstractController
         private HttpClientInterface $http,
     ) {}
 
-    // ── Mobile : vérification du token Google envoyé par Flutter ─────────────
+    // ── Mobile : échange du code OAuth reçu depuis le navigateur Flutter ──────
     #[Route('/api/auth/google', name: 'api_auth_google', methods: ['POST'])]
     public function mobileGoogleAuth(Request $request, SessionDS $sessionDS): JsonResponse
     {
-        $idToken       = $request->request->get('idToken');
+        $code          = $request->request->get('code');
+        $redirectUri   = $request->request->get('redirect_uri');
         $langUserPhone = $request->request->get('langUserPhone') ?? 'fr';
         $sessionDS->set('langUserPhone', $langUserPhone);
 
-        if (!$idToken) {
-            return new JsonResponse(['error' => true, 'message' => 'Token Google manquant.']);
+        if (!$code || !$redirectUri) {
+            return new JsonResponse(['error' => true, 'message' => 'Paramètres Google manquants.']);
         }
 
-        // Vérifier le token auprès des serveurs Google
+        // Échanger le code contre un access token
         try {
-            $r         = $this->http->request('GET', 'https://oauth2.googleapis.com/tokeninfo', [
-                'query' => ['id_token' => $idToken],
+            $tokenResponse = $this->http->request('POST', 'https://oauth2.googleapis.com/token', [
+                'body' => [
+                    'code'          => $code,
+                    'client_id'     => getenv('GOOGLE_WEB_CLIENT_ID'),
+                    'client_secret' => getenv('GOOGLE_WEB_CLIENT_SECRET'),
+                    'redirect_uri'  => $redirectUri,
+                    'grant_type'    => 'authorization_code',
+                ],
             ]);
-            $tokenData = $r->toArray(false);
+            $tokenData = $tokenResponse->toArray(false);
         } catch (\Throwable) {
             return new JsonResponse(['error' => true, 'message' => 'Vérification Google échouée.']);
         }
 
-        // Le token doit être destiné au client web du projet Firebase
-        if (($tokenData['aud'] ?? '') !== self::MOBILE_CLIENT_ID) {
+        $accessToken = $tokenData['access_token'] ?? null;
+        if (!$accessToken) {
             return new JsonResponse(['error' => true, 'message' => 'Token Google invalide.']);
         }
 
-        $email         = strtolower(trim($tokenData['email'] ?? ''));
-        $emailVerified = ($tokenData['email_verified'] ?? 'false') === 'true';
-        $givenName     = $tokenData['given_name'] ?? $tokenData['name'] ?? 'User';
-        $familyName    = $tokenData['family_name'] ?? '';
+        // Récupérer les infos utilisateur Google
+        try {
+            $uiResponse = $this->http->request('GET', 'https://www.googleapis.com/oauth2/v3/userinfo', [
+                'headers' => ['Authorization' => 'Bearer ' . $accessToken],
+            ]);
+            $googleUser = $uiResponse->toArray(false);
+        } catch (\Throwable) {
+            return new JsonResponse(['error' => true, 'message' => 'Impossible de récupérer le profil Google.']);
+        }
+
+        $email         = strtolower(trim($googleUser['email'] ?? ''));
+        $emailVerified = $googleUser['email_verified'] ?? false;
+        $givenName     = $googleUser['given_name'] ?? 'User';
+        $familyName    = $googleUser['family_name'] ?? '';
 
         if (!$email || !$emailVerified) {
             return new JsonResponse(['error' => true, 'message' => 'Email Google non vérifié.']);
