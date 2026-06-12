@@ -111,6 +111,24 @@ class GoogleAuthController extends AbstractController
         ]);
     }
 
+    // ── Mobile : retourne l'URL d'autorisation Google (Flutter n'a pas le client_id) ─
+    #[Route('/api/auth/google/mobile-url', name: 'api_auth_google_mobile_url', methods: ['GET'])]
+    public function mobileGoogleUrl(): JsonResponse
+    {
+        $params = http_build_query([
+            'client_id'     => getenv('GOOGLE_WEB_CLIENT_ID'),
+            'redirect_uri'  => 'https://dressur.site/auth/google/mobile/callback',
+            'response_type' => 'code',
+            'scope'         => 'openid email profile',
+            'access_type'   => 'online',
+            'prompt'        => 'select_account',
+        ]);
+
+        return new JsonResponse([
+            'url' => 'https://accounts.google.com/o/oauth2/v2/auth?' . $params,
+        ]);
+    }
+
     // ── Mobile : callback HTTPS appelé par Google (redirect_uri HTTPS valide) ─
     #[Route('/auth/google/mobile/callback', name: 'auth_google_mobile_callback', methods: ['GET'])]
     public function mobileGoogleCallback(Request $request): Response
