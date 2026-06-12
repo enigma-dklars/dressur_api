@@ -96,7 +96,8 @@ class AdminController extends AbstractController
         VerificationsDS $verificationsDS,
         PromotionRepository $promotionRepository
     ): JsonResponse {
-        $uid = $cookieDS->getWithFallback('uid', $request) ?: null;
+        // getWithFallback couvre cookie + body POST ; le client mobile envoie uid en query string sur les GET
+        $uid = $cookieDS->getWithFallback('uid', $request) ?: $request->query->get('uid') ?: null;
         $verificationUser = $verificationsDS->verifUSer($uid);
 
         if ($verificationUser['error'] == true) {
