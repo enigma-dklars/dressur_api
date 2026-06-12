@@ -23,8 +23,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class GoogleAuthController extends AbstractController
 {
-    // Client ID web du projet Firebase (pour vérifier les tokens envoyés par l'app mobile)
-    private const MOBILE_CLIENT_ID = '7474516834-42hmcf18cnautj6dia4rtjrk0mb5csdd.apps.googleusercontent.com';
+    // Client ID Web (type 3) du projet Firebase — audience attendue dans l'idToken Flutter
+    private const MOBILE_CLIENT_ID = '7474516834-vq1se3sjkmg3e1gjblqrcgm556mdttma.apps.googleusercontent.com';
 
     public function __construct(
         private EntityManagerInterface $em,
