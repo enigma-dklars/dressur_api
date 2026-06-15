@@ -4,6 +4,7 @@ namespace App\Controller\Crud;
 
 use App\Entity\UserBot;
 use App\Form\UserBotType;
+use App\Repository\TransactionRepository;
 use App\Repository\UserBotRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -34,7 +35,7 @@ class CrudUserBotController extends AbstractController
             $this->theme = "light-theme";
         }
     }
-    
+
     #[Route('/', name: 'app_crud_user_bot_index', methods: ['GET'])]
     public function index(UserBotRepository $userBotRepository): Response
     {
@@ -98,11 +99,29 @@ class CrudUserBotController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_crud_user_bot_delete', methods: ['POST'])]
-    public function delete(Request $request, UserBot $userBot, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$userBot->getId(), $request->request->get('_token'))) {
+    public function delete(
+        Request $request,
+        UserBot $userBot,
+        EntityManagerInterface $entityManager,
+        TransactionRepository $transactionRepository
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete'.$userBot->getId(), $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_crud_user_bot_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        try {
+            // Détacher les transactions liées avant suppression (FK sans cascade)
+            foreach ($transactionRepository->findBy(['userBot' => $userBot]) as $transaction) {
+                $transaction->setUserBot(null);
+            }
+
             $entityManager->remove($userBot);
             $entityManager->flush();
+
+            $this->addFlash('success', 'UserBot supprimé avec succès.');
+        } catch (\Throwable $e) {
+            $this->addFlash('danger', 'Erreur lors de la suppression : ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_crud_user_bot_index', [], Response::HTTP_SEE_OTHER);
