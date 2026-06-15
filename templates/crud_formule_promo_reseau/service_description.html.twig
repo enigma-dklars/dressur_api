@@ -3,25 +3,263 @@
 {% block title %}Service + Description{% endblock %}
 
 {% block body %}
-    <h4>
-        Service + Description
-        <a href="{{ path('app_crud_formule_promo_reseau_index') }}">back to list</a>
-    </h4>
-    {% for label, messages in app.flashes %}
-        <div class="alert alert-{{ label }}">
-            {% for message in messages %}
-                <p>{{ message|raw }}</p>
-            {% endfor %}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Service + Description</h4>
+    <a href="{{ path('app_crud_formule_promo_reseau_index') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Retour à la liste
+    </a>
+</div>
+
+{% for label, messages in app.flashes %}
+    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+            <p class="mb-0">{{ message|raw }}</p>
+        {% endfor %}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+{% endfor %}
+
+<div class="row g-4">
+
+    {# ── Colonne formulaire ── #}
+    <div class="col-lg-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white fw-bold">
+                <i class="bi bi-search me-2"></i>Saisir l'ID du service
+            </div>
+            <div class="card-body">
+                <form action="" method="post" id="form-service-desc">
+
+                    <div class="mb-3">
+                        <label for="id_service" class="form-label fw-semibold">ID Service (Zefame)</label>
+                        <div class="input-group">
+                            <input type="number"
+                                   name="id_service"
+                                   id="id_service"
+                                   class="form-control"
+                                   placeholder="ex: 1087"
+                                   value="{{ idService }}"
+                                   autocomplete="off"
+                                   min="1">
+                            <button type="button" class="btn btn-outline-secondary" id="btn-lookup" title="Rechercher">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                        <div id="lookup-status" class="form-text mt-1"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description_service" class="form-label fw-semibold">Description (FR)</label>
+                        <textarea name="description_service"
+                                  id="description_service"
+                                  rows="12"
+                                  class="form-control font-monospace"
+                                  placeholder="Chargée automatiquement après la recherche…">{{ descriptionService }}</textarea>
+                        <div class="form-text">Note : "Zefame" / "zefame" sera remplacé par "Dressur" à l'enregistrement.</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100" id="btn-submit">
+                        <i class="bi bi-floppy me-2"></i>Enregistrer / Modifier
+                    </button>
+
+                </form>
+            </div>
         </div>
-    {% endfor %}
-    <form action="" method="post">
-        <label for="">Id Service</label>
-        <input type="text" name="id_service" class="form-control mb-2" value="{{idService}}">
+    </div>
 
-        <label for="">Description Service</label>
-        <textarea name="description_service" id="description_service" rows="15" class="form-control mb-2">{{descriptionService}}</textarea>
+    {# ── Colonne infos service ── #}
+    <div class="col-lg-7">
 
-        <button type="submit" class="btn btn-danger mb-3">Enregistrer et/ou Modifier</button>
-    </form>
+        {# Spinner pendant le chargement #}
+        <div id="card-loading" class="card shadow-sm d-none">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-danger" role="status"></div>
+                <div class="mt-2 text-muted small">Recherche en cours…</div>
+            </div>
+        </div>
+
+        {# Carte infos service #}
+        <div class="card shadow-sm" id="card-info" style="opacity:.35;pointer-events:none;">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-info-circle me-2"></i>Informations du service</span>
+                <span id="badge-available" class="badge bg-secondary">—</span>
+            </div>
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <label class="form-label text-muted small mb-1">Titre</label>
+                    <div class="fw-semibold" id="info-titre"><span class="text-muted">—</span></div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6 col-md-4">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">Prix DS</div>
+                            <div class="fw-bold fs-5 text-primary" id="info-prix">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">Qté</div>
+                            <div class="fw-bold fs-5" id="info-qte">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">Prix Zefame</div>
+                            <div class="fw-bold fs-5 text-success" id="info-prixZef">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">Qté Min</div>
+                            <div class="fw-bold fs-5 text-warning" id="info-qteMin">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">Qté Max</div>
+                            <div class="fw-bold fs-5 text-danger" id="info-qteMax">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">ID interne</div>
+                            <div class="fw-bold fs-5 text-secondary" id="info-id">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label text-muted small mb-1">Description actuellement en base</label>
+                    <div class="border rounded p-2 bg-light font-monospace small"
+                         id="info-desc-preview"
+                         style="max-height:200px;overflow-y:auto;white-space:pre-wrap;">(aucune description enregistrée)</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    const inputId    = document.getElementById('id_service');
+    const btnLookup  = document.getElementById('btn-lookup');
+    const statusEl   = document.getElementById('lookup-status');
+    const cardInfo   = document.getElementById('card-info');
+    const cardLoad   = document.getElementById('card-loading');
+
+    const elTitre    = document.getElementById('info-titre');
+    const elPrix     = document.getElementById('info-prix');
+    const elQte      = document.getElementById('info-qte');
+    const elQteMin   = document.getElementById('info-qteMin');
+    const elQteMax   = document.getElementById('info-qteMax');
+    const elPrixZef  = document.getElementById('info-prixZef');
+    const elId       = document.getElementById('info-id');
+    const elBadge    = document.getElementById('badge-available');
+    const elDescPrev = document.getElementById('info-desc-preview');
+    const elDescTA   = document.getElementById('description_service');
+
+    let debounceTimer = null;
+
+    function setStatus(html, type) {
+        statusEl.className = 'form-text mt-1 text-' + (type || 'secondary');
+        statusEl.innerHTML = html;
+    }
+
+    function setLoading(on) {
+        cardLoad.classList.toggle('d-none', !on);
+        cardInfo.classList.toggle('d-none', on);
+    }
+
+    function resetCard() {
+        cardInfo.style.opacity = '0.35';
+        cardInfo.style.pointerEvents = 'none';
+        elTitre.innerHTML = '<span class="text-muted">—</span>';
+        ['info-prix','info-qte','info-qteMin','info-qteMax','info-prixZef','info-id'].forEach(id => {
+            document.getElementById(id).textContent = '—';
+        });
+        elBadge.textContent = '—';
+        elBadge.className = 'badge bg-secondary';
+        elDescPrev.textContent = '(aucune description enregistrée)';
+    }
+
+    function fillCard(data) {
+        if (!data.found) { resetCard(); return; }
+
+        cardInfo.style.opacity = '1';
+        cardInfo.style.pointerEvents = 'auto';
+
+        let titreHtml = '';
+        if (data.parent) titreHtml += '<span class="text-muted">' + data.parent.titre + ' › </span>';
+        titreHtml += '<strong>' + (data.titre || '') + '</strong>';
+        elTitre.innerHTML = titreHtml;
+
+        elPrix.textContent    = data.prix        ?? '—';
+        elQte.textContent     = data.qte         ?? '—';
+        elQteMin.textContent  = data.qteMin      ?? '—';
+        elQteMax.textContent  = data.qteMax      ?? '—';
+        elPrixZef.textContent = data.prixZefame  ?? '—';
+        elId.textContent      = data.id          ?? '—';
+
+        elBadge.textContent = data.available ? 'Actif' : 'Inactif';
+        elBadge.className   = 'badge ' + (data.available ? 'bg-success' : 'bg-danger');
+
+        elDescTA.value          = data.description || '';
+        elDescPrev.textContent  = data.description || '(aucune description enregistrée)';
+    }
+
+    function lookup() {
+        const val = parseInt(inputId.value, 10);
+        if (!val || val <= 0) {
+            setStatus('Saisissez un ID valide.', 'warning');
+            resetCard();
+            return;
+        }
+
+        setStatus('<span class="spinner-border spinner-border-sm me-1"></span>Recherche…');
+        setLoading(true);
+
+        fetch('/crud/formule/promo/reseau/service_description/info?id_service=' + val)
+            .then(r => r.json())
+            .then(data => {
+                setLoading(false);
+                if (data.found) {
+                    setStatus('<i class="bi bi-check-circle-fill me-1"></i>Trouvé : <strong>' + (data.titre || '') + '</strong>', 'success');
+                } else {
+                    setStatus('<i class="bi bi-x-circle-fill me-1"></i>' + (data.message || 'Introuvable'), 'danger');
+                }
+                fillCard(data);
+            })
+            .catch(() => {
+                setLoading(false);
+                setStatus('<i class="bi bi-x-circle-fill me-1"></i>Erreur réseau.', 'danger');
+                resetCard();
+            });
+    }
+
+    btnLookup.addEventListener('click', lookup);
+
+    inputId.addEventListener('input', function () {
+        clearTimeout(debounceTimer);
+        const val = parseInt(this.value, 10);
+        if (val > 0) {
+            setStatus('…');
+            debounceTimer = setTimeout(lookup, 500);
+        } else {
+            setStatus('');
+            resetCard();
+        }
+    });
+
+    inputId.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); clearTimeout(debounceTimer); lookup(); }
+    });
+
+})();
+</script>
 
 {% endblock %}
