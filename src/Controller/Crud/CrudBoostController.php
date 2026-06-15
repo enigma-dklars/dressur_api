@@ -68,7 +68,7 @@ class CrudBoostController extends AbstractController
         FormuleBoostRepository $formuleBoostRepository
     ): Response {
         $users    = $userRepository->findBy([], ['pseudo' => 'ASC']);
-        $formules = $formuleBoostRepository->findBy(['activated' => true], ['titre' => 'ASC']);
+        $formules = $formuleBoostRepository->findBy(['activated' => true], ['id' => 'ASC']);
         $errors   = [];
 
         if ($request->isMethod('POST')) {
