@@ -125,36 +125,64 @@ class CrudFormulePromoReseauController extends AbstractController
         FormulePromoReseauRepository $formulePromoReseauRepository
     ): Response {
         $idService = '';
-        $descriptionService = '';
 
         if ($request->isMethod('POST')) {
-            $idService = trim($request->request->get('id_service'));
-            $descriptionService = trim($request->request->get('description_service'));
+            $idService = trim($request->request->get('id_service', ''));
+
+            $descriptionService = trim($request->request->get('description_service', ''));
             $descriptionService = str_replace("Zefame", "Dressur", $descriptionService);
             $descriptionService = str_replace("zefame", "Dressur", $descriptionService);
 
-            if ($idService && $descriptionService) {
+            $prixRaw      = $request->request->get('prix', '');
+            $qteMinRaw    = $request->request->get('qte_min', '');
+            $qteMaxRaw    = $request->request->get('qte_max', '');
+            $prixZefRaw   = $request->request->get('prix_zefame', '');
+
+            if ($idService) {
                 $service = $formulePromoReseauRepository->findOneBy(['idZefame' => $idService]);
 
                 if ($service) {
-                    $service->setDescription($descriptionService);
+                    // Description
+                    if ($descriptionService !== '') {
+                        $service->setDescription($descriptionService);
+                    }
+
+                    // Prix DS
+                    if ($prixRaw !== '') {
+                        $service->setPrix((float) str_replace(',', '.', $prixRaw));
+                    }
+
+                    // Qté Min
+                    if ($qteMinRaw !== '') {
+                        $service->setQteMin((int) $qteMinRaw);
+                    }
+
+                    // Qté Max
+                    if ($qteMaxRaw !== '') {
+                        $service->setQteMax((int) $qteMaxRaw);
+                    }
+
+                    // Prix Zefame
+                    if ($prixZefRaw !== '') {
+                        $service->setPrixZefame((float) str_replace(',', '.', $prixZefRaw));
+                    }
+
                     $entityManager->flush();
-                    $this->addFlash('success', "Description mise à jour — service ID : {$idService} · {$service->getTitre()}");
+
+                    $this->addFlash('success', "Informations mises à jour — service ID : {$idService} · {$service->getTitre()}");
                     $idService = '';
-                    $descriptionService = '';
                 } else {
                     $this->addFlash('danger', "Aucune formule trouvée — service ID : {$idService}");
                 }
             } else {
-                $this->addFlash('warning', "Veuillez remplir tous les champs avant de soumettre.");
+                $this->addFlash('warning', "Veuillez saisir un ID de service.");
             }
         }
 
         return $this->render('crud_formule_promo_reseau/service_description.html.twig', [
-            'theme'              => $this->theme,
-            'user'               => $this->traitementsDS->getUserByUidInCookies(),
-            'idService'          => $idService,
-            'descriptionService' => $descriptionService,
+            'theme'     => $this->theme,
+            'user'      => $this->traitementsDS->getUserByUidInCookies(),
+            'idService' => $idService,
         ]);
     }
 
