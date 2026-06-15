@@ -9,6 +9,7 @@ use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -79,55 +80,80 @@ class CrudFormulePromoReseauController extends AbstractController
         ]);
     }
 
+    /**
+     * Endpoint JSON — retourne les infos d'un service par idZefame
+     * GET /crud/formule/promo/reseau/service_description/info?id_service=1234
+     */
+    #[Route('/service_description/info', name: 'app_crud_formule_promo_reseau_service_info', methods: ['GET'])]
+    public function serviceInfo(Request $request, FormulePromoReseauRepository $repo): JsonResponse
+    {
+        $idService = (int) $request->query->get('id_service', 0);
+
+        if ($idService <= 0) {
+            return $this->json(['found' => false, 'message' => 'ID invalide']);
+        }
+
+        $f = $repo->findOneBy(['idZefame' => $idService]);
+
+        if (!$f) {
+            return $this->json(['found' => false, 'message' => 'Aucun service trouvé pour l\'ID ' . $idService]);
+        }
+
+        return $this->json([
+            'found'       => true,
+            'id'          => $f->getId(),
+            'idZefame'    => $f->getIdZefame(),
+            'titre'       => $f->getTitre(),
+            'description' => $f->getDescription() ?? '',
+            'prix'        => $f->getPrix(),
+            'qte'         => $f->getQte(),
+            'qteMin'      => $f->getQteMin(),
+            'qteMax'      => $f->getQteMax(),
+            'prixZefame'  => $f->getPrixZefame(),
+            'available'   => $f->isAvailable(),
+            'parent'      => $f->getParent() ? [
+                'id'    => $f->getParent()->getId(),
+                'titre' => $f->getParent()->getTitre(),
+            ] : null,
+        ]);
+    }
+
     #[Route('/service_description', name: 'app_crud_formule_promo_reseau_service_description', methods: ['GET', 'POST'])]
     public function service_description(
         Request $request,
         EntityManagerInterface $entityManager,
         FormulePromoReseauRepository $formulePromoReseauRepository
     ): Response {
-        $message = null;
-        $idService = "";
-        $descriptionService = "";
+        $idService = '';
+        $descriptionService = '';
 
         if ($request->isMethod('POST')) {
             $idService = trim($request->request->get('id_service'));
             $descriptionService = trim($request->request->get('description_service'));
-            $descriptionService = str_replace("Zefame",  "Dressur", $descriptionService);
-            $descriptionService = str_replace("zefame",  "Dressur", $descriptionService);
+            $descriptionService = str_replace("Zefame", "Dressur", $descriptionService);
+            $descriptionService = str_replace("zefame", "Dressur", $descriptionService);
 
             if ($idService && $descriptionService) {
-                // Vérifier si un service existe déjà
                 $service = $formulePromoReseauRepository->findOneBy(['idZefame' => $idService]);
 
                 if ($service) {
-                    // Modifier la description existante
                     $service->setDescription($descriptionService);
-                    $this->addFlash(
-                        'success',
-                        "Description mise à jour avec succès pour le service ID : {$idService}."
-                    );
-                    $idService = "";
-                    $descriptionService = "";
+                    $entityManager->flush();
+                    $this->addFlash('success', "Description mise à jour — service ID : {$idService} · {$service->getTitre()}");
+                    $idService = '';
+                    $descriptionService = '';
                 } else {
-                    $this->addFlash(
-                       'danger',
-                       "Formule de promotion réseaux introuveable - service ID : {$idService}."
-                    );
+                    $this->addFlash('danger', "Aucune formule trouvée — service ID : {$idService}");
                 }
-
-                $entityManager->flush();
             } else {
-                $this->addFlash(
-                    'warning',
-                    "Veuillez remplir tous les champs avant de soumettre le formulaire."
-                );
+                $this->addFlash('warning', "Veuillez remplir tous les champs avant de soumettre.");
             }
         }
 
         return $this->render('crud_formule_promo_reseau/service_description.html.twig', [
-            'theme' => $this->theme,
-            'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'idService' => $idService,
+            'theme'              => $this->theme,
+            'user'               => $this->traitementsDS->getUserByUidInCookies(),
+            'idService'          => $idService,
             'descriptionService' => $descriptionService,
         ]);
     }
@@ -171,10 +197,7 @@ class CrudFormulePromoReseauController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-            $this->addFlash(
-               'success',
-               'Formule Promo Réseau Edited'
-            );
+            $this->addFlash('success', 'Formule Promo Réseau Edited');
 
             return $this->redirectToRoute('app_crud_formule_promo_reseau_edit_by_id_zef', ['idzef' => $idzef], Response::HTTP_SEE_OTHER);
         }
