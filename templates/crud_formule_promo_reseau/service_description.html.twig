@@ -20,58 +20,86 @@
     </div>
 {% endfor %}
 
+<form action="" method="post" id="form-service-desc">
 <div class="row g-4">
 
-    {# ── Colonne formulaire ── #}
+    {# ── Colonne gauche : ID + champs à modifier ── #}
     <div class="col-lg-5">
-        <div class="card shadow-sm">
+
+        {# Recherche par ID #}
+        <div class="card shadow-sm mb-3">
             <div class="card-header bg-danger text-white fw-bold">
-                <i class="bi bi-search me-2"></i>Saisir l'ID du service
+                <i class="bi bi-search me-2"></i>ID du service
             </div>
             <div class="card-body">
-                <form action="" method="post" id="form-service-desc">
-
-                    <div class="mb-3">
-                        <label for="id_service" class="form-label fw-semibold">ID Service (Zefame)</label>
-                        <div class="input-group">
-                            <input type="number"
-                                   name="id_service"
-                                   id="id_service"
-                                   class="form-control"
-                                   placeholder="ex: 1087"
-                                   value="{{ idService }}"
-                                   autocomplete="off"
-                                   min="1">
-                            <button type="button" class="btn btn-outline-secondary" id="btn-lookup" title="Rechercher">
-                                <i class="bi bi-search"></i>
-                            </button>
-                        </div>
-                        <div id="lookup-status" class="form-text mt-1"></div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="description_service" class="form-label fw-semibold">Description (FR)</label>
-                        <textarea name="description_service"
-                                  id="description_service"
-                                  rows="12"
-                                  class="form-control font-monospace"
-                                  placeholder="Chargée automatiquement après la recherche…">{{ descriptionService }}</textarea>
-                        <div class="form-text">Note : "Zefame" / "zefame" sera remplacé par "Dressur" à l'enregistrement.</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-danger w-100" id="btn-submit">
-                        <i class="bi bi-floppy me-2"></i>Enregistrer / Modifier
+                <div class="input-group">
+                    <input type="number"
+                           name="id_service"
+                           id="id_service"
+                           class="form-control form-control-lg"
+                           placeholder="ex: 1087"
+                           value="{{ idService }}"
+                           autocomplete="off"
+                           min="1">
+                    <button type="button" class="btn btn-outline-secondary" id="btn-lookup" title="Rechercher">
+                        <i class="bi bi-search"></i>
                     </button>
+                </div>
+                <div id="lookup-status" class="form-text mt-1"></div>
+            </div>
+        </div>
 
-                </form>
+        {# Champs modifiables #}
+        <div class="card shadow-sm">
+            <div class="card-header fw-bold">
+                <i class="bi bi-sliders me-2"></i>Champs à modifier
+            </div>
+            <div class="card-body">
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small">Prix DS</label>
+                        <input type="number" step="0.01" name="prix" id="field-prix"
+                               class="form-control" placeholder="0.00">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small">Prix Zefame</label>
+                        <input type="number" step="0.01" name="prix_zefame" id="field-prix-zef"
+                               class="form-control" placeholder="0.00">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small">Qté Min</label>
+                        <input type="number" step="1" name="qte_min" id="field-qte-min"
+                               class="form-control" placeholder="0">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small">Qté Max</label>
+                        <input type="number" step="1" name="qte_max" id="field-qte-max"
+                               class="form-control" placeholder="0">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description_service" class="form-label fw-semibold small">Description (FR)</label>
+                    <textarea name="description_service"
+                              id="description_service"
+                              rows="10"
+                              class="form-control font-monospace"
+                              placeholder="Chargée automatiquement après la recherche…"></textarea>
+                    <div class="form-text">"Zefame" / "zefame" → "Dressur" à l'enregistrement.</div>
+                </div>
+
+                <button type="submit" class="btn btn-danger w-100" id="btn-submit" disabled>
+                    <i class="bi bi-floppy me-2"></i>Enregistrer les modifications
+                </button>
+
             </div>
         </div>
     </div>
 
-    {# ── Colonne infos service ── #}
+    {# ── Colonne droite : aperçu info service ── #}
     <div class="col-lg-7">
 
-        {# Spinner pendant le chargement #}
         <div id="card-loading" class="card shadow-sm d-none">
             <div class="card-body text-center py-5">
                 <div class="spinner-border text-danger" role="status"></div>
@@ -79,54 +107,53 @@
             </div>
         </div>
 
-        {# Carte infos service #}
         <div class="card shadow-sm" id="card-info" style="opacity:.35;pointer-events:none;">
             <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-info-circle me-2"></i>Informations du service</span>
+                <span><i class="bi bi-info-circle me-2"></i>Informations actuelles en base</span>
                 <span id="badge-available" class="badge bg-secondary">—</span>
             </div>
             <div class="card-body">
 
                 <div class="mb-3">
                     <label class="form-label text-muted small mb-1">Titre</label>
-                    <div class="fw-semibold" id="info-titre"><span class="text-muted">—</span></div>
+                    <div class="fw-semibold fs-6" id="info-titre"><span class="text-muted">—</span></div>
                 </div>
 
                 <div class="row g-2 mb-3">
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="border rounded p-2 text-center">
                             <div class="text-muted small mb-1">Prix DS</div>
-                            <div class="fw-bold fs-5 text-primary" id="info-prix">—</div>
+                            <div class="fw-bold text-primary" id="info-prix">—</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="border rounded p-2 text-center">
                             <div class="text-muted small mb-1">Qté</div>
-                            <div class="fw-bold fs-5" id="info-qte">—</div>
+                            <div class="fw-bold" id="info-qte">—</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-4">
-                        <div class="border rounded p-2 text-center">
-                            <div class="text-muted small mb-1">Prix Zefame</div>
-                            <div class="fw-bold fs-5 text-success" id="info-prixZef">—</div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="border rounded p-2 text-center">
                             <div class="text-muted small mb-1">Qté Min</div>
-                            <div class="fw-bold fs-5 text-warning" id="info-qteMin">—</div>
+                            <div class="fw-bold text-warning" id="info-qteMin">—</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3">
                         <div class="border rounded p-2 text-center">
                             <div class="text-muted small mb-1">Qté Max</div>
-                            <div class="fw-bold fs-5 text-danger" id="info-qteMax">—</div>
+                            <div class="fw-bold text-danger" id="info-qteMax">—</div>
                         </div>
                     </div>
-                    <div class="col-6 col-md-4">
+                    <div class="col-6 col-md-3">
+                        <div class="border rounded p-2 text-center">
+                            <div class="text-muted small mb-1">Prix Zefame</div>
+                            <div class="fw-bold text-success" id="info-prixZef">—</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
                         <div class="border rounded p-2 text-center">
                             <div class="text-muted small mb-1">ID interne</div>
-                            <div class="fw-bold fs-5 text-secondary" id="info-id">—</div>
+                            <div class="fw-bold text-secondary" id="info-id">—</div>
                         </div>
                     </div>
                 </div>
@@ -135,14 +162,15 @@
                     <label class="form-label text-muted small mb-1">Description actuellement en base</label>
                     <div class="border rounded p-2 bg-light font-monospace small"
                          id="info-desc-preview"
-                         style="max-height:200px;overflow-y:auto;white-space:pre-wrap;">(aucune description enregistrée)</div>
+                         style="max-height:220px;overflow-y:auto;white-space:pre-wrap;">(aucune description enregistrée)</div>
                 </div>
 
             </div>
         </div>
-
     </div>
+
 </div>
+</form>
 
 <script>
 (function () {
@@ -151,6 +179,7 @@
     const statusEl   = document.getElementById('lookup-status');
     const cardInfo   = document.getElementById('card-info');
     const cardLoad   = document.getElementById('card-loading');
+    const btnSubmit  = document.getElementById('btn-submit');
 
     const elTitre    = document.getElementById('info-titre');
     const elPrix     = document.getElementById('info-prix');
@@ -161,7 +190,13 @@
     const elId       = document.getElementById('info-id');
     const elBadge    = document.getElementById('badge-available');
     const elDescPrev = document.getElementById('info-desc-preview');
-    const elDescTA   = document.getElementById('description_service');
+
+    // Champs éditables
+    const fPrix      = document.getElementById('field-prix');
+    const fPrixZef   = document.getElementById('field-prix-zef');
+    const fQteMin    = document.getElementById('field-qte-min');
+    const fQteMax    = document.getElementById('field-qte-max');
+    const fDesc      = document.getElementById('description_service');
 
     let debounceTimer = null;
 
@@ -175,24 +210,32 @@
         cardInfo.classList.toggle('d-none', on);
     }
 
-    function resetCard() {
+    function resetAll() {
         cardInfo.style.opacity = '0.35';
         cardInfo.style.pointerEvents = 'none';
+        btnSubmit.disabled = true;
+
         elTitre.innerHTML = '<span class="text-muted">—</span>';
-        ['info-prix','info-qte','info-qteMin','info-qteMax','info-prixZef','info-id'].forEach(id => {
-            document.getElementById(id).textContent = '—';
-        });
+        [elPrix, elQte, elQteMin, elQteMax, elPrixZef, elId].forEach(el => el.textContent = '—');
         elBadge.textContent = '—';
         elBadge.className = 'badge bg-secondary';
         elDescPrev.textContent = '(aucune description enregistrée)';
+
+        fPrix.value = '';
+        fPrixZef.value = '';
+        fQteMin.value = '';
+        fQteMax.value = '';
+        fDesc.value = '';
     }
 
-    function fillCard(data) {
-        if (!data.found) { resetCard(); return; }
+    function fillAll(data) {
+        if (!data.found) { resetAll(); return; }
 
         cardInfo.style.opacity = '1';
         cardInfo.style.pointerEvents = 'auto';
+        btnSubmit.disabled = false;
 
+        // Panneau info (lecture)
         let titreHtml = '';
         if (data.parent) titreHtml += '<span class="text-muted">' + data.parent.titre + ' › </span>';
         titreHtml += '<strong>' + (data.titre || '') + '</strong>';
@@ -207,16 +250,21 @@
 
         elBadge.textContent = data.available ? 'Actif' : 'Inactif';
         elBadge.className   = 'badge ' + (data.available ? 'bg-success' : 'bg-danger');
+        elDescPrev.textContent = data.description || '(aucune description enregistrée)';
 
-        elDescTA.value          = data.description || '';
-        elDescPrev.textContent  = data.description || '(aucune description enregistrée)';
+        // Champs éditables pré-remplis
+        fPrix.value    = data.prix       !== null ? data.prix       : '';
+        fPrixZef.value = data.prixZefame !== null ? data.prixZefame : '';
+        fQteMin.value  = data.qteMin     !== null ? data.qteMin     : '';
+        fQteMax.value  = data.qteMax     !== null ? data.qteMax     : '';
+        fDesc.value    = data.description || '';
     }
 
     function lookup() {
         const val = parseInt(inputId.value, 10);
         if (!val || val <= 0) {
             setStatus('Saisissez un ID valide.', 'warning');
-            resetCard();
+            resetAll();
             return;
         }
 
@@ -232,12 +280,12 @@
                 } else {
                     setStatus('<i class="bi bi-x-circle-fill me-1"></i>' + (data.message || 'Introuvable'), 'danger');
                 }
-                fillCard(data);
+                fillAll(data);
             })
             .catch(() => {
                 setLoading(false);
                 setStatus('<i class="bi bi-x-circle-fill me-1"></i>Erreur réseau.', 'danger');
-                resetCard();
+                resetAll();
             });
     }
 
@@ -251,7 +299,7 @@
             debounceTimer = setTimeout(lookup, 500);
         } else {
             setStatus('');
-            resetCard();
+            resetAll();
         }
     });
 
