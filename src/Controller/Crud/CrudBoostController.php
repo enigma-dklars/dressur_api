@@ -5,8 +5,11 @@ namespace App\Controller\Crud;
 use App\Entity\Boost;
 use App\Form\BoostType;
 use App\Repository\BoostRepository;
+use App\Repository\FormuleBoostRepository;
+use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +37,7 @@ class CrudBoostController extends AbstractController
             $this->theme = "light-theme";
         }
     }
-    
+
     #[Route('/', name: 'app_crud_boost_index', methods: ['GET'])]
     public function index(BoostRepository $boostRepository, Request $request): Response
     {
@@ -54,6 +57,56 @@ class CrudBoostController extends AbstractController
             'boosts' => $boosts,
             'sourceFilter' => $sourceFilter,
             'sourceCounts' => $boostRepository->getSourceCounts(),
+        ]);
+    }
+
+    #[Route('/admin-new', name: 'app_crud_boost_admin_new', methods: ['GET', 'POST'])]
+    public function adminNew(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        FormuleBoostRepository $formuleBoostRepository
+    ): Response {
+        $users    = $userRepository->findBy([], ['pseudo' => 'ASC']);
+        $formules = $formuleBoostRepository->findBy(['activated' => true], ['titre' => 'ASC']);
+        $errors   = [];
+
+        if ($request->isMethod('POST')) {
+            $userId    = $request->request->get('user_id');
+            $formuleId = $request->request->get('formule_id');
+            $mode      = $request->request->get('mode', 'Gratuit');
+
+            $user    = $userId    ? $userRepository->find($userId)              : null;
+            $formule = $formuleId ? $formuleBoostRepository->find($formuleId)   : null;
+
+            if (!$user)    { $errors[] = "Utilisateur invalide."; }
+            if (!$formule) { $errors[] = "Formule invalide."; }
+
+            if (empty($errors)) {
+                $boost = new Boost();
+                $boost
+                    ->setUser($user)
+                    ->setFormuleBoost($formule)
+                    ->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
+                    ->setMode($mode)
+                    ->setSource('admin')
+                ;
+
+                $entityManager->persist($boost);
+                $entityManager->flush();
+
+                $this->addFlash('success', "Boost #" . $boost->getId() . " créé pour {$user->getPseudo()} — {$formule->getTitre()}.");
+                return $this->redirectToRoute('app_crud_boost_index', [], Response::HTTP_SEE_OTHER);
+            }
+        }
+
+        return $this->render('crud_boost/new_admin.html.twig', [
+            'theme'    => $this->theme,
+            'user'     => $this->traitementsDS->getUserByUidInCookies(),
+            'users'    => $users,
+            'formules' => $formules,
+            'errors'   => $errors,
         ]);
     }
 
