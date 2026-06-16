@@ -960,6 +960,7 @@ class TraitementsDS extends AbstractController
             "mailIsVerified" => $user->getMailIsVerified(),
             "telIsVerified" => $user->getTelIsVerified(),
             "nombreContactDispo" => count($this->getAddDisponible($user)),
+            "nombreContacts" => count($user->getContact()->getAllIdOfMyContacts()),
             "lesPublicites" => $lesPublicites,
             "havePublicites" => (count($lesPublicitesArray) >= 1) ? true : false,
             "admin" => $user->getAdmin() ? true : false,
