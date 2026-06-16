@@ -569,6 +569,65 @@ class CommunicationMailController extends AbstractController
         return $this->redirectToRoute('app_communication_mail_file_attente');
     }
 
+    // ─── File d'attente WhatsApp ─────────────────────────────────────────────
+
+    #[Route('/file-attente-whatsapp', name: 'app_communication_mail_file_attente_whatsapp', methods: ['GET'])]
+    public function fileAttenteWhatsapp(FileAttenteWhatsappRepository $whatsappRepo): Response
+    {
+        return $this->render('communication_mail/file_attente_whatsapp.html.twig', [
+            'theme'   => $this->theme,
+            'user'    => $this->traitementsDS->getUserByUidInCookies(),
+            'entries' => $whatsappRepo->findBy([], ['id' => 'DESC']),
+        ]);
+    }
+
+    #[Route('/file-attente-whatsapp/{id}/delete', name: 'app_communication_mail_file_attente_whatsapp_delete', methods: ['POST'])]
+    public function deleteFileAttenteWhatsapp(
+        Request $request,
+        int $id,
+        FileAttenteWhatsappRepository $whatsappRepo,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $entry = $whatsappRepo->find($id);
+        if ($entry && $this->isCsrfTokenValid('delete_wa' . $id, $request->request->get('_token'))) {
+            $entityManager->remove($entry);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/file-attente-whatsapp/delete-multiple', name: 'app_communication_mail_file_attente_whatsapp_delete_multiple', methods: ['POST'])]
+    public function deleteMultipleFileAttenteWhatsapp(
+        Request $request,
+        FileAttenteWhatsappRepository $whatsappRepo,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete_multiple_wa', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $ids = $request->request->all('ids');
+        if (empty($ids)) {
+            $this->addFlash('warning', 'Aucun élément sélectionné.');
+            return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $entry = $whatsappRepo->find((int) $id);
+            if ($entry) {
+                $entityManager->remove($entry);
+                $deleted++;
+            }
+        }
+        $entityManager->flush();
+
+        $this->addFlash('success', $deleted . ' entrée(s) supprimée(s).');
+        return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
+    }
+
     // ─── Campagne : Attirer de nouveaux utilisateurs ─────────────────────────
 
     #[Route('/campagne/prospect', name: 'app_communication_mail_campagne_prospect', methods: ['GET', 'POST'])]
