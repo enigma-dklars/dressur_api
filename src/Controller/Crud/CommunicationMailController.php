@@ -867,8 +867,6 @@ class CommunicationMailController extends AbstractController
         return $salutation . "\n\n"
             . "Votre *Boost Contact* sur *Dressur* a expiré 📢\n\n"
             . "Sans Boost actif, votre profil perd en visibilité et vos concurrents vous devancent dans les recherches.\n\n"
-            . "Renouvelez votre Boost maintenant et retrouvez votre place en tête :\n"
-            . "👉 https://dressur.site/boost\n\n"
             . "— L'équipe Dressur";
     }
 
