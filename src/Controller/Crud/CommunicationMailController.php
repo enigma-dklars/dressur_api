@@ -58,11 +58,12 @@ class CommunicationMailController extends AbstractController
         PromotionRepository $promotionRepository,
         PromoReseauRepository $promoReseauRepository
     ): Response {
-        $allTypes      = self::getReactivationTypes();
-        $inactifTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
-        $serviceTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'service');
-        $confirmTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
-        $confirmWaTypes = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
+        $allTypes        = self::getReactivationTypes();
+        $inactifTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
+        $serviceTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'service');
+        $serviceWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'service_wa');
+        $confirmTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
+        $confirmWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
 
         $sqlErrors = [];
 
@@ -86,6 +87,17 @@ class CommunicationMailController extends AbstractController
                 $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
             }
             $services[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+        }
+
+        $servicesWa = [];
+        foreach ($serviceWaTypes as $key => $cfg) {
+            try {
+                $nb = $this->countServiceCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository);
+            } catch (\Throwable $e) {
+                $nb = 0;
+                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
+            }
+            $servicesWa[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
         }
 
         $confirm = [];
@@ -126,6 +138,7 @@ class CommunicationMailController extends AbstractController
             'nb_whatsapp_attente' => count($whatsappRepo->findBy(['statut' => 'en_attente'])),
             'reactivation'        => $reactivation,
             'services'            => $services,
+            'services_wa'         => $servicesWa,
             'confirm'             => $confirm,
             'confirm_wa'          => $confirmWa,
         ]);
@@ -227,6 +240,49 @@ class CommunicationMailController extends AbstractController
                 'group'     => 'confirm',
                 'channel'   => 'email',
             ],
+            // ── Relance WhatsApp par service ─────────────────────────────────
+            'boost_wa' => [
+                'label'      => 'Boost Contact expiré (7 j) — WhatsApp',
+                'minDays'    => null,
+                'maxDays'    => null,
+                'maxDaysAgo' => 7,
+                'emoji'      => '📢',
+                'color'      => 'primary',
+                'sujet'      => 'Votre Boost Contact a expiré',
+                'titre'      => 'Renouvelez votre Boost Contact sur Dressur',
+                'desc'       => 'Utilisateurs avec Boost expiré (7 j) et numéro WhatsApp confirmé.',
+                'queryType'  => 'service_boost_wa',
+                'group'      => 'service_wa',
+                'channel'    => 'whatsapp',
+            ],
+            'promo_wa' => [
+                'label'      => 'Promotion Affaire terminée (7 j) — WhatsApp',
+                'minDays'    => null,
+                'maxDays'    => null,
+                'maxDaysAgo' => 7,
+                'emoji'      => '🎯',
+                'color'      => 'success',
+                'sujet'      => 'Votre Promotion Affaire est terminée',
+                'titre'      => 'Relancez votre Promotion Affaire sur Dressur',
+                'desc'       => 'Utilisateurs avec Promo terminée (7 j) et numéro WhatsApp confirmé.',
+                'queryType'  => 'service_promo_wa',
+                'group'      => 'service_wa',
+                'channel'    => 'whatsapp',
+            ],
+            'reseau_wa' => [
+                'label'      => 'Promo Réseaux Sociaux terminée (7 j) — WhatsApp',
+                'minDays'    => null,
+                'maxDays'    => null,
+                'maxDaysAgo' => 7,
+                'emoji'      => '📱',
+                'color'      => 'info',
+                'sujet'      => 'Votre Promo Réseaux est terminée',
+                'titre'      => 'Relancez votre Promotion Réseaux Sociaux sur Dressur',
+                'desc'       => 'Utilisateurs avec Promo Réseau terminée (7 j) et numéro WhatsApp confirmé.',
+                'queryType'  => 'service_reseau_wa',
+                'group'      => 'service_wa',
+                'channel'    => 'whatsapp',
+            ],
             // ── Confirmation numéro WhatsApp ─────────────────────────────────
             'tel_non_confirme' => [
                 'label'     => 'Numéro de téléphone non confirmé',
@@ -288,12 +344,15 @@ class CommunicationMailController extends AbstractController
         PromoReseauRepository $promoReseauRepository
     ): array {
         return match ($config['queryType'] ?? 'inactif') {
-            'service_boost'  => $boostRepository->findUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_promo'  => $promotionRepository->findUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_reseau' => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
-            'confirm_mail'   => $userRepository->findUsersWithUnconfirmedMail(),
-            'confirm_tel'    => $userRepository->findUsersWithUnconfirmedTel(),
-            default          => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
+            'service_boost'     => $boostRepository->findUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_promo'     => $promotionRepository->findUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_reseau'    => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_boost_wa'  => $boostRepository->findUsersWithExpiredBoostAndTel($config['maxDaysAgo'] ?? 90),
+            'service_promo_wa'  => $promotionRepository->findUsersWithTerminatedPromoAndTel($config['maxDaysAgo'] ?? 90),
+            'service_reseau_wa' => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndTel($config['maxDaysAgo'] ?? 90),
+            'confirm_mail'      => $userRepository->findUsersWithUnconfirmedMail(),
+            'confirm_tel'       => $userRepository->findUsersWithUnconfirmedTel(),
+            default             => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
         };
     }
 
@@ -306,10 +365,13 @@ class CommunicationMailController extends AbstractController
         PromoReseauRepository $promoReseauRepository
     ): int {
         return match ($config['queryType'] ?? 'inactif') {
-            'service_boost'  => $boostRepository->countUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_promo'  => $promotionRepository->countUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_reseau' => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
-            default          => 0,
+            'service_boost'     => $boostRepository->countUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_promo'     => $promotionRepository->countUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_reseau'    => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
+            'service_boost_wa'  => $boostRepository->countUsersWithExpiredBoostAndTel($config['maxDaysAgo'] ?? 90),
+            'service_promo_wa'  => $promotionRepository->countUsersWithTerminatedPromoAndTel($config['maxDaysAgo'] ?? 90),
+            'service_reseau_wa' => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndTel($config['maxDaysAgo'] ?? 90),
+            default             => 0,
         };
     }
 
@@ -353,7 +415,7 @@ class CommunicationMailController extends AbstractController
         }
 
         $previewContent = $isWhatsapp
-            ? self::buildWhatsappConfirmMessage(null, 'https://dressur.site/confirmer-tel/[uid-utilisateur]/[token-securise]')
+            ? self::buildWhatsappMessageForType($config, null)
             : self::buildMailContentForType(
                 $config,
                 null,
@@ -426,12 +488,12 @@ class CommunicationMailController extends AbstractController
                 $uid    = trim((string) ($u['uid'] ?? ''));
 
                 $confirmUrl = null;
-                if ($uid !== '') {
+                if (($config['queryType'] ?? '') === 'confirm_tel' && $uid !== '') {
                     $token      = $this->generateConfirmTelToken($uid, $tel);
                     $confirmUrl = 'https://dressur.site/confirmer-tel/' . rawurlencode($uid) . '/' . $token;
                 }
 
-                $message = self::buildWhatsappConfirmMessage($pseudo ?: null, $confirmUrl);
+                $message = self::buildWhatsappMessageForType($config, $pseudo ?: null, $confirmUrl);
 
                 $entry = (new FileAttenteWhatsapp())
                     ->setSendto($tel)
@@ -786,6 +848,52 @@ class CommunicationMailController extends AbstractController
     {
         $secret = $this->getParameter('kernel.secret');
         return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($tel)), $secret), 0, 40);
+    }
+
+    private static function buildWhatsappMessageForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null): string
+    {
+        return match ($config['queryType'] ?? 'confirm_tel') {
+            'service_boost_wa'  => self::buildWhatsappBoostMessage($pseudo),
+            'service_promo_wa'  => self::buildWhatsappPromoAffaireMessage($pseudo),
+            'service_reseau_wa' => self::buildWhatsappPromoReseauMessage($pseudo),
+            default             => self::buildWhatsappConfirmMessage($pseudo, $confirmUrl),
+        };
+    }
+
+    private static function buildWhatsappBoostMessage(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
+
+        return $salutation . "\n\n"
+            . "Votre *Boost Contact* sur *Dressur* a expiré 📢\n\n"
+            . "Sans Boost actif, votre profil perd en visibilité et vos concurrents vous devancent dans les recherches.\n\n"
+            . "Renouvelez votre Boost maintenant et retrouvez votre place en tête :\n"
+            . "👉 https://dressur.site/boost\n\n"
+            . "— L'équipe Dressur";
+    }
+
+    private static function buildWhatsappPromoAffaireMessage(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
+
+        return $salutation . "\n\n"
+            . "Votre *Promotion Affaire* sur *Dressur* est terminée 🎯\n\n"
+            . "C'est le moment idéal pour en lancer une nouvelle et remettre votre activité en avant auprès de toute la communauté !\n\n"
+            . "Publiez votre prochaine promotion en quelques clics :\n"
+            . "👉 https://dressur.site/promotion\n\n"
+            . "— L'équipe Dressur";
+    }
+
+    private static function buildWhatsappPromoReseauMessage(?string $pseudo = null): string
+    {
+        $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
+
+        return $salutation . "\n\n"
+            . "Votre *Promotion Réseaux Sociaux* sur *Dressur* est terminée 📱\n\n"
+            . "Continuez sur votre lancée — boostez à nouveau vos abonnés sur TikTok, Instagram, YouTube et plus !\n\n"
+            . "Commandez une nouvelle promotion :\n"
+            . "👉 https://dressur.site/promo-reseau\n\n"
+            . "— L'équipe Dressur";
     }
 
     private static function buildWhatsappConfirmMessage(?string $pseudo = null, ?string $confirmUrl = null): string
