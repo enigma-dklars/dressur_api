@@ -79,6 +79,42 @@ class BoostRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
     }
 
+    public function countUsersWithExpiredBoostAndTel(int $maxDaysAgo = 90): int
+    {
+        $conn   = $this->getEntityManager()->getConnection();
+        $now    = (new \DateTime())->format('Y-m-d H:i:s');
+        $cutoff = (new \DateTime("-{$maxDaysAgo} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT COUNT(DISTINCT u.id)
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND b.date_exp BETWEEN :cutoff AND :now
+                  AND NOT EXISTS (
+                    SELECT 1 FROM boost b2 WHERE b2.user_id = u.id AND b2.date_exp > :now
+                  )";
+
+        return (int) $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchOne();
+    }
+
+    public function findUsersWithExpiredBoostAndTel(int $maxDaysAgo = 90): array
+    {
+        $conn   = $this->getEntityManager()->getConnection();
+        $now    = (new \DateTime())->format('Y-m-d H:i:s');
+        $cutoff = (new \DateTime("-{$maxDaysAgo} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND b.date_exp BETWEEN :cutoff AND :now
+                  AND NOT EXISTS (
+                    SELECT 1 FROM boost b2 WHERE b2.user_id = u.id AND b2.date_exp > :now
+                  )";
+
+        return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
+    }
+
     public function getBoostAndUser($pays) //: array
     {
         return $this->createQueryBuilder('b')
