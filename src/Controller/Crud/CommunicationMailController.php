@@ -891,8 +891,6 @@ class CommunicationMailController extends AbstractController
         return $salutation . "\n\n"
             . "Votre *Promotion Réseaux Sociaux* sur *Dressur* est terminée 📱\n\n"
             . "Continuez sur votre lancée — boostez à nouveau vos abonnés sur TikTok, Instagram, YouTube et plus !\n\n"
-            . "Commandez une nouvelle promotion :\n"
-            . "👉 https://dressur.site/promo-reseau\n\n"
             . "— L'équipe Dressur";
     }
 
