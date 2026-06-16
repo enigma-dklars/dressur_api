@@ -771,7 +771,7 @@ class TraitementsDS extends AbstractController
                     "mail" => $userContact->getMail(),
                     "pays" => (string)$userContact->getPays(),
                     "tel" => $userContact->getTel(),
-                    "nom" => (string)$userContact,
+                    "nom" => $userContact->getNom() ? $userContact->getNom() : "",
                     "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
                     "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
                     "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
