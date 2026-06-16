@@ -20,6 +20,9 @@ class Preference
     #[ORM\Column(nullable: true)]
     private array $paysChoisies = [];
 
+    #[ORM\Column(type: 'boolean', options: ['default' => true])]
+    private bool $addPageActu = true;
+
     public function __construct()
     {
         // $this->paysChoisies = [$this->user->getPays()];
@@ -50,6 +53,18 @@ class Preference
     public function setPaysChoisies(?array $paysChoisies): self
     {
         $this->paysChoisies = $paysChoisies;
+
+        return $this;
+    }
+
+    public function getAddPageActu(): bool
+    {
+        return $this->addPageActu;
+    }
+
+    public function setAddPageActu(bool $addPageActu): self
+    {
+        $this->addPageActu = $addPageActu;
 
         return $this;
     }

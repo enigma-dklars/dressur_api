@@ -49,4 +49,25 @@ class UserPreferenceController extends AbstractController
         return new Response('OK');
     }
 
+    #[Route('/getAddPageActu/{uid}', name: 'getAddPageActu', methods: ['POST', 'GET'])]
+    public function getAddPageActu(User $user): Response
+    {
+        return new JsonResponse([
+            'error' => false,
+            'addPageActu' => $user->getPreference()->getAddPageActu(),
+        ]);
+    }
+
+    #[Route('/updateAddPageActu/{uid}/{value}', name: 'updateAddPageActu', methods: ['POST', 'GET'])]
+    public function updateAddPageActu(User $user, $value): Response
+    {
+        $user->getPreference()->setAddPageActu($value === '1' || $value === 'true');
+        $this->em->flush();
+
+        return new JsonResponse([
+            'error' => false,
+            'addPageActu' => $user->getPreference()->getAddPageActu(),
+        ]);
+    }
+
 }
