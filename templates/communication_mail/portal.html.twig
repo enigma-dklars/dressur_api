@@ -64,11 +64,11 @@
         </div>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card h-100 border-0 shadow-sm">
             <div class="card-body d-flex flex-column">
                 <div class="mb-3"><span class="fs-1">📋</span></div>
-                <h5 class="card-title fw-semibold">File d'attente d'envoi</h5>
+                <h5 class="card-title fw-semibold">File d'attente mail</h5>
                 <p class="card-text text-muted small flex-grow-1">
                     Consultez et gérez les mails en attente d'envoi, envoyés ou en erreur.
                     {% if nb_attente > 0 %}
@@ -77,6 +77,24 @@
                 </p>
                 <a href="{{ path('app_communication_mail_file_attente') }}" class="btn btn-outline-secondary mt-2">
                     <i class="fas fa-list me-1"></i>Voir la file d'attente
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-success">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">💬</span></div>
+                <h5 class="card-title fw-semibold">File d'attente WhatsApp</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Consultez et gérez les messages WhatsApp en attente d'envoi.
+                    {% if nb_whatsapp_attente is defined and nb_whatsapp_attente > 0 %}
+                        <br><span class="badge bg-success mt-1">{{ nb_whatsapp_attente }} en attente</span>
+                    {% endif %}
+                </p>
+                <a href="{{ path('app_communication_mail_file_attente_whatsapp') }}" class="btn btn-outline-success mt-2">
+                    <i class="fab fa-whatsapp me-1"></i>Voir la file WhatsApp
                 </a>
             </div>
         </div>
