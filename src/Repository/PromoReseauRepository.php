@@ -81,6 +81,44 @@ class PromoReseauRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
     }
 
+    public function countUsersWithTerminatedPromoReseauAndTel(int $maxDaysAgo = 90): int
+    {
+        $conn   = $this->getEntityManager()->getConnection();
+        $now    = (new \DateTime())->format('Y-m-d H:i:s');
+        $cutoff = (new \DateTime("-{$maxDaysAgo} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT COUNT(DISTINCT u.id)
+                FROM promo_reseau pr
+                INNER JOIN `user` u ON pr.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND pr.status = 3
+                  AND pr.updated_at BETWEEN :cutoff AND :now
+                  AND NOT EXISTS (
+                    SELECT 1 FROM promo_reseau pr2 WHERE pr2.user_id = u.id AND pr2.status IN (1, 2)
+                  )";
+
+        return (int) $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchOne();
+    }
+
+    public function findUsersWithTerminatedPromoReseauAndTel(int $maxDaysAgo = 90): array
+    {
+        $conn   = $this->getEntityManager()->getConnection();
+        $now    = (new \DateTime())->format('Y-m-d H:i:s');
+        $cutoff = (new \DateTime("-{$maxDaysAgo} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo
+                FROM promo_reseau pr
+                INNER JOIN `user` u ON pr.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND pr.status = 3
+                  AND pr.updated_at BETWEEN :cutoff AND :now
+                  AND NOT EXISTS (
+                    SELECT 1 FROM promo_reseau pr2 WHERE pr2.user_id = u.id AND pr2.status IN (1, 2)
+                  )";
+
+        return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
+    }
+
     public function getSourceCounts(): array
     {
         $rows = $this->createQueryBuilder('p')
