@@ -1208,7 +1208,7 @@ class PromotionController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
-        $ids = $data['ids'] ?? [];
+        $ids = is_array($data) ? ($data['ids'] ?? []) : [];
 
         foreach ($ids as $id) {
             $promotion = $promotionRepository->find((int) $id);
