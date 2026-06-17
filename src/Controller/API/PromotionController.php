@@ -1198,4 +1198,26 @@ class PromotionController extends AbstractController
         $this->em->flush();        
         return new Response("OK");
     }
+
+    #[Route('/setMultiplePromotionsToWatch/{uid}', name: 'setMultiplePromotionsToWatch', methods: ['POST'])]
+    public function setMultiplePromotionsToWatch($uid, UserRepository $userRepository, PromotionRepository $promotionRepository, Request $request): Response
+    {
+        $user = $userRepository->findOneBy(['uid' => $uid]);
+        if (!$user) {
+            return new JsonResponse(['error' => true], 400);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'] ?? [];
+
+        foreach ($ids as $id) {
+            $promotion = $promotionRepository->find((int) $id);
+            if ($promotion) {
+                $promotion->setToWatch($user, "vue");
+            }
+        }
+        $this->em->flush();
+
+        return new Response("OK");
+    }
 }
