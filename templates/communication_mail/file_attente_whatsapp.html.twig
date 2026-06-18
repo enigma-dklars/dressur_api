@@ -170,6 +170,9 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block script %}
 <script>
 (function () {
     const master         = document.getElementById('checkbox-master');
@@ -180,47 +183,8 @@
     const countBadge     = document.getElementById('count-selected');
     const formMultiple   = document.getElementById('form-delete-multiple');
 
-    if (!master) return;
-
-    function updateUI() {
-        const all     = checkboxes();
-        const checked = document.querySelectorAll('.row-checkbox:checked');
-        const n       = checked.length;
-        countBadge.textContent = n;
-        btnDelete.disabled     = n === 0;
-        master.indeterminate   = n > 0 && n < all.length;
-        master.checked         = n === all.length && all.length > 0;
-        document.querySelectorAll('.row-entry').forEach(row => {
-            const cb = row.querySelector('.row-checkbox');
-            row.classList.toggle('table-active', cb && cb.checked);
-        });
-    }
-
-    master.addEventListener('change', function () {
-        checkboxes().forEach(cb => { cb.checked = master.checked; });
-        updateUI();
-    });
-    document.querySelectorAll('.row-checkbox').forEach(cb => cb.addEventListener('change', updateUI));
-
-    if (btnSelectAll)   btnSelectAll.addEventListener('click',   () => { checkboxes().forEach(cb => cb.checked = true);  updateUI(); });
-    if (btnDeselectAll) btnDeselectAll.addEventListener('click', () => { checkboxes().forEach(cb => cb.checked = false); updateUI(); });
-
-    if (btnDelete) btnDelete.addEventListener('click', function () {
-        const n = document.querySelectorAll('.row-checkbox:checked').length;
-        Swal.fire({
-            title: 'Confirmer la suppression',
-            text: n + ' élément(s) seront supprimés définitivement.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash me-1"></i>Supprimer',
-            cancelButtonText: 'Annuler'
-        }).then(result => { if (result.isConfirmed) formMultiple.submit(); });
-    });
-
-    // Popovers Bootstrap
-    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+    // Popovers Bootstrap (bootstrap.bundle.min.js chargé avant ce bloc)
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function (el) {
         new bootstrap.Popover(el, { html: false, sanitize: false });
     });
 
@@ -239,13 +203,54 @@
                 confirmButtonText: '<i class="fas fa-trash-alt me-1"></i>Tout supprimer',
                 cancelButtonText: 'Annuler',
                 focusCancel: true
-            }).then(result => {
+            }).then(function (result) {
                 if (result.isConfirmed) {
                     document.getElementById('form-delete-all').submit();
                 }
             });
         });
     }
+
+    if (!master) return;
+
+    function updateUI() {
+        const all     = checkboxes();
+        const checked = document.querySelectorAll('.row-checkbox:checked');
+        const n       = checked.length;
+        countBadge.textContent = n;
+        btnDelete.disabled     = n === 0;
+        master.indeterminate   = n > 0 && n < all.length;
+        master.checked         = n === all.length && all.length > 0;
+        document.querySelectorAll('.row-entry').forEach(function (row) {
+            const cb = row.querySelector('.row-checkbox');
+            row.classList.toggle('table-active', cb && cb.checked);
+        });
+    }
+
+    master.addEventListener('change', function () {
+        checkboxes().forEach(function (cb) { cb.checked = master.checked; });
+        updateUI();
+    });
+    document.querySelectorAll('.row-checkbox').forEach(function (cb) {
+        cb.addEventListener('change', updateUI);
+    });
+
+    if (btnSelectAll)   btnSelectAll.addEventListener('click',   function () { checkboxes().forEach(function (cb) { cb.checked = true;  }); updateUI(); });
+    if (btnDeselectAll) btnDeselectAll.addEventListener('click', function () { checkboxes().forEach(function (cb) { cb.checked = false; }); updateUI(); });
+
+    if (btnDelete) btnDelete.addEventListener('click', function () {
+        const n = document.querySelectorAll('.row-checkbox:checked').length;
+        Swal.fire({
+            title: 'Confirmer la suppression',
+            text: n + ' élément(s) seront supprimés définitivement.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: '<i class="fas fa-trash me-1"></i>Supprimer',
+            cancelButtonText: 'Annuler'
+        }).then(function (result) { if (result.isConfirmed) formMultiple.submit(); });
+    });
 })();
 
 function deleteSingle(id, token) {
@@ -268,5 +273,4 @@ function deleteSingle(id, token) {
     });
 }
 </script>
-
 {% endblock %}
