@@ -708,6 +708,29 @@ class CommunicationMailController extends AbstractController
         return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
     }
 
+    #[Route('/file-attente-whatsapp/delete-all', name: 'app_communication_mail_file_attente_whatsapp_delete_all', methods: ['POST'])]
+    public function deleteAllFileAttenteWhatsapp(
+        Request $request,
+        FileAttenteWhatsappRepository $whatsappRepo,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete_all_wa', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $entries = $whatsappRepo->findAll();
+        $deleted = 0;
+        foreach ($entries as $entry) {
+            $entityManager->remove($entry);
+            $deleted++;
+        }
+        $entityManager->flush();
+
+        $this->addFlash('success', $deleted . ' entrée(s) supprimée(s) — file d\'attente WhatsApp vidée.');
+        return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
+    }
+
     // ─── Campagne : Attirer de nouveaux utilisateurs ─────────────────────────
 
     #[Route('/campagne/prospect', name: 'app_communication_mail_campagne_prospect', methods: ['GET', 'POST'])]

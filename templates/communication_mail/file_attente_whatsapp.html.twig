@@ -11,9 +11,18 @@
             {{ entries|filter(e => e.statut == 'en_attente')|length }} en attente
         </span>
     </h4>
-    <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary ms-auto">
-        <i class="fas fa-arrow-left me-1"></i>Retour au portail
-    </a>
+    <div class="ms-auto d-flex gap-2">
+        {% if entries|length > 0 %}
+        <button type="button" class="btn btn-sm btn-danger" id="btn-delete-all"
+                data-total="{{ entries|length }}">
+            <i class="fas fa-trash-alt me-1"></i>Tout supprimer
+            <span class="badge bg-light text-danger ms-1">{{ entries|length }}</span>
+        </button>
+        {% endif %}
+        <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour au portail
+        </a>
+    </div>
 </div>
 
 {% for label, messages in app.flashes %}
@@ -121,6 +130,12 @@
     <input type="hidden" name="_token" id="single-token">
 </form>
 
+<form id="form-delete-all" method="post"
+      action="{{ path('app_communication_mail_file_attente_whatsapp_delete_all') }}"
+      style="display:none;">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete_all_wa') }}">
+</form>
+
 {% else %}
 <div class="card">
     <div class="card-body p-0">
@@ -202,6 +217,29 @@
     document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
         new bootstrap.Popover(el, { html: false, sanitize: false });
     });
+
+    // Tout supprimer
+    const btnDeleteAll = document.getElementById('btn-delete-all');
+    if (btnDeleteAll) {
+        btnDeleteAll.addEventListener('click', function () {
+            const total = this.dataset.total;
+            Swal.fire({
+                title: 'Vider la file d\'attente WhatsApp ?',
+                html: '<strong>' + total + ' entrée(s)</strong> seront supprimées définitivement.<br>Cette action est irréversible.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash-alt me-1"></i>Tout supprimer',
+                cancelButtonText: 'Annuler',
+                focusCancel: true
+            }).then(result => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-delete-all').submit();
+                }
+            });
+        });
+    }
 })();
 
 function deleteSingle(id, token) {
