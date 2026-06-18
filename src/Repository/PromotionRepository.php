@@ -119,6 +119,30 @@ class PromotionRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
     }
 
+    public function countUsersWhoEverUsedPromoAndTel(): int
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT COUNT(DISTINCT u.id)
+                FROM promotion p
+                INNER JOIN `user` u ON p.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return (int) $conn->prepare($sql)->executeQuery()->fetchOne();
+    }
+
+    public function findUsersWhoEverUsedPromoAndTel(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom
+                FROM promotion p
+                INNER JOIN `user` u ON p.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
     /**
      * Retourne les promotions référençables pour le sitemap :
      * - statut 3 (accepter et en cours) OU 4 (terminer)
