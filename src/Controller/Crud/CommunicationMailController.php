@@ -469,11 +469,14 @@ class CommunicationMailController extends AbstractController
         $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
         $users      = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
 
+        $isFeedbackPreview = str_starts_with($config['queryType'] ?? '', 'feedback_');
+        $cooldownPreview   = $isFeedbackPreview ? self::FEEDBACK_COOLDOWN_DAYS : self::REACTIVATION_COOLDOWN_DAYS;
+
         if ($isWhatsapp) {
             $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
             $recentlySent = $whatsappRepo->findRecentlyContactedPhones(
                 array_values($allPhones),
-                self::REACTIVATION_COOLDOWN_DAYS,
+                $cooldownPreview,
                 [$config['titre']]
             );
             ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent, 'tel');
@@ -481,7 +484,7 @@ class CommunicationMailController extends AbstractController
             $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
             $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
                 array_values($allEmails),
-                self::REACTIVATION_COOLDOWN_DAYS,
+                $cooldownPreview,
                 [$config['titre']]
             );
             ['toSend' => $toSend, 'excluded' => $excluded] = self::splitByRecentContact($users, $recentlySent);
@@ -504,7 +507,7 @@ class CommunicationMailController extends AbstractController
             'config'        => $config,
             'nb_to_send'    => count($toSend),
             'nb_excluded'   => count($excluded),
-            'cooldown_days' => self::REACTIVATION_COOLDOWN_DAYS,
+            'cooldown_days' => $cooldownPreview,
             'contentmail'   => $previewContent,
             'sujet'         => $config['sujet'],
             'replyto'       => 'dressur.ds@gmail.com',
@@ -586,7 +589,7 @@ class CommunicationMailController extends AbstractController
             $skipped = count($users) - $added;
             $msg = $added . ' message(s) WhatsApp ajouté(s) à la file d\'attente.';
             if ($skipped > 0) {
-                $msg .= ' ' . $skipped . ' ignoré(s) (déjà contacté(s) dans les ' . self::REACTIVATION_COOLDOWN_DAYS . ' derniers jours).';
+                $msg .= ' ' . $skipped . ' ignoré(s) (déjà contacté(s) dans les ' . $cooldown . ' derniers jours).';
             }
 
             $this->addFlash('success', $msg);
