@@ -12,6 +12,12 @@
         </span>
     </h4>
     <div class="ms-auto d-flex gap-2">
+        <a href="{{ path('app_communication_mail_file_attente_whatsapp_json') }}"
+           target="_blank"
+           class="btn btn-sm btn-outline-success"
+           title="Obtenir la file d'attente (en_attente) au format JSON">
+            <i class="fas fa-code me-1"></i>Export JSON
+        </a>
         {% if entries|length > 0 %}
         <button type="button" class="btn btn-sm btn-danger" id="btn-delete-all"
                 data-total="{{ entries|length }}">

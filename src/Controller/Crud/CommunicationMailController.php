@@ -661,6 +661,19 @@ class CommunicationMailController extends AbstractController
         ]);
     }
 
+    #[Route('/file-attente-whatsapp/json', name: 'app_communication_mail_file_attente_whatsapp_json', methods: ['GET'])]
+    public function fileAttenteWhatsappJson(FileAttenteWhatsappRepository $whatsappRepo): JsonResponse
+    {
+        $entries = $whatsappRepo->findBy(['statut' => 'en_attente'], ['id' => 'ASC']);
+
+        $data = array_map(fn($e) => [
+            'numero'  => $e->getSendto(),
+            'message' => $e->getMessage(),
+        ], $entries);
+
+        return $this->json($data);
+    }
+
     #[Route('/file-attente-whatsapp/{id}/delete', name: 'app_communication_mail_file_attente_whatsapp_delete', methods: ['POST'])]
     public function deleteFileAttenteWhatsapp(
         Request $request,
