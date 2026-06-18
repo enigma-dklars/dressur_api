@@ -957,6 +957,29 @@ class CommunicationMailController extends AbstractController
         return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
     }
 
+    #[Route('/file-attente/delete-all', name: 'app_communication_mail_file_attente_delete_all', methods: ['POST'])]
+    public function deleteAllFileAttente(
+        Request $request,
+        FileAttenteProspectMailRepository $fileAttenteRepo,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if (!$this->isCsrfTokenValid('delete_all_file_attente', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide.');
+            return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
+        }
+
+        $entries = $fileAttenteRepo->findAll();
+        $deleted = 0;
+        foreach ($entries as $entry) {
+            $entityManager->remove($entry);
+            $deleted++;
+        }
+        $entityManager->flush();
+
+        $this->addFlash('success', $deleted . ' entrée(s) supprimée(s) — file d\'attente mail vidée.');
+        return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
+    }
+
     // ─── Historique des envois (LogBoiteMail) ────────────────────────────────
 
     #[Route('/log-boite-mail', name: 'app_communication_mail_log', methods: ['GET'])]
