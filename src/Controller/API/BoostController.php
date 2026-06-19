@@ -48,11 +48,14 @@ class BoostController extends AbstractController
     }
 
     #[Route('/listeFormuleBoost', name: 'listeFormuleBoost', methods: ['POST', 'GET'])]
-    public function listeFormuleBoost(TraitementsDS $traitementsDS): Response
+    public function listeFormuleBoost(Request $request, TraitementsDS $traitementsDS): Response
     {
+        // Si le client ne précise pas typeBoost (vieilles versions mobile),
+        // on renvoie uniquement les formules 'date' payantes (backward-compat).
+        $typeBoost = $request->request->get('typeBoost') ?? $request->query->get('typeBoost') ?? 'date';
         return new JsonResponse([
             'error' => false,
-            'listeFormulBoost' => $traitementsDS->listeFormulBoost(),
+            'listeFormulBoost' => $traitementsDS->listeFormulBoost($typeBoost),
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
         ]);
     }
