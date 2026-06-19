@@ -369,10 +369,16 @@ class TraitementsDS extends AbstractController
         return $listeMethodePaiement;
     }
 
-    public function listeFormulBoost() {
+    public function listeFormulBoost(string $typeBoost = 'date') {
         $listeFormulBoost = [];
         foreach ($this->formuleBoostRepository->findAll() as $boost) {
-            if($boost->isActivated() == true) {
+            // Toujours exclure les formules gratuites (prix = 0)
+            // et filtrer par le type demandé (défaut 'date' pour rétrocompat)
+            if (
+                $boost->isActivated() == true
+                && intval($boost->getPrix()) > 0
+                && $boost->getTypeBoost() === $typeBoost
+            ) {
                 array_push($listeFormulBoost, [
                     "id"            => $boost->getId(),
                     "value"         => $boost->getId(),
