@@ -95,6 +95,7 @@ class BoostController extends AbstractController
         }
 
         $source = ($request->request->get('source') === 'web') ? 'web' : 'mobile';
+        $typeBoost = ($request->request->get('typeBoost') === 'quota') ? 'quota' : 'date';
 
         $error = false;
         $lastBoostContact = $boostRepository->findOneBy(['user' => $user], ['id' => 'DESC']);
@@ -115,28 +116,54 @@ class BoostController extends AbstractController
             $message = ($langUserPhone == 'fr') ? "Vous avez déjà un Boost Contact en cours. Il n'est pas possible de programmer un Boost Contact Gratuit." : "You already have a Contact Boost active. It is not possible to schedule another Free Contact Boost.";
         } else if(!$lastBoostContact) {
             $boost = new Boost();
-            $boost->setFormuleBoost($formuleBoostRepository->find(7))
-                ->setUser($user)
-                ->setSource($source)
-                ->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ 5days"))
-            ;
+            if ($typeBoost === 'quota') {
+                $formuleQuotaGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'quota', 'prix' => 0, 'activated' => true]);
+                $boost->setFormuleBoost($formuleQuotaGratuit)
+                    ->setUser($user)
+                    ->setSource($source)
+                    ->setTypeBoost('quota')
+                    ->setDateDebut(new DateTime())
+                ;
+                $error = false;
+                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit limité à 20 contacts a démarré." : "Your free Boost Contact limited to 20 contacts has started.";
+            } else {
+                $boost->setFormuleBoost($formuleBoostRepository->find(7))
+                    ->setUser($user)
+                    ->setSource($source)
+                    ->setTypeBoost('date')
+                    ->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime("+ 5days"))
+                ;
+                $error = false;
+                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
+            }
             $this->em->persist($boost);
             $this->em->flush();
-            $error = false;
-            $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
         } else if($lastBoostContact->getMode() == "Payant") {
             $boost = new Boost();
-            $boost->setFormuleBoost($formuleBoostRepository->find(7))
-                ->setUser($user)
-                ->setSource($source)
-                ->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ 5days"))
-            ;
+            if ($typeBoost === 'quota') {
+                $formuleQuotaGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'quota', 'prix' => 0, 'activated' => true]);
+                $boost->setFormuleBoost($formuleQuotaGratuit)
+                    ->setUser($user)
+                    ->setSource($source)
+                    ->setTypeBoost('quota')
+                    ->setDateDebut(new DateTime())
+                ;
+                $error = false;
+                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit limité à 20 contacts a démarré." : "Your free Boost Contact limited to 20 contacts has started.";
+            } else {
+                $boost->setFormuleBoost($formuleBoostRepository->find(7))
+                    ->setUser($user)
+                    ->setSource($source)
+                    ->setTypeBoost('date')
+                    ->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime("+ 5days"))
+                ;
+                $error = false;
+                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
+            }
             $this->em->persist($boost);
             $this->em->flush();
-            $error = false;
-            $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
         } else {
             $error = true;
             $message = ($langUserPhone == 'fr') ? "Demande de Boost Contact Gratuit refusé. Votre précédent Boost Contact est en mode Gratuit. Vous devez donc faire un Boost Contact Payant avant de pouvoir demander un autre Boost Contact Gratuit." : "Request for a free Contact Boost denied. Your previous Contact Boost was in Free mode. You must therefore complete a Paid Contact Boost before you can request another Free Contact Boost.";
