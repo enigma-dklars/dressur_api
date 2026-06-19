@@ -60,6 +60,34 @@ class BoostController extends AbstractController
         ]);
     }
 
+    #[Route('/freeBoostInfo', name: 'freeBoostInfo', methods: ['POST', 'GET'])]
+    public function freeBoostInfo(FormuleBoostRepository $formuleBoostRepository): Response
+    {
+        $dateFormule  = null;
+        $quotaFormule = null;
+        foreach ($formuleBoostRepository->findAll() as $formule) {
+            if ($formule->isActivated() && intval($formule->getPrix()) === 0) {
+                if ($formule->getTypeBoost() === 'date' && $dateFormule === null) {
+                    $dateFormule = [
+                        'nbrJour' => $formule->getNbrJour(),
+                        'titre'   => $formule->getTitre(),
+                    ];
+                }
+                if ($formule->getTypeBoost() === 'quota' && $quotaFormule === null) {
+                    $quotaFormule = [
+                        'nbContactsMax' => $formule->getNbContactsMax(),
+                        'titre'         => $formule->getTitre(),
+                    ];
+                }
+            }
+        }
+        return new JsonResponse([
+            'error' => false,
+            'date'  => $dateFormule  ?? ['nbrJour' => 5,  'titre' => 'Boost Gratuit'],
+            'quota' => $quotaFormule ?? ['nbContactsMax' => 20, 'titre' => 'Boost Gratuit'],
+        ]);
+    }
+
     #[Route('/newBoost', name: 'newBoost', methods: ['POST'])]
     public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository): Response
     {
