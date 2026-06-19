@@ -662,14 +662,20 @@ class CommunicationMailController extends AbstractController
     }
 
     #[Route('/file-attente-whatsapp/json', name: 'app_communication_mail_file_attente_whatsapp_json', methods: ['GET'])]
-    public function fileAttenteWhatsappJson(FileAttenteWhatsappRepository $whatsappRepo): JsonResponse
+    public function fileAttenteWhatsappJson(FileAttenteWhatsappRepository $whatsappRepo, UserRepository $userRepo): JsonResponse
     {
         $entries = $whatsappRepo->findBy(['statut' => 'en_attente'], ['id' => 'ASC']);
 
-        $data = array_map(fn($e) => [
-            'numero'  => $e->getSendto(),
-            'message' => $e->getMessage(),
-        ], $entries);
+        $data = array_map(function ($e) use ($userRepo) {
+            $user  = $userRepo->findOneBy(['tel' => $e->getSendto()]);
+            $wa_id = $user?->getLid();
+
+            return [
+                'numero'  => $e->getSendto(),
+                'message' => $e->getMessage(),
+                'wa_id'   => $wa_id,
+            ];
+        }, $entries);
 
         return $this->json($data);
     }
