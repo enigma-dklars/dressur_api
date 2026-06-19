@@ -848,7 +848,10 @@ class TraitementsDS extends AbstractController
 
                     // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
                     if($hoursDifference <= 48) {
-                        if((new DateTime()) >= ($boost->getDateDebut()) and (new DateTime()) <= ($boost->getDateExp())) {
+                        $isActif = $boost->getTypeBoost() === 'quota'
+                            ? ((new DateTime()) >= $boost->getDateDebut() && $boost->getDateExp() === null)
+                            : ((new DateTime()) >= $boost->getDateDebut() && $boost->getDateExp() !== null && (new DateTime()) <= $boost->getDateExp());
+                        if($isActif) {
                             array_push($contacts, [
                                 'id' => $userBoost->getId(),
                                 'uid' => $userBoost->getUid(),
@@ -879,7 +882,11 @@ class TraitementsDS extends AbstractController
                                 $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
                                 $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
                                 if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
-                                    if((new DateTime()) >= ($boost["boost"]->getDateDebut()) and (new DateTime()) <= ($boost["boost"]->getDateExp())){
+                                $boostObj = $boost["boost"];
+                                $isActif = $boostObj->getTypeBoost() === 'quota'
+                                    ? ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() === null)
+                                    : ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() !== null && (new DateTime()) <= $boostObj->getDateExp());
+                                if($isActif){
                                         if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
                                             array_push($contacts, [
                                                 'id' => $userBoost->getId(),
