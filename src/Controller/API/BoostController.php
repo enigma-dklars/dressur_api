@@ -127,7 +127,8 @@ class BoostController extends AbstractController
                 $error = false;
                 $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit limité à 20 contacts a démarré." : "Your free Boost Contact limited to 20 contacts has started.";
             } else {
-                $boost->setFormuleBoost($formuleBoostRepository->find(7))
+                $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
+                $boost->setFormuleBoost($formuleDateGratuit)
                     ->setUser($user)
                     ->setSource($source)
                     ->setTypeBoost('date')
@@ -152,7 +153,8 @@ class BoostController extends AbstractController
                 $error = false;
                 $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit limité à 20 contacts a démarré." : "Your free Boost Contact limited to 20 contacts has started.";
             } else {
-                $boost->setFormuleBoost($formuleBoostRepository->find(7))
+                $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
+                $boost->setFormuleBoost($formuleDateGratuit)
                     ->setUser($user)
                     ->setSource($source)
                     ->setTypeBoost('date')
