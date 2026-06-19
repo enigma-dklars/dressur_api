@@ -23,8 +23,8 @@ class Boost
     #[ORM\Column(type: 'datetime')]
     private $dateDebut;
 
-    #[ORM\Column(type: 'datetime')]
-    private $dateExp;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private $dateExp = null;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'boosts')]
     #[ORM\JoinColumn(nullable: false)]
@@ -35,6 +35,12 @@ class Boost
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $source = null;
+
+    #[ORM\Column(type: 'string', length: 10)]
+    private string $typeBoost = 'date';
+
+    #[ORM\Column(type: 'integer')]
+    private int $nbContactsObtenus = 0;
 
     public function __construct()
     {
@@ -90,7 +96,7 @@ class Boost
         return $this->dateExp;
     }
 
-    public function setDateExp(\DateTimeInterface $dateExp): self
+    public function setDateExp(?\DateTimeInterface $dateExp): self
     {
         $this->dateExp = $dateExp;
 
@@ -130,6 +136,28 @@ class Boost
     {
         $this->source = $source;
 
+        return $this;
+    }
+
+    public function getTypeBoost(): string
+    {
+        return $this->typeBoost;
+    }
+
+    public function setTypeBoost(string $typeBoost): self
+    {
+        $this->typeBoost = $typeBoost;
+        return $this;
+    }
+
+    public function getNbContactsObtenus(): int
+    {
+        return $this->nbContactsObtenus;
+    }
+
+    public function setNbContactsObtenus(int $nbContactsObtenus): self
+    {
+        $this->nbContactsObtenus = $nbContactsObtenus;
         return $this;
     }
 }
