@@ -251,7 +251,7 @@ class PrivateController extends AbstractController
                     'nbr_user_bot' => count($userBotRepository->findAll()),
                     'deleted_users' => count($deletedDSRepository->findAll()),
                     'banned_users' => count($this->env->getUserBanned()) / 3,
-                    'encour_boost' => count($traitementsDS->getAddDisponible($userRepository->find(2))),
+                    'encour_boost' => $traitementsDS->getBoostEnCoursCount(),
                     'programmer_boost' => $traitementsDS->getAddProgrammer(),
                     'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
                     'users_prog_recomp' => count($userRepository->findBy(['isInscritProgrammeRecompense' => true])),

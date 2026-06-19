@@ -47,9 +47,14 @@ class VerificationsDS extends AbstractController
     }
 
     public function siBoostEnCours($boosts){
+        $now = new DateTime();
         foreach ($boosts as $boost) {
-            if((new DateTime()) < $boost->getDateExp()){
-                return true;
+            $typeBoost = $boost->getTypeBoost();
+            $dateExp   = $boost->getDateExp();
+            if ($typeBoost === 'quota') {
+                if ($dateExp === null) { return true; } // quota non épuisé
+            } else {
+                if ($dateExp !== null && $now < $dateExp) { return true; }
             }
         }
         return false;
