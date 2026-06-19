@@ -136,71 +136,64 @@ class TraitementsDS extends AbstractController
     
     public function userBoosts($boosts) {
         $userBoosts = [];
-        $prix_boost = "";
-        $statut = "";
-
         foreach ($boosts as $boost) {
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                $statut = "In progress";
-            } else {
-                $statut = "En cours";
-            }
+            $isFr = $this->sessionDS->get("langUserPhone") == "fr";
+            $typeBoost = $boost->getTypeBoost();
+            $nbContactsObtenus = $boost->getNbContactsObtenus();
+            $nbContactsMax = $boost->getFormuleBoost()->getNbContactsMax();
+            $dateDebut = $boost->getDateDebut();
+            $dateExp = $boost->getDateExp();
+            // --- Statut ---
             $statusNumber = 1;
-
-            if((new DateTime()) < $boost->getDateDebut()){
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "scheduled";
-                } else {
-                    $statut = "Programmé";
-                }
+            $statut = $isFr ? "En cours" : "In progress";
+            if ((new DateTime()) < $dateDebut) {
+                $statut = $isFr ? "Programmé" : "Scheduled";
                 $statusNumber = 2;
-            }            
-
-            if((new DateTime()) > $boost->getDateExp()){
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Completed";
-                } else {
-                    $statut = "Terminé";
+            } elseif ($typeBoost === 'quota') {
+                if ($dateExp !== null) {
+                    $statut = $isFr ? "Terminé" : "Completed";
+                    $statusNumber = 3;
                 }
-                $statusNumber = 3;
-            }
-
-            if($boost->getMode() == "Gratuit") {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
-                $modeNumber = 1;
             } else {
-                $prix_boost = $boost->getFormuleBoost()->getPrix(). " FCFA";
-                $modeNumber = 2;
-            }
-
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                if($boost->getMode() == "Gratuit") {
-                    $boostMode = "Free";
-                } else {
-                    $boostMode = "Paid";
+                if ($dateExp !== null && (new DateTime()) > $dateExp) {
+                    $statut = $isFr ? "Terminé" : "Completed";
+                    $statusNumber = 3;
                 }
-                $unBoost = [
-                    'id' => (string)$boost->getId(),
-                    'nomFormule' => $boost->getFormuleBoost()->getTitre(),
-                    'dateDebutFormule' => "from ".($boost->getDateDebut())->format('d-m-Y à H:i')." to ".($boost->getDateExp())->format('d-m-Y à H:i'),
-                    'prixFormule' => (string)$prix_boost,
-                    'statutFormule' => $statut,
-                    'modeBoostFormule' => $boostMode,
-                    'statusNumber' => $statusNumber,
-                    'modeNumber' => $modeNumber,
-                ];
-            } else {
-                $unBoost = [
-                    'id' => (string)$boost->getId(),
-                    'nomFormule' => $boost->getFormuleBoost()->getTitre(),
-                    'dateDebutFormule' => "du ".($boost->getDateDebut())->format('d-m-Y à H:i')." au ".($boost->getDateExp())->format('d-m-Y à H:i'),
-                    'prixFormule' => (string)$prix_boost,
-                    'statutFormule' => $statut,
-                    'modeBoostFormule' => $boost->getMode(),
-                    'statusNumber' => $statusNumber,
-                    'modeNumber' => $modeNumber,
-                ];
             }
+            // --- Mode ---
+            $prix_boost = $boost->getFormuleBoost()->getPrix() . " FCFA";
+            $modeNumber = $boost->getMode() == "Gratuit" ? 1 : 2;
+            $boostMode = $boost->getMode() == "Gratuit"
+                ? ($isFr ? "Gratuit" : "Free")
+                : ($isFr ? "Payant" : "Paid");
+            // --- Période / résumé selon le type ---
+            if ($typeBoost === 'quota') {
+                $dateDebutStr = $dateDebut->format('d-m-Y à H:i');
+                $dateFinStr = $dateExp ? $dateExp->format('d-m-Y à H:i') : null;
+                $periodeFormule = $isFr
+                    ? "depuis le " . $dateDebutStr . ($dateFinStr ? " · terminé le " . $dateFinStr : "")
+                    : "since " . $dateDebutStr . ($dateFinStr ? " · ended " . $dateFinStr : "");
+            } else {
+                $dateExpStr = $dateExp ? $dateExp->format('d-m-Y à H:i') : '—';
+                $periodeFormule = $isFr
+                    ? "du " . $dateDebut->format('d-m-Y à H:i') . " au " . $dateExpStr
+                    : "from " . $dateDebut->format('d-m-Y à H:i') . " to " . $dateExpStr;
+            }
+            $unBoost = [
+                'id'                  => (string)$boost->getId(),
+                'typeBoost'           => $typeBoost,
+                'nomFormule'          => $boost->getFormuleBoost()->getTitre(),
+                'dateDebutFormule'    => $periodeFormule,
+                'dateDebut'           => $dateDebut->format('d-m-Y à H:i'),
+                'dateExp'             => $dateExp ? $dateExp->format('d-m-Y à H:i') : null,
+                'nbContactsObtenus'   => $nbContactsObtenus,
+                'nbContactsMax'       => $nbContactsMax,
+                'prixFormule'         => (string)$prix_boost,
+                'statutFormule'       => $statut,
+                'modeBoostFormule'    => $boostMode,
+                'statusNumber'        => $statusNumber,
+                'modeNumber'          => $modeNumber,
+            ];
             array_push($userBoosts, $unBoost);
         }
         $userBoosts = array_reverse($userBoosts);
@@ -381,11 +374,13 @@ class TraitementsDS extends AbstractController
         foreach ($this->formuleBoostRepository->findAll() as $boost) {
             if($boost->isActivated() == true) {
                 array_push($listeFormulBoost, [
-                    "id" => $boost->getId(),
-                    "value" => $boost->getId(),
-                    "label" => $boost->getTitre(),
-                    "prix" => intval($boost->getPrix()),
-                    "jours" => $boost->getNbrJour(),
+                    "id"            => $boost->getId(),
+                    "value"         => $boost->getId(),
+                    "label"         => $boost->getTitre(),
+                    "prix"          => intval($boost->getPrix()),
+                    "jours"         => $boost->getNbrJour(),
+                    "typeBoost"     => $boost->getTypeBoost(),
+                    "nbContactsMax" => $boost->getNbContactsMax(),
                 ]);
             }
         }
