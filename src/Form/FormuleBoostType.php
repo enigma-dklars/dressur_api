@@ -13,29 +13,31 @@ class FormuleBoostType extends AbstractType
     {
         $builder
             ->add('titre', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
+                'attr' => ['class' => 'form-control mb-2'],
             ])
             ->add('prix', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
+                'attr' => ['class' => 'form-control mb-2'],
+            ])
+            ->add('typeBoost', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
+                'label'   => 'Type de boost',
+                'choices' => ['Par Durée (date)' => 'date', 'Par Contacts (quota)' => 'quota'],
+                'attr'    => ['class' => 'form-select mb-2'],
             ])
             ->add('nbrJour', null, [
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
+                'label' => 'Nb. jours (type date uniquement)',
+                'required' => false,
+                'attr' => ['class' => 'form-control mb-2'],
+            ])
+            ->add('nbContactsMax', null, [
+                'label'    => 'Nb. contacts max (type quota uniquement)',
+                'required' => false,
+                'attr'     => ['class' => 'form-control mb-2'],
             ])
             ->add('alert', null, [
-                'attr' => [
-                    'class' => 'ms-2 mb-2'
-                ],
+                'attr' => ['class' => 'ms-2 mb-2'],
             ])
             ->add('activated', null, [
-                'attr' => [
-                    'class' => 'ms-2 mb-2'
-                ],
+                'attr' => ['class' => 'ms-2 mb-2'],
             ])
         ;
     }

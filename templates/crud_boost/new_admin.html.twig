@@ -65,8 +65,17 @@
                 <select name="formule_id" id="formule_select" class="form-select mb-3" required>
                     <option value="">-- Choisir une formule --</option>
                     {% for f in formules %}
-                        <option value="{{ f.id }}" data-jours="{{ f.nbrJour }}" data-prix="{{ f.prix }}">
-                            {{ f.titre }} — {{ f.prix }} FCFA — {{ f.nbrJour }} jour(s)
+                        <option value="{{ f.id }}"
+                            data-type="{{ f.typeBoost }}"
+                            data-jours="{{ f.nbrJour }}"
+                            data-quota="{{ f.nbContactsMax }}"
+                            data-prix="{{ f.prix }}">
+                            {{ f.titre }} — {{ f.prix }} FCFA —
+                            {% if f.typeBoost == 'quota' %}
+                                {{ f.nbContactsMax }} contacts
+                            {% else %}
+                                {{ f.nbrJour }} jour(s)
+                            {% endif %}
                         </option>
                     {% endfor %}
                 </select>
@@ -99,7 +108,11 @@
                     <tr><td>Source</td><td><span class="badge bg-dark">admin</span></td></tr>
                     <tr><td>Date début</td><td>Maintenant</td></tr>
                     <tr>
-                        <td>Date expiration</td>
+                        <td>Type</td>
+                        <td id="recap_type" class="text-muted">—</td>
+                    </tr>
+                    <tr>
+                        <td id="recap_exp_label">Date expiration</td>
                         <td id="recap_exp" class="text-muted">— choisir une formule —</td>
                     </tr>
                     <tr>
@@ -126,32 +139,41 @@
 {% block script %}
 <script>
 (function () {
-    var select   = document.getElementById('formule_select');
-    var infoBox  = document.getElementById('expiration_info');
-    var expDate  = document.getElementById('expiration_date');
-    var recapExp = document.getElementById('recap_exp');
+    var select    = document.getElementById('formule_select');
+    var infoBox   = document.getElementById('expiration_info');
+    var expDate   = document.getElementById('expiration_date');
+    var recapExp  = document.getElementById('recap_exp');
+    var recapExpLabel = document.getElementById('recap_exp_label');
+    var recapType = document.getElementById('recap_type');
     var recapPrix = document.getElementById('recap_prix');
-
     select.addEventListener('change', function () {
         var opt   = this.options[this.selectedIndex];
-        var jours = parseInt(opt.getAttribute('data-jours'));
+        var type  = opt.getAttribute('data-type');
+        var jours = parseInt(opt.getAttribute('data-jours') || '0');
+        var quota = opt.getAttribute('data-quota');
         var prix  = opt.getAttribute('data-prix');
-
-        if (!jours) {
-            infoBox.style.display = 'none';
-            recapExp.textContent  = '— choisir une formule —';
-            recapPrix.textContent = '—';
+        if (!type) {
+            infoBox.style.display  = 'none';
+            recapExp.textContent   = '— choisir une formule —';
+            recapType.textContent  = '—';
+            recapPrix.textContent  = '—';
             return;
         }
-
-        var d = new Date();
-        d.setDate(d.getDate() + jours);
-        var label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
-
-        expDate.textContent   = label + ' (' + jours + ' jour' + (jours > 1 ? 's' : '') + ')';
-        recapExp.textContent  = label;
         recapPrix.textContent = prix ? prix + ' FCFA' : '—';
-        infoBox.style.display = 'block';
+        recapType.textContent = type === 'quota' ? 'Par Contacts (quota)' : 'Par Durée (date)';
+        if (type === 'quota') {
+            infoBox.style.display      = 'none';
+            recapExpLabel.textContent  = 'Quota contacts';
+            recapExp.textContent       = quota ? quota + ' contacts max' : '—';
+        } else {
+            recapExpLabel.textContent  = 'Date expiration';
+            var d = new Date();
+            d.setDate(d.getDate() + jours);
+            var label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+            expDate.textContent   = label + ' (' + jours + ' jour' + (jours > 1 ? 's' : '') + ')';
+            recapExp.textContent  = label;
+            infoBox.style.display = 'block';
+        }
     });
 })();
 </script>

@@ -825,9 +825,19 @@ class TraitementsDS extends AbstractController
     public function getAddProgrammer(){
         $lesBoostContact = $this->boostRepository->findAll();
         $nbrContacts = 0;
-        foreach ($lesBoostContact as $boost){
-        if((new DateTime()) <= ($boost->getDateDebut()) and (new DateTime()) <= ($boost->getDateExp())) {
-                $nbrContacts ++;
+        $now = new DateTime();
+        foreach ($lesBoostContact as $boost) {
+            $dateDebut = $boost->getDateDebut();
+            $dateExp   = $boost->getDateExp();
+            $typeBoost = $boost->getTypeBoost();
+            // Un boost est "programmé" si dateDebut est dans le futur
+            // et qu'il n'est pas encore épuisé (pour quota : dateExp null = non épuisé)
+            if ($now <= $dateDebut) {
+                if ($typeBoost === 'quota' && $dateExp === null) {
+                    $nbrContacts++;
+                } elseif ($typeBoost !== 'quota' && $dateExp !== null && $now <= $dateExp) {
+                    $nbrContacts++;
+                }
             }
         }
         return $nbrContacts;
