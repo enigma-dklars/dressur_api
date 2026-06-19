@@ -399,7 +399,7 @@ function expandStoryDesc() {
         {% endif %}
 
         {% if user.nombreContactDispo <= 100 and user.boostEnCours == false %}
-            <div class="col-12">
+            {# <div class="col-12">
                 <a href="/newboostcontact" style="text-decoration:none;" class="text-white">
                     <div class="card radius-10 mb-0 h-100 bg-danger">
                         <div class="card-body">
@@ -408,11 +408,11 @@ function expandStoryDesc() {
                         </div>
                     </div>
                 </a>
-            </div>
+            </div> #}
         {% endif %}
 
         {% if user.nombreContactDispo > 0 %}
-            <div class="col-md-12">
+            {# <div class="col-md-12">
                 <div class="card radius-10 mb-0 h-100">
                     <div class="card-body">
                         <p class="mb-2 text-primary fw-normal fs-4">
@@ -438,7 +438,7 @@ function expandStoryDesc() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> #}
         {% endif %}
     </div>
 
