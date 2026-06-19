@@ -8,6 +8,7 @@ use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
+use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,7 +37,7 @@ class AddController extends AbstractController
     }
 
     #[Route('/addTousUserContact/{uid}/{langUserPhone}', name: 'addTousUserContact', methods: ['POST', "GET"])]
-    public function addTousUserContact(Request $request, $langUserPhone, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
+    public function addTousUserContact(Request $request, $langUserPhone, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, BoostRepository $boostRepository): Response
     {        
         $sessionDS->set("langUserPhone", $langUserPhone);
 
@@ -61,6 +62,20 @@ class AddController extends AbstractController
                         $user->getContact()->setNewIAdd($userAdd);
                         $userAdd->getContact()->setNewAddMe($user);
                         $this->em->flush();
+                        // Incrémenter le boost quota actif de $userAdd s'il en a un
+                        $boostQuotaActif = $boostRepository->findOneBy([
+                            'user' => $userAdd,
+                            'typeBoost' => 'quota',
+                            'dateExp' => null,
+                        ]);
+                        if ($boostQuotaActif) {
+                            $boostQuotaActif->setNbContactsObtenus($boostQuotaActif->getNbContactsObtenus() + 1);
+                            $nbContactsMax = $boostQuotaActif->getFormuleBoost()->getNbContactsMax();
+                            if ($nbContactsMax !== null && $boostQuotaActif->getNbContactsObtenus() >= $nbContactsMax) {
+                                $boostQuotaActif->setDateExp(new \DateTime());
+                            }
+                            $this->em->flush();
+                        }
                         array_push($contactsAdd, [
                             "pseudo" => $userAdd->getPseudo(),
                             "nom" => (string)$userAdd,
