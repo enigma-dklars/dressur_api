@@ -96,13 +96,17 @@ class WebhookController extends AbstractController
                             
                             if($myTransaction->getTransactionFor() == "boost_contact") {
                                 $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                                $typeBoost = $myTransaction->getAnnotherInfo()['typeBoost'] ?? 'date';
                                 $boost = new Boost();
                                 $boost->setFormuleBoost($formuleBoost)
                                     ->setMode("Payant")
                                     ->setUser($myTransaction->getUser())
                                     ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                                    ->setTypeBoost($typeBoost)
                                 ;
-                                if($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
+                                if ($typeBoost === 'quota') {
+                                    $boost->setDateDebut(new DateTime());
+                                } elseif($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
                                     $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $myTransaction->getUser()], ["id" => "DESC"]))->getDateExp();
                                     $boost->setDateDebut($lastBoostDateExp)
                                         ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime("+ ".$formuleBoost->getNbrJour()."days ".$lastBoostDateExp->format('d-m-Y H:i')))))
@@ -111,7 +115,7 @@ class WebhookController extends AbstractController
                                     $boost->setDateDebut(new DateTime())
                                         ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
                                     ;
-                                }                            
+                                }
                                 $this->em->persist($boost);
                             }
 
@@ -318,12 +322,16 @@ class WebhookController extends AbstractController
 
             if ($myTransaction->getTransactionFor() === 'boost_contact') {
                 $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                $typeBoost = $myTransaction->getAnnotherInfo()['typeBoost'] ?? 'date';
                 $boost = new Boost();
                 $boost->setFormuleBoost($formuleBoost)
                     ->setMode('Payant')
                     ->setUser($myTransaction->getUser())
-                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
-                if ($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                    ->setTypeBoost($typeBoost);
+                if ($typeBoost === 'quota') {
+                    $boost->setDateDebut(new DateTime());
+                } elseif ($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
                     $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $myTransaction->getUser()], ['id' => 'DESC']))->getDateExp();
                     $boost->setDateDebut($lastBoostDateExp)
                         ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime('+ ' . $formuleBoost->getNbrJour() . 'days ' . $lastBoostDateExp->format('d-m-Y H:i')))));
