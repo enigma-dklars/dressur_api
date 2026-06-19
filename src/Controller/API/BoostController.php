@@ -351,6 +351,7 @@ class BoostController extends AbstractController
                         'userId' => $user->getId(),
                         'userUid' => $user->getUid(),
                         'formulBoostId' => $formulBoost->getId(),
+                        'typeBoost' => $formulBoost->getTypeBoost(),
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ])
                 ;
@@ -426,6 +427,7 @@ class BoostController extends AbstractController
                         'userId' => $user->getId(),
                         'userUid' => $user->getUid(),
                         'formulBoostId' => $formulBoost->getId(),
+                        'typeBoost' => $formulBoost->getTypeBoost(),
                     ],
                     $user
                 );
