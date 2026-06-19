@@ -843,6 +843,26 @@ class TraitementsDS extends AbstractController
         return $nbrContacts;
     }
 
+    public function getBoostEnCoursCount(): int
+    {
+        $now = new DateTime();
+        $count = 0;
+        foreach ($this->boostRepository->findAll() as $boost) {
+            $dateDebut = $boost->getDateDebut();
+            $dateExp   = $boost->getDateExp();
+            $typeBoost = $boost->getTypeBoost();
+            if ($now < $dateDebut) {
+                continue; // programmé, pas encore démarré
+            }
+            if ($typeBoost === 'quota') {
+                if ($dateExp === null) { $count++; } // quota non épuisé = en cours
+            } else {
+                if ($dateExp !== null && $now < $dateExp) { $count++; }
+            }
+        }
+        return $count;
+    }
+
     public function getAddDisponible($user){
         $contacts = [];
         if($user->getId() == 3 || $user->getId() == 2) {
