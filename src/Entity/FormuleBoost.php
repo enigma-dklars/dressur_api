@@ -28,6 +28,12 @@ class FormuleBoost
     #[ORM\Column]
     private ?bool $activated = null;
 
+    #[ORM\Column(type: 'string', length: 10)]
+    private string $typeBoost = 'date';
+
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $nbContactsMax = null;
+
     public function __construct()
     {
         $this->alert = false;
@@ -100,6 +106,28 @@ class FormuleBoost
     {
         $this->activated = $activated;
 
+        return $this;
+    }
+
+    public function getTypeBoost(): string
+    {
+        return $this->typeBoost;
+    }
+
+    public function setTypeBoost(string $typeBoost): self
+    {
+        $this->typeBoost = $typeBoost;
+        return $this;
+    }
+
+    public function getNbContactsMax(): ?int
+    {
+        return $this->nbContactsMax;
+    }
+
+    public function setNbContactsMax(?int $nbContactsMax): self
+    {
+        $this->nbContactsMax = $nbContactsMax;
         return $this;
     }
 }
