@@ -21,7 +21,8 @@
     <a href="{{ path('app_crud_boost_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
     <a href="{{ path('app_crud_boost_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
 </div>
-<table class="data-table table table-bordered table-striped">
+<div class="table-responsive">
+    <table class="data-table table table-bordered table-striped">
     <thead>
         <tr>
             <th></th>
@@ -103,4 +104,5 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}
