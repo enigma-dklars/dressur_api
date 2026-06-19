@@ -1,23 +1,18 @@
 {% extends 'baseAdmin.html.twig' %}
-
 {% block title %}Boost index{% endblock %}
-
 {% block body %}
-
 <div class="d-flex align-items-center justify-content-between mb-3">
     <p class="h4 mb-0">Boost index</p>
     <a href="{{ path('app_crud_boost_admin_new') }}" class="btn btn-success">
         <i class="bi bi-rocket-takeoff me-2"></i>Ajouter un Boost Contact
     </a>
 </div>
-
 {% for label, messages in app.flashes %}
     <div class="alert alert-{{ label }} alert-dismissible fade show">
         {% for message in messages %}<p class="mb-0">{{ message|raw }}</p>{% endfor %}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 {% endfor %}
-
 <!-- Filtre Source -->
 <div class="mb-3 d-flex align-items-center gap-2">
     <span class="small fw-semibold me-1">Source :</span>
@@ -26,7 +21,6 @@
     <a href="{{ path('app_crud_boost_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
     <a href="{{ path('app_crud_boost_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
 </div>
-
 <table class="data-table table table-bordered table-striped">
     <thead>
         <tr>
@@ -34,8 +28,10 @@
             <th>Source</th>
             <th>User</th>
             <th width="1">Status</th>
+            <th width="1">Type</th>
             <th width="1">Mode</th>
             <th>Formule</th>
+            <th>Contacts</th>
             <th>DateDebut</th>
             <th>DateExp</th>
             <th>Id</th>
@@ -58,34 +54,53 @@
             </td>
             <td>{{ boost.user.pseudo }}</td>
             <td class="text-center">
-                {% if date() < boost.dateDebut and date() < boost.dateExp %}
-                    <span class="badge bg-danger">Programmer</span>
+                {% if date() < boost.dateDebut %}
+                    <span class="badge bg-danger">Programmé</span>
+                {% elseif boost.typeBoost == 'quota' %}
+                    {% if boost.dateExp is null %}
+                        <span class="badge bg-warning">En cours</span>
+                    {% else %}
+                        <span class="badge bg-success">Terminé</span>
+                    {% endif %}
+                {% else %}
+                    {% if boost.dateExp is not null and date() < boost.dateExp %}
+                        <span class="badge bg-warning">En cours</span>
+                    {% else %}
+                        <span class="badge bg-success">Terminé</span>
+                    {% endif %}
                 {% endif %}
-                {% if date() > boost.dateDebut and date() < boost.dateExp %}
-                    <span class="badge bg-warning">En cours</span>
-                {% endif %}
-                {% if date() > boost.dateDebut and date() > boost.dateExp %}
-                    <span class="badge bg-success">Terminer</span>
+            </td>
+            <td class="text-center">
+                {% if boost.typeBoost == 'quota' %}
+                    <span class="badge text-white" style="background:#6f42c1">Quota</span>
+                {% else %}
+                    <span class="badge bg-info text-dark">Durée</span>
                 {% endif %}
             </td>
             <td class="text-center">
                 {% if boost.mode == "Gratuit" %}
-                    <span class="badge bg-danger">{{boost.mode}}</span>
+                    <span class="badge bg-danger">{{ boost.mode }}</span>
                 {% else %}
-                    <span class="badge bg-success">{{boost.mode}}</span>
+                    <span class="badge bg-success">{{ boost.mode }}</span>
                 {% endif %}
             </td>
             <td>{{ boost.formuleBoost }}</td>
-            <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
-            <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+            <td class="text-center">
+                {% if boost.typeBoost == 'quota' %}
+                    {{ boost.nbContactsObtenus }} / {{ boost.formuleBoost.nbContactsMax }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i') : '' }}</td>
+            <td>{{ boost.dateExp ? boost.dateExp|date('Y-m-d H:i') : '—' }}</td>
             <td>{{ boost.id }}</td>
         </tr>
     {% else %}
         <tr>
-            <td colspan="9">no records found</td>
+            <td colspan="11">no records found</td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
-
 {% endblock %}

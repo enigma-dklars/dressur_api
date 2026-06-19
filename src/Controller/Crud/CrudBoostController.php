@@ -88,15 +88,21 @@ class CrudBoostController extends AbstractController
                     ->setUser($user)
                     ->setFormuleBoost($formule)
                     ->setDateDebut(new DateTime())
-                    ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
                     ->setMode($mode)
                     ->setSource('admin')
+                    ->setTypeBoost($formule->getTypeBoost())
                 ;
-
+                // Boost par durée : on fixe dateExp dès la création
+                // Boost par quota : dateExp reste null jusqu'à épuisement du quota
+                if ($formule->getTypeBoost() === 'date') {
+                    $boost->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'));
+                }
                 $entityManager->persist($boost);
                 $entityManager->flush();
-
-                $this->addFlash('success', "Boost #" . $boost->getId() . " créé pour {$user->getPseudo()} — {$formule->getTitre()}.");
+                $typeLabel = $formule->getTypeBoost() === 'quota'
+                    ? "quota de {$formule->getNbContactsMax()} contacts"
+                    : "{$formule->getNbrJour()} jour(s)";
+                $this->addFlash('success', "Boost #{$boost->getId()} créé pour {$user->getPseudo()} — {$formule->getTitre()} ({$typeLabel}).");
                 return $this->redirectToRoute('app_crud_boost_index', [], Response::HTTP_SEE_OTHER);
             }
         }

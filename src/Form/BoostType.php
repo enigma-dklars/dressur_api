@@ -13,16 +13,22 @@ class BoostType extends AbstractType
     {
         $builder
             ->add('dateDebut', null, [
-                'widget' => 'single_text',
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
+                'widget'   => 'single_text',
+                'attr'     => ['class' => 'form-control mb-2'],
             ])
             ->add('dateExp', null, [
-                'widget' => 'single_text',
-                'attr' => [
-                    'class' => 'form-control mb-2'
-                ],
+                'widget'   => 'single_text',
+                'required' => false,
+                'attr'     => ['class' => 'form-control mb-2'],
+            ])
+            ->add('typeBoost', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
+                'label'   => 'Type de boost',
+                'choices' => ['Par Durée (date)' => 'date', 'Par Contacts (quota)' => 'quota'],
+                'attr'    => ['class' => 'form-select mb-2'],
+            ])
+            ->add('nbContactsObtenus', null, [
+                'label' => 'Nb. contacts obtenus',
+                'attr'  => ['class' => 'form-control mb-2'],
             ])
             ->add('mode')
             ->add('formuleBoost')
