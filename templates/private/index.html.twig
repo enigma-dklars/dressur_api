@@ -469,6 +469,7 @@ function expandStoryDesc() {
         {{actu|raw}}
     </div>
 
+{% if not user.admin %}
     <div class="modal fade" id="warningModal" tabindex="-1"
      aria-labelledby="warningModalLabel"
      aria-hidden="true"
@@ -531,5 +532,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1000);
 });
 </script>
+{% endif %}
 
 {% endblock %}
