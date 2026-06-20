@@ -1187,22 +1187,22 @@ class TraitementsDS extends AbstractController
                 }
                 $uneFR->setAvailable(true)
                     ->setQte(1000)
-                    ->setQteMin($unservice->min)
-                    ->setQteMax($unservice->max)
-                    ->setPrixZefame($unservice->rate)
-                    ->setPrix($this->calcPrixReseau($unservice->rate))
+                    ->setQteMin((int) $unservice->min)
+                    ->setQteMax((int) $unservice->max)
+                    ->setPrixZefame((float) $unservice->rate)
+                    ->setPrix($this->calcPrixReseau((float) $unservice->rate))
                 ;
             } else {
                 $newFormuleText .= "<br> $unservice->service => $unservice->name | ... |";
                 
                 $newFormulePromoReseau = new FormulePromoReseau();
                 $newFormulePromoReseau->setQte(1000)->setAvailable(false)
-                    ->setIdZefame($unservice->service)
+                    ->setIdZefame((int) $unservice->service)
                     ->setTitre($unservice->name)
-                    ->setPrix($this->calcPrixReseau($unservice->rate))
-                    ->setPrixZefame($unservice->rate)
-                    ->setQteMin($unservice->min)
-                    ->setQteMax($unservice->max)
+                    ->setPrix($this->calcPrixReseau((float) $unservice->rate))
+                    ->setPrixZefame((float) $unservice->rate)
+                    ->setQteMin((int) $unservice->min)
+                    ->setQteMax((int) $unservice->max)
                 ;
                 foreach ($lesFormulesParent as $unParent) {
                     $nomTeste = str_replace(strtolower($unParent->getTitre())." ", '', strtolower($unservice->name));
