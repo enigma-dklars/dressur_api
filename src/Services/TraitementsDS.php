@@ -1161,6 +1161,7 @@ class TraitementsDS extends AbstractController
         }
 
         $lesFormulesParent = $this->formulePromoReseauRepository->findBy(['parent' => null]);
+        $prixChangesText = "Prix Zefame modifiés : ";
 
         foreach ($this->formulePromoReseauRepository->findAll() as $uneFormuleReseau) {
             if(!empty($uneFormuleReseau->getIdZefame())) {
@@ -1180,6 +1181,10 @@ class TraitementsDS extends AbstractController
         foreach ($this->zefameApi->services() as $unservice) {
             $uneFR = $this->formulePromoReseauRepository->findOneBy(['idZefame' => $unservice->service]);
             if($uneFR) {
+                $ancienPrix = $uneFR->getPrixZefame();
+                if($ancienPrix !== null && (float)$ancienPrix != (float)$unservice->rate) {
+                    $prixChangesText .= "<br> {$uneFR->getTitre()} : {$ancienPrix}€ → {$unservice->rate}€ (vente : " . $this->calcPrixReseau($unservice->rate) . "€)";
+                }
                 $uneFR->setAvailable(true)
                     ->setPrixZefame($unservice->rate)
                     ->setPrix($this->calcPrixReseau($unservice->rate))
@@ -1213,6 +1218,9 @@ class TraitementsDS extends AbstractController
 
         if($newFormuleText != "New : ") {
             $this->addFlash('danger', $newFormuleText);
+        }
+        if($prixChangesText != "Prix Zefame modifiés : ") {
+            $this->addFlash('warning', $prixChangesText);
         }
         // dd("END");
         $this->em->flush();
