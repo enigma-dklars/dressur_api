@@ -594,6 +594,7 @@ class TraitementsDS extends AbstractController
         $promos = $this->promotionRepository->findBy([
             "status" => 3,
             "limited" => true,
+            "isFakeVue" => false,
         ]);
 
         $this->applyExpiredPromoStatusUpdates($promos);
@@ -655,7 +656,7 @@ class TraitementsDS extends AbstractController
             }
         }
 
-        foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
+        foreach ($this->promotionRepository->findBy(["limited" => false, "isFakeVue" => false]) as $promoVIP) {
             $descp_promo = $promoVIP->getDescription();
             if($promoVIP->getTypePromotionAffaire() == "offre_emploi") {
                 $descp_promo = $promoVIP->getAnnotherInfo()["description_poste"];
