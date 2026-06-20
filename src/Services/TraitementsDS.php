@@ -1115,6 +1115,14 @@ class TraitementsDS extends AbstractController
         return $this->zefameApi->balance()->balance;
     }
 
+    private function calcPrixReseau(float $coutFournisseur): float
+    {
+        if ($coutFournisseur <= 1)  return max(round($coutFournisseur * 3, 3), 1.0);
+        if ($coutFournisseur <= 5)  return round($coutFournisseur * 2,   3);
+        if ($coutFournisseur <= 15) return round($coutFournisseur * 1.5, 3);
+        return round($coutFournisseur * 1.3, 3);
+    }
+
     public function majServicesZefame() {
         $newFormuleText = "New : ";
         if(count($this->formulePromoReseauRepository->findAll()) == 0) {
@@ -1173,12 +1181,9 @@ class TraitementsDS extends AbstractController
             $uneFR = $this->formulePromoReseauRepository->findOneBy(['idZefame' => $unservice->service]);
             if($uneFR) {
                 $uneFR->setAvailable(true)
-                    ->setQte(1000)
-                    ->setQteMax($unservice->max)
                     ->setPrixZefame($unservice->rate)
+                    ->setPrix($this->calcPrixReseau($unservice->rate))
                 ;
-                if($unservice->min > $uneFR->getQteMin()) { $uneFR->setQteMin($unservice->min); }
-                if($unservice->rate > $uneFR->getPrix()) { $uneFR->setPrix($unservice->rate); }
             } else {
                 $newFormuleText .= "<br> $unservice->service => $unservice->name | ... |";
                 
@@ -1186,7 +1191,7 @@ class TraitementsDS extends AbstractController
                 $newFormulePromoReseau->setQte(1000)->setAvailable(false)
                     ->setIdZefame($unservice->service)
                     ->setTitre($unservice->name)
-                    ->setPrix($unservice->rate)
+                    ->setPrix($this->calcPrixReseau($unservice->rate))
                     ->setPrixZefame($unservice->rate)
                     ->setQteMin($unservice->min)
                     ->setQteMax($unservice->max)
@@ -1199,11 +1204,6 @@ class TraitementsDS extends AbstractController
                         ;
                         break;
                     }
-                }
-                $nomTeste = str_replace("followers", '', strtolower($unservice->name));
-                $nomTeste = str_replace("subscribe", '', strtolower($nomTeste));
-                if(strlen($nomTeste) < strlen($unservice->name)) {
-                    $newFormulePromoReseau->setQteMin(500);
                 }
                 $this->em->persist($newFormulePromoReseau);
                 // dump($newFormulePromoReseau);
