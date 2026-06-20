@@ -245,7 +245,7 @@ class TraitementsDS extends AbstractController
             if ($type === 'fakeVue' && $promo->getUser()->getId() !== $user->getId()) {
                 continue;
             }
-            if ($user->getId() == 3 || $user->getId() == 2) {
+            if ($user->getAdmin() === true) {
                 if ((new DateTime()) >= $promo->getDateDebut() && (new DateTime()) <= $promo->getDateExp()) {
                     $promo->setToWatch($user, $type);
                     $dirty = true;
@@ -606,7 +606,7 @@ class TraitementsDS extends AbstractController
             if ($promo->getIsFakeVue() && $promo->getUser()->getId() !== $user->getId()) {
                 continue;
             }
-            if ($user->getId() == 3 || $user->getId() == 2) {
+            if ($user->getAdmin() === true) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
                     $descp_promo = $promo->getDescription();
                     if($promo->getTypePromotionAffaire() == "offre_emploi") {
@@ -702,7 +702,7 @@ class TraitementsDS extends AbstractController
         $this->applyExpiredPromoStatusUpdates($promos);
 
         foreach ($promos as $promo) {
-            if ($user->getId() == 3 || $user->getId() == 2) {
+            if ($user->getAdmin() === true) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
 
                     $descp_promo = $promo->getDescription();
@@ -874,7 +874,7 @@ class TraitementsDS extends AbstractController
 
     public function getAddDisponible($user){
         $contacts = [];
-        if($user->getId() == 3 || $user->getId() == 2) {
+        if($user->getAdmin() === true) {
             $boosts = $this->boostRepository->findAll();
             foreach ($boosts as $boost){
                 $userBoost = $boost->getUser();
