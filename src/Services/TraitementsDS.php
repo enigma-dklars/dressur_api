@@ -1187,6 +1187,8 @@ class TraitementsDS extends AbstractController
                 }
                 $uneFR->setAvailable(true)
                     ->setQte(1000)
+                    ->setQteMin($unservice->min)
+                    ->setQteMax($unservice->max)
                     ->setPrixZefame($unservice->rate)
                     ->setPrix($this->calcPrixReseau($unservice->rate))
                 ;
