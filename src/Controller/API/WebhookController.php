@@ -192,6 +192,9 @@ class WebhookController extends AbstractController
                                     ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
                                     ->setUrl($myTransaction->getAnnotherInfo()['lien'])
                                     ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                                    ->setPrixZefame($formulePromoReseau->getPrixZefame() !== null
+                                        ? round((int)$myTransaction->getAnnotherInfo()['qteDemander'] * $formulePromoReseau->getPrixZefame() / 1000, 5)
+                                        : null)
                                 ;
                                 $this->em->persist($boost);
 
@@ -381,7 +384,10 @@ class WebhookController extends AbstractController
                     ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
                     ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
                     ->setUrl($myTransaction->getAnnotherInfo()['lien'])
-                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                    ->setPrixZefame($formulePromoReseau->getPrixZefame() !== null
+                        ? round((int)$myTransaction->getAnnotherInfo()['qteDemander'] * $formulePromoReseau->getPrixZefame() / 1000, 5)
+                        : null);
                 $this->em->persist($boost);
 
                 $formule = $boost->getFormulePromoReseau();
