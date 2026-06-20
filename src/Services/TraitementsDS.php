@@ -1186,6 +1186,7 @@ class TraitementsDS extends AbstractController
                     $prixChangesText .= "<br> {$uneFR->getTitre()} : {$ancienPrix}€ → {$unservice->rate}€ (vente : " . $this->calcPrixReseau($unservice->rate) . "€)";
                 }
                 $uneFR->setAvailable(true)
+                    ->setQte(1000)
                     ->setPrixZefame($unservice->rate)
                     ->setPrix($this->calcPrixReseau($unservice->rate))
                 ;
