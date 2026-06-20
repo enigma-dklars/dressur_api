@@ -594,13 +594,15 @@ class TraitementsDS extends AbstractController
         $promos = $this->promotionRepository->findBy([
             "status" => 3,
             "limited" => true,
-            "isFakeVue" => false,
         ]);
 
         $this->applyExpiredPromoStatusUpdates($promos);
         $this->applyUserViewTracking($user, $promos);
 
         foreach ($promos as $promo) {
+            if ($promo->getIsFakeVue() && $promo->getUser()->getId() !== $user->getId()) {
+                continue;
+            }
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if((new DateTime()) >= ($promo->getDateDebut()) and (new DateTime()) <= ($promo->getDateExp())) {
                     $descp_promo = $promo->getDescription();
@@ -656,7 +658,10 @@ class TraitementsDS extends AbstractController
             }
         }
 
-        foreach ($this->promotionRepository->findBy(["limited" => false, "isFakeVue" => false]) as $promoVIP) {
+        foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
+            if ($promoVIP->getIsFakeVue() && $promoVIP->getUser()->getId() !== $user->getId()) {
+                continue;
+            }
             $descp_promo = $promoVIP->getDescription();
             if($promoVIP->getTypePromotionAffaire() == "offre_emploi") {
                 $descp_promo = $promoVIP->getAnnotherInfo()["description_poste"];
