@@ -66,7 +66,7 @@ def fin_code():
 # ── Envoi d'un message ────────────────────────────────────────────────────────
 
 def send_one(entry_id, sendto, message):
-    tel = sendto.replace(' ', '').replace('+', '')
+    tel = sendto.replace(' ', '').replace('+', '') + ' #DS'
 
     click_write_number_and_focus(tel, lap_l_up_SearchBarre, lap_l_up_Focus)
     pyperclip.copy(message)
