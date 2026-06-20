@@ -242,6 +242,9 @@ class TraitementsDS extends AbstractController
         $dirty = false;
         foreach ($promos as $promo) {
             $type = $promo->getIsFakeVue() ? 'fakeVue' : 'all';
+            if ($type === 'fakeVue' && $promo->getUser()->getId() !== $user->getId()) {
+                continue;
+            }
             if ($user->getId() == 3 || $user->getId() == 2) {
                 if ((new DateTime()) >= $promo->getDateDebut() && (new DateTime()) <= $promo->getDateExp()) {
                     $promo->setToWatch($user, $type);
