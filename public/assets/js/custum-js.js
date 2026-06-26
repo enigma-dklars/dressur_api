@@ -280,6 +280,11 @@ $(document).ready(function () {
                     }, 1000);
                 }
                 traitementContact("inscription", "fin", "INSCRIPTION")
+            },
+            error: function () {
+                $("#msgError").html(`<div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2"><div class="d-flex align-items-center"><div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div><div class="ms-3"><div class="text-danger">Le serveur est temporairement indisponible. Veuillez réessayer.</div></div></div></div>`);
+                if(!$("#msgError").is(":visible")){ $("#msgError").show(); }
+                traitementContact("inscription", "fin", "INSCRIPTION")
             }
         });
     });
@@ -495,6 +500,11 @@ $(document).ready(function () {
                     }, 1000);
                 }
                 traitementContact("connexion", "fin", "CONNEXION")
+            },
+            error: function () {
+                $("#msgError").html(`<div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2"><div class="d-flex align-items-center"><div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div><div class="ms-3"><div class="text-danger">Le serveur est temporairement indisponible. Veuillez réessayer.</div></div></div></div>`);
+                if(!$("#msgError").is(":visible")){ $("#msgError").show(); }
+                traitementContact("connexion", "fin", "CONNEXION")
             }
         });
     });
@@ -602,6 +612,11 @@ $(document).ready(function () {
                         }
                     }, 1000);
                 }
+                traitementContact("passe4get", "fin", "CONFIRMER")
+            },
+            error: function () {
+                $("#msgError").html(`<div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2"><div class="d-flex align-items-center"><div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div><div class="ms-3"><div class="text-danger">Le serveur est temporairement indisponible. Veuillez réessayer.</div></div></div></div>`);
+                if(!$("#msgError").is(":visible")){ $("#msgError").show(); }
                 traitementContact("passe4get", "fin", "CONFIRMER")
             }
         });
