@@ -39,8 +39,8 @@ class Boost
     #[ORM\Column(type: 'string', length: 10)]
     private string $typeBoost = 'date';
 
-    #[ORM\Column(type: 'integer')]
-    private int $nbContactsObtenus = 0;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $nbContactsObtenus = 0;
 
     public function __construct()
     {
@@ -152,12 +152,12 @@ class Boost
 
     public function getNbContactsObtenus(): int
     {
-        return $this->nbContactsObtenus;
+        return (int)($this->nbContactsObtenus ?? 0);
     }
 
-    public function setNbContactsObtenus(int $nbContactsObtenus): self
+    public function setNbContactsObtenus(?int $nbContactsObtenus): self
     {
-        $this->nbContactsObtenus = $nbContactsObtenus;
+        $this->nbContactsObtenus = (int)($nbContactsObtenus ?? 0);
         return $this;
     }
 }
