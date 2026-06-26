@@ -100,22 +100,30 @@
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm border-top border-3 border-success">
-            <div class="card-body d-flex flex-column">
-                <div class="mb-3"><span class="fs-1">✍️</span></div>
-                <h5 class="card-title fw-semibold">Message WhatsApp Personnalisé</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    Rédigez un message libre et envoyez-le à tous les utilisateurs d'un service (Boost, Promo, Réseaux).
-                    Le message est personnalisé avec le nom, pseudo, mail et téléphone de chaque utilisateur.
-                </p>
-                <a href="{{ path('app_communication_mail_message_personnalise_whatsapp') }}" class="btn btn-success mt-2">
+</div>
+
+{# ── Message WhatsApp personnalisé ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fab fa-whatsapp me-1 text-success"></i>Message WhatsApp Personnalisé
+</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm border-top border-3 border-success">
+            <div class="card-body d-flex align-items-center gap-4">
+                <div class="fs-1 flex-shrink-0">✍️</div>
+                <div class="flex-grow-1">
+                    <h5 class="card-title fw-semibold mb-1">Envoyer un message libre à vos utilisateurs</h5>
+                    <p class="card-text text-muted small mb-0">
+                        Rédigez un message personnalisé et envoyez-le à tous les utilisateurs d'un service (Boost Contact, Promotion Affaire ou Promotion Réseaux Sociaux).
+                        Le message est personnalisé avec les variables <code>{nom}</code>, <code>{pseudo}</code>, <code>{mail}</code>, <code>{tel}</code>, <code>{uid}</code> pour chaque utilisateur.
+                    </p>
+                </div>
+                <a href="{{ path('app_communication_mail_message_personnalise_whatsapp') }}" class="btn btn-success flex-shrink-0">
                     <i class="fab fa-whatsapp me-1"></i>Rédiger un message
                 </a>
             </div>
         </div>
     </div>
-
 </div>
 
 {# ── Réactivation des utilisateurs inactifs ── #}
