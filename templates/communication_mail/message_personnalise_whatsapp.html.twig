@@ -162,27 +162,39 @@ const FAKE_DATA = {
 function updatePreview() {
     const textarea = document.getElementById('message');
     const bubble   = document.getElementById('preview-bubble');
-    let text = textarea.value;
+    const raw = textarea.value;
 
-    if (text.trim() === '') {
-        bubble.innerHTML = '<span class="text-muted fst-italic">Votre message apparaîtra ici…</span>';
+    bubble.textContent = '';
+
+    if (raw.trim() === '') {
+        const placeholder = document.createElement('span');
+        placeholder.className = 'text-muted fst-italic';
+        placeholder.textContent = 'Votre message apparaîtra ici…';
+        bubble.appendChild(placeholder);
         return;
     }
 
-    Object.entries(FAKE_DATA).forEach(([variable, value]) => {
-        text = text.replaceAll(variable, '<strong class="text-success">' + value + '</strong>');
-    });
+    // Split text on known variables, render each part safely
+    const pattern = /(\{pseudo\}|\{nom\}|\{mail\}|\{tel\}|\{uid\})/g;
+    const parts = raw.split(pattern);
 
-    bubble.innerHTML = text;
+    parts.forEach(part => {
+        if (FAKE_DATA[part] !== undefined) {
+            const strong = document.createElement('strong');
+            strong.className = 'text-success';
+            strong.textContent = FAKE_DATA[part];
+            bubble.appendChild(strong);
+        } else {
+            bubble.appendChild(document.createTextNode(part));
+        }
+    });
 }
 
 function insertVariable(variable) {
     const textarea = document.getElementById('message');
     const start = textarea.selectionStart;
     const end   = textarea.selectionEnd;
-    const before = textarea.value.substring(0, start);
-    const after  = textarea.value.substring(end);
-    textarea.value = before + variable + after;
+    textarea.value = textarea.value.substring(0, start) + variable + textarea.value.substring(end);
     textarea.selectionStart = textarea.selectionEnd = start + variable.length;
     textarea.focus();
     updatePreview();
