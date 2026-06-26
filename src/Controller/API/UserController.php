@@ -69,6 +69,7 @@ class UserController extends AbstractController
     #[Route('/connect', name: 'connect', methods: ['POST'])]
     public function connect(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
+        try {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
@@ -201,6 +202,13 @@ class UserController extends AbstractController
             'titre' => 'Erreur!',
             'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => 'Service temporairement indisponible. Veuillez réessayer.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/updateUserInfo', name: 'updateUserInfo', methods: ['POST'])]
@@ -860,6 +868,7 @@ class UserController extends AbstractController
     #[Route('/sendMailPassForgot', name: 'sendMailPassForgot', methods: ['POST'])]
     public function sendMailPassForgot(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
+        try {
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
@@ -925,11 +934,19 @@ class UserController extends AbstractController
         return new JsonResponse([
             'error' => false,
         ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => 'Service temporairement indisponible. Veuillez réessayer.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }   
 
     #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
     public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, SendMail $sendMail): Response
     {
+        try {
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
@@ -1179,6 +1196,13 @@ class UserController extends AbstractController
             'titre' => 'Erreur!',
             'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => 'Service temporairement indisponible. Veuillez réessayer.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]
