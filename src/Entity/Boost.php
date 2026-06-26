@@ -46,6 +46,7 @@ class Boost
     {
         $this->dateDebut = new DateTime();
         $this->mode = "Gratuit";
+        $this->nbContactsObtenus = 0;
 
         /**
          * modeNumber
