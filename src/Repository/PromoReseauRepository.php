@@ -143,6 +143,18 @@ class PromoReseauRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 
+    public function findUsersWhoEverUsedPromoReseauAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM promo_reseau pr
+                INNER JOIN `user` u ON pr.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
     public function getSourceCounts(): array
     {
         $rows = $this->createQueryBuilder('p')

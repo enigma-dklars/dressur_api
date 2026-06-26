@@ -750,6 +750,109 @@ class CommunicationMailController extends AbstractController
         return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
     }
 
+    // ─── Message personnalisé WhatsApp ───────────────────────────────────────
+
+    private static function getMessagePersonnaliseAudiences(): array
+    {
+        return [
+            'boost_all' => [
+                'label' => 'Utilisateurs Boost Contact',
+                'emoji' => '📢',
+                'titre' => 'Message Personnalisé — Boost Contact',
+            ],
+            'promo_all' => [
+                'label' => 'Utilisateurs Promotion Affaire',
+                'emoji' => '🎯',
+                'titre' => 'Message Personnalisé — Promotion Affaire',
+            ],
+            'reseau_all' => [
+                'label' => 'Utilisateurs Promotion Réseaux Sociaux',
+                'emoji' => '📱',
+                'titre' => 'Message Personnalisé — Promotion Réseaux Sociaux',
+            ],
+        ];
+    }
+
+    #[Route('/message-personnalise-whatsapp', name: 'app_communication_mail_message_personnalise_whatsapp', methods: ['GET', 'POST'])]
+    public function messagePersonnaliseWhatsapp(
+        Request $request,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $audiences = self::getMessagePersonnaliseAudiences();
+
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('message_personnalise_whatsapp', $request->request->get('_token'))) {
+                $this->addFlash('danger', 'Token CSRF invalide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_whatsapp');
+            }
+
+            $audienceKey = $request->request->get('audience', '');
+            $messageTemplate = trim($request->request->get('message', ''));
+
+            if (!isset($audiences[$audienceKey])) {
+                $this->addFlash('danger', 'Audience invalide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_whatsapp');
+            }
+
+            if ($messageTemplate === '') {
+                $this->addFlash('danger', 'Le message ne peut pas être vide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_whatsapp');
+            }
+
+            $audienceConfig = $audiences[$audienceKey];
+            $titre = $audienceConfig['titre'];
+
+            $users = match ($audienceKey) {
+                'boost_all'  => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
+                'promo_all'  => $promotionRepository->findUsersWhoEverUsedPromoAndTelWithDetails(),
+                'reseau_all' => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTelWithDetails(),
+                default      => [],
+            };
+
+            $added = 0;
+            foreach ($users as $u) {
+                $tel = trim((string) ($u['tel'] ?? ''));
+                if ($tel === '') {
+                    continue;
+                }
+
+                $message = str_replace(
+                    ['{nom}', '{pseudo}', '{mail}', '{tel}', '{uid}'],
+                    [
+                        trim((string) ($u['nom']    ?? '')),
+                        trim((string) ($u['pseudo'] ?? '')),
+                        trim((string) ($u['mail']   ?? '')),
+                        $tel,
+                        trim((string) ($u['uid']    ?? '')),
+                    ],
+                    $messageTemplate
+                );
+
+                $entry = (new FileAttenteWhatsapp())
+                    ->setSendto($tel)
+                    ->setTitre($titre)
+                    ->setMessage($message);
+
+                $entityManager->persist($entry);
+                $added++;
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', $added . ' message(s) personnalisé(s) ajouté(s) à la file d\'attente WhatsApp.');
+            return $this->redirectToRoute('app_communication_mail_message_personnalise_whatsapp');
+        }
+
+        return $this->render('communication_mail/message_personnalise_whatsapp.html.twig', [
+            'theme'     => $this->theme,
+            'user'      => $this->traitementsDS->getUserByUidInCookies(),
+            'audiences' => $audiences,
+        ]);
+    }
+
     // ─── Campagne : Attirer de nouveaux utilisateurs ─────────────────────────
 
     #[Route('/campagne/prospect', name: 'app_communication_mail_campagne_prospect', methods: ['GET', 'POST'])]

@@ -139,6 +139,18 @@ class BoostRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 
+    public function findUsersWhoEverUsedBoostAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
     public function getBoostAndUser($pays) //: array
     {
         return $this->createQueryBuilder('b')
