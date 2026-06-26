@@ -170,6 +170,23 @@ class BoostRepository extends ServiceEntityRepository
 
 
 
+    /**
+     * Retourne le premier boost actif d'un utilisateur, quel que soit son type :
+     *  - quota : dateExp IS NULL (le quota n'est pas encore atteint)
+     *  - date  : dateExp > maintenant (la période n'est pas encore expirée)
+     */
+    public function findBoostActif(\App\Entity\User $user): ?\App\Entity\Boost
+    {
+        return $this->createQueryBuilder('b')
+            ->where('b.user = :user')
+            ->andWhere('b.dateExp IS NULL OR b.dateExp > :now')
+            ->setParameter('user', $user)
+            ->setParameter('now', new \DateTime())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
     public function countByDateRange(\DateTime $from, \DateTime $to): int
     {
         $conn = $this->getEntityManager()->getConnection();
