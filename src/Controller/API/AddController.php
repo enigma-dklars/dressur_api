@@ -65,10 +65,12 @@ class AddController extends AbstractController
                         // Incrémenter le boost actif de $userAdd s'il en a un (quota ou date)
                         $boostActif = $boostRepository->findBoostActif($userAdd);
                         if ($boostActif) {
-                            $boostActif->setNbContactsObtenus($boostActif->getNbContactsObtenus() + 1);
-                            $nbContactsMax = $boostActif->getFormuleBoost()->getNbContactsMax();
-                            if ($nbContactsMax !== null && $boostActif->getNbContactsObtenus() >= $nbContactsMax) {
-                                $boostActif->setDateExp(new \DateTime());
+                            $boostActif->setNbContactsObtenus((int)($boostActif->getNbContactsObtenus() ?? 0) + 1);
+                            if ($boostActif->getTypeBoost() === 'quota') {
+                                $nbContactsMax = $boostActif->getFormuleBoost()->getNbContactsMax();
+                                if ($nbContactsMax !== null && $boostActif->getNbContactsObtenus() >= $nbContactsMax) {
+                                    $boostActif->setDateExp(new \DateTime());
+                                }
                             }
                             $this->em->flush();
                         }
