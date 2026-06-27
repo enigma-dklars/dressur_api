@@ -441,9 +441,9 @@ class TraitementsDS extends AbstractController
 
             if ($promo->getStatus() == 0) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Refunded";
+                    $statut = "Wrong URL";
                 } else {
-                    $statut = "Remboursée";
+                    $statut = "Mauvaise URL";
                 }
             } else if($promo->getStatus() == 1) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
