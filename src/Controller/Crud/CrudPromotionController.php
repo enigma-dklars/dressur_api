@@ -86,13 +86,17 @@ class CrudPromotionController extends AbstractController
             throw new \Exception("Le dossier promotion n'existe pas.");
         }
 
+        // Charge tous les noms d'images connus en une seule requête
+        $imagesEnBase = $promotionRepository->findAllImageNames();
+        $imagesEnBaseSet = array_flip($imagesEnBase);
+
         // Parcourt les fichiers dans le dossier promotion
         $files = scandir($promotionDirectory);
 
         foreach ($files as $file) {
             // Vérifie si le fichier commence par "dressur_pro_"
             if (strpos($file, 'dressur_pro_') === 0) {
-                if (!$promotionRepository->findOneBy(['image' => $file])) {
+                if (!isset($imagesEnBaseSet[$file])) {
                     unlink($promotionDirectory . '/' . $file);
                 }
             }

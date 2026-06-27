@@ -228,4 +228,16 @@ class PromotionRepository extends ServiceEntityRepository
         }
         return $result;
     }
+
+    public function findAllImageNames(): array
+    {
+        $rows = $this->createQueryBuilder('p')
+            ->select('p.image')
+            ->where('p.image IS NOT NULL')
+            ->andWhere('p.image != :empty')
+            ->setParameter('empty', '')
+            ->getQuery()
+            ->getScalarResult();
+        return array_column($rows, 'image');
+    }
 }
