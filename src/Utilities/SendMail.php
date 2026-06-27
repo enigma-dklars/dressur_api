@@ -154,8 +154,8 @@ class SendMail
     {
         $domain = substr(strrchr($senderEmail, '@'), 1);
         $keyMap = [
-            'dressur.site'      => '/var/www/dressur_api/config/dkim/dkim_dressur_site.pem',
-            'bluelifetech.site' => '/var/www/dressur_api/config/dkim/dkim_bluelifetech_site.pem',
+            'dressur.site'      => 'config/dkim/dkim_dressur_site.pem',
+            'bluelifetech.site' => 'config/dkim/dkim_bluelifetech_site.pem',
         ];
         if (!isset($keyMap[$domain])) {
             return null;
