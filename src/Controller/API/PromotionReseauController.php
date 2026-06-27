@@ -70,7 +70,7 @@ class PromotionReseauController extends AbstractController
     {
         $sessionDS->set("langUserPhone", $langUserPhone);
         
-        return new JsonResponse($traitementsDS->userPromoReseaus($user->getPromoReseaus()));
+        return new JsonResponse($traitementsDS->userPromoReseaus($user->getPromoReseaus(), $user));
     }
 
     #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]

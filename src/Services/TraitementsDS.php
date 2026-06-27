@@ -432,8 +432,8 @@ class TraitementsDS extends AbstractController
         return $listeFormuleDressurBot;
     }
 
-    public function userPromoReseaus($promos){
-        $this->checkAndUpdateStatusZefame();
+    public function userPromoReseaus($promos, $user = null){
+        $this->checkAndUpdateStatusZefame($user);
         $userPromoReseaus = [];
 
         foreach ($promos as $promo) {
@@ -1238,8 +1238,12 @@ class TraitementsDS extends AbstractController
         $this->em->flush();
     }
 
-    public function checkAndUpdateStatusZefame() {
-        $promoReseauStatut2 = $this->promoReseauRepository->findBy(['status' => 2]);
+    public function checkAndUpdateStatusZefame($user = null) {
+        $criteria = ['status' => 2];
+        if ($user !== null) {
+            $criteria['user'] = $user;
+        }
+        $promoReseauStatut2 = $this->promoReseauRepository->findBy($criteria);
         foreach ($promoReseauStatut2 as $unePromoReseau) {
             if(!empty($unePromoReseau->getIdZefame())) {
                 $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());

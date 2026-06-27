@@ -386,7 +386,7 @@ class PrivateController extends AbstractController
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         return $this->render('private/listepromoreseau.html.twig', [
-            'listepromoreseau' => $traitementsDS->userPromoReseaus($user->getPromoReseaus()),
+            'listepromoreseau' => $traitementsDS->userPromoReseaus($user->getPromoReseaus(), $user),
             'user' => $traitementsDS->infosUser($user),
             'theme' => $this->theme,
         ]);
