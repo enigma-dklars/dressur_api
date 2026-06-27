@@ -72,8 +72,10 @@ class WebhookController extends AbstractController
                 $payload, $sig_header, $endpoint_secret
             );
         } catch(\UnexpectedValueException $e) {
+            $this->sendMail->sendReport('Error allWebhookDressur : WebhookController', $e . '<br><br><br>');
             return [400, "Invalid payload"];
         } catch(\FedaPay\Error\SignatureVerification $e) {
+            $this->sendMail->sendReport('Error allWebhookDressur : WebhookController', $e . '<br><br><br>');
             return [400, "Invalid signature"];
         }
 
@@ -307,6 +309,7 @@ class WebhookController extends AbstractController
                 $usedEnv = $envApi;
                 break;
             } catch (\Throwable $th) {
+                $this->sendMail->sendReport('Error forceProcessTransaction : WebhookController', $th . '<br><br><br>');
                 continue;
             }
         }
