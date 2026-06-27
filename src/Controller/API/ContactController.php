@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Utilities\SendMail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/api', name: 'api_')]
@@ -23,12 +24,14 @@ class ContactController extends AbstractController
     private $em;
     private $userRepository;
     private $cookieDS;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, UserRepository $userRepository, CookieDS $cookieDS)
+    public function __construct(EntityManagerInterface $em, UserRepository $userRepository, CookieDS $cookieDS, SendMail $sendMail)
     {
         $this->em = $em;
         $this->userRepository = $userRepository;
         $this->cookieDS = $cookieDS;
+        $this->sendMail = $sendMail;
     }   
     
     #[Route('/listContactDS/{uid}/{langUserPhone}', name: 'listContactDS', methods: ['POST', "GET"])]
@@ -72,6 +75,7 @@ class ContactController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error addUserContact : ContactController', $th . '<br><br><br>');
             throw $th;
         }
     }
@@ -123,6 +127,7 @@ class ContactController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error addUserContactAfterScanneQRCode : ContactController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',

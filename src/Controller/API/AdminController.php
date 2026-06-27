@@ -77,6 +77,7 @@ class AdminController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
+            $sendMail->sendReport('Error sendMailToDressur : AdminController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -221,6 +222,7 @@ class AdminController extends AbstractController
                 'message' => "Promotion #{$id} acceptée avec succès.",
             ]);
         } catch (\Throwable $th) {
+            $sendMail->sendReport('Error accepterPromo : AdminController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error'   => true,
                 'message' => 'Erreur : ' . $th->getMessage(),
@@ -287,6 +289,7 @@ class AdminController extends AbstractController
                 'message' => "Promotion #{$id} refusée.",
             ]);
         } catch (\Throwable $th) {
+            $sendMail->sendReport('Error refuserPromo : AdminController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error'   => true,
                 'message' => 'Erreur : ' . $th->getMessage(),

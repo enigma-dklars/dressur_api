@@ -39,13 +39,15 @@ class UserController extends AbstractController
     private $env;
     private $traitementsDS;
     private $cookieDS;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS, CookieDS $cookieDS)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS, CookieDS $cookieDS, SendMail $sendMail)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->traitementsDS = $traitementsDS;
         $this->cookieDS = $cookieDS;
+        $this->sendMail = $sendMail;
     }
 
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST', 'GET'])]
@@ -58,6 +60,7 @@ class UserController extends AbstractController
                 'importantUpdate' => $this->env->getImportantUpdate(),
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getVersionApp : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'message' => 'Service temporairement indisponible.',
@@ -191,6 +194,7 @@ class UserController extends AbstractController
             ]);
         }
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error connect : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -930,6 +934,7 @@ class UserController extends AbstractController
             'error' => false,
         ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error sendMailPassForgot : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -1192,6 +1197,7 @@ class UserController extends AbstractController
             'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error inscriptionDS : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -1356,6 +1362,7 @@ class UserController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error addToRecompenseProgramme : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1382,6 +1389,7 @@ class UserController extends AbstractController
                 'promotions' => $traitementsDS->listePromotionAffaireInProgrammeRecompense($user),
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getPromotionAffaireInProgrammeRecompense : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1445,6 +1453,7 @@ class UserController extends AbstractController
                 'referenceParticipation' => $oldProgRecomp->getReferenceParticipation(),
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error partageInProgrammeRecompense : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1514,6 +1523,7 @@ class UserController extends AbstractController
                 'allHistorique' => $allHistorique,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getMyProgrammeRecompenseInformations : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1600,6 +1610,7 @@ class UserController extends AbstractController
                 'message' => "Votre preuve a été enregistrée, elle est en attente de vérification. Veuillez joindre la capture vidéo sur WhatsApp au numéro de l’assistance Dressur. Merci.",
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error submitProgrammeRecompenseProofs : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1634,6 +1645,7 @@ class UserController extends AbstractController
                 'message' => "Configuration enregistrer.",
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error saveRetraitConfiguration : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
@@ -1661,6 +1673,7 @@ class UserController extends AbstractController
                 'numeroRetrait' => $user->getNumeroRetrait(),
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getRetraitConfiguration : UserController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",

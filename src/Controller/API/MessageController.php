@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Utilities\SendMail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
@@ -27,12 +28,14 @@ class MessageController extends AbstractController
     private $em;
     private $env;
     private $cookieDS;
+    private $sendMail;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, CookieDS $cookieDS)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, CookieDS $cookieDS, SendMail $sendMail)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
+        $this->sendMail = $sendMail;
     }
 
     #[Route('/addMessage', name: 'addMessage', methods: ['POST', "GET"])]
@@ -60,6 +63,7 @@ class MessageController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error addMessage : MessageController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
             ]);
@@ -95,6 +99,7 @@ class MessageController extends AbstractController
                 'lesMessages' => $lesMessages,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getMessageEnAttente : MessageController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
             ]);
@@ -125,6 +130,7 @@ class MessageController extends AbstractController
                 'error' => false,
             ]);
         } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error deleteMessageEnAttente : MessageController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error' => true,
             ]);
