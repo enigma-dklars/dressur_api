@@ -15,15 +15,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class VerificationsDS extends AbstractController
 {
-    private $motRefusers;
+    private $motRefuserRepository;
+    private ?array $motRefusers = null;
     private $userRepository;
     private $sessionDS;
 
     public function __construct(MotRefuserRepository $motRefuserRepository, UserRepository $userRepository, SessionDS $sessionDS)
     {
-        $this->motRefusers = $motRefuserRepository->findAll();
+        $this->motRefuserRepository = $motRefuserRepository;
         $this->userRepository = $userRepository;
         $this->sessionDS = $sessionDS;
+    }
+
+    private function getMotRefusers(): array
+    {
+        if ($this->motRefusers === null) {
+            $this->motRefusers = $this->motRefuserRepository->findAll();
+        }
+        return $this->motRefusers;
     }
 
     public function remove_emoji($text){
@@ -136,7 +145,7 @@ class VerificationsDS extends AbstractController
             ];
         }
 
-        foreach ($this->motRefusers as $mot) {
+        foreach ($this->getMotRefusers() as $mot) {
             $pseudoTester = str_replace($mot->getMot(), '', $pseudo);
             if(strlen($pseudoTester) < strlen($pseudo)) {
                 if($this->sessionDS->get("langUserPhone") != "fr") {
