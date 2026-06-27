@@ -8,6 +8,7 @@ use App\Repository\EnvMailSenderRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Swift_Mailer;
 use Swift_Message;
+use Swift_Signers_DKIMSigner;
 use Swift_SmtpTransport;
 use Psr\Log\LoggerInterface;
 
@@ -147,6 +148,27 @@ class SendMail
         }
     }
 
+    // ─── Signature DKIM ───────────────────────────────────────────────────────
+
+    private function getDkimSigner(string $senderEmail): ?Swift_Signers_DKIMSigner
+    {
+        $domain = substr(strrchr($senderEmail, '@'), 1);
+        $keyMap = [
+            'dressur.site'      => '/var/www/dressur_api/config/dkim/dkim_dressur_site.pem',
+            'bluelifetech.site' => '/var/www/dressur_api/config/dkim/dkim_bluelifetech_site.pem',
+        ];
+        if (!isset($keyMap[$domain])) {
+            return null;
+        }
+        $keyPath = $keyMap[$domain];
+        if (!file_exists($keyPath)) {
+            $this->logger->error('DKIM : clé privée introuvable pour ' . $domain . ' — ' . $keyPath);
+            return null;
+        }
+        $privateKey = file_get_contents($keyPath);
+        return new Swift_Signers_DKIMSigner($privateKey, $domain, 'dressur');
+    }
+
     // ─── Envoi individuel ─────────────────────────────────────────────────────
 
     private function sendEmail(string $to, string $subject, string $message, string $replyto, string $title, string $raison): bool
@@ -176,6 +198,11 @@ class SendMail
                     ->setReplyTo($replyto)
                     ->setTo($to)
                     ->setBody($message, 'text/html');
+
+                $signer = $this->getDkimSigner($this->envMailSender->getMailAdresse());
+                if ($signer) {
+                    $content->attachSigner($signer);
+                }
 
                 if ($mailer->send($content)) {
                     // Round-robin : marquer comme utilisé (lastUsedAt = now) + compteur
@@ -244,6 +271,11 @@ class SendMail
                         ->setReplyTo($replyto)
                         ->setBcc($batch)
                         ->setBody($message, 'text/html');
+
+                    $signer = $this->getDkimSigner($this->envMailSender->getMailAdresse());
+                    if ($signer) {
+                        $content->attachSigner($signer);
+                    }
 
                     if ($mailer->send($content)) {
                         // Round-robin : marquer comme utilisé
