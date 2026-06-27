@@ -143,11 +143,11 @@ class CommunicationMailController extends AbstractController
         return $this->render('communication_mail/portal.html.twig', [
             'theme'               => $this->theme,
             'user'                => $this->traitementsDS->getUserByUidInCookies(),
-            'nb_attente'          => count($fileAttenteRepo->findBy(['statut' => 'en_attente'])),
-            'nb_envoye'           => count($fileAttenteRepo->findBy(['statut' => 'envoye'])),
-            'nb_prospects'        => count($prospectRepo->findAll()),
-            'nb_logs'             => count($logRepo->findAll()),
-            'nb_whatsapp_attente' => count($whatsappRepo->findBy(['statut' => 'en_attente'])),
+            'nb_attente'          => $fileAttenteRepo->countByStatut('en_attente'),
+            'nb_envoye'           => $fileAttenteRepo->countByStatut('envoye'),
+            'nb_prospects'        => $prospectRepo->countAll(),
+            'nb_logs'             => $logRepo->countAll(),
+            'nb_whatsapp_attente' => $whatsappRepo->countByStatut('en_attente'),
             'reactivation'        => $reactivation,
             'services'            => $services,
             'services_wa'         => $servicesWa,
@@ -738,12 +738,9 @@ class CommunicationMailController extends AbstractController
             return $this->redirectToRoute('app_communication_mail_file_attente_whatsapp', [], Response::HTTP_SEE_OTHER);
         }
 
-        $entries = $whatsappRepo->findAll();
-        $deleted = 0;
-        foreach ($entries as $entry) {
-            $entityManager->remove($entry);
-            $deleted++;
-        }
+        $deleted = $entityManager->createQuery(
+            'DELETE FROM App\Entity\FileAttenteWhatsapp e'
+        )->execute();
         $entityManager->flush();
 
         $this->addFlash('success', $deleted . ' entrée(s) supprimée(s) — file d\'attente WhatsApp vidée.');
@@ -1090,12 +1087,9 @@ class CommunicationMailController extends AbstractController
             return $this->redirectToRoute('app_communication_mail_file_attente', [], Response::HTTP_SEE_OTHER);
         }
 
-        $entries = $fileAttenteRepo->findAll();
-        $deleted = 0;
-        foreach ($entries as $entry) {
-            $entityManager->remove($entry);
-            $deleted++;
-        }
+        $deleted = $entityManager->createQuery(
+            'DELETE FROM App\Entity\FileAttenteProspectMail e'
+        )->execute();
         $entityManager->flush();
 
         $this->addFlash('success', $deleted . ' entrée(s) supprimée(s) — file d\'attente mail vidée.');

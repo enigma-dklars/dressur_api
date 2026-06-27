@@ -243,7 +243,7 @@ class CrudUserController extends AbstractController
 
         return $this->render('crud_user/check_user.html.twig', [
             'theme' => $this->theme,
-            'users' => $userRepository->findAll(),
+            'users' => $userRepository->findBy([], ['pseudo' => 'ASC'], 500),
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'user_check' => $user ? $user_array : null,
             'nbr_pays_preference' => count($paysChoisies),
@@ -331,7 +331,7 @@ class CrudUserController extends AbstractController
 
         return $this->render('crud_user/check_and_confirme.html.twig', [
             'theme'      => $this->theme,
-            'users'      => $userRepository->findAll(),
+            'users'      => $userRepository->findBy([], ['pseudo' => 'ASC'], 500),
             'user'       => $this->traitementsDS->getUserByUidInCookies(),
             'user_check' => $user ? $user_array : null,
             'message'    => implode("<br>", $message),

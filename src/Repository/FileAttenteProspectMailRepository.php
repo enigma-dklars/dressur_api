@@ -73,4 +73,14 @@ class FileAttenteProspectMailRepository extends ServiceEntityRepository
 
         return array_column($rows, 'email');
     }
+
+    public function countByStatut(string $statut): int
+    {
+        return (int) $this->createQueryBuilder('f')
+            ->select('COUNT(f.id)')
+            ->where('f.statut = :statut')
+            ->setParameter('statut', $statut)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
