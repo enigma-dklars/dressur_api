@@ -160,6 +160,7 @@ class UserController extends AbstractController
             }
             $this->em->flush();
 
+            $this->traitementsDS->migrateUidIfNeeded($user);
             $verificationUser = $verificationsDS->verifUSer($user->getUid());
             if($verificationUser["error"] == true){
                 return new JsonResponse([
@@ -647,6 +648,10 @@ class UserController extends AbstractController
             ]);
         }
         $user = $verificationUser["user"];
+        if ($user) {
+            $this->traitementsDS->migrateUidIfNeeded($user);
+            $this->cookieDS->set("uid", $user->getUid());
+        }
         
         if($user) {
             // enregistrement de la langue du user et du last login
@@ -836,6 +841,8 @@ class UserController extends AbstractController
         }
         $user = $verificationUser["user"];
 
+        $this->traitementsDS->migrateUidIfNeeded($user);
+        $this->cookieDS->set("uid", $user->getUid());
         $newPassword = $traitementsDS->resetPassword();
         $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
         $this->em->flush();
@@ -907,6 +914,7 @@ class UserController extends AbstractController
             ]);
         }
 
+        $this->traitementsDS->migrateUidIfNeeded($user);
         $newPassword = $traitementsDS->resetPassword();
         $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
         $this->em->flush();

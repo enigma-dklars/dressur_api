@@ -90,7 +90,21 @@ class TraitementsDS extends AbstractController
         $this->envPaiementApiRepository = $envPaiementApiRepository;
         $this->envMailSenderRepository = $envMailSenderRepository;
         $this->historiqueProgrammeRecompenseRepository = $historiqueProgrammeRecompenseRepository;
-    }    
+    }
+
+    private function migrateUidIfNeeded(\App\Entity\User $user): void
+    {
+        $uid = $user->getUid();
+        $isUuidV4 = (bool) preg_match(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i',
+            $uid
+        );
+        if (!$isUuidV4) {
+            $newUid = \App\Utilities\UuidGenerator::v4();
+            $user->setUid($newUid);
+            $this->em->flush();
+        }
+    }
 
     function removeMaxSection($string) {
         // Expression régulière pour capturer " | Max XYZ |"
