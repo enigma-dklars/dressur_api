@@ -22,6 +22,8 @@ use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 #[Route('/crud/communication-mail')]
 class CommunicationMailController extends AbstractController
@@ -56,7 +58,8 @@ class CommunicationMailController extends AbstractController
         UserRepository $userRepository,
         BoostRepository $boostRepository,
         PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository
+        PromoReseauRepository $promoReseauRepository,
+        CacheInterface $cache
     ): Response {
         $allTypes        = self::getReactivationTypes();
         $inactifTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
@@ -66,72 +69,113 @@ class CommunicationMailController extends AbstractController
         $confirmWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
         $feedbackWaTypes = array_filter($allTypes, fn($t) => $t['group'] === 'feedback_wa');
 
-        $sqlErrors = [];
-
+        // ── Comptages mis en cache 10 minutes ────────────────────────────────────
+        $counts = $cache->get('portal_campaign_counts', function (ItemInterface $item) use (
+            $userRepository,
+            $boostRepository,
+            $promotionRepository,
+            $promoReseauRepository,
+            $inactifTypes,
+            $serviceTypes,
+            $serviceWaTypes,
+            $confirmTypes,
+            $confirmWaTypes,
+            $feedbackWaTypes
+        ) {
+            $item->expiresAfter(600); // 10 minutes
+            $data = [];
+            $errors = [];
+            foreach ($inactifTypes as $key => $cfg) {
+                try {
+                    $data['inactif'][$key] = $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']);
+                } catch (\Throwable $e) {
+                    $data['inactif'][$key] = 0;
+                    $errors[] = '[' . $key . '] ' . $e->getMessage();
+                }
+            }
+            foreach ($serviceTypes as $key => $cfg) {
+                try {
+                    $data['service'][$key] = match ($cfg['queryType'] ?? '') {
+                        'service_boost'  => $boostRepository->countUsersWithExpiredBoostAndEmail($cfg['maxDaysAgo'] ?? 90),
+                        'service_promo'  => $promotionRepository->countUsersWithTerminatedPromoAndEmail($cfg['maxDaysAgo'] ?? 90),
+                        'service_reseau' => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndEmail($cfg['maxDaysAgo'] ?? 90),
+                        default          => 0,
+                    };
+                } catch (\Throwable $e) {
+                    $data['service'][$key] = 0;
+                    $errors[] = '[' . $key . '] ' . $e->getMessage();
+                }
+            }
+            foreach ($serviceWaTypes as $key => $cfg) {
+                try {
+                    $data['service_wa'][$key] = match ($cfg['queryType'] ?? '') {
+                        'service_boost_wa'  => $boostRepository->countUsersWithExpiredBoostAndTel($cfg['maxDaysAgo'] ?? 90),
+                        'service_promo_wa'  => $promotionRepository->countUsersWithTerminatedPromoAndTel($cfg['maxDaysAgo'] ?? 90),
+                        'service_reseau_wa' => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndTel($cfg['maxDaysAgo'] ?? 90),
+                        default             => 0,
+                    };
+                } catch (\Throwable $e) {
+                    $data['service_wa'][$key] = 0;
+                    $errors[] = '[' . $key . '] ' . $e->getMessage();
+                }
+            }
+            foreach ($confirmTypes as $key => $cfg) {
+                try {
+                    $data['confirm'][$key] = $userRepository->countUsersWithUnconfirmedMail();
+                } catch (\Throwable $e) {
+                    $data['confirm'][$key] = 0;
+                    $errors[] = '[' . $key . '] ' . $e->getMessage();
+                }
+            }
+            foreach ($confirmWaTypes as $key => $cfg) {
+                try {
+                    $data['confirm_wa'][$key] = $userRepository->countUsersWithUnconfirmedTel();
+                } catch (\Throwable $e) {
+                    $data['confirm_wa'][$key] = 0;
+                    $errors[] = '[' . $key . '] ' . $e->getMessage();
+                }
+            }
+            foreach ($feedbackWaTypes as $key => $cfg) {
+                try {
+                    $data['feedback_wa'][$key] = match ($cfg['queryType'] ?? '') {
+                        'feedback_boost_wa'  => $boostRepository->countUsersWhoEverUsedBoostAndTel(),
+                        'feedback_promo_wa'  => $promotionRepository->countUsersWhoEverUsedPromoAndTel(),
+                        'feedback_reseau_wa' => $promoReseauRepository->countUsersWhoEverUsedPromoReseauAndTel(),
+                        default              => 0,
+                    };
+                } catch (\Throwable $e) {
+                    $data['feedback_wa'][$key] = 0;
+                    $errors[] = '[' . $key . '] ' . $e->getMessage();
+                }
+            }
+            $data['_errors'] = $errors;
+            return $data;
+        });
+        // ── Reconstitution des tableaux pour Twig à partir du cache ─────────────
+        $sqlErrors = $counts['_errors'] ?? [];
         $reactivation = [];
         foreach ($inactifTypes as $key => $cfg) {
-            try {
-                $nb = $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']);
-            } catch (\Throwable $e) {
-                $nb = 0;
-                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
-            }
-            $reactivation[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+            $reactivation[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['inactif'][$key] ?? 0]);
         }
-
         $services = [];
         foreach ($serviceTypes as $key => $cfg) {
-            try {
-                $nb = $this->countServiceCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository);
-            } catch (\Throwable $e) {
-                $nb = 0;
-                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
-            }
-            $services[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+            $services[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['service'][$key] ?? 0]);
         }
-
         $servicesWa = [];
         foreach ($serviceWaTypes as $key => $cfg) {
-            try {
-                $nb = $this->countServiceCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository);
-            } catch (\Throwable $e) {
-                $nb = 0;
-                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
-            }
-            $servicesWa[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+            $servicesWa[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['service_wa'][$key] ?? 0]);
         }
-
         $confirm = [];
         foreach ($confirmTypes as $key => $cfg) {
-            try {
-                $nb = $userRepository->countUsersWithUnconfirmedMail();
-            } catch (\Throwable $e) {
-                $nb = 0;
-                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
-            }
-            $confirm[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+            $confirm[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['confirm'][$key] ?? 0]);
         }
-
         $confirmWa = [];
         foreach ($confirmWaTypes as $key => $cfg) {
-            try {
-                $nb = $userRepository->countUsersWithUnconfirmedTel();
-            } catch (\Throwable $e) {
-                $nb = 0;
-                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
-            }
-            $confirmWa[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+            $confirmWa[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['confirm_wa'][$key] ?? 0]);
         }
-
         $feedbackWa = [];
         foreach ($feedbackWaTypes as $key => $cfg) {
-            try {
-                $nb = $this->countFeedbackCandidates($cfg, $boostRepository, $promotionRepository, $promoReseauRepository);
-            } catch (\Throwable $e) {
-                $nb = 0;
-                $sqlErrors[] = '[' . $key . '] ' . $e->getMessage();
-            }
-            $feedbackWa[] = array_merge($cfg, ['key' => $key, 'nb' => $nb]);
+            $feedbackWa[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['feedback_wa'][$key] ?? 0]);
         }
 
         if (!empty($sqlErrors)) {
