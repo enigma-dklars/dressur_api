@@ -75,7 +75,7 @@ class UserController extends AbstractController
         try {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
@@ -218,7 +218,7 @@ class UserController extends AbstractController
         $facebook = $datas->get('facebook');
         $youtube = $datas->get('youtube');
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -499,7 +499,7 @@ class UserController extends AbstractController
         $rawNewPassword = $datas->get('newPassword');
         $rawConfirmNewPassword = $datas->get('confirmNewPassword');
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -622,7 +622,7 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -680,7 +680,7 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -732,7 +732,7 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -815,7 +815,7 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -869,7 +869,7 @@ class UserController extends AbstractController
         try {
         $datas = $request->request;
 
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
@@ -949,7 +949,7 @@ class UserController extends AbstractController
         try {
         $datas = $request->request;
 
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
         
         $tel = str_replace(" ", "", $datas->get('tel'));
@@ -1213,7 +1213,7 @@ class UserController extends AbstractController
 
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1286,7 +1286,7 @@ class UserController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1349,7 +1349,7 @@ class UserController extends AbstractController
         try {
             $datas = $request->request;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1377,7 +1377,7 @@ class UserController extends AbstractController
         try {
             $datas = $request->request;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1404,7 +1404,7 @@ class UserController extends AbstractController
         try {
             $datas = $request->request;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1474,7 +1474,7 @@ class UserController extends AbstractController
         try {
             $datas = $request->request;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1545,7 +1545,7 @@ class UserController extends AbstractController
             $datas = $request->request;
             $files = $request->files;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1626,7 +1626,7 @@ class UserController extends AbstractController
         try {
             $datas = $request->request;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -1661,7 +1661,7 @@ class UserController extends AbstractController
         try {
             $datas = $request->request;
         
-            $langUserPhone = $datas->get('langUserPhone');
+            $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
             $sessionDS->set("langUserPhone", $langUserPhone);
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;

@@ -93,7 +93,7 @@ class BoostController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -212,7 +212,7 @@ class BoostController extends AbstractController
     public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository, DeletedDSRepository $deletedDSRepository): Response
     {
         $datas = $request->request;        
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 

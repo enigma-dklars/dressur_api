@@ -70,7 +70,7 @@ class PromotionController extends AbstractController
 
         $datas = $request->request;
 
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -172,7 +172,7 @@ class PromotionController extends AbstractController
 
         $datas = $request->request;
 
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -279,7 +279,7 @@ class PromotionController extends AbstractController
         $datas = $request->request;
         $files = $request->files;
 
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $factureLignes = [];
@@ -655,7 +655,7 @@ class PromotionController extends AbstractController
         $datas = $request->request;
         $files = $request->files;
 
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -767,7 +767,7 @@ class PromotionController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -851,7 +851,7 @@ class PromotionController extends AbstractController
     public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
-        $langUserPhone = $datas->get('langUserPhone');
+        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
         $sessionDS->set("langUserPhone", $langUserPhone);
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
