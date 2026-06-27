@@ -92,7 +92,7 @@ class TraitementsDS extends AbstractController
         $this->historiqueProgrammeRecompenseRepository = $historiqueProgrammeRecompenseRepository;
     }
 
-    private function migrateUidIfNeeded(\App\Entity\User $user): void
+    public function migrateUidIfNeeded(\App\Entity\User $user): void
     {
         $uid = $user->getUid();
         $isUuidV4 = (bool) preg_match(

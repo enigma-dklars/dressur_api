@@ -190,19 +190,6 @@ class UserController extends AbstractController
                 'message' => 'Identifiants incorrects.',
             ]);
         }
-
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-            ]);
-        }
-        return new JsonResponse([
-            'error' => true,
-            'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-        ]);
         } catch (\Throwable $th) {
             return new JsonResponse([
                 'error' => true,
