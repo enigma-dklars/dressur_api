@@ -535,6 +535,152 @@
     html.dark-theme .promo-meta i { color: #4fc3f7; }
 
     /* ══════════════════════════════════════
+       TÉMOIGNAGES
+    ══════════════════════════════════════ */
+    .testimonials-section {
+        padding: 80px 0;
+        background: #fff;
+    }
+    html.dark-theme .testimonials-section { background: #202a40; }
+
+    .testi-card {
+        background: #f8f9ff;
+        border-radius: 20px;
+        padding: 32px 28px;
+        height: 100%;
+        position: relative;
+        border: 1.5px solid transparent;
+        transition: all 0.3s;
+    }
+    html.dark-theme .testi-card {
+        background: #1a2232;
+        border-color: #2e3a55;
+    }
+    .testi-card:hover {
+        border-color: #1a3a8f;
+        box-shadow: 0 12px 36px rgba(26,58,143,0.1);
+        transform: translateY(-4px);
+    }
+    html.dark-theme .testi-card:hover {
+        border-color: #4fc3f7;
+        box-shadow: 0 12px 36px rgba(79,195,247,0.08);
+    }
+    .testi-quote {
+        font-size: 2.5rem;
+        color: #1a3a8f;
+        line-height: 1;
+        margin-bottom: 12px;
+        opacity: 0.25;
+    }
+    html.dark-theme .testi-quote { color: #4fc3f7; }
+    .testi-text {
+        font-size: 0.92rem;
+        color: #374151;
+        line-height: 1.7;
+        margin-bottom: 20px;
+        font-style: italic;
+    }
+    html.dark-theme .testi-text { color: #c8cdd4; }
+    .testi-stars { color: #f59e0b; font-size: 0.85rem; margin-bottom: 14px; }
+    .testi-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .testi-avatar {
+        width: 44px; height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a3a8f, #1565c0);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    .testi-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #0f2460;
+        line-height: 1.2;
+    }
+    html.dark-theme .testi-name { color: #fcfcfc; }
+    .testi-role {
+        font-size: 0.78rem;
+        color: #6c757d;
+    }
+
+    /* ══════════════════════════════════════
+       FAQ
+    ══════════════════════════════════════ */
+    .faq-section {
+        padding: 80px 0;
+        background: #f8f9ff;
+    }
+    html.dark-theme .faq-section { background: #1a2232; }
+
+    .faq-item {
+        background: #fff;
+        border-radius: 14px;
+        margin-bottom: 12px;
+        border: 1.5px solid #e9ecef;
+        overflow: hidden;
+        transition: border-color 0.25s;
+    }
+    html.dark-theme .faq-item {
+        background: #202a40;
+        border-color: #2e3a55;
+    }
+    .faq-item.open { border-color: #1a3a8f; }
+    html.dark-theme .faq-item.open { border-color: #4fc3f7; }
+    .faq-question {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 18px 22px;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #0f2460;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    html.dark-theme .faq-question { color: #fcfcfc; }
+    .faq-question:hover { color: #1a3a8f; }
+    html.dark-theme .faq-question:hover { color: #4fc3f7; }
+    .faq-icon {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: #e8f0fe;
+        color: #1a3a8f;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        transition: all 0.3s;
+    }
+    html.dark-theme .faq-icon { background: rgba(79,195,247,0.15); color: #4fc3f7; }
+    .faq-item.open .faq-icon { background: #1a3a8f; color: #fff; transform: rotate(180deg); }
+    html.dark-theme .faq-item.open .faq-icon { background: #4fc3f7; color: #0f2460; }
+    .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease, padding 0.2s;
+        padding: 0 22px;
+        font-size: 0.9rem;
+        color: #6c757d;
+        line-height: 1.75;
+    }
+    html.dark-theme .faq-answer { color: #9ea4aa; }
+    .faq-item.open .faq-answer { max-height: 300px; padding: 0 22px 18px; }
+
+    /* ══════════════════════════════════════
        CTA BOTTOM
     ══════════════════════════════════════ */
     .cta-section {
@@ -801,6 +947,69 @@
 </section>
 
 {# ══════════════════════════════════════
+   TÉMOIGNAGES
+══════════════════════════════════════ #}
+<section class="testimonials-section">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <span class="section-tag">Témoignages</span>
+            <h2 class="section-title">Ce que disent nos utilisateurs</h2>
+            <p class="section-desc">Des entrepreneurs et professionnels de toute l'Afrique de l'Ouest nous font confiance.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="50">
+                <div class="testi-card">
+                    <div class="testi-quote">"</div>
+                    <div class="testi-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testi-text">Grâce à Dressur, j'ai pu trouver de nouveaux clients en quelques jours. Les promotions affaires sont vraiment efficaces pour toucher une cible précise.</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar">KA</div>
+                        <div>
+                            <div class="testi-name">Kofi Agyeman</div>
+                            <div class="testi-role">Entrepreneur, Ghana</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="120">
+                <div class="testi-card">
+                    <div class="testi-quote">"</div>
+                    <div class="testi-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="testi-text">Dressur Bot m'a fait gagner un temps fou. J'envoie mes offres à des centaines de contacts WhatsApp en quelques minutes. Un outil indispensable !</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar">MN</div>
+                        <div>
+                            <div class="testi-name">Marie Ndiaye</div>
+                            <div class="testi-role">Commerciale, Sénégal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testi-card">
+                    <div class="testi-quote">"</div>
+                    <div class="testi-stars">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="testi-text">J'ai boosté ma page Facebook avec le service réseaux sociaux. Les abonnés sont arrivés rapidement et ma visibilité a vraiment augmenté.</p>
+                    <div class="testi-author">
+                        <div class="testi-avatar">OT</div>
+                        <div>
+                            <div class="testi-name">Oumar Touré</div>
+                            <div class="testi-role">Créateur de contenu, Côte d'Ivoire</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════════════════════════════════════
    TOP 6 PROMOTIONS — lien vers page détail
 ══════════════════════════════════════ #}
 <section class="promos-section">
@@ -851,6 +1060,61 @@
 </section>
 
 {# ══════════════════════════════════════
+   FAQ
+══════════════════════════════════════ #}
+<section class="faq-section">
+    <div class="container">
+        <div class="row g-5 align-items-start">
+            <div class="col-lg-4" data-aos="fade-right">
+                <span class="section-tag">FAQ</span>
+                <h2 class="section-title">Questions fréquentes</h2>
+                <p class="section-desc" style="max-width:100%;">Une question ? Retrouvez les réponses aux interrogations les plus courantes sur Dressur.</p>
+                <a href="{{ path('app_contactez_nous') }}" class="btn btn-outline-primary rounded-pill px-4 mt-3 fw-semibold">
+                    <i class="fas fa-envelope me-2"></i> Nous contacter
+                </a>
+            </div>
+            <div class="col-lg-8" data-aos="fade-left">
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Dressur est-il gratuit ?
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <div class="faq-answer">L'inscription sur Dressur est entièrement gratuite. Certains services premium comme le Boost Contact, les promotions et Dressur Bot sont payants. Consultez la page <a href="{{ path('app_tarifs') }}">Tarifs</a> pour les détails.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Comment fonctionne Dressur Bot ?
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <div class="faq-answer">Dressur Bot est une application Windows. Vous fournissez un fichier VCF contenant vos contacts et le message à envoyer. Le bot automatise l'envoi via WhatsApp Web ou WhatsApp Desktop, sans aucune manipulation manuelle.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Quels réseaux sociaux sont supportés pour les promotions ?
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <div class="faq-answer">Nous supportons plus de 15 plateformes : Facebook, Instagram, TikTok, YouTube, Twitter/X, LinkedIn, WhatsApp, Snapchat, Pinterest, Discord, Telegram, Reddit et plus encore.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Dressur est-il disponible dans mon pays ?
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <div class="faq-answer">Dressur est principalement orienté Afrique de l'Ouest mais accessible partout dans le monde. L'application mobile est disponible sur Google Play pour les utilisateurs Android.</div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question" onclick="toggleFaq(this)">
+                        Comment sont sécurisées mes données personnelles ?
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </button>
+                    <div class="faq-answer">Vos données sont protégées conformément à notre <a href="{{ path('politique_confidentialite') }}">politique de confidentialité</a>. Elles ne sont jamais revendues à des tiers et vous pouvez demander leur suppression à tout moment.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ══════════════════════════════════════
    CTA BOTTOM
 ══════════════════════════════════════ #}
 <section class="cta-section">
@@ -892,5 +1156,12 @@
     }
     tick();
 })();
+
+function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+}
 </script>
 {% endblock %}
