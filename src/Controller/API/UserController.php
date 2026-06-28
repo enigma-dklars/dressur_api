@@ -455,7 +455,7 @@ class UserController extends AbstractController
                     ]);
                 }
             }
-            $user->setTel($tel)->setPays($paysTel);
+            $user->setTel($tel)->setPays($paysTel)->setLid(null);
         }
 
         $this->env->addUsersTel($tel);
