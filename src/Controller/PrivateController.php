@@ -481,32 +481,32 @@ class PrivateController extends AbstractController
         ]);
     }
 
-    // #[Route('/newboostcontact', name: 'app_newboostcontact')]
-    // public function newboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
-    // {
-    //     $user = $this->traitementsDS->getUserByUidInCookies();
-    //     $sessionDS->set("langUserPhone", "fr");
-    //     // dd($formuleCampageMails);
-    //     return $this->render('private/newboostcontact.html.twig', [
-    //         'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
-    //         'formuleBoosts' => $formuleBoostRepository->findAll(),
-    //         'user' => $traitementsDS->infosUser($user),
-    //         'theme' => $this->theme,
-    //     ]);
-    // }
+    #[Route('/newboostcontact', name: 'app_newboostcontact')]
+    public function newboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormuleBoostRepository $formuleBoostRepository): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        return $this->render('private/newboostcontact.html.twig', [
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
+            'formuleBoosts' => $formuleBoostRepository->findAll(),
+            'user' => $traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
 
-    // #[Route('/listeboostcontact', name: 'app_listeboostcontact')]
-    // public function listeboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
-    // {
-    //     $user = $this->traitementsDS->getUserByUidInCookies();
-    //     $sessionDS->set("langUserPhone", "fr");
-    //     // dd($formuleCampageMails);
-    //     return $this->render('private/listeboostcontact.html.twig', [
-    //         'user' => $traitementsDS->infosUser($user),
-    //         'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])),
-    //         'theme' => $this->theme,
-    //     ]);
-    // }
+    #[Route('/listeboostcontact', name: 'app_listeboostcontact')]
+    public function listeboostcontact(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        $sessionDS->set("langUserPhone", "fr");
+        // dd($formuleCampageMails);
+        return $this->render('private/listeboostcontact.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+            'lesBoostContact' => $traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])),
+            'theme' => $this->theme,
+        ]);
+    }
 
     #[Route('/addSuggestion', name: 'app_addSuggestion')]
     public function addSuggestion(TraitementsDS $traitementsDS, SessionDS $sessionDS, BoostRepository $boostRepository): Response
