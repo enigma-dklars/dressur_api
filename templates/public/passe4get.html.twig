@@ -4,69 +4,287 @@
 {% set title = "Mot de passe oublié" %}
 
 {% block referencement %}
-    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
     <meta property="og:url" content="{{ url('app_mot_de_passe_oublier') }}" />
     <meta property="og:type" content="website" />
-
-    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{title}} | Dressur Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
-
-    <!-- Autres balises meta facultatives -->
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="mot de passe oublié, réinitialisation mot de passe, récupération mot de passe, Dressur" />
 {% endblock %}
 
 {% block robots_meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
-
 {% block title %}{{title}}{% endblock %}
 
+{% block style %}
+<style>
+    body { background: #f4f6fb; }
+    html.dark-theme body { background: #111827; }
+
+    .auth-wrap {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+    }
+    .auth-card {
+        display: flex;
+        width: 100%;
+        max-width: 860px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+
+    /* Left panel */
+    .auth-panel {
+        background: linear-gradient(160deg, #0f2460 0%, #1a3a8f 55%, #1565c0 100%);
+        width: 44%;
+        padding: 48px 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .auth-panel::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+    }
+    .auth-panel::after {
+        content: '';
+        position: absolute;
+        bottom: -40px; left: -40px;
+        width: 160px; height: 160px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+    .auth-panel-logo {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.5px;
+        margin-bottom: 36px;
+    }
+    .auth-panel-logo span { color: #4fc3f7; }
+    .auth-lock-icon {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #4fc3f7;
+        margin: 0 auto 24px;
+    }
+    .auth-panel h2 {
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+    .auth-panel p {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.88rem;
+        line-height: 1.65;
+        margin: 0;
+    }
+
+    /* Right panel */
+    .auth-form-panel {
+        flex: 1;
+        background: #fff;
+        padding: 52px 44px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    html.dark-theme .auth-form-panel { background: #1a2232; }
+    .auth-form-panel h3 {
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #0f2460;
+        margin-bottom: 4px;
+    }
+    html.dark-theme .auth-form-panel h3 { color: #fcfcfc; }
+    .auth-form-panel .sub {
+        font-size: 0.87rem;
+        color: #6c757d;
+        margin-bottom: 28px;
+        line-height: 1.6;
+    }
+
+    /* Steps hint */
+    .auth-steps {
+        background: #f1f5fd;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 24px;
+    }
+    html.dark-theme .auth-steps { background: #111827; }
+    .auth-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 0.83rem;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+    .auth-step:last-child { margin-bottom: 0; }
+    html.dark-theme .auth-step { color: #c8cdd4; }
+    .auth-step-num {
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        background: #1a3a8f;
+        color: #fff;
+        font-size: 0.68rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    /* Input */
+    .auth-field { margin-bottom: 18px; }
+    .auth-label {
+        font-size: 0.81rem;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 7px;
+        display: block;
+    }
+    html.dark-theme .auth-label { color: #c8cdd4; }
+    .auth-input-wrap { position: relative; }
+    .auth-input-icon {
+        position: absolute;
+        top: 50%; left: 14px;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+    .auth-input {
+        width: 100%;
+        background: #f8f9ff;
+        border: 1.5px solid #e9ecef;
+        border-radius: 12px;
+        padding: 13px 14px 13px 42px;
+        font-size: 0.95rem;
+        color: #374151;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        font-family: inherit;
+    }
+    html.dark-theme .auth-input { background: #111827; border-color: #2e3a55; color: #fcfcfc; }
+    .auth-input:focus { border-color: #1a3a8f; box-shadow: 0 0 0 3px rgba(26,58,143,0.1); }
+    html.dark-theme .auth-input:focus { border-color: #4fc3f7; box-shadow: 0 0 0 3px rgba(79,195,247,0.1); }
+    .auth-input::placeholder { color: #b0b8c4; }
+
+    /* Buttons */
+    .btn-auth {
+        width: 100%;
+        background: linear-gradient(135deg, #0f2460, #1a3a8f);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 13px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.28s;
+        box-shadow: 0 4px 16px rgba(26,58,143,0.3);
+        margin-bottom: 12px;
+    }
+    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,58,143,0.38); }
+    .btn-auth-back {
+        width: 100%;
+        background: transparent;
+        border: 1.5px solid #e9ecef;
+        border-radius: 12px;
+        padding: 11px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #6c757d;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+    html.dark-theme .btn-auth-back { border-color: #2e3a55; color: #9ea4aa; }
+    .btn-auth-back:hover { border-color: #1a3a8f; color: #1a3a8f; }
+    html.dark-theme .btn-auth-back:hover { border-color: #4fc3f7; color: #4fc3f7; }
+
+    #msgError { border-radius: 10px; font-size: 0.87rem; margin-bottom: 16px; }
+
+    @media (max-width: 650px) {
+        .auth-panel { display: none; }
+        .auth-card { max-width: 440px; }
+        .auth-form-panel { padding: 36px 24px; }
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-    <div class="authentication-content">
-        <div class="container">
-            <div class="mt-5">
-                <div class="card rounded-0 overflow-hidden shadow-none border">
-                    <div class="row g-0">
-                        <div class="col-lg-6 d-flex align-items-center justify-content-center border-end">
-                            <img src="/assets/images/placeholder.png" data-original="assets/images/error/forgot-password-frent-img-removebg-preview.png" class="lazy img-fluid" alt="Forgot Password Image">
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="card-body p-4 p-sm-5">
-                                <h5 class="card-title">Mot de passe oublié?</h5>
-                                <p class="card-text mb-4">
-                                    Un nouveau mot de passe sera envoyé à cette adresse.
-                                    Utilisez votre adresse et ce nouveau mot de passe pour vous connecter.
-                                </p>
-                                <form class="form-body">
-                                    <div class="row g-3">
-                                        <div class="col-12">
-                                            <div class="mt-0" id="msgError" style="display: none;"></div>
-                                        </div>
-                                        <div class="col-12">
-                                            <label for="inputEmail" class="form-label">Renseignez votre adresse email</label>
-                                            <div class="ms-auto position-relative">
-                                                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-envelope-fill fs-5"></i></div>
-                                                <input type="email" class="form-control getInfo form-control-lg radius-30 ps-5" id="inputEmail" placeholder="Email">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="d-grid gap-3">
-                                                <button type="button" class="btn btn-lg btn-primary radius-30" id="passe4get">CONFIRMER</button>
-                                                <a href="{{ path('app_connexion') }}" class="btn btn-lg btn-light radius-30">Retour à la page de connexion</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+<div class="auth-wrap">
+    <div class="auth-card">
+
+        {# Left panel #}
+        <div class="auth-panel">
+            <div class="auth-panel-logo"><i class="fas fa-circle-nodes me-2"></i>Dress<span>ur</span></div>
+            <div class="auth-lock-icon"><i class="fas fa-key"></i></div>
+            <h2>Récupération de compte</h2>
+            <p>Pas de panique ! Entrez votre adresse e-mail et nous vous enverrons un nouveau mot de passe.</p>
+        </div>
+
+        {# Right panel — form #}
+        <div class="auth-form-panel">
+            <h3>Mot de passe oublié ?</h3>
+            <p class="sub">Un nouveau mot de passe sera envoyé à votre adresse email. Utilisez-le pour vous reconnecter.</p>
+
+            <div class="auth-steps">
+                <div class="auth-step"><span class="auth-step-num">1</span> Entrez votre adresse email ci-dessous</div>
+                <div class="auth-step"><span class="auth-step-num">2</span> Consultez votre boîte mail</div>
+                <div class="auth-step"><span class="auth-step-num">3</span> Connectez-vous avec le nouveau mot de passe reçu</div>
+            </div>
+
+            <div id="msgError" style="display:none;"></div>
+
+            <form class="form-body">
+                <div class="auth-field">
+                    <label class="auth-label" for="inputEmail">Votre adresse e-mail</label>
+                    <div class="auth-input-wrap">
+                        <i class="auth-input-icon fas fa-envelope"></i>
+                        <input type="email" class="auth-input getInfo" id="inputEmail" placeholder="votre@email.com">
                     </div>
                 </div>
-            </div>
+
+                <button type="button" class="btn-auth" id="passe4get">
+                    <i class="fas fa-paper-plane me-2"></i> Envoyer le nouveau mot de passe
+                </button>
+
+                <a href="{{ path('app_connexion') }}" class="btn-auth-back">
+                    <i class="fas fa-arrow-left me-2"></i> Retour à la connexion
+                </a>
+            </form>
         </div>
+
     </div>
+</div>
 {% endblock %}
