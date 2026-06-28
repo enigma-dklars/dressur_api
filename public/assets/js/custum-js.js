@@ -249,8 +249,6 @@ $(document).ready(function () {
                     `);
                     $("#msgError").toggle(800)
                 } else {
-                    let uid = response.user.uid
-                    setUidCookie(uid);
                     msgError = "Inscription réussie, vous serez redirigé dans quelques secondes. <span class='decompte'>5</span>s"
                     $("#msgError").html(`
                         <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
@@ -265,7 +263,7 @@ $(document).ready(function () {
                         </div>
                     `);
                     $(".getInfo").val("");
-                    $("#msgError").toggle(800);
+                    $("#msgError").show();
                     let timerr = setInterval(() => {
                         let temps = parseInt($('.decompte').text());
                         if(temps >= 1){
