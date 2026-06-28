@@ -220,24 +220,57 @@ class Promotion
         return $this->mode;
     }
 
+    /**
+     * Coefficient d'attractivité stable par promo (entre 4% et 25%).
+     * Dérivé de l'ID — ne change jamais pour une promo donnée.
+     * Simule le fait que certaines promos engagent naturellement plus que d'autres.
+     */
+    private function getAttractiviteCoeff(): int
+    {
+        $id = $this->id ?? 1;
+        return (($id * 31 + 17) % 22) + 4;
+    }
+
+    /**
+     * Multiplicateur de portée stable par promo (1, 2 ou 3).
+     * Dérivé de l'ID — certaines promos touchent naturellement plus de monde.
+     */
+    private function getReachMultiplier(): int
+    {
+        $id = $this->id ?? 1;
+        return (($id * 13 + 7) % 3) + 1;
+    }
+
     public function setToWatch($user, $mode): self
     {
-        if($mode == "fakeVue") {
-            $this->nombreImpression += rand(0, 20);
-            $this->nombreDeVue += rand(0, 8);
-        } else if($mode == "web") {
-            $this->nombreImpression += rand(0, 6);
-        } else if($mode == "all" || $mode == "vue") {
-            if($user->getId() != $this->getUser()->getId()) {
+        $ctr   = $this->getAttractiviteCoeff(); // 4–25 %, propre à chaque promo
+        $reach = $this->getReachMultiplier();   // 1, 2 ou 3, propre à chaque promo
+
+        if ($mode == "fakeVue") {
+            // Boost payant : grande portée, CTR doublé plafonné à 30 %
+            $this->nombreImpression += rand(20, 50) * $reach;
+            if (rand(1, 100) <= min($ctr * 2, 30)) {
+                $this->nombreDeVue += rand(1, 3);
+            }
+        } elseif ($mode == "web") {
+            $this->nombreImpression += rand(2, 8) * $reach;
+        } elseif ($mode == "all" || $mode == "vue") {
+            if ($user->getId() != $this->getUser()->getId()) {
                 if (in_array($user->getId(), $this->whoSaw)) {
-                    $this->nombreImpression += rand(0, 4);
+                    // Utilisateur déjà vu : petite impression de rappel seulement
+                    $this->nombreImpression += rand(1, 5) * $reach;
                 } else {
-                    $this->nombreImpression += rand(0, 5);
+                    // Nouveau spectateur : impression + marquage whoSaw
+                    $this->nombreImpression += rand(6, 15) * $reach;
                     array_push($this->whoSaw, $user->getId());
+                    // Vue : probabilité propre à cette promo (jamais la même pour toutes)
+                    if (rand(1, 100) <= $ctr) {
+                        $this->nombreDeVue += 1;
+                    }
                 }
-                $this->nombreDeVue += rand(0, 1);
             }
         }
+
         return $this;
     }
 
