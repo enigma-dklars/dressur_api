@@ -2727,6 +2727,10 @@ $(document).ready(function () {
     });
 
     $(document).on("click", "#ajouter_tous_les_contacts", function () {
+        if ($(this).data("boost-en-cours") == "0") {
+            $("#doit_faire_boost_contact").modal("show");
+            return;
+        }
         let url = $(this).attr("url");
         $.ajax({
             type: "POST",
