@@ -13,9 +13,15 @@
         </small>
     </div>
     {% if contacts|length > 0 %}
-    <div class="d-flex gap-2">
-        <a href="{{ path('app_guide_import_contacts') }}" class="btn btn-sm btn-primary">
-            <i class="fas fa-mobile-alt me-1"></i> Enregistrer dans mon téléphone
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ path('app_export_csv') }}" class="btn btn-sm btn-outline-secondary" title="Exporter en CSV">
+            <i class="fa-solid fa-file-export me-1"></i> CSV
+        </a>
+        <a href="{{ path('app_export_vcf') }}" class="btn btn-sm btn-outline-secondary" title="Exporter en VCF">
+            <i class="fa-solid fa-file-export me-1"></i> VCF
+        </a>
+        <a href="{{ path('app_guide_import_contacts') }}" class="btn btn-sm btn-primary" title="Guide d'import dans le téléphone">
+            <i class="fas fa-mobile-alt me-1"></i> Importer dans mon téléphone
         </a>
     </div>
     {% endif %}
