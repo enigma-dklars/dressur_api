@@ -3,84 +3,295 @@
 {% block title %}Contacts{% endblock %}
 
 {% block body %}
-<div class="row g-3">
-    <div class="col-md-6">
-        <p class="h5 mb-0">{{contacts|length}} Contact(s) Dressur</p>
+
+{# ── En-tête ───────────────────────────────────────────────────────────── #}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+        <h5 class="mb-0 fw-bold">Contacts Dressur</h5>
+        <small class="text-muted" id="contactCount">
+            {{ contacts|length }} contact{{ contacts|length != 1 ? 's' : '' }}
+        </small>
     </div>
-    <div class="col-md-6 text-end">
-        {% if contacts|length > 0 %}
-            <a href="{{path('app_export_csv')}}" class="btn btn-sm btn-secondary me-1"><i class="fa-solid fa-file-export me-1"></i> Exporter <span class="badge">CSV</span></a>
-            <a href="{{path('app_export_vcf')}}" class="btn btn-sm btn-primary"><i class="fa-solid fa-file-export me-1"></i> Exporter <span class="badge">VCF</span></a>
-        {% endif %}
+    {% if contacts|length > 0 %}
+    <div class="d-flex gap-2">
+        <a href="{{ path('app_export_csv') }}" class="btn btn-sm btn-secondary">
+            <i class="fa-solid fa-file-export me-1"></i> CSV
+        </a>
+        <a href="{{ path('app_export_vcf') }}" class="btn btn-sm btn-primary">
+            <i class="fa-solid fa-file-export me-1"></i> VCF
+        </a>
     </div>
+    {% endif %}
+</div>
+
+{# ── Barre de recherche (client-side) ─────────────────────────────────── #}
+{% if contacts|length > 0 %}
+<div class="mb-3">
+    <div class="input-group shadow-sm">
+        <span class="input-group-text bg-white border-end-0 text-muted">
+            <i class="fas fa-search"></i>
+        </span>
+        <input type="text"
+               id="searchContact"
+               class="form-control border-start-0 border-end-0 ps-0"
+               placeholder="Rechercher par nom, pseudo, téléphone...">
+        <button class="btn btn-outline-secondary border-start-0"
+                type="button"
+                id="clearSearch"
+                style="display:none;"
+                title="Effacer">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<div id="noSearchResult" class="alert alert-info text-center d-none">
+    <i class="fas fa-search me-2"></i>Aucun contact trouvé pour cette recherche.
+</div>
+{% endif %}
+
+{# ── Grille des contacts ───────────────────────────────────────────────── #}
+<div class="row g-3" id="contactGrid">
     {% for contact in contacts %}
-        <div class="col-md-4">
-            <div class="card mb-0">
-                <div class="card-body">
+
+        <div class="col-md-4 col-sm-6 contact-card-col"
+             data-nom="{{ contact.nom|lower }}"
+             data-pseudo="{{ contact.pseudo|lower }}"
+             data-tel="{{ contact.tel|lower }}">
+
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body pb-1">
+
+                    {# ── Ligne supérieure : avatar + nom + bouton info ── #}
                     <div class="d-flex align-items-center">
-                        <img src="/assets/images-pays/{{contact.pays}}.png" alt="" class="rounded-circle" width="50" height="50">
-                        <div class="ms-3">
-                            <h6 class="mb-0 dropdown-user-name contact-name">{{contact.nom}}</h6>
-                            <small class="mb-0 dropdown-user-designation text-secondary">@{{contact.pseudo}}</small>
+
+                        {# Avatar coloré avec initiales (rempli par JS) #}
+                        <div class="contact-avatar flex-shrink-0"
+                             data-name="{{ (contact.nom is not empty ? contact.nom : contact.pseudo)|trim }}">
                         </div>
-                    </div>
-                    <p class="mb-0 mt-2">
-                        <a href="tel:{{contact.tel}}" class="btn btn-sm btn-primary pe-3 me-1"><i class="fas fa-phone"></i></a>
-                        <a href="mailto:{{contact.mail}}" class="btn btn-sm btn-primary pe-3 me-1"><i class="fas fa-envelope"></i></a>
-                        <a href="https://wa.me/{{contact.tel}}" class="btn btn-sm btn-primary pe-3 me-1"><i class="fab fa-whatsapp"></i></a>
-                        {% set plus = 0 %}
-                        {% if contact.tiktok %}
-                            {% set plus = 1 %}
-                        {% endif %}
-                        {% if contact.instagram %}
-                            {% set plus = 1 %}
-                        {% endif %}
-                        {% if contact.facebook %}
-                            {% set plus = 1 %}
-                        {% endif %}
-                        {% if contact.youtube %}
-                            {% set plus = 1 %}
-                        {% endif %}
-                        {% if contact.apropos %}
-                            {% set plus = 1 %}
-                        {% endif %}
-                        {% if plus == 1 %}
-                            <button class="btn btn-sm btn-primary pe-3 me-1" data-bs-toggle="modal" data-bs-target="#modal_contact_{{contact.id}}"><i class="fas fa-info"></i></button>
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-                <div class="modal fade" id="modal_contact_{{contact.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-body">
-                                {% if contact.tiktok %}
-                                    <a href="{{contact.tiktok}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-tiktok me-2"></i> TikTok</a>
-                                {% endif %}
-                                {% if contact.instagram %}
-                                    <a href="{{contact.instagram}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-instagram me-2"></i> Instagram</a>
-                                {% endif %}
-                                {% if contact.facebook %}
-                                    <a href="{{contact.facebook}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-facebook-f me-2"></i> FaceBook</a>
-                                {% endif %}
-                                {% if contact.youtube %}
-                                    <a href="{{contact.youtube}}" class="btn btn-light w-100 text-start mb-2"><i class="fab fa-youtube me-2"></i> Youtube</a>
-                                {% endif %}
-                                {% if contact.apropos %}
-                                    {{contact.apropos|nl2br}}
+
+                        <div class="ms-2 overflow-hidden flex-grow-1">
+                            <div class="fw-semibold text-truncate" style="font-size:.92rem;">
+                                {% if contact.nom is not empty %}
+                                    {{ contact.nom }}
+                                    {% if contact.pseudo is not empty %}
+                                        <span class="text-muted fw-normal" style="font-size:.82rem;">- {{ contact.pseudo }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    {{ contact.pseudo }}
                                 {% endif %}
                             </div>
-                            <div class="modal-footer">
+                            <small class="text-muted">{{ contact.tel }}</small>
+                        </div>
+
+                        {# Bouton info → modal réseaux sociaux / à propos #}
+                        {% if contact.tiktok or contact.instagram or contact.facebook or contact.youtube or contact.apropos %}
+                            <button class="btn btn-link btn-sm text-muted p-1 ms-1 flex-shrink-0"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modal_contact_{{ contact.id }}">
+                                <i class="fas fa-info-circle fa-lg"></i>
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-2">
+
+                    {# ── Boutons d'action ──────────────────────────── #}
+                    <div class="d-flex justify-content-around py-1">
+                        <a href="tel:{{ contact.tel }}"
+                           class="btn btn-link text-primary p-1"
+                           title="Appeler">
+                            <i class="fas fa-phone fa-lg"></i>
+                        </a>
+                        <a href="sms:{{ contact.tel }}"
+                           class="btn btn-link text-primary p-1"
+                           title="Envoyer un SMS">
+                            <i class="fas fa-comment fa-lg"></i>
+                        </a>
+                        <a href="mailto:{{ contact.mail }}"
+                           class="btn btn-link text-primary p-1"
+                           title="Envoyer un email">
+                            <i class="fas fa-envelope fa-lg"></i>
+                        </a>
+                        <a href="https://wa.me/{{ contact.tel }}"
+                           class="btn btn-link text-primary p-1"
+                           title="WhatsApp"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="fab fa-whatsapp fa-lg"></i>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+            {# ── Modal réseaux sociaux / à propos ──────────────────── #}
+            {% if contact.tiktok or contact.instagram or contact.facebook or contact.youtube or contact.apropos %}
+                <div class="modal fade"
+                     id="modal_contact_{{ contact.id }}"
+                     tabindex="-1"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header py-2">
+                                <h6 class="modal-title fw-bold">
+                                    {{ contact.nom is not empty ? contact.nom : contact.pseudo }}
+                                    {% if contact.pseudo is not empty and contact.nom is not empty %}
+                                        <small class="text-muted fw-normal">@{{ contact.pseudo }}</small>
+                                    {% endif %}
+                                </h6>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                {% if contact.tiktok %}
+                                    <a href="{{ contact.tiktok }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
+                                        <i class="fab fa-tiktok me-2"></i> TikTok
+                                    </a>
+                                {% endif %}
+                                {% if contact.instagram %}
+                                    <a href="{{ contact.instagram }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
+                                        <i class="fab fa-instagram me-2"></i> Instagram
+                                    </a>
+                                {% endif %}
+                                {% if contact.facebook %}
+                                    <a href="{{ contact.facebook }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
+                                        <i class="fab fa-facebook-f me-2"></i> Facebook
+                                    </a>
+                                {% endif %}
+                                {% if contact.youtube %}
+                                    <a href="{{ contact.youtube }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
+                                        <i class="fab fa-youtube me-2"></i> YouTube
+                                    </a>
+                                {% endif %}
+                                {% if contact.apropos %}
+                                    <div class="p-3 bg-light rounded small mt-1" style="white-space: pre-line;">{{ contact.apropos }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="modal-footer py-2">
                                 <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
                             </div>
                         </div>
                     </div>
                 </div>
+            {% endif %}
+
         </div>
+
     {% else %}
-        <div class="alert alert-info text-center fw-semibold fs-6">
-            Vous n'avez pas encore de contact sur Dressur. Faites un Boost Contact pour en avoir.
+
+        <div class="col-12">
+            <div class="card border-0 bg-light text-center py-5">
+                <div class="card-body">
+                    <i class="fas fa-address-book text-muted" style="font-size:3rem;"></i>
+                    <p class="mt-3 mb-1 fw-semibold text-muted">Vous n'avez pas encore de contact sur Dressur.</p>
+                    <p class="small text-muted mb-3">Faites un Boost Contact pour en avoir.</p>
+                    <a href="/newboostcontact" class="btn btn-primary btn-sm">
+                        <i class="fas fa-rocket me-1"></i> Créer un Boost
+                    </a>
+                </div>
+            </div>
         </div>
+
     {% endfor %}
 </div>
+
+{# ── Styles avatar ─────────────────────────────────────────────────────── #}
+<style>
+.contact-avatar {
+    width:  44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    letter-spacing: .5px;
+    flex-shrink: 0;
+}
+</style>
+
+{# ── Script inline : avatars + recherche ──────────────────────────────── #}
+<script>
+(function () {
+    /* Palette identique à la mobile (liste_contact.dart) */
+    var COLORS = [
+        '#1565C0', '#2E7D32', '#6A1B9A', '#C62828',
+        '#00838F', '#E65100', '#4527A0', '#00695C',
+        '#558B2F', '#283593', '#880E4F', '#37474F'
+    ];
+
+    function hashColor(name) {
+        var key = (name || '').toLowerCase();
+        var h = 0;
+        for (var i = 0; i < key.length; i++) {
+            h = (h * 31 + key.charCodeAt(i)) & 0x7FFFFFFF;
+        }
+        return COLORS[h % COLORS.length];
+    }
+
+    function initials(name) {
+        var parts = (name || '').trim().split(/\s+/).filter(function (p) { return p.length > 0; });
+        if (parts.length === 0) return '?';
+        if (parts.length === 1)  return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    /* ── Avatars ── */
+    document.querySelectorAll('.contact-avatar').forEach(function (el) {
+        var name = el.getAttribute('data-name') || '';
+        el.style.backgroundColor = hashColor(name);
+        el.textContent = initials(name);
+    });
+
+    /* ── Recherche client-side ── */
+    var searchInput = document.getElementById('searchContact');
+    if (!searchInput) return;
+
+    var clearBtn   = document.getElementById('clearSearch');
+    var noResult   = document.getElementById('noSearchResult');
+    var cards      = document.querySelectorAll('.contact-card-col');
+    var countEl    = document.getElementById('contactCount');
+    var totalCount = cards.length;
+
+    function doFilter() {
+        var query   = searchInput.value.toLowerCase().trim();
+        var visible = 0;
+
+        if (clearBtn) clearBtn.style.display = query ? '' : 'none';
+
+        cards.forEach(function (col) {
+            var nom    = col.getAttribute('data-nom')    || '';
+            var pseudo = col.getAttribute('data-pseudo') || '';
+            var tel    = col.getAttribute('data-tel')    || '';
+            var match  = !query ||
+                         nom.indexOf(query)    !== -1 ||
+                         pseudo.indexOf(query) !== -1 ||
+                         tel.indexOf(query)    !== -1;
+            col.style.display = match ? '' : 'none';
+            if (match) visible++;
+        });
+
+        if (noResult) noResult.classList.toggle('d-none', visible > 0);
+
+        if (countEl) {
+            var suffix  = visible !== 1 ? 's' : '';
+            var extra   = (visible !== totalCount) ? ' / ' + totalCount : '';
+            countEl.textContent = visible + extra + ' contact' + suffix;
+        }
+    }
+
+    searchInput.addEventListener('input', doFilter);
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            doFilter();
+            searchInput.focus();
+        });
+    }
+}());
+</script>
+
 {% endblock %}
