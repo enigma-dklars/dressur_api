@@ -1,7 +1,7 @@
 {% set r = app.request.attributes.get('_route') %}
 
 {# ── Groupes actifs ──────────────────────────────────────────────────── #}
-{% set reception_routes  = ['app_contact','app_hub_reception'] %}
+{% set reception_routes  = ['app_contact','app_hub_reception','app_guide_import_contacts','app_export_vcf','app_export_csv'] %}
 {% set reception_active  = r in reception_routes %}
 
 {% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
@@ -70,6 +70,21 @@
           <li>
             <a href="#" class="small-fort sidebar-soon">
               <i class="fas fa-trophy"></i>Récompenses
+            </a>
+          </li>
+          <li class="{{ r == 'app_guide_import_contacts' ? 'mm-active' : '' }}">
+            <a href="/contacts/guide-import" class="small-fort {{ r == 'app_guide_import_contacts' ? 'active' : '' }}">
+              <i class="fas fa-book-open"></i>Guide d'import
+            </a>
+          </li>
+          <li class="{{ r == 'app_export_vcf' ? 'mm-active' : '' }}">
+            <a href="/export_vcf" class="small-fort {{ r == 'app_export_vcf' ? 'active' : '' }}">
+              <i class="fas fa-address-card"></i>Export VCF
+            </a>
+          </li>
+          <li class="{{ r == 'app_export_csv' ? 'mm-active' : '' }}">
+            <a href="/export_csv" class="small-fort {{ r == 'app_export_csv' ? 'active' : '' }}">
+              <i class="fas fa-file-csv"></i>Export CSV
             </a>
           </li>
         </ul>

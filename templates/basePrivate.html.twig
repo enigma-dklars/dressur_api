@@ -109,7 +109,7 @@
 
 <body>
 {% set r = app.request.attributes.get('_route') %}
-{% set _reception_routes = ['app_contact','app_hub_reception'] %}
+{% set _reception_routes = ['app_contact','app_hub_reception','app_guide_import_contacts','app_export_vcf','app_export_csv'] %}
 {% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
 {% set _pref_routes      = ['app_preferencePays','app_hub_preferences'] %}
 {% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
