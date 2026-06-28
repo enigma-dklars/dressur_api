@@ -202,9 +202,8 @@ html.dark-theme #ds-header .navbar-toggler { color: #7fa4f7; border-color: rgba(
                 </ul>
 
                 <div class="d-flex align-items-center gap-2 ds-cta-group">
-                    <div hidden>fas fa-moon fas fa-sun</div>
-                    <div class="ds-theme-btn change-theme" title="Changer le thème">
-                        <i class="fas {% if theme == 'dark-theme' %}fa-sun{% else %}fa-moon{% endif %} ici-theme"></i>
+                    <div class="ds-theme-btn" id="ds-public-theme-btn" title="Changer le thème">
+                        <i class="fas fa-moon" id="ds-public-theme-icon"></i>
                     </div>
                     {% if is_connect == "oui" %}
                         <a href="{{ path('app_private') }}" class="btn-ds-dashboard text-decoration-none">
@@ -227,10 +226,54 @@ html.dark-theme #ds-header .navbar-toggler { color: #7fa4f7; border-color: rgba(
 
 <script>
 (function(){
+    /* ── Scroll shadow ── */
     var h = document.getElementById('ds-header');
-    if(!h) return;
-    function onScroll(){ h.classList.toggle('scrolled', window.scrollY > 10); }
-    window.addEventListener('scroll', onScroll, {passive:true});
-    onScroll();
+    if(h){
+        function onScroll(){ h.classList.toggle('scrolled', window.scrollY > 10); }
+        window.addEventListener('scroll', onScroll, {passive:true});
+        onScroll();
+    }
+
+    /* ── Theme toggle autonome ── */
+    var btn  = document.getElementById('ds-public-theme-btn');
+    var icon = document.getElementById('ds-public-theme-icon');
+    if(!btn || !icon) return;
+
+    /* Convention : fa-moon = "cliquer pour passer en dark" (on est en light)
+                   fa-sun  = "cliquer pour passer en light" (on est en dark) */
+    function isDark(){
+        return document.documentElement.classList.contains('dark-theme');
+    }
+
+    function syncIcon(){
+        if(isDark()){
+            icon.className = 'fas fa-sun';   /* on est en dark → proposer le soleil */
+        } else {
+            icon.className = 'fas fa-moon';  /* on est en light → proposer la lune */
+        }
+    }
+
+    function setThemeCookie(theme){
+        var d = new Date();
+        d.setTime(d.getTime() + 365*24*60*60*1000);
+        document.cookie = 'theme=' + theme + ';expires=' + d.toUTCString() + ';path=/';
+    }
+
+    /* Synchroniser l'icône au chargement selon le vrai état du <html> */
+    syncIcon();
+
+    btn.addEventListener('click', function(){
+        var html = document.documentElement;
+        if(isDark()){
+            html.classList.remove('dark-theme');
+            html.classList.add('light-theme');
+            setThemeCookie('light-theme');
+        } else {
+            html.classList.remove('light-theme', 'semi-dark');
+            html.classList.add('dark-theme');
+            setThemeCookie('dark-theme');
+        }
+        syncIcon();
+    });
 })();
 </script>
