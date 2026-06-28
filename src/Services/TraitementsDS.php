@@ -1325,10 +1325,14 @@ class TraitementsDS extends AbstractController
         
         foreach ($this->messageRepository->findBy(['recepteur' => $user]) as $element) { $this->em->remove($element); }
 
-        $this->em->getConnection()->executeStatement(
-            'DELETE FROM dsbonus_historique WHERE user_id = :id',
-            ['id' => $user->getId()]
-        );
+        try {
+            $this->em->getConnection()->executeStatement(
+                'DELETE FROM dsbonus_historique WHERE user_id = :id',
+                ['id' => $user->getId()]
+            );
+        } catch (\Throwable $e) {
+            // Table absente en dev — on ignore et on continue la purge
+        }
 
         $deletedDS = new DeletedDS();
         $deletedDS->setMail($user->getMail())
