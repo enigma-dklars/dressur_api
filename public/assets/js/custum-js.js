@@ -594,7 +594,7 @@ $(document).ready(function () {
                         </div>
                     `);
                     $(".getInfo").val("");
-                    $("#msgError").toggle(800);
+                    $("#msgError").show();
                     let timerr = setInterval(() => {
                         let temps = parseInt($('.decompte').text());
                         if(temps >= 1){
@@ -756,7 +756,7 @@ $(document).ready(function () {
                         </div>
                     `);
                     $(".getInfo").val("");
-                    $("#msgError").toggle(800);
+                    $("#msgError").show();
                 }
                 traitementContact("newcampagnemail", "fin", "Envoyer")
             }
@@ -860,7 +860,7 @@ $(document).ready(function () {
                         </div>
                     `);
                     $(".getInfo").val("");
-                    $("#msgError-"+idCampagneMail).toggle(800);
+                    $("#msgError-"+idCampagneMail).show();
                 }
                 traitementContact("payerCampageMail-"+idCampagneMail, "fin", "Payer")
             }
@@ -964,7 +964,7 @@ $(document).ready(function () {
                         </div>
                     `);
                     $(".getInfo").val("");
-                    $("#msgError").toggle(800);
+                    $("#msgError").show();
                 }
                 traitementContact("newPromoReseau", "fin", "Payer et Démarrer")
             }
