@@ -76,7 +76,7 @@ class UserController extends AbstractController
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone ?? 'fr');
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
         $password = $datas->get('password');
@@ -620,10 +620,11 @@ class UserController extends AbstractController
     #[Route('/getUserInfo', name: 'getUserInfo', methods: ['POST'])]
     public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
     {
+        try {
         $datas = $request->request;
         
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone ?? 'fr');
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $uid = str_replace(["\n", "\r", " "], "", $uid);
@@ -673,6 +674,14 @@ class UserController extends AbstractController
             'titre' => 'Erreur!',
             'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
         ]);
+        } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getUserInfo : UserController', $th . '<br><br><br>');
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => 'Service temporairement indisponible. Veuillez réessayer.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 
     #[Route('/sendMailVerification', name: 'sendMailVerification', methods: ['POST'])]
@@ -870,7 +879,7 @@ class UserController extends AbstractController
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone ?? 'fr');
 
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
 
@@ -907,8 +916,6 @@ class UserController extends AbstractController
 
         $this->traitementsDS->migrateUidIfNeeded($user);
         $newPassword = $traitementsDS->resetPassword();
-        $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
-        $this->em->flush();
 
         $html = $this->renderView("emails/passe_4got_mail.html.twig",[
             'code' => $newPassword,
@@ -930,6 +937,10 @@ class UserController extends AbstractController
                 'message' => "Erreur d'envoi du mail. Veuillez réessayer.",
             ]);
         }
+
+        $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
+        $this->em->flush();
+
         return new JsonResponse([
             'error' => false,
         ]);
@@ -950,7 +961,7 @@ class UserController extends AbstractController
         $datas = $request->request;
 
         $langUserPhone = $datas->get('langUserPhone');
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $sessionDS->set("langUserPhone", $langUserPhone ?? 'fr');
         
         $tel = str_replace(" ", "", $datas->get('tel'));
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
@@ -1087,7 +1098,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if(strlen($password) < 6) {
+        if(strlen($password) < 6 || !preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
             if($sessionDS->get("langUserPhone") != "fr") {
                 return new JsonResponse([
                     'error' => true,
@@ -1152,7 +1163,9 @@ class UserController extends AbstractController
         $verifMail = new VerifMail();
         $verifMail->setUser($user);
         $this->em->persist($verifMail);
-        
+
+        $this->em->flush();
+
         $sendMail->smtpMail(
             $user->getMail(), 
             "Confirmation du Mail", 
@@ -1161,8 +1174,6 @@ class UserController extends AbstractController
                 'username' => $user,
             ])
         );
-
-        $this->em->flush();
         $dressur->getContact()->setNewAddMe($user);
         $this->em->flush();
 
