@@ -1,7 +1,6 @@
 {% extends 'base.html.twig' %}
 
 {% set description = "Découvrez Dressur, la solution mobile et web qui vous permet de gérer vos compétences et de garantir une grande visibilité. Téléchargez l'application et inscrivez-vous dès aujourd'hui !" %}
-
 {% set title = "Accueil" %}
 
 {% block referencement %}
@@ -80,7 +79,9 @@
 
 {% block style %}
 <style>
-    /* ── Hero ── */
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
     .hero-section {
         background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 50%, #1565c0 100%);
         min-height: 88vh;
@@ -92,10 +93,8 @@
     .hero-section::before {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 600px;
-        height: 600px;
+        top: -50%; right: -10%;
+        width: 600px; height: 600px;
         border-radius: 50%;
         background: rgba(255,255,255,0.04);
         pointer-events: none;
@@ -103,10 +102,8 @@
     .hero-section::after {
         content: '';
         position: absolute;
-        bottom: -30%;
-        left: -5%;
-        width: 400px;
-        height: 400px;
+        bottom: -30%; left: -5%;
+        width: 400px; height: 400px;
         border-radius: 50%;
         background: rgba(255,255,255,0.03);
         pointer-events: none;
@@ -151,9 +148,7 @@
         margin-bottom: 32px;
         min-height: 28px;
     }
-    .hero-animated-tag span {
-        color: #4fc3f7;
-    }
+    .hero-animated-tag span { color: #4fc3f7; }
     .btn-hero-primary {
         background: #fff;
         color: #1a3a8f;
@@ -196,61 +191,71 @@
         border-color: rgba(255,255,255,0.6);
         transform: translateY(-2px);
     }
-    .hero-image-wrap {
-        position: relative;
-    }
+    /* FIX: image complète, pas de crop */
     .hero-image-wrap img {
         border-radius: 20px;
         box-shadow: 0 30px 80px rgba(0,0,0,0.4);
-        max-height: 480px;
-        object-fit: cover;
         width: 100%;
-    }
-    .hero-glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(ellipse, rgba(79,195,247,0.2), transparent 70%);
-        pointer-events: none;
-        border-radius: 20px;
+        height: auto;
+        display: block;
     }
 
-    /* ── Stats bar ── */
+    /* ══════════════════════════════════════
+       STATS BAR
+    ══════════════════════════════════════ */
     .stats-bar {
+        padding: 0;
+        position: relative;
+        z-index: 2;
+    }
+    .stats-inner {
         background: #fff;
-        border-bottom: 1px solid #e9ecef;
-        padding: 24px 0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+        padding: 28px 36px;
+        margin-top: -36px;
+        position: relative;
     }
     .stat-item {
         text-align: center;
-        padding: 0 12px;
+        padding: 8px 16px;
     }
     .stat-number {
-        font-size: 1.9rem;
-        font-weight: 800;
+        font-size: 2rem;
+        font-weight: 900;
         color: #1a3a8f;
         line-height: 1;
         display: block;
+        letter-spacing: -1px;
     }
     .stat-label {
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         color: #6c757d;
-        font-weight: 500;
-        margin-top: 4px;
+        font-weight: 600;
+        margin-top: 5px;
         display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .stat-divider {
         width: 1px;
-        height: 40px;
-        background: #dee2e6;
-        margin: auto;
+        background: #e9ecef;
+        align-self: stretch;
+        margin: 4px 0;
     }
 
-    /* ── Section headers ── */
+    /* dark-theme override */
+    html.dark-theme .stats-inner {
+        background: #202a40;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    }
+    html.dark-theme .stat-number { color: #4fc3f7; }
+    html.dark-theme .stat-label  { color: #9ea4aa; }
+    html.dark-theme .stat-divider { background: #2e3a55; }
+
+    /* ══════════════════════════════════════
+       SECTION HEADERS
+    ══════════════════════════════════════ */
     .section-tag {
         display: inline-block;
         background: #e8f0fe;
@@ -263,12 +268,17 @@
         border-radius: 50px;
         margin-bottom: 12px;
     }
+    html.dark-theme .section-tag {
+        background: rgba(79,195,247,0.15);
+        color: #4fc3f7;
+    }
     .section-title {
         font-size: clamp(1.6rem, 3vw, 2.2rem);
         font-weight: 800;
         color: #0f2460;
         margin-bottom: 10px;
     }
+    html.dark-theme .section-title { color: #fcfcfc; }
     .section-desc {
         color: #6c757d;
         font-size: 1rem;
@@ -276,18 +286,23 @@
         margin: 0 auto;
         line-height: 1.7;
     }
+    html.dark-theme .section-desc { color: #9ea4aa; }
 
-    /* ── Services ── */
+    /* ══════════════════════════════════════
+       SERVICES
+    ══════════════════════════════════════ */
     .services-section {
         background: #f8f9ff;
-        padding: 80px 0;
+        padding: 80px 0 60px;
     }
+    html.dark-theme .services-section { background: #1a2232; }
+
     .service-card {
         background: #fff;
         border-radius: 20px;
         padding: 36px 28px;
         height: 100%;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
         border: 2px solid transparent;
         box-shadow: 0 2px 16px rgba(0,0,0,0.06);
         text-decoration: none;
@@ -295,15 +310,24 @@
         display: flex;
         flex-direction: column;
     }
+    html.dark-theme .service-card {
+        background: #202a40;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+        color: #fcfcfc;
+    }
     .service-card:hover {
         transform: translateY(-8px);
         border-color: #1a3a8f;
         box-shadow: 0 20px 50px rgba(26,58,143,0.15);
         color: inherit;
     }
+    html.dark-theme .service-card:hover {
+        border-color: #4fc3f7;
+        box-shadow: 0 20px 50px rgba(79,195,247,0.12);
+        color: #fcfcfc;
+    }
     .service-icon {
-        width: 64px;
-        height: 64px;
+        width: 64px; height: 64px;
         border-radius: 18px;
         display: flex;
         align-items: center;
@@ -317,12 +341,17 @@
     .service-icon.orange { background: #fff3e0; color: #e65100; }
     .service-icon.purple { background: #f3e5f5; color: #6a1b9a; }
     .service-icon.teal   { background: #e0f2f1; color: #00695c; }
+    html.dark-theme .service-icon.blue   { background: rgba(26,58,143,0.3);  color: #90caf9; }
+    html.dark-theme .service-icon.orange { background: rgba(230,81,0,0.25);  color: #ffb74d; }
+    html.dark-theme .service-icon.purple { background: rgba(106,27,154,0.3); color: #ce93d8; }
+    html.dark-theme .service-icon.teal   { background: rgba(0,105,92,0.3);   color: #80cbc4; }
     .service-card h5 {
         font-size: 1.05rem;
         font-weight: 700;
         color: #0f2460;
         margin-bottom: 10px;
     }
+    html.dark-theme .service-card h5 { color: #fcfcfc; }
     .service-card p {
         font-size: 0.88rem;
         color: #6c757d;
@@ -330,6 +359,7 @@
         flex-grow: 1;
         margin-bottom: 16px;
     }
+    html.dark-theme .service-card p { color: #9ea4aa; }
     .service-link {
         font-size: 0.85rem;
         font-weight: 700;
@@ -340,7 +370,8 @@
         margin-top: auto;
         text-decoration: none;
     }
-    .service-link:hover { color: #0d47a1; }
+    html.dark-theme .service-link { color: #4fc3f7; }
+    .service-link:hover { opacity: 0.8; }
     .service-card.featured {
         background: linear-gradient(135deg, #0f2460, #1a3a8f);
         color: #fff;
@@ -350,15 +381,19 @@
     .service-card.featured .service-link { color: #fff; }
     .service-card.featured .service-icon { background: rgba(255,255,255,0.15); color: #fff; }
     .service-card.featured:hover { border-color: #4fc3f7; }
+    html.dark-theme .service-card.featured { background: linear-gradient(135deg, #0d1e4a, #1a3a8f); }
 
-    /* ── How it works ── */
+    /* ══════════════════════════════════════
+       HOW IT WORKS
+    ══════════════════════════════════════ */
     .how-section {
         padding: 80px 0;
         background: #fff;
     }
+    html.dark-theme .how-section { background: #202a40; }
+
     .step-number {
-        width: 52px;
-        height: 52px;
+        width: 52px; height: 52px;
         background: linear-gradient(135deg, #0f2460, #1a3a8f);
         color: #fff;
         border-radius: 50%;
@@ -377,12 +412,10 @@
     }
     .step-connector {
         position: absolute;
-        top: 52px;
-        right: -20%;
-        width: 40%;
-        height: 2px;
-        background: repeating-linear-gradient(90deg, #1a3a8f 0, #1a3a8f 6px, transparent 6px, transparent 12px);
-        opacity: 0.3;
+        top: 52px; right: -20%;
+        width: 40%; height: 2px;
+        background: repeating-linear-gradient(90deg,#1a3a8f 0,#1a3a8f 6px,transparent 6px,transparent 12px);
+        opacity: 0.25;
     }
     .step-card:last-child .step-connector { display: none; }
     .step-card h5 {
@@ -390,17 +423,23 @@
         color: #0f2460;
         margin-bottom: 10px;
     }
+    html.dark-theme .step-card h5 { color: #fcfcfc; }
     .step-card p {
         font-size: 0.88rem;
         color: #6c757d;
         line-height: 1.65;
     }
+    html.dark-theme .step-card p { color: #9ea4aa; }
 
-    /* ── Social networks ── */
+    /* ══════════════════════════════════════
+       SOCIAL NETWORKS
+    ══════════════════════════════════════ */
     .social-section {
         padding: 70px 0;
         background: #f8f9ff;
     }
+    html.dark-theme .social-section { background: #1a2232; }
+
     .social-grid {
         display: flex;
         flex-wrap: wrap;
@@ -423,17 +462,31 @@
         transition: all 0.25s;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+    html.dark-theme .social-pill {
+        background: #202a40;
+        border-color: #2e3a55;
+        color: #fcfcfc;
+        box-shadow: none;
+    }
     .social-pill:hover {
         border-color: #1a3a8f;
         box-shadow: 0 4px 16px rgba(26,58,143,0.15);
         transform: translateY(-2px);
     }
+    html.dark-theme .social-pill:hover {
+        border-color: #4fc3f7;
+        box-shadow: 0 4px 16px rgba(79,195,247,0.12);
+    }
 
-    /* ── Promotions ── */
+    /* ══════════════════════════════════════
+       PROMOTIONS
+    ══════════════════════════════════════ */
     .promos-section {
         padding: 80px 0;
         background: #fff;
     }
+    html.dark-theme .promos-section { background: #202a40; }
+
     .promo-card {
         border-radius: 16px;
         overflow: hidden;
@@ -441,26 +494,49 @@
         transition: all 0.3s;
         border: none;
         height: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
+    html.dark-theme .promo-card {
+        background: #1a2232;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     .promo-card:hover {
         transform: translateY(-6px);
         box-shadow: 0 16px 40px rgba(0,0,0,0.14);
+        color: inherit;
+    }
+    html.dark-theme .promo-card:hover {
+        box-shadow: 0 16px 40px rgba(0,0,0,0.4);
     }
     .promo-card .card-img-top {
         height: 200px;
         object-fit: cover;
-        cursor: pointer;
+        display: block;
+        width: 100%;
     }
+    .promo-card .card-body { flex: 1; }
+    .promo-card .card-text {
+        font-size: 0.88rem;
+        line-height: 1.55;
+        color: #374151;
+    }
+    html.dark-theme .promo-card .card-text { color: #c8cdd4; }
     .promo-meta {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 14px;
         font-size: 0.8rem;
         color: #6c757d;
     }
     .promo-meta i { color: #1a3a8f; }
+    html.dark-theme .promo-meta i { color: #4fc3f7; }
 
-    /* ── CTA bottom ── */
+    /* ══════════════════════════════════════
+       CTA BOTTOM
+    ══════════════════════════════════════ */
     .cta-section {
         background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 60%, #1565c0 100%);
         padding: 80px 0;
@@ -491,14 +567,17 @@
         line-height: 1.7;
     }
 
-    /* ── Cursor blink ── */
+    /* ══════════════════════════════════════
+       CURSOR BLINK
+    ══════════════════════════════════════ */
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
     .typed-cursor { animation: blink 1s infinite; color: #4fc3f7; }
 
     @media (max-width: 991px) {
-        .hero-section { min-height: auto; padding: 60px 0 40px; }
+        .hero-section { min-height: auto; padding: 60px 0 60px; }
         .hero-image-wrap { margin-top: 40px; }
         .step-connector { display: none; }
+        .stats-inner { margin-top: 0; border-radius: 0; }
     }
 </style>
 {% endblock %}
@@ -518,7 +597,7 @@
                 </div>
                 <h1 class="hero-title">
                     Boostez votre<br>
-                    <span>visibilité & vos affaires</span><br>
+                    <span>visibilité &amp; vos affaires</span><br>
                     avec Dressur
                 </h1>
                 <p class="hero-subtitle">
@@ -531,15 +610,14 @@
                     <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-hero-primary">
                         <i class="fab fa-google-play"></i> Google Play
                     </a>
-                    <a href="{{path('app_inscription')}}" class="btn-hero-outline">
+                    <a href="{{ path('app_inscription') }}" class="btn-hero-outline">
                         <i class="fas fa-user-plus"></i> S'inscrire gratuitement
                     </a>
                 </div>
             </div>
             <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
                 <div class="hero-image-wrap">
-                    <div class="hero-glow"></div>
-                    <img src="/assets/img/hero.jpg" alt="Dressur Mobile & Web" class="animated">
+                    <img src="/assets/img/hero.jpg" alt="Dressur Mobile &amp; Web" class="animated">
                 </div>
             </div>
         </div>
@@ -547,42 +625,44 @@
 </section>
 
 {# ══════════════════════════════════════
-   STATS BAR
+   STATS BAR — flottante sur le hero
 ══════════════════════════════════════ #}
 <div class="stats-bar">
     <div class="container">
-        <div class="row justify-content-center g-0 text-center">
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <span class="stat-number">10 000+</span>
-                    <span class="stat-label">Utilisateurs actifs</span>
+        <div class="stats-inner">
+            <div class="row g-0 justify-content-center align-items-center text-center">
+                <div class="col-6 col-md">
+                    <div class="stat-item">
+                        <span class="stat-number">10 000+</span>
+                        <span class="stat-label">Membres</span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-auto d-none d-md-flex align-items-center px-3">
-                <div class="stat-divider"></div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <span class="stat-number">50 000+</span>
-                    <span class="stat-label">Contacts échangés</span>
+                <div class="col-auto d-none d-md-block">
+                    <div class="stat-divider" style="height:48px;"></div>
                 </div>
-            </div>
-            <div class="col-md-auto d-none d-md-flex align-items-center px-3">
-                <div class="stat-divider"></div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <span class="stat-number">15+</span>
-                    <span class="stat-label">Réseaux sociaux supportés</span>
+                <div class="col-6 col-md">
+                    <div class="stat-item">
+                        <span class="stat-number">50 000+</span>
+                        <span class="stat-label">Contacts échangés</span>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-auto d-none d-md-flex align-items-center px-3">
-                <div class="stat-divider"></div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <span class="stat-number">4.8★</span>
-                    <span class="stat-label">Note sur Google Play</span>
+                <div class="col-auto d-none d-md-block">
+                    <div class="stat-divider" style="height:48px;"></div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="stat-item">
+                        <span class="stat-number">15+</span>
+                        <span class="stat-label">Réseaux supportés</span>
+                    </div>
+                </div>
+                <div class="col-auto d-none d-md-block">
+                    <div class="stat-divider" style="height:48px;"></div>
+                </div>
+                <div class="col-6 col-md">
+                    <div class="stat-item">
+                        <span class="stat-number">4.8 ★</span>
+                        <span class="stat-label">Note Google Play</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -602,23 +682,21 @@
 
         <div class="row g-4">
             <div class="col-lg-8" data-aos="fade-up" data-aos-delay="50">
-                <a href="{{path('app_dressur_bot')}}" class="service-card featured d-flex">
+                <a href="{{ path('app_dressur_bot') }}" class="service-card featured d-flex">
                     <div class="d-flex flex-column">
                         <div class="service-icon">
                             <i class="fas fa-robot"></i>
                         </div>
                         <h5>Dressur Bot — Envoi WhatsApp en masse</h5>
-                        <p>Application Windows qui automatise l'envoi de messages via WhatsApp Web ou Desktop. Fournissez un fichier VCF avec vos contacts et un message : le bot s'occupe du reste. Idéal pour les campagnes marketing et la prospection à grande échelle.</p>
+                        <p>Application Windows qui automatise l'envoi de messages via WhatsApp Web ou Desktop. Fournissez un fichier VCF et un message : le bot s'occupe du reste. Idéal pour les campagnes marketing et la prospection à grande échelle.</p>
                         <span class="service-link">Découvrir Dressur Bot <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
             </div>
 
             <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
-                <a href="{{path('app_boost_contact')}}" class="service-card">
-                    <div class="service-icon blue">
-                        <i class="fas fa-users"></i>
-                    </div>
+                <a href="{{ path('app_boost_contact') }}" class="service-card">
+                    <div class="service-icon blue"><i class="fas fa-users"></i></div>
                     <h5>Boost Contact</h5>
                     <p>Nos algorithmes intelligents vous affichent les contacts selon vos préférences pays et centres d'intérêt.</p>
                     <span class="service-link">En savoir plus <i class="fas fa-arrow-right"></i></span>
@@ -626,10 +704,8 @@
             </div>
 
             <div class="col-lg-4" data-aos="fade-up" data-aos-delay="150">
-                <a href="{{path('app_promotion_affaire')}}" class="service-card">
-                    <div class="service-icon orange">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
+                <a href="{{ path('app_promotion_affaire') }}" class="service-card">
+                    <div class="service-icon orange"><i class="fas fa-bullhorn"></i></div>
                     <h5>Promotion Affaire</h5>
                     <p>Publiez vos offres d'emploi, produits, services ou demandes. Atteignez des milliers de prospects ciblés.</p>
                     <span class="service-link">En savoir plus <i class="fas fa-arrow-right"></i></span>
@@ -637,10 +713,8 @@
             </div>
 
             <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
-                <a href="{{path('app_promotion_reseaux_sociaux')}}" class="service-card">
-                    <div class="service-icon purple">
-                        <i class="fas fa-thumbs-up"></i>
-                    </div>
+                <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="service-card">
+                    <div class="service-icon purple"><i class="fas fa-thumbs-up"></i></div>
                     <h5>Promotions Réseaux Sociaux</h5>
                     <p>Achetez des abonnés, likes, commentaires et partages sur Facebook, TikTok, Instagram, YouTube et plus.</p>
                     <span class="service-link">En savoir plus <i class="fas fa-arrow-right"></i></span>
@@ -649,9 +723,7 @@
 
             <div class="col-lg-4" data-aos="fade-up" data-aos-delay="250">
                 <div class="service-card">
-                    <div class="service-icon teal">
-                        <i class="fas fa-clock"></i>
-                    </div>
+                    <div class="service-icon teal"><i class="fas fa-clock"></i></div>
                     <h5>Gain de Temps</h5>
                     <p>Les contacts enregistrés sont synchronisés automatiquement dans les deux téléphones. Zéro saisie manuelle.</p>
                 </div>
@@ -661,7 +733,7 @@
 </section>
 
 {# ══════════════════════════════════════
-   HOW IT WORKS
+   COMMENT ÇA MARCHE
 ══════════════════════════════════════ #}
 <section class="how-section">
     <div class="container">
@@ -729,7 +801,7 @@
 </section>
 
 {# ══════════════════════════════════════
-   TOP PROMOTIONS
+   TOP 6 PROMOTIONS — lien vers page détail
 ══════════════════════════════════════ #}
 <section class="promos-section">
     <div class="container">
@@ -738,80 +810,40 @@
                 <span class="section-tag">Annonces récentes</span>
                 <h2 class="section-title mb-0">Top 6 des Promotions Affaires</h2>
             </div>
-            <a href="{{path('app_promotion_affaire')}}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">
+            <a href="{{ path('app_promotion_affaire') }}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold">
                 Voir tout <i class="fas fa-arrow-right ms-2"></i>
             </a>
         </div>
 
         <div class="row g-4">
             {% for actu in actus %}
-                {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
-                {% set encodedText = text|url_encode %}
-                {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
-
                 {% set altText %}{% if actu.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.lieu_travail is defined and actu.annotherInfo.lieu_travail %} à {{ actu.annotherInfo.lieu_travail }}{% endif %} — {{ actu.pseudoAnnonceur }}{% elseif actu.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.localisation_souhaite is defined and actu.annotherInfo.localisation_souhaite %} à {{ actu.annotherInfo.localisation_souhaite }}{% endif %} — {{ actu.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ actu.pseudoAnnonceur }}{% endif %}{% endset %}
 
                 <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 50 }}">
-                    <div class="card promo-card">
+                    <a href="/actualite/{{ actu.token }}" class="promo-card card mb-0">
                         <img src="/assets/images/placeholder.png"
-                             data-original="/promotion/{{actu.image}}"
+                             data-original="/promotion/{{ actu.image }}"
                              class="lazy card-img-top image-actu"
                              alt="{{ altText|trim }}"
                              loading="lazy"
-                             width="400" height="200"
-                             data-bs-toggle="modal"
-                             data-bs-target="#modal_actu_{{actu.id}}"
-                             style="cursor:pointer;">
+                             width="400" height="200">
                         <div class="card-body p-3">
-                            <p class="card-text actu-small-description mb-3" style="font-size:0.88rem; color:#374151; line-height:1.55; cursor:pointer;"
-                               data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
-                                {% if actu.typePromotionAffaire == "produit_service" %}{{actu.description}}{% endif %}
-                                {% if actu.typePromotionAffaire == "offre_emploi" %}{{actu.annotherInfo.description_poste}}{% endif %}
-                                {% if actu.typePromotionAffaire == "dmd_emploi" %}{{actu.annotherInfo.description_profil_demandeur}}{% endif %}
+                            <p class="card-text actu-small-description mb-3">
+                                {% if actu.typePromotionAffaire == "produit_service" %}{{ actu.description }}{% endif %}
+                                {% if actu.typePromotionAffaire == "offre_emploi" %}{{ actu.annotherInfo.description_poste }}{% endif %}
+                                {% if actu.typePromotionAffaire == "dmd_emploi" %}{{ actu.annotherInfo.description_profil_demandeur }}{% endif %}
                             </p>
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="promo-meta">
-                                    <span><i class="fas fa-eye me-1"></i>{{actu.nombreImpression}}</span>
-                                    <span><i class="fas fa-hand-pointer me-1"></i>{{actu.nombreDeVues}}</span>
+                                    <span><i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}</span>
+                                    <span><i class="fas fa-hand-pointer me-1"></i>{{ actu.nombreDeVues }}</span>
                                 </div>
-                                <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm rounded-pill px-3 py-1" style="font-size:0.8rem;">
-                                    <i class="fab fa-whatsapp me-1"></i> Contacter
-                                </a>
+                                <span class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1" style="font-size:0.8rem; pointer-events:none;">
+                                    Voir <i class="fas fa-arrow-right ms-1"></i>
+                                </span>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display:none;" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-scrollable">
-                            <div class="modal-content rounded-4 overflow-hidden">
-                                <div class="modal-body p-0">
-                                    <img src="/promotion/{{actu.image}}" class="card-img-top" alt="{{ altText|trim }}">
-                                    <div class="p-3">
-                                        <p class="text-end mb-2">
-                                            <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm rounded-pill">
-                                                <i class="fab fa-whatsapp me-1"></i> Contacter l'annonceur
-                                            </a>
-                                        </p>
-                                        <p>
-                                            {% if actu.typePromotionAffaire == "produit_service" %}{{actu.description|nl2br}}{% endif %}
-                                            {% if actu.typePromotionAffaire == "offre_emploi" %}{{actu.annotherInfo.description_poste|nl2br}}{% endif %}
-                                            {% if actu.typePromotionAffaire == "dmd_emploi" %}{{actu.annotherInfo.description_profil_demandeur|nl2br}}{% endif %}
-                                        </p>
-                                        {% for key, value in actu.annotherInfo %}
-                                            <div class="mb-2">
-                                                <div class="fw-bold text-primary small">{{ key|replace({'_': ' '})|capitalize }} :</div>
-                                                <div style="word-wrap:break-word; white-space:normal; font-size:0.9rem;">{{ value|nl2br }}</div>
-                                                <hr class="my-2">
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                                <div class="modal-footer py-2">
-                                    <button type="button" class="btn btn-secondary btn-sm rounded-pill" data-bs-dismiss="modal">Fermer</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </a>
                 </div>
             {% endfor %}
         </div>
@@ -826,7 +858,7 @@
         <h2>Prêt à développer votre réseau ?</h2>
         <p>Rejoignez des milliers d'entrepreneurs et professionnels qui font confiance à Dressur pour booster leur visibilité.</p>
         <div class="d-flex flex-wrap gap-3 justify-content-center">
-            <a href="{{path('app_inscription')}}" class="btn-hero-primary">
+            <a href="{{ path('app_inscription') }}" class="btn-hero-primary">
                 <i class="fas fa-user-plus"></i> Créer mon compte gratuit
             </a>
             <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-hero-outline">
@@ -840,34 +872,21 @@
 
 {% block script %}
 <script>
-(function() {
-    const services = [
-        "Boost Contact",
-        "Promotion Affaire",
-        "Promotions Réseaux Sociaux",
-        "Dressur Bot"
-    ];
+(function () {
+    const services = ['Boost Contact', 'Promotion Affaire', 'Promotions Réseaux Sociaux', 'Dressur Bot'];
     let si = 0, ci = 0, deleting = false;
     const el = document.getElementById('animated-service');
     if (!el) return;
-
     function tick() {
         const word = services[si];
         if (!deleting) {
             el.textContent = word.substring(0, ci + 1);
             ci++;
-            if (ci === word.length) {
-                deleting = true;
-                setTimeout(tick, 1600);
-                return;
-            }
+            if (ci === word.length) { deleting = true; setTimeout(tick, 1600); return; }
         } else {
             el.textContent = word.substring(0, ci - 1);
             ci--;
-            if (ci === 0) {
-                deleting = false;
-                si = (si + 1) % services.length;
-            }
+            if (ci === 0) { deleting = false; si = (si + 1) % services.length; }
         }
         setTimeout(tick, deleting ? 60 : 90);
     }
