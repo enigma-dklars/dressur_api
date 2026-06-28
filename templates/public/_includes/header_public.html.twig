@@ -16,7 +16,8 @@ html.dark-theme #ds-header {
     border-bottom-color: rgba(255,255,255,.07);
 }
 
-#ds-header .navbar-brand img { height: 36px; width: auto; }
+#ds-header .navbar-brand img { height: 36px; width: auto; transition: filter .25s; }
+html.dark-theme #ds-header .navbar-brand img { filter: brightness(0) invert(1); }
 
 /* Nav links */
 #ds-header .nav-link {
