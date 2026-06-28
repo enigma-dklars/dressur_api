@@ -412,17 +412,18 @@ function expandStoryDesc() {
         {% endif %}
 
         {% if user.nombreContactDispo > 0 %}
-            {# <div class="col-md-12">
+            <div class="col-md-12">
                 <div class="card radius-10 mb-0 h-100">
                     <div class="card-body">
                         <p class="mb-2 text-primary fw-normal fs-4">
-                            <i class="fas fa-users-rectangle me-1"></i> ADD DS Disponible
+                            <i class="fas fa-users-rectangle me-1"></i> Contacts Disponibles
                         </p>
                         <p class="mb-2 fs-6 mb-1">
                             {{user.nombreContactDispo}} contact(s) disponible(s) selon vos préférences pays.
                         </p>
-                        <p class="px-3 py-2 mb-2 small bg-danger rounded text-white">
-                            Note : Vous utilisez la version web de Dressur. L'enregistrement des contacts ne sera donc pas automatique dans votre téléphone. Pour enregistrer les contacts obtenus dans votre téléphone, veuillez accéder à la page "Liste des contacts" sur Dressur Web et exporter les contacts au format VCF ou CSV, puis les importer dans votre téléphone. Afin de vous assurer de ne manquer aucun nouveau contact, connectez-vous deux fois par jour pour effectuer cette action.
+                        <p class="px-3 py-2 mb-2 small bg-warning rounded text-dark">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Cliquez sur le bouton ci-dessous pour récupérer vos contacts. Vous serez ensuite redirigé vers votre liste de contacts, depuis laquelle vous pourrez les exporter au format <strong>VCF</strong> ou <strong>CSV</strong> et suivre le <strong>guide d'import</strong> pour les enregistrer dans votre téléphone.
                         </p>
                         <div class="mt-2 mb-1">
                             {% if user.telIsVerified == true %}
@@ -434,11 +435,10 @@ function expandStoryDesc() {
                                     Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
                                 </button>
                             {% endif %}
-                            <a href="/contact" class="btn btn-md btn-info">Liste des contacts</a>
                         </div>
                     </div>
                 </div>
-            </div> #}
+            </div>
         {% endif %}
     </div>
 
