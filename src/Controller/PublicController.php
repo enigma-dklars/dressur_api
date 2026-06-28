@@ -355,7 +355,7 @@ class PublicController extends AbstractController
         ]);
     }
 
-    #[Route('/services', name: 'app_services')]
+    #[Route('/services-all', name: 'app_services')]
     public function services(
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
         FormulePromoReseauRepository  $formulePromoReseauRepository
