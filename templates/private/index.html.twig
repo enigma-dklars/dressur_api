@@ -427,7 +427,7 @@ function expandStoryDesc() {
                         </p>
                         <div class="mt-2 mb-1">
                             {% if user.telIsVerified == true %}
-                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts">
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts" data-boost-en-cours="{{ user.boostEnCours ? '1' : '0' }}">
                                     Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
                                 </button>
                             {% else %}
@@ -440,6 +440,29 @@ function expandStoryDesc() {
                 </div>
             </div>
         {% endif %}
+    </div>
+
+    <div class="modal fade" id="doit_faire_boost_contact" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <p class="mb-0 text-secondary"><i class="fas fa-rocket me-1"></i> Boost Contact requis</p>
+                            <p class="mt-1 mb-2">
+                                Vous n'avez pas de Boost Contact en cours. Veuillez créer un Boost Contact pour pouvoir récupérer des contacts.
+                            </p>
+                            <a href="/newboostcontact" class="btn btn-primary btn-sm">
+                                <i class="fas fa-rocket me-1"></i> Créer un Boost Contact
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="doit_confirmer_le_numéro_whatsapp" tabindex="-1" style="display: none;" aria-hidden="true">
