@@ -33,7 +33,7 @@
                     <textarea id="inputMotif" class="form-control" rows="4"
                               placeholder="Expliquez brièvement pourquoi vous souhaitez supprimer votre compte…"
                               maxlength="500"></textarea>
-                    <div class="form-text">Minimum 10 caractères.</div>
+                    <div class="form-text">Minimum 100 caractères.</div>
                 </div>
 
                 {# Confirmation mot #}
@@ -69,7 +69,6 @@
 
 <script>
 (function () {
-    const uid          = "{{ user.uid }}";
     const langUser     = "fr";
     const apiUrl       = "https://dressur.site/deleteCompteDS";
 
@@ -100,8 +99,8 @@
         const motif   = inputMotif.value.trim();
         const confirm = inputConfirm.value.trim().toLowerCase();
 
-        if (motif.length < 10) {
-            showError("Veuillez saisir un motif d'au moins 10 caractères.");
+        if (motif.length < 100) {
+            showError("Veuillez saisir un motif d'au moins 100 caractères.");
             return;
         }
         if (confirm !== 'supprimer') {
@@ -113,7 +112,6 @@
 
         try {
             const formData = new FormData();
-            formData.append('uid',           uid);
             formData.append('langUserPhone', langUser);
             formData.append('motifDeleted',  motif);
 
