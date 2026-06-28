@@ -2736,30 +2736,7 @@ $(document).ready(function () {
                 traitementContact("ajouter_tous_les_contacts", "debut", "")
             },
             success: function (response) {
-                $.ajax({
-                    type: "POST",
-                    url: "/contact",
-                    data: "data",
-                    beforeSend: function (response) {
-                        $(".page-content").html(`
-                            <div id="parent">
-                                <div id="loader-wrapper">
-                                    <div id="loader"></div>
-                                    <div class="loader-section section-left"></div>
-                                    <div class="loader-section section-right"></div>
-                                </div>
-                            </div>
-                        `);
-                    },
-                    success: function (response) {
-                        if(response.error == false){
-                            $(".page-content").html(response.content); 
-                        } else {
-                            // window.location.reload()
-                            $(".page-content").html(response); 
-                        }
-                    }
-                });
+                window.location.href = "/contact";
             },
         });
     });
