@@ -74,8 +74,8 @@
     .page-hero-breadcrumb a { color:rgba(255,255,255,0.7); text-decoration:none; }
     .page-hero-breadcrumb a:hover { color:#fff; }
     .page-hero h1 { color:#fff; font-weight:800; font-size:clamp(1.9rem,4vw,2.8rem); margin-bottom:10px; }
-    .page-hero p { color:rgba(255,255,255,0.78); font-size:1.05rem; max-width:580px; margin:0 auto 28px; }
-    .page-hero .hero-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .page-hero p { color:rgba(255,255,255,0.78); font-size:1.05rem; max-width:580px; margin-bottom:28px; }
+    .page-hero .hero-actions { display:flex; gap:12px; flex-wrap:wrap; }
     .btn-hero-primary {
         background:#fff; color:#0f2460; border:none; border-radius:50px;
         padding:11px 28px; font-weight:700; font-size:0.92rem;
@@ -170,8 +170,8 @@
 {% block body %}
 
 <div class="page-hero">
-    <div class="container text-center">
-        <div class="page-hero-breadcrumb justify-content-center">
+    <div class="container">
+        <div class="page-hero-breadcrumb">
             <a href="{{ path('app_public') }}"><i class="fas fa-house me-1"></i> Accueil</a>
             <i class="fas fa-chevron-right" style="font-size:10px"></i>
             <span>Nos Services</span>
