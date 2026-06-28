@@ -1,7 +1,7 @@
 {% set r = app.request.attributes.get('_route') %}
 
 {# ── Groupes actifs ──────────────────────────────────────────────────── #}
-{% set reception_routes  = ['app_private','app_contact'] %}
+{% set reception_routes  = ['app_contact'] %}
 {% set reception_active  = r in reception_routes %}
 
 {% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau'] %}
@@ -12,7 +12,7 @@
 {% set pref_routes       = ['app_preferencePays'] %}
 {% set pref_active       = r in pref_routes %}
 
-{% set params_routes     = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser'] %}
+{% set params_routes     = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte'] %}
 {% set params_active     = r in params_routes %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
@@ -47,6 +47,14 @@
         </a>
       </li>
 
+      {# ── Dashboard ─────────────────────────────────────────────────── #}
+      <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
+        <a href="/private" class="{{ r == 'app_private' ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-house-user"></i></div>
+          <div class="menu-title">Dashboard</div>
+        </a>
+      </li>
+
       {# ── Réception ─────────────────────────────────────────────────── #}
       <li class="{{ reception_active ? 'mm-active' : '' }}">
         <a href="javascript:;" class="has-arrow {{ reception_active ? 'active' : '' }}">
@@ -54,11 +62,6 @@
           <div class="menu-title">Réception</div>
         </a>
         <ul class="{{ reception_active ? 'mm-show' : '' }}">
-          <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
-            <a href="/private" class="small-fort {{ r == 'app_private' ? 'active' : '' }}">
-              <i class="fas fa-house-user"></i>Dashboard
-            </a>
-          </li>
           <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
             <a href="/contact" class="small-fort {{ r == 'app_contact' ? 'active' : '' }}">
               <i class="fas fa-address-book"></i>Contacts
@@ -67,16 +70,6 @@
           <li>
             <a href="#" class="small-fort sidebar-soon">
               <i class="fas fa-trophy"></i>Récompenses
-            </a>
-          </li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon">
-              <i class="fas fa-arrows-rotate"></i>Synchronisation avancée
-            </a>
-          </li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon">
-              <i class="fas fa-bell"></i>Notifications
             </a>
           </li>
         </ul>
@@ -144,11 +137,6 @@
           <div class="menu-title">Préférences</div>
         </a>
         <ul class="{{ pref_active ? 'mm-show' : '' }}">
-          <li>
-            <a href="#" class="small-fort sidebar-soon">
-              <i class="fas fa-address-card"></i>Contacts Dressur
-            </a>
-          </li>
           <li class="{{ r == 'app_preferencePays' ? 'mm-active' : '' }}">
             <a href="/preferencePays" class="small-fort {{ r == 'app_preferencePays' ? 'active' : '' }}">
               <i class="fas fa-globe"></i>Pays ciblés
@@ -180,8 +168,8 @@
 
           {# — Assistance & Avis — #}
           <li class="sidebar-section-label"><span>Assistance &amp; Avis</span></li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon">
+          <li class="{{ r == 'app_support' ? 'mm-active' : '' }}">
+            <a href="/support" class="small-fort {{ r == 'app_support' ? 'active' : '' }}">
               <i class="fas fa-headset"></i>Support Technique
             </a>
           </li>
@@ -198,21 +186,16 @@
 
           {# — Actions Avancées — #}
           <li class="sidebar-section-label"><span>Actions Avancées</span></li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon" style="color:#e67e22;">
-              <i class="fas fa-broom"></i>Supprimer les contacts DS
-            </a>
-          </li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon" style="color:#e74c3c;">
+          <li class="{{ r == 'app_deleteCompte' ? 'mm-active' : '' }}">
+            <a href="/deleteCompte" class="small-fort {{ r == 'app_deleteCompte' ? 'active' : '' }}" style="color:#e74c3c;">
               <i class="fas fa-trash"></i>Supprimer mon compte
             </a>
           </li>
 
           {# — Application — #}
           <li class="sidebar-section-label"><span>Application</span></li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon">
+          <li class="{{ r == 'app_apropos' ? 'mm-active' : '' }}">
+            <a href="/apropos" class="small-fort {{ r == 'app_apropos' ? 'active' : '' }}">
               <i class="fas fa-circle-info"></i>À Propos
             </a>
           </li>

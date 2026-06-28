@@ -805,8 +805,37 @@ class PrivateController extends AbstractController
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
         $sessionDS->set("langUserPhone", "fr");
-        // dd($formuleCampageMails);
         return $this->render('private/centreInteret.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/support', name: 'app_support')]
+    public function support(TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/support.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/apropos', name: 'app_apropos')]
+    public function apropos(TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/apropos.html.twig', [
+            'user' => $traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/deleteCompte', name: 'app_deleteCompte')]
+    public function deleteCompte(TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/deleteCompte.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'theme' => $this->theme,
         ]);

@@ -1,0 +1,144 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Supprimer mon compte{% endblock %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+
+        {# Avertissement #}
+        <div class="alert alert-danger d-flex gap-3 align-items-start mb-4" role="alert">
+            <i class="fas fa-triangle-exclamation fa-lg mt-1 flex-shrink-0"></i>
+            <div>
+                <div class="fw-bold mb-1">Action irréversible</div>
+                <div class="small">
+                    La suppression de votre compte entraîne la perte définitive de toutes vos données :
+                    contacts, boosts, promotions, préférences et historiques.
+                    Cette action <strong>ne peut pas être annulée</strong>.
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4 text-danger">
+                    <i class="fas fa-trash me-2"></i>Supprimer mon compte
+                </h5>
+
+                {# Motif #}
+                <div class="mb-3">
+                    <label for="inputMotif" class="form-label fw-semibold">
+                        Motif de suppression <span class="text-danger">*</span>
+                    </label>
+                    <textarea id="inputMotif" class="form-control" rows="4"
+                              placeholder="Expliquez brièvement pourquoi vous souhaitez supprimer votre compte…"
+                              maxlength="500"></textarea>
+                    <div class="form-text">Minimum 10 caractères.</div>
+                </div>
+
+                {# Confirmation mot #}
+                <div class="mb-4">
+                    <label for="inputConfirm" class="form-label fw-semibold">
+                        Tapez <code>supprimer</code> pour confirmer <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" id="inputConfirm" class="form-control"
+                           placeholder="supprimer" autocomplete="off">
+                </div>
+
+                {# Feedback #}
+                <div id="msgDeleteError" class="alert alert-danger py-2 small" style="display:none;"></div>
+                <div id="msgDeleteSuccess" class="alert alert-success py-2 small" style="display:none;"></div>
+
+                {# Boutons #}
+                <div class="d-flex gap-2">
+                    <a href="/private" class="btn btn-outline-secondary flex-fill">
+                        <i class="fas fa-arrow-left me-1"></i>Annuler
+                    </a>
+                    <button id="btnDeleteCompte" class="btn btn-danger flex-fill">
+                        <span id="btnDeleteLabel"><i class="fas fa-trash me-1"></i>Supprimer définitivement</span>
+                        <span id="btnDeleteSpinner" style="display:none;">
+                            <span class="spinner-border spinner-border-sm me-1" role="status"></span>Suppression…
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    const uid          = "{{ user.uid }}";
+    const langUser     = "fr";
+    const apiUrl       = "https://dressur.site/deleteCompteDS";
+
+    const btnDelete    = document.getElementById('btnDeleteCompte');
+    const inputMotif   = document.getElementById('inputMotif');
+    const inputConfirm = document.getElementById('inputConfirm');
+    const msgError     = document.getElementById('msgDeleteError');
+    const msgSuccess   = document.getElementById('msgDeleteSuccess');
+    const btnLabel     = document.getElementById('btnDeleteLabel');
+    const btnSpinner   = document.getElementById('btnDeleteSpinner');
+
+    function showError(msg) {
+        msgError.textContent = msg;
+        msgError.style.display = 'block';
+        msgSuccess.style.display = 'none';
+    }
+
+    function setLoading(loading) {
+        btnDelete.disabled = loading;
+        btnLabel.style.display  = loading ? 'none'  : 'inline';
+        btnSpinner.style.display = loading ? 'inline' : 'none';
+    }
+
+    btnDelete.addEventListener('click', async function () {
+        msgError.style.display   = 'none';
+        msgSuccess.style.display = 'none';
+
+        const motif   = inputMotif.value.trim();
+        const confirm = inputConfirm.value.trim().toLowerCase();
+
+        if (motif.length < 10) {
+            showError("Veuillez saisir un motif d'au moins 10 caractères.");
+            return;
+        }
+        if (confirm !== 'supprimer') {
+            showError("Veuillez taper exactement « supprimer » pour confirmer.");
+            return;
+        }
+
+        setLoading(true);
+
+        try {
+            const formData = new FormData();
+            formData.append('uid',           uid);
+            formData.append('langUserPhone', langUser);
+            formData.append('motifDeleted',  motif);
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                body:   formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.error === false) {
+                msgSuccess.textContent = "Votre compte a été supprimé. Vous allez être déconnecté…";
+                msgSuccess.style.display = 'block';
+                setTimeout(function () {
+                    window.location.href = '/logout';
+                }, 2500);
+            } else {
+                showError(data.message ?? "Une erreur est survenue. Veuillez réessayer.");
+                setLoading(false);
+            }
+        } catch (e) {
+            showError("Impossible de contacter le serveur. Vérifiez votre connexion.");
+            setLoading(false);
+        }
+    });
+})();
+</script>
+{% endblock %}
