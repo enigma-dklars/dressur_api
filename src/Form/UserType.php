@@ -88,9 +88,6 @@ class UserType extends AbstractType
             // ->add('themeDark')
             // ->add('lang')
             // ->add('lastLoginTo')
-            // ->add('avatar')
-            // ->add('banniere')
-            // ->add('hasReceived')
             // ->add('preference')
             // ->add('contact')
         ;

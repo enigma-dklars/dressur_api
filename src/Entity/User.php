@@ -97,15 +97,6 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Suggestion::class, orphanRemoval: true)]
     private Collection $suggestions;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $avatar = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $banniere = null;
-
-    #[ORM\Column(length: 5, nullable: true)]
-    private ?string $hasReceived = null;
-
     #[ORM\Column]
     private ?bool $isInscritProgrammeRecompense = null;
 
@@ -130,8 +121,6 @@ class User
     public function __construct()
     {
         $this->admin = false;
-        $this->avatar = "avatar_".rand(1, 10).".png";
-        $this->banniere = "banniere_dressur.jpg";
         $this->createdAt = new DateTime();
         $this->lastLoginTo = new DateTime();
         $this->uid = \App\Utilities\UuidGenerator::v4();
@@ -553,42 +542,6 @@ class User
                 $suggestion->setUser(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): static
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    public function getBanniere(): ?string
-    {
-        return $this->banniere;
-    }
-
-    public function setBanniere(?string $banniere): static
-    {
-        $this->banniere = $banniere;
-
-        return $this;
-    }
-
-    public function getHasReceived(): ?string
-    {
-        return $this->hasReceived;
-    }
-
-    public function setHasReceived(?string $hasReceived): static
-    {
-        $this->hasReceived = $hasReceived;
 
         return $this;
     }

@@ -998,6 +998,8 @@ class TraitementsDS extends AbstractController
             "totalVuesText" => "0",
             "totalImpressions" => 0,
             "totalImpressionsText" => "0",
+            "avatar" => "nothing",
+            "banniere" => "nothing",
 
             "boostEnCours" => $this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $user])),
             "myDressurVersion" => $this->env->getVersionApp(),
@@ -1005,8 +1007,6 @@ class TraitementsDS extends AbstractController
             "id" => $user->getId(),
             "uid" => $user->getUid(),
             "name_complete" => $user->__toString(),
-            "avatar" => $user->getAvatar(),
-            "banniere" => $user->getBanniere(),
             "pseudo" => $user->getPseudo(),
             "nom" => $user->getNom(),
             "mail" => $user->getMail(),
