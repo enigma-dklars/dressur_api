@@ -59,8 +59,13 @@ class PublicController extends AbstractController
     #[Route('/', name: 'app_public')]
     public function index(TraitementsDS $traitementsDS): Response
     {
+        $actus = array_map(function ($a) {
+            $a['token'] = $this->encodePromoToken($a['id']);
+            return $a;
+        }, $traitementsDS->getTopAffaires(6));
+
         return $this->render('public/index.html.twig', [
-            'actus' => $traitementsDS->getTopAffaires(6),
+            'actus' => $actus,
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
         ]);
