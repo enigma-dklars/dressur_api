@@ -1,24 +1,18 @@
 {% extends 'base.html.twig' %}
 
 {% set description = "Découvrez Dressur, la solution mobile et web qui vous permet de gérer vos compétences et de garantir une grande visibilité. Téléchargez l'application et inscrivez-vous dès aujourd'hui !" %}
-
 {% set title = "Accueil" %}
 
 {% block referencement %}
-    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/og/og-accueil.jpg" />
     <meta property="og:url" content="{{ url('app_public') }}" />
     <meta property="og:type" content="website" />
-
-    <!-- Twitter Card Meta Tags (facultatif) -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{title}} | Dressur Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="twitter:image" content="https://dressur.site/assets/img/og/og-accueil.jpg" />
-
-    <!-- Autres balises meta facultatives -->
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="Dressur, actualités Dressur, produits Dressur, services Dressur, promotions, annonces utilisateurs, gestion compétences, visibilité, réseau social, marketing digital">
 {% endblock %}
@@ -83,362 +77,512 @@
 
 {% block title %}{{title}}{% endblock %}
 
+{% block style %}
+<style>
+    /* ── Hero ──────────────────────────────────────────────── */
+    #ds-hero {
+        background: linear-gradient(135deg, #0f4c2a 0%, #1a7a43 60%, #22a85a 100%);
+        color: #fff;
+        padding: 80px 0 60px;
+        position: relative;
+        overflow: hidden;
+    }
+    #ds-hero::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 350px; height: 350px;
+        background: rgba(255,255,255,.06);
+        border-radius: 50%;
+    }
+    #ds-hero::after {
+        content: '';
+        position: absolute;
+        bottom: -80px; left: -40px;
+        width: 250px; height: 250px;
+        background: rgba(255,255,255,.04);
+        border-radius: 50%;
+    }
+    #ds-hero h1 { font-size: 2.4rem; font-weight: 700; line-height: 1.2; }
+    #ds-hero h1 span { color: #a3f0c4; }
+    #ds-hero .tagline { font-size: 1.1rem; opacity: .88; margin-bottom: 2rem; }
+    .ds-btn-primary {
+        background: #fff;
+        color: #0f4c2a;
+        font-weight: 600;
+        padding: 12px 28px;
+        border-radius: 50px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all .25s;
+        text-decoration: none;
+    }
+    .ds-btn-primary:hover { background: #a3f0c4; color: #0f4c2a; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,.2); }
+    .ds-btn-secondary {
+        background: transparent;
+        color: #fff;
+        font-weight: 600;
+        padding: 11px 28px;
+        border-radius: 50px;
+        border: 2px solid rgba(255,255,255,.6);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all .25s;
+        text-decoration: none;
+    }
+    .ds-btn-secondary:hover { background: rgba(255,255,255,.15); color: #fff; transform: translateY(-2px); }
+    .hero-phone {
+        max-height: 340px;
+        filter: drop-shadow(0 20px 40px rgba(0,0,0,.35));
+        animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+    /* ── Stats ─────────────────────────────────────────────── */
+    #ds-stats {
+        background: #fff;
+        border-bottom: 1px solid #e8e8e8;
+    }
+    .stat-item { text-align: center; padding: 28px 16px; }
+    .stat-item .stat-number { font-size: 2rem; font-weight: 700; color: #1a7a43; }
+    .stat-item .stat-label { font-size: .82rem; color: #666; margin-top: 2px; }
+    .stat-divider { border-left: 1px solid #e0e0e0; }
+
+    /* ── Steps ─────────────────────────────────────────────── */
+    #ds-steps { background: #f8fffe; padding: 64px 0; }
+    .step-card {
+        text-align: center;
+        padding: 32px 20px;
+        position: relative;
+    }
+    .step-number {
+        width: 48px; height: 48px;
+        background: #1a7a43;
+        color: #fff;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+    }
+    .step-arrow {
+        position: absolute;
+        top: 40px; right: -16px;
+        font-size: 1.6rem;
+        color: #cce9d8;
+    }
+    @media(max-width:767px) { .step-arrow { display: none; } }
+
+    /* ── Services ──────────────────────────────────────────── */
+    #ds-services { padding: 64px 0; }
+    .service-card {
+        border: 1px solid #e8f5ee;
+        border-radius: 16px;
+        padding: 32px 24px;
+        text-align: center;
+        transition: all .3s;
+        height: 100%;
+        background: #fff;
+    }
+    .service-card:hover {
+        border-color: #1a7a43;
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(26,122,67,.12);
+    }
+    .service-icon {
+        width: 72px; height: 72px;
+        background: #f0faf4;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 1.8rem;
+        color: #1a7a43;
+        transition: all .3s;
+    }
+    .service-card:hover .service-icon { background: #1a7a43; color: #fff; }
+    .btn-service {
+        background: #f0faf4;
+        color: #1a7a43;
+        border: none;
+        border-radius: 50px;
+        padding: 8px 22px;
+        font-size: .88rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 16px;
+        transition: all .25s;
+    }
+    .btn-service:hover { background: #1a7a43; color: #fff; }
+
+    /* ── Platforms ─────────────────────────────────────────── */
+    #ds-platforms { background: #f8fffe; padding: 56px 0; }
+    .platform-item {
+        text-align: center;
+        padding: 16px 8px;
+    }
+    .platform-item i { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+    .platform-item span { font-size: .78rem; color: #555; display: block; font-weight: 500; }
+
+    /* ── Promotions ────────────────────────────────────────── */
+    #ds-promos { padding: 64px 0; }
+    .promo-card {
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        transition: all .3s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+    }
+    .promo-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.1); }
+    .promo-card img { height: 200px; object-fit: cover; width: 100%; }
+    .promo-card .promo-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .promo-description { font-size: .86rem; color: #555; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; flex: 1; }
+    .promo-stats { font-size: .78rem; color: #888; }
+    .promo-badge {
+        font-size: .7rem;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 50px;
+    }
+
+    /* ── Download CTA ──────────────────────────────────────── */
+    #ds-download {
+        background: linear-gradient(135deg, #0f4c2a 0%, #1a7a43 100%);
+        color: #fff;
+        padding: 72px 0;
+        text-align: center;
+    }
+    #ds-download h2 { font-weight: 700; font-size: 2rem; margin-bottom: 12px; }
+    #ds-download p { opacity: .85; font-size: 1.05rem; margin-bottom: 32px; }
+    .btn-playstore {
+        background: #fff;
+        color: #0f4c2a;
+        font-weight: 700;
+        padding: 14px 36px;
+        border-radius: 50px;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.05rem;
+        text-decoration: none;
+        transition: all .25s;
+        box-shadow: 0 4px 20px rgba(0,0,0,.25);
+    }
+    .btn-playstore:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(0,0,0,.3); background: #a3f0c4; }
+    .section-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; color: #1a1a1a; }
+    .section-subtitle { color: #777; margin-bottom: 40px; font-size: .95rem; }
+</style>
+{% endblock %}
+
 {% block body %}
-    <section id="hero" class="my-4">
-        <div class="container">
-            {# <div class="row justify-content-between"> #}
-            <div class="row">
-                <div class="col-lg-8 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center">
-                    <div data-aos="zoom-out">
-                        <h1>Dressur <span>Mobile & Web</span></h1>
-                        <div id="services-container" class="h5" style="font-weight:600; font-size: 20px">
-                            Dressé votre mur de compétences et assurez-vous une grande visibilité.
-                        </div>
-                        <br>
-                        <span class="h4 fw-semibold">Nos Service(s) : <span id="animated-service" class="text-success"></span></span>
-                        <br> <br> <br>
-                        <div class="d-md-flex text-center text-lg-start justify-content-between">
-                            <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-get-started scrollto mb-2 mb-md-0"> <i class="fs-5 fab fa-google-play me-2"></i> Télécharger sur Google Play</a>
-                            <a href="{{path('app_inscription')}}" class="btn-get-started scrollto">S'inscrire <i class="fs-5 fas fa-user-plus ms-2"></i> </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 order-1 order-lg-2 hero-img" data-aos="zoom-out" data-aos-delay="300">
-                    <img src="/assets/img/hero.jpg" class="img-fluid animated rounded" alt="">
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <section>
-        <div class="card mb-0 rounded-0 shadow">
-            <div class="card-body">
-                <div class="container mb-3">
-                    <h1 class="fs-4 fw-semibold mb-3"><i class="fs-5 fas fa-play"></i> Services Principaux</h1>
-                    
-                    <div class="row g-3">
-                        <div class="col-md-12">
-                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
-                                <i class="fa-brands fa-android fs-1 mb-3 text-primary"></i>
-                                <h5>Dressur Bot</h5>
-                                <p>
-                                    Dressur Bot est une application Windows qui permet d'automatiser l'envoi de messages via WhatsApp Web ou WhatsApp Desktop. Avec Dressur Bot, il suffit de fournir le message à envoyer ainsi qu'un fichier VCF contenant les contacts à joindre. Cette solution est idéale pour les entreprises, les professionnels et les particuliers qui souhaitent envoyer des messages en masse de manière efficace et sans effort.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-stretch">
-                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
-                                <i class="fas fa-users fs-1 mb-3 text-primary"></i>
-                                <h5>Trouvez de nouveaux contacts</h5>
-                                <p>Nos algorithmes intelligents vous affichent les contacts en fonction de vos préférences pays et centre d'intérêt.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-stretch">
-                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
-                                <i class="fas fa-clock fs-1 mb-3 text-primary"></i>
-                                <h5>Gagnez du temps</h5>
-                                <p>Les contacts que vous enregistrez sont automatiquement ajoutés à votre téléphone et vos coordonnées sont ajoutées dans celui de votre contact.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-4 d-flex align-items-stretch">
-                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
-                                <i class="fas fa-bullhorn fs-1 mb-3 text-primary"></i>
-                                <h5>Promouvez vos produits</h5>
-                                <p>Faites connaître vos produits, services, événements, etc. avec des promotions ciblées en fonction de vos préférences.</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
-                                <i class="fas fa-thumbs-up fs-1 mb-3 text-primary"></i>
-                                <h5>Promotions Réseaux Sociaux</h5>
-                                <p>Achetez des abonnés, likes, commentaires, partages, etc. sur Facebook, TikTok, Instagram, YouTube et plus encore.</p>
-                            </div>
-                        </div>
-                        {# <div class="col-md-6 d-flex align-items-stretch">
-                            <div class="feature-box p-4 border rounded text-center d-flex flex-column">
-                                <i class="fas fa-id-card-alt fs-1 mb-3 text-primary"></i>
-                                <h5>Carte de Visite Numérique</h5>
-                                <p>Partagez facilement vos informations de contact avec un QR code moderne et pratique. Plus besoin d'imprimer des centaines de cartes de visite.</p>
-                            </div>
-                        </div> #}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <section id="social-carousel" class="py-5">
-        <div class="container">
-            <div id="carouselSocial" class="carousel slide carousel-zoom" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fab fa-facebook fa-3x text-primary"></i>
-                                {# <p>Facebook</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-instagram fa-3x text-danger"></i>
-                                {# <p>Instagram</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-twitter fa-3x text-info"></i>
-                                {# <p>Twitter</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-linkedin fa-3x text-primary"></i>
-                                {# <p>LinkedIn</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-youtube fa-3x text-danger"></i>
-                                {# <p>YouTube</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fab fa-tiktok fa-3x"></i>
-                                {# <p>TikTok</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-pinterest fa-3x text-danger"></i>
-                                {# <p>Pinterest</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-snapchat fa-3x text-warning"></i>
-                                {# <p>Snapchat</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-reddit fa-3x text-orange"></i>
-                                {# <p>Reddit</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-tumblr fa-3x"></i>
-                                {# <p>Tumblr</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fab fa-quora fa-3x text-maroon"></i>
-                                {# <p>Quora</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-whatsapp fa-3x text-success"></i>
-                                {# <p>WhatsApp</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-discord fa-3x text-purple"></i>
-                                {# <p>Discord</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-medium fa-3x text-black"></i>
-                                {# <p>Medium</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-github fa-3x"></i>
-                                {# <p>GitHub</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fas fa-eye fa-3x text-success"></i>
-                                {# <p>Visibilité</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-chart-line fa-3x text-info"></i>
-                                {# <p>Statistiques</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-address-card fa-3x text-primary"></i>
-                                {# <p>Carte de visite</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-map-marker-alt fa-3x text-danger"></i>
-                                {# <p>Localisation</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-users fa-3x text-warning"></i>
-                                {# <p>Communauté</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fas fa-envelope fa-3x text-primary"></i>
-                                {# <p>Mail</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-sms fa-3x text-warning"></i>
-                                {# <p>SMS</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-share-alt fa-3x text-info"></i>
-                                {# <p>Partage</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-phone fa-3x text-success"></i>
-                                {# <p>Appel</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-question-circle fa-3x text-secondary"></i>
-                                {# <p>Aide</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fas fa-heart fa-3x text-danger"></i>
-                                {# <p>Favori</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-retweet fa-3x text-info"></i>
-                                {# <p>Republication</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-thumbs-up fa-3x text-success"></i>
-                                {# <p>Like</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-thumbs-down fa-3x text-danger"></i>
-                                {# <p>Dislike</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-comment fa-3x text-primary"></i>
-                                {# <p>Commentaire</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fab fa-google fa-3x text-danger"></i>
-                                {# <p>Google</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-google-drive fa-3x text-success"></i>
-                                {# <p>Google Drive</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-google-plus fa-3x text-danger"></i>
-                                {# <p>Google Plus</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-google-pay fa-3x text-primary"></i>
-                                {# <p>Google Pay</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fab fa-google-play fa-3x text-warning"></i>
-                                {# <p>Google Play</p> #}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="carousel-item">
-                        <div class="row justify-content-center">
-                            <div class="col-2 text-center">
-                                <i class="fas fa-robot fa-3x text-secondary"></i>
-                                {# <p>Bot</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-cogs fa-3x text-warning"></i>
-                                {# <p>Automatisation</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-cloud fa-3x text-primary"></i>
-                                {# <p>Cloud</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-server fa-3x text-success"></i>
-                                {# <p>Serveur</p> #}
-                            </div>
-                            <div class="col-2 text-center">
-                                <i class="fas fa-code fa-3x text-info"></i>
-                                {# <p>Code</p> #}
-                            </div>
-                        </div>
-                    </div>
-                      
+{# ═══════════════════════════════════════════════════════════
+   1 — HERO
+═══════════════════════════════════════════════════════════ #}
+<section id="ds-hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7 order-2 order-lg-1">
+                <h1>Boostez votre visibilité<br><span>en Afrique de l'Ouest</span></h1>
+                <p class="tagline">
+                    Dressur connecte les professionnels, entrepreneurs et particuliers.<br>
+                    Trouvez des contacts, promouvez vos affaires et développez votre réseau — sur mobile et sur le web.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="ds-btn-primary">
+                        <i class="fab fa-google-play fs-5"></i> Télécharger sur Google Play
+                    </a>
+                    <a href="{{ path('app_inscription') }}" class="ds-btn-secondary">
+                        S'inscrire gratuitement <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                {% if is_connect %}
+                <p class="mt-3" style="opacity:.75; font-size:.88rem;">
+                    <i class="fas fa-check-circle me-1"></i> Vous êtes connecté —
+                    <a href="{{ path('app_private') }}" style="color:#a3f0c4;">accéder à votre espace</a>
+                </p>
+                {% endif %}
+            </div>
+            <div class="col-lg-5 order-1 order-lg-2 text-center">
+                <img src="/assets/img/hero.jpg" alt="Dressur Application Mobile" class="img-fluid hero-phone rounded-4">
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════
+   2 — STATS
+═══════════════════════════════════════════════════════════ #}
+<section id="ds-stats">
+    <div class="container">
+        <div class="row g-0 text-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number">10K+</div>
+                    <div class="stat-label">Utilisateurs inscrits</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 stat-divider">
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Promotions publiées</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 stat-divider">
+                <div class="stat-item">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label">Pays couverts</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 stat-divider">
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Services disponibles</div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section>
-        <div class="card mb-0 rounded-0 shadow">
-            <div class="card-body">
-                <div class="container mb-3">
-                    <h1 class="fs-4 fw-semibolder mb-3"><i class="fs-5 fas fa-play"></i> Top 6 des Promotions Affaires</h1>
-            
-                    <div class="row g-3">
-                        {% for actu in actus %}
-                            {% set text %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
-                            {% set encodedText = text|url_encode %}
-                            {% set url = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ encodedText %}
-            
-                            {% set altText %}{% if actu.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.lieu_travail is defined and actu.annotherInfo.lieu_travail %} à {{ actu.annotherInfo.lieu_travail }}{% endif %} — {{ actu.pseudoAnnonceur }}{% elseif actu.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.localisation_souhaite is defined and actu.annotherInfo.localisation_souhaite %} à {{ actu.annotherInfo.localisation_souhaite }}{% endif %} — {{ actu.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ actu.pseudoAnnonceur }}{% endif %}{% endset %}
-                            <div class="col-md-4">
-                                <div class="card mb-0 shadow">
-                                    <img src="/assets/images/placeholder.png" data-original="/promotion/{{actu.image}}" class="lazy card-img-top image-actu" alt="{{ altText|trim }}" loading="lazy" width="400" height="300" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
-                                    <div class="card-body">
-                                        <p class="card-text actu-small-description" data-bs-toggle="modal" data-bs-target="#modal_actu_{{actu.id}}">
-                                            {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description}} {% endif %}
-                                            {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste}} {% endif %}
-                                            {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur}} {% endif %}
-                                        </p>
-                                        <div class="row">
-                                            <div class="col-7">
-                                                <div class="row g-3">
-                                                    <div class="col-auto"> <i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
-                                                    <div class="col-auto"> <i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
-                                                </div>
-                                            </div>
-                                            <div class="col-5 text-end">
-                                                <a href="{{ url }}" target="_blank" class="btn btn-info btn-sm rounded-2 py-0">En savoir plus</a>
-                                            </div>
-                                        </div>
-                                    </div>
+{# ═══════════════════════════════════════════════════════════
+   3 — COMMENT ÇA MARCHE
+═══════════════════════════════════════════════════════════ #}
+<section id="ds-steps">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Comment ça marche ?</h2>
+            <p class="section-subtitle">Démarrez en quelques minutes, sans engagement.</p>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-sm-6 col-md-3 position-relative">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <i class="fas fa-user-plus fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Inscrivez-vous</h6>
+                    <p class="text-muted" style="font-size:.88rem;">Créez votre compte gratuitement sur le web ou via l'application mobile.</p>
+                </div>
+                <span class="step-arrow d-none d-md-block"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="col-sm-6 col-md-3 position-relative">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <i class="fas fa-id-card fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Créez votre profil</h6>
+                    <p class="text-muted" style="font-size:.88rem;">Renseignez vos compétences, votre secteur d'activité et vos préférences de contact.</p>
+                </div>
+                <span class="step-arrow d-none d-md-block"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="col-sm-6 col-md-3 position-relative">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <i class="fas fa-bullhorn fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Promouvez &amp; Connectez</h6>
+                    <p class="text-muted" style="font-size:.88rem;">Publiez vos promotions, trouvez des contacts et développez votre réseau.</p>
+                </div>
+                <span class="step-arrow d-none d-md-block"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <i class="fas fa-chart-line fa-2x text-success mb-3"></i>
+                    <h6 class="fw-bold">Suivez vos résultats</h6>
+                    <p class="text-muted" style="font-size:.88rem;">Consultez vos statistiques de vues, d'impressions et de contacts obtenus.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════
+   4 — NOS SERVICES
+═══════════════════════════════════════════════════════════ #}
+<section id="ds-services">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Nos Services</h2>
+            <p class="section-subtitle">Tout ce dont vous avez besoin pour grandir en ligne.</p>
+        </div>
+        <div class="row g-4">
+
+            <div class="col-sm-6 col-lg-3 d-flex">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-users"></i></div>
+                    <h6 class="fw-bold mb-2">Boost Contact</h6>
+                    <p class="text-muted" style="font-size:.86rem;">Augmentez votre nombre de contacts WhatsApp grâce à notre algorithme de mise en relation ciblée.</p>
+                    <a href="{{ path('app_boost_contact') }}" class="btn-service">Découvrir <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3 d-flex">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-store"></i></div>
+                    <h6 class="fw-bold mb-2">Promotion Affaire</h6>
+                    <p class="text-muted" style="font-size:.86rem;">Publiez vos produits, services, offres d'emploi ou demandes d'emploi et touchez des milliers de personnes.</p>
+                    <a href="{{ path('app_promotion_affaire') }}" class="btn-service">Découvrir <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3 d-flex">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-thumbs-up"></i></div>
+                    <h6 class="fw-bold mb-2">Réseaux Sociaux</h6>
+                    <p class="text-muted" style="font-size:.86rem;">Achetez des abonnés, likes, vues et commentaires sur Facebook, Instagram, TikTok, YouTube et plus.</p>
+                    <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="btn-service">Découvrir <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3 d-flex">
+                <div class="service-card">
+                    <div class="service-icon"><i class="fas fa-robot"></i></div>
+                    <h6 class="fw-bold mb-2">Dressur Bot</h6>
+                    <p class="text-muted" style="font-size:.86rem;">Automatisez l'envoi de messages WhatsApp en masse depuis votre PC Windows grâce à notre bot intelligent.</p>
+                    <a href="{{ path('app_dressur_bot') }}" class="btn-service">Découvrir <i class="fas fa-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ path('app_tarifs') }}" class="btn btn-outline-success rounded-pill px-4">
+                <i class="fas fa-tags me-2"></i>Voir tous les tarifs
+            </a>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════
+   5 — PLATEFORMES SUPPORTÉES
+═══════════════════════════════════════════════════════════ #}
+<section id="ds-platforms">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Plateformes supportées</h2>
+            <p class="section-subtitle">Boostez votre présence sur toutes les grandes plateformes sociales.</p>
+        </div>
+        <div class="row row-cols-3 row-cols-sm-4 row-cols-md-6 g-3 justify-content-center">
+            <div class="col"><div class="platform-item"><i class="fab fa-facebook text-primary"></i><span>Facebook</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-instagram text-danger"></i><span>Instagram</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-tiktok"></i><span>TikTok</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-youtube text-danger"></i><span>YouTube</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-twitter text-info"></i><span>Twitter / X</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-whatsapp text-success"></i><span>WhatsApp</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-linkedin text-primary"></i><span>LinkedIn</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-snapchat text-warning"></i><span>Snapchat</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-pinterest text-danger"></i><span>Pinterest</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-telegram text-info"></i><span>Telegram</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fab fa-discord" style="color:#5865F2"></i><span>Discord</span></div></div>
+            <div class="col"><div class="platform-item"><i class="fas fa-ellipsis-h text-secondary"></i><span>Et plus...</span></div></div>
+        </div>
+    </div>
+</section>
+
+{# ═══════════════════════════════════════════════════════════
+   6 — TOP PROMOTIONS AFFAIRES
+═══════════════════════════════════════════════════════════ #}
+{% if actus|length > 0 %}
+<section id="ds-promos">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h2 class="section-title mb-1">Top Promotions Affaires</h2>
+                <p class="section-subtitle mb-0">Les promotions les plus consultées du moment.</p>
+            </div>
+            <a href="{{ path('app_actualite') }}" class="btn btn-outline-success rounded-pill px-4">
+                Voir toutes <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="row g-4">
+            {% for actu in actus %}
+                {% set whatsappText %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.*{% endset %}
+                {% set whatsappUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ (whatsappText|url_encode) %}
+
+                {% if actu.typePromotionAffaire == "offre_emploi" %}
+                    {% set badgeLabel = "Offre d'emploi" %}
+                    {% set badgeClass = "bg-info text-dark" %}
+                    {% set promoText = actu.annotherInfo.description_poste ?? actu.description %}
+                {% elseif actu.typePromotionAffaire == "dmd_emploi" %}
+                    {% set badgeLabel = "Demande d'emploi" %}
+                    {% set badgeClass = "bg-warning text-dark" %}
+                    {% set promoText = actu.annotherInfo.description_profil_demandeur ?? actu.description %}
+                {% else %}
+                    {% set badgeLabel = "Produit / Service" %}
+                    {% set badgeClass = "bg-success text-white" %}
+                    {% set promoText = actu.description %}
+                {% endif %}
+
+                <div class="col-sm-6 col-lg-4 d-flex">
+                    <div class="promo-card w-100">
+                        <a href="{{ path('app_actualite_detail', {'token': actu.token}) }}">
+                            <img src="/assets/images/placeholder.png"
+                                 data-original="/promotion/{{ actu.image }}"
+                                 class="lazy"
+                                 alt="Promotion — {{ actu.pseudoAnnonceur }}"
+                                 loading="lazy">
+                        </a>
+                        <div class="promo-body">
+                            <div class="mb-2">
+                                <span class="promo-badge {{ badgeClass }}">{{ badgeLabel }}</span>
+                            </div>
+                            <p class="promo-description mb-3">{{ promoText }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <div class="promo-stats">
+                                    <i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}
+                                    &nbsp;<i class="fas fa-hand-pointer me-1 ms-2"></i>{{ actu.nombreDeVues }}
                                 </div>
-            
-                                <div class="modal fade" id="modal_actu_{{actu.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-scrollable">
-                                        <div class="modal-content">
-                                            <div class="modal-body p-0">
-                                                <img src="/promotion/{{actu.image}}" class="card-img-top" alt="{{ altText|trim }}">
-                                                <p class="text-end px-3 pt-3 mb-0">
-                                                    <a href="{{ url }}" target="_blank" class="btn btn-success btn-sm mb-3 rounded-5">Contacter l'annonceur</a>
-                                                </p>
-                                                <p class="px-3">
-                                                    {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description|nl2br}} {% endif %}
-                                                    {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste|nl2br}} {% endif %}
-                                                    {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur|nl2br}} {% endif %}
-                                                </p>
-                                                <div class="px-3">
-                                                    {% for key, value in actu.annotherInfo %}
-                                                        <div class="mb-1">
-                                                            <div class="fw-bolder text-primary fs-6">{{ key | replace({'_': ' '}) | capitalize }} : </div>
-                                                            <div style="word-wrap: break-word; white-space: normal;">{{ value|nl2br }}</div>
-                                                            <hr>
-                                                        </div>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ path('app_actualite_detail', {'token': actu.token}) }}"
+                                       class="btn btn-outline-success btn-sm rounded-pill py-0 px-3"
+                                       title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ whatsappUrl }}"
+                                       target="_blank"
+                                       class="btn btn-success btn-sm rounded-pill py-0 px-3"
+                                       title="Contacter sur WhatsApp">
+                                        <i class="fab fa-whatsapp"></i>
+                                    </a>
                                 </div>
                             </div>
-                        {% endfor %}
+                        </div>
                     </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ═══════════════════════════════════════════════════════════
+   7 — DOWNLOAD CTA
+═══════════════════════════════════════════════════════════ #}
+<section id="ds-download">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <h2>Prêt à développer votre réseau ?</h2>
+                <p>Téléchargez l'application Dressur gratuitement sur Google Play et commencez à connecter, promouvoir et grandir dès aujourd'hui.</p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center">
+                    <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-playstore">
+                        <i class="fab fa-google-play fs-4"></i>
+                        <span>
+                            <small style="display:block; font-size:.7rem; font-weight:400; opacity:.8;">Disponible sur</small>
+                            Google Play
+                        </span>
+                    </a>
+                    <a href="{{ path('app_inscription') }}" class="ds-btn-secondary" style="border-color:rgba(255,255,255,.5);">
+                        Créer un compte web <i class="fas fa-user-plus ms-1"></i>
+                    </a>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
 {% endblock %}
