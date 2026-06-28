@@ -2,26 +2,19 @@
 
 {% set embedLink = "https://www.youtube.com/embed/gBXp67DxnL4" %}
 {% set youtubeLink = "https://www.youtube.com/watch?v=gBXp67DxnL4" %}
-
 {% set description = "Dressur Bot est une application Windows qui automatise l'envoi de messages sur WhatsApp Web et Desktop. Simplifiez vos campagnes de communication en masse en fournissant simplement le texte du message et un fichier VCF contenant les contacts. Idéal pour les entreprises et les professionnels." %}
-
 {% set title = "Dressur Bot" %}
 
 {% block referencement %}
-    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="{{title}} | Dressur Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/og/og-dressur-bot.jpg" />
     <meta property="og:url" content="{{ url('app_dressur_bot') }}" />
     <meta property="og:type" content="website" />
-
-    <!-- Twitter Card Meta Tags (facultatif) -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="{{title}} | Dressur Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="twitter:image" content="https://dressur.site/assets/img/og/og-dressur-bot.jpg" />
-
-    <!-- Autres balises meta facultatives -->
     <meta name="description" content="{{description}}" />
     <meta name="keywords" content="Dressur, Dressur Bot, automatisation WhatsApp, envoi de messages WhatsApp, WhatsApp Web, WhatsApp Desktop, fichier VCF, communication en masse, marketing WhatsApp, bot WhatsApp, application Windows">
 {% endblock %}
@@ -40,40 +33,9 @@
   "applicationCategory": "BusinessApplication",
   "softwareVersion": "1.0",
   "screenshot": "https://dressur.site/assets/img/og/og-dressur-bot.jpg",
-  "featureList": [
-    "Automatisation de l'envoi de messages WhatsApp",
-    "Compatible WhatsApp Web et WhatsApp Desktop",
-    "Support des fichiers VCF pour les contacts",
-    "Communication en masse sans limitation"
-  ],
-  "author": {
-    "@type": "Organization",
-    "name": "Dressur",
-    "url": "https://dressur.site",
-    "@id": "https://dressur.site/#organization"
-  },
-  "offers": {
-    "@type": "Offer",
-    "price": "{{ min_price }}",
-    "priceCurrency": "XOF",
-    "availability": "https://schema.org/InStock",
-    "url": "{{ url('app_tarifs') }}",
-    "hasMerchantReturnPolicy": {
-      "@type": "MerchantReturnPolicy",
-      "applicableCountry": "BJ",
-      "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
-    },
-    "shippingDetails": {
-      "@type": "OfferShippingDetails",
-      "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"},
-      "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"},
-      "deliveryTime": {
-        "@type": "ShippingDeliveryTime",
-        "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"},
-        "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}
-      }
-    }
-  },
+  "featureList": ["Automatisation de l'envoi de messages WhatsApp","Compatible WhatsApp Web et WhatsApp Desktop","Support des fichiers VCF pour les contacts","Communication en masse sans limitation"],
+  "author": {"@type": "Organization","name": "Dressur","url": "https://dressur.site","@id": "https://dressur.site/#organization"},
+  "offers": {"@type": "Offer","price": "{{ min_price }}","priceCurrency": "XOF","availability": "https://schema.org/InStock","url": "{{ url('app_tarifs') }}","hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy","applicableCountry": "BJ","returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"},"shippingDetails": {"@type": "OfferShippingDetails","shippingRate": {"@type": "MonetaryAmount","value": "0","currency": "XOF"},"shippingDestination": {"@type": "DefinedRegion","addressCountry": "BJ"},"deliveryTime": {"@type": "ShippingDeliveryTime","handlingTime": {"@type": "QuantitativeValue","minValue": 0,"maxValue": 0,"unitCode": "DAY"},"transitTime": {"@type": "QuantitativeValue","minValue": 0,"maxValue": 0,"unitCode": "DAY"}}}},
   "sameAs": "{{ url('app_tarifs') }}"
 }
 </script>
@@ -84,175 +46,208 @@
 
 {% block title %}{{title}}{% endblock %}
 
+{% block style %}
+<style>
+    .page-hero {
+        background: linear-gradient(135deg, #0f2460 0%, #1a3a8f 55%, #1565c0 100%);
+        padding: 56px 0 44px;
+        position: relative; overflow: hidden;
+    }
+    .page-hero::before { content:''; position:absolute; top:-80px; right:-80px; width:280px; height:280px; border-radius:50%; background:rgba(255,255,255,0.04); pointer-events:none; }
+    .page-hero::after  { content:''; position:absolute; bottom:-60px; left:-60px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.03); pointer-events:none; }
+    .page-hero-breadcrumb { display:flex; align-items:center; gap:8px; font-size:0.82rem; color:rgba(255,255,255,0.6); margin-bottom:14px; }
+    .page-hero-breadcrumb a { color:rgba(255,255,255,0.7); text-decoration:none; }
+    .page-hero-breadcrumb a:hover { color:#fff; }
+    .page-hero h1 { color:#fff; font-weight:800; font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:10px; }
+    .page-hero p  { color:rgba(255,255,255,0.78); font-size:1rem; margin-bottom:0; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:4px 14px; border-radius:50px; font-size:0.8rem; font-weight:600; margin-bottom:14px; }
+
+    .section-tag { display:inline-block; background:#e8f0fe; color:#1a3a8f; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; padding:4px 14px; border-radius:50px; margin-bottom:10px; }
+    html.dark-theme .section-tag { background:#1a3a8f; color:#e8f0fe; }
+    .section-title { font-weight:800; color:#0f2460; font-size:clamp(1.3rem,3vw,1.8rem); margin-bottom:6px; }
+    html.dark-theme .section-title { color:#fcfcfc; }
+    .section-desc { color:#6c757d; font-size:0.95rem; }
+    html.dark-theme .section-desc { color:#9ea4aa; }
+
+    /* Feature cards */
+    .feat-card { background:#fff; border-radius:18px; padding:28px 22px; border:1.5px solid #f1f3f9; box-shadow:0 2px 14px rgba(0,0,0,0.05); height:100%; transition:all 0.3s; }
+    html.dark-theme .feat-card { background:#202a40; border-color:#2e3a55; box-shadow:none; }
+    .feat-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px rgba(26,58,143,0.1); border-color:#d0dcff; }
+    html.dark-theme .feat-card:hover { box-shadow:0 12px 32px rgba(79,195,247,0.07); border-color:#4fc3f7; }
+    .feat-icon { width:52px; height:52px; border-radius:14px; background:#e8f0fe; color:#1a3a8f; display:flex; align-items:center; justify-content:center; font-size:1.2rem; margin-bottom:14px; }
+    html.dark-theme .feat-icon { background:rgba(26,58,143,0.3); color:#4fc3f7; }
+    .feat-title { font-weight:800; color:#0f2460; font-size:0.97rem; margin-bottom:8px; }
+    html.dark-theme .feat-title { color:#fcfcfc; }
+    .feat-desc { font-size:0.87rem; color:#6c757d; line-height:1.6; margin:0; }
+    html.dark-theme .feat-desc { color:#9ea4aa; }
+
+    /* Video */
+    .video-wrap { border-radius:18px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.12); }
+    .video-wrap iframe { display:block; width:100%; height:370px; border:0; }
+
+    /* Download CTA */
+    .dl-cta { background:linear-gradient(135deg,#0f2460,#1a3a8f); border-radius:24px; padding:48px 36px; text-align:center; }
+    .dl-cta h2 { color:#fff; font-weight:800; margin-bottom:10px; }
+    .dl-cta p  { color:rgba(255,255,255,0.78); margin-bottom:24px; }
+    .btn-dl { background:#fff; color:#0f2460; border:none; border-radius:50px; padding:13px 30px; font-weight:800; font-size:0.95rem; text-decoration:none; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 16px rgba(0,0,0,0.15); transition:all 0.2s; }
+    .btn-dl:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,0.2); color:#0f2460; }
+    .btn-yt { background:transparent; border:2px solid rgba(255,255,255,0.5); color:#fff; border-radius:50px; padding:11px 24px; font-weight:700; font-size:0.9rem; text-decoration:none; display:inline-flex; align-items:center; gap:7px; transition:all 0.2s; }
+    .btn-yt:hover { border-color:#fff; background:rgba(255,255,255,0.08); color:#fff; }
+
+    /* Other services strip */
+    .other-svc-strip { background:#f8f9ff; border-radius:20px; padding:32px; }
+    html.dark-theme .other-svc-strip { background:#1a2232; }
+    .other-svc-item { display:flex; align-items:flex-start; gap:14px; padding:16px; border-radius:14px; text-decoration:none; color:inherit; border:1.5px solid transparent; transition:all 0.2s; }
+    .other-svc-item:hover { background:#fff; border-color:#d0dcff; color:inherit; box-shadow:0 4px 16px rgba(26,58,143,0.08); }
+    html.dark-theme .other-svc-item:hover { background:#202a40; border-color:#4fc3f7; }
+    .other-svc-icon { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; }
+    .other-svc-name { font-weight:700; font-size:0.92rem; color:#0f2460; margin-bottom:2px; }
+    html.dark-theme .other-svc-name { color:#fcfcfc; }
+    .other-svc-desc { font-size:0.82rem; color:#6c757d; line-height:1.4; }
+    html.dark-theme .other-svc-desc { color:#9ea4aa; }
+</style>
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-3">
-        <div class="mb-3 h6">
-            <span class="fw-bolder">Dressur</span> / <span class="text-primary">Dressur Bot</span>
+
+<div class="page-hero">
+    <div class="container">
+        <div class="page-hero-breadcrumb">
+            <a href="{{ path('app_public') }}"><i class="fas fa-house me-1"></i> Accueil</a>
+            <i class="fas fa-chevron-right" style="font-size:10px"></i>
+            <a href="{{ path('app_services') }}">Services</a>
+            <i class="fas fa-chevron-right" style="font-size:10px"></i>
+            <span>Dressur Bot</span>
         </div>
-        <!-- Header -->
-        <header class="text-white text-center py-5 rounded" style="background-color: #2a4b9a !important;">
-            <div class="container">
-                <h1 class="display-5">Automatisez l'envoi de messages sur WhatsApp</h1>
-                <p class="lead">Avec Dressur Bot, simplifiez vos campagnes de communication en masse sur WhatsApp.</p>
-                <a href="/assets/dressur_bot/dressur_bot.exe" class="btn btn-lg btn-light">Télécharger Dressur Bot</a>
-                <a href="{{youtubeLink}}" target="_blank" class="btn btn-lg btn-danger">Tutoriel Dressur Bot</a>
-            </div>
-        </header>
-
-        <!-- Features Section -->
-        <section id="features" class="py-5">
-            <div class="container">
-                <h2 class="text-center">Pourquoi choisir Dressur Bot ?</h2>
-                <p class="text-center lead mb-4">Découvrez comment Dressur Bot peut transformer vos communications sur WhatsApp.</p>
-                <div class="row g-3">
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Automatisation complète</h5>
-                                <p class="card-text mt-3">Envoyez des messages à vos connaissances, clients, prospect etc... sur WhatsApp sans intervention manuelle. Dressur Bot supporte l'action répétitive jusqu'a plus de 1.000.000 de fois sans bug.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Compatibilité étendue</h5>
-                                <p class="card-text mt-3">Fonctionne avec WhatsApp Web et WhatsApp Desktop, offrant une flexibilité d'utilisation. Peu importe votre environnement de travail, Dressur Bot s'adapte à vos besoins.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Simplicité d'utilisation</h5>
-                                <p class="card-text mt-3">Il suffit de fournir le texte du message et un fichier VCF contenant les contacts. En quelques clics, vos messages sont prêts à être envoyés.</p>
-                            </div>
-                        </div>
-                    </div>
-                
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Gain de temps significatif</h5>
-                                <p class="card-text mt-3">Éliminez la tâche répétitive d'envoyer des messages individuels à plusieurs contacts. Concentrez-vous sur ce qui compte vraiment pendant que Dressur Bot s'occupe du reste.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Efficacité inégalée</h5>
-                                <p class="card-text mt-3">Idéal pour les campagnes de marketing, les notifications de groupe, et d'autres besoins de communication en masse. Atteignez votre audience cible rapidement et efficacement.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch text-center">
-                        <div class="card mb-0 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title" style="color: #2a4b9a !important; font-weight: 500;">Sécurité et confidentialité</h5>
-                                <p class="card-text mt-3">Dressur Bot respecte votre confidentialité et celle de vos contacts. Vos données sont protégées par des protocoles de sécurité avancés.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Video Section -->
-        <section id="video" class="py-4">
-            <div class="container text-center">
-                <h2>Tutoriel Vidéo</h2>
-                <p class="lead mb-4">Regardez notre tutoriel pour apprendre comment utiliser Dressur Bot.</p>
-                <div class="row g-0">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-8">
-                        <iframe class="w-100" height="350" src="{{embedLink}}" allowfullscreen></iframe>
-                    </div>
-                    <div class="col-md-2"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Download Section -->
-        <section id="download" class="py-5">
-            <div class="container text-center">
-                <div class="card mb-0">
-                    <div class="card-body py-4">
-                        <h2>Télécharger Dressur Bot</h2>
-                        <p class="lead py-3">Commencez à utiliser Dressur Bot dès aujourd'hui en téléchargeant le fichier .exe.</p>
-                        <a href="/assets/dressur_bot/dressur_bot.exe" class="btn btn-primary btn-lg">Télécharger Dressur Bot</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <div class="container">
-                <h1 class="fs-4 fw-semibold mb-3"><i class="fs-5 fas fa-play"></i> Autres Services sur Dressur Mobile et Web</h1>
-                <div class="row g-3">
-                    <div class="col-md-4 d-flex align-items-stretch">
-                        <div class="card mb-0">
-                            <div class="card-body">
-                                <div class="feature-box rounded text-center d-flex flex-column">
-                                    <i class="fas fa-users fs-1 mb-3 text-primary"></i>
-                                    <h5>Trouvez de nouveaux contacts</h5>
-                                    <p>Nos algorithmes intelligents vous affichent les contacts en fonction de vos préférences pays et centre d'intérêt.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch">
-                        <div class="card mb-0">
-                            <div class="card-body">
-                                <div class="feature-box rounded text-center d-flex flex-column">
-                                    <i class="fas fa-clock fs-1 mb-3 text-primary"></i>
-                                    <h5>Gagnez du temps</h5>
-                                    <p>Les contacts que vous enregistrez sont automatiquement ajoutés à votre téléphone et vos coordonnées sont ajoutées dans celui de votre contact.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch">
-                        <div class="card mb-0">
-                            <div class="card-body">
-                                <div class="feature-box rounded text-center d-flex flex-column">
-                                    <i class="fas fa-bullhorn fs-1 mb-3 text-primary"></i>
-                                    <h5>Promouvez vos produits</h5>
-                                    <p>Faites connaître vos produits, services, événements, etc. avec des promotions ciblées en fonction de vos préférences.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-stretch">
-                        <div class="card mb-0">
-                            <div class="card-body">
-                                <div class="feature-box rounded text-center d-flex flex-column">
-                                    <i class="fas fa-thumbs-up fs-1 mb-3 text-primary"></i>
-                                    <h5>Promotions Réseaux Sociaux</h5>
-                                    <p>Achetez des abonnés, likes, commentaires, partages, etc. sur Facebook, TikTok, Instagram, YouTube et plus encore.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="hero">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-2"></div>
-                        <div class="col-md-8">
-                            <div data-aos="zoom-out">
-                                <p class="h5 text-center">Dressé votre mure de compétences et assurez-vous une grande visibilité.</p>
-                                <div class="d-md-flex text-center text-lg-start justify-content-between">
-                                    <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" class="btn-get-started scrollto mb-2 mb-md-0"> <i class="fs-5 fab fa-google-play me-2"></i> Télécharger sur Google Play</a>
-                                    <a href="{{path('app_inscription')}}" class="btn-get-started scrollto">S'inscrire <i class="fs-5 fas fa-user-plus ms-2"></i> </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="hero-badge"><i class="fab fa-windows"></i> Application Windows</div>
+        <h1><i class="fas fa-robot me-2" style="opacity:.7"></i> Dressur Bot</h1>
+        <p class="mb-4">Automatisez l'envoi de messages WhatsApp en masse — jusqu'à 1 million de contacts, sans bug.</p>
+        <div class="d-flex gap-3 flex-wrap">
+            <a href="/assets/dressur_bot/dressur_bot.exe" class="btn btn-light rounded-pill px-4 fw-bold">
+                <i class="fas fa-download me-2"></i> Télécharger Dressur Bot
+            </a>
+            <a href="{{ youtubeLink }}" target="_blank" class="btn btn-danger rounded-pill px-4 fw-bold">
+                <i class="fab fa-youtube me-2"></i> Tutoriel vidéo
+            </a>
+        </div>
     </div>
+</div>
+
+<div class="container my-5">
+
+    {# ── Pourquoi Dressur Bot ── #}
+    <div class="text-center mb-4">
+        <span class="section-tag">Fonctionnalités</span>
+        <h2 class="section-title">Pourquoi choisir Dressur Bot ?</h2>
+        <p class="section-desc">Découvrez comment Dressur Bot peut transformer vos communications WhatsApp.</p>
+    </div>
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fas fa-infinity"></i></div>
+                <p class="feat-title">Automatisation complète</p>
+                <p class="feat-desc">Envoyez des messages à vos contacts sur WhatsApp sans intervention manuelle. Dressur Bot supporte l'action répétitive jusqu'à plus de 1 000 000 de fois sans bug.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fab fa-whatsapp"></i></div>
+                <p class="feat-title">Compatibilité étendue</p>
+                <p class="feat-desc">Fonctionne avec WhatsApp Web et WhatsApp Desktop, offrant une flexibilité totale. Peu importe votre environnement de travail, Dressur Bot s'adapte.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                <p class="feat-title">Simplicité d'utilisation</p>
+                <p class="feat-desc">Il suffit de fournir le texte du message et un fichier VCF contenant les contacts. En quelques clics, vos messages sont prêts à être envoyés.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fas fa-clock"></i></div>
+                <p class="feat-title">Gain de temps significatif</p>
+                <p class="feat-desc">Éliminez la tâche répétitive d'envoyer des messages individuels. Concentrez-vous sur ce qui compte pendant que Dressur Bot s'occupe du reste.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                <p class="feat-title">Efficacité inégalée</p>
+                <p class="feat-desc">Idéal pour les campagnes de marketing, notifications de groupe et besoins de communication en masse. Atteignez votre audience cible rapidement.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feat-card">
+                <div class="feat-icon"><i class="fas fa-shield-halved"></i></div>
+                <p class="feat-title">Sécurité et confidentialité</p>
+                <p class="feat-desc">Dressur Bot respecte votre confidentialité et celle de vos contacts. Vos données sont protégées par des protocoles de sécurité avancés.</p>
+            </div>
+        </div>
+    </div>
+
+    {# ── Tutoriel vidéo ── #}
+    <div class="text-center mb-4">
+        <span class="section-tag">Tutoriel</span>
+        <h2 class="section-title">Comment utiliser Dressur Bot ?</h2>
+        <p class="section-desc">Regardez notre tutoriel pour démarrer en quelques minutes.</p>
+    </div>
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <div class="video-wrap">
+                <iframe src="{{ embedLink }}" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    {# ── Téléchargement ── #}
+    <div class="dl-cta mb-5">
+        <h2><i class="fas fa-download me-2"></i> Télécharger Dressur Bot</h2>
+        <p>Commencez à utiliser Dressur Bot dès aujourd'hui en téléchargeant le fichier .exe pour Windows.</p>
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="/assets/dressur_bot/dressur_bot.exe" class="btn-dl">
+                <i class="fas fa-download"></i> Télécharger (.exe)
+            </a>
+            <a href="{{ path('app_tarifs') }}" class="btn-yt">
+                <i class="fas fa-tags me-2"></i> Voir les tarifs
+            </a>
+        </div>
+    </div>
+
+    {# ── Autres services ── #}
+    <div class="other-svc-strip">
+        <h3 class="section-title mb-1" style="font-size:1.1rem;"><i class="fas fa-grid-2 me-2" style="color:#1a3a8f;opacity:.7"></i> Autres services Dressur</h3>
+        <p class="section-desc mb-4">Découvrez aussi nos autres solutions.</p>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <a href="{{ path('app_boost_contact') }}" class="other-svc-item">
+                    <div class="other-svc-icon" style="background:#d1fae5; color:#059669;"><i class="fas fa-users"></i></div>
+                    <div>
+                        <div class="other-svc-name">Boost Contact</div>
+                        <div class="other-svc-desc">Trouvez de nouveaux contacts qualifiés via nos algorithmes intelligents.</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path('app_promotion_affaire') }}" class="other-svc-item">
+                    <div class="other-svc-icon" style="background:#fff3e0; color:#c2410c;"><i class="fas fa-bullhorn"></i></div>
+                    <div>
+                        <div class="other-svc-name">Promotion Affaire</div>
+                        <div class="other-svc-desc">Promouvez vos produits, services et offres d'emploi auprès d'un public ciblé.</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="other-svc-item">
+                    <div class="other-svc-icon" style="background:#f3e8ff; color:#7c3aed;"><i class="fas fa-thumbs-up"></i></div>
+                    <div>
+                        <div class="other-svc-name">Réseaux Sociaux</div>
+                        <div class="other-svc-desc">Achetez des abonnés, likes et vues sur Facebook, TikTok, YouTube et plus.</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
