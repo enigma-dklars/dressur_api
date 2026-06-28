@@ -1,13 +1,19 @@
 {% set r = app.request.attributes.get('_route') %}
 
 {# ── Groupes actifs ──────────────────────────────────────────────────── #}
-{% set promo_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau'] %}
-{% set promo_active   = r in promo_routes %}
-{% set pref_routes    = ['app_preferencePays'] %}
-{% set pref_active    = r in pref_routes %}
-{% set autres_routes  = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser'] %}
-{% set autres_active  = r in autres_routes %}
-{% set actu_active    = r in ['app_actu','app_actu_detail'] %}
+{% set reception_routes  = ['app_private','app_contact'] %}
+{% set reception_active  = r in reception_routes %}
+
+{% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau'] %}
+{% set services_active   = r in services_routes %}
+
+{% set actu_active       = r in ['app_actu','app_actu_detail'] %}
+
+{% set pref_routes       = ['app_preferencePays'] %}
+{% set pref_active       = r in pref_routes %}
+
+{% set params_routes     = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser'] %}
+{% set params_active     = r in params_routes %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
     <div class="sidebar-header">
@@ -23,105 +29,231 @@
     <!--navigation-->
     <ul class="metismenu" id="menu">
 
+      {# ── Admin ─────────────────────────────────────────────────────── #}
       {% if user.admin == true %}
       <li class="{{ r == 'app_admin' ? 'mm-active' : '' }}">
         <a href="/admin" class="{{ r == 'app_admin' ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-house-user text-danger"></i>
-          </div>
-          <div class="menu-title text-danger">Espace Admin</div>
+          <div class="parent-icon"><i class="fas fa-user-shield text-danger"></i></div>
+          <div class="menu-title text-danger">Administration</div>
         </a>
       </li>
       {% endif %}
 
+      {# ── Public (web only) ─────────────────────────────────────────── #}
       <li class="{{ r == 'app_public' ? 'mm-active' : '' }}">
-        <a href="{{path('app_public')}}" class="{{ r == 'app_public' ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-globe"></i>
-          </div>
+        <a href="{{ path('app_public') }}" class="{{ r == 'app_public' ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-globe"></i></div>
           <div class="menu-title">Public</div>
         </a>
       </li>
 
-      <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
-        <a href="/private" class="{{ r == 'app_private' ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-house-user"></i>
-          </div>
-          <div class="menu-title">Dashboard</div>
+      {# ── Réception ─────────────────────────────────────────────────── #}
+      <li class="{{ reception_active ? 'mm-active' : '' }}">
+        <a href="javascript:;" class="has-arrow {{ reception_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-inbox"></i></div>
+          <div class="menu-title">Réception</div>
         </a>
+        <ul class="{{ reception_active ? 'mm-show' : '' }}">
+          <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
+            <a href="/private" class="small-fort {{ r == 'app_private' ? 'active' : '' }}">
+              <i class="fas fa-house-user"></i>Dashboard
+            </a>
+          </li>
+          <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
+            <a href="/contact" class="small-fort {{ r == 'app_contact' ? 'active' : '' }}">
+              <i class="fas fa-address-book"></i>Contacts
+            </a>
+          </li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-trophy"></i>Récompenses
+            </a>
+          </li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-arrows-rotate"></i>Synchronisation avancée
+            </a>
+          </li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-bell"></i>Notifications
+            </a>
+          </li>
+        </ul>
       </li>
 
+      {# ── Services ──────────────────────────────────────────────────── #}
+      <li class="{{ services_active ? 'mm-active' : '' }}">
+        <a href="javascript:;" class="has-arrow {{ services_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-briefcase"></i></div>
+          <div class="menu-title">Services</div>
+        </a>
+        <ul class="{{ services_active ? 'mm-show' : '' }}">
+
+          {# Boost Contact #}
+          <li class="{{ r == 'app_newboostcontact' ? 'mm-active' : '' }}">
+            <a href="/newboostcontact" class="small-fort {{ r == 'app_newboostcontact' ? 'active' : '' }}">
+              <i class="fas fa-square-plus"></i>Boost Contact
+            </a>
+          </li>
+          <li class="{{ r == 'app_listeboostcontact' ? 'mm-active' : '' }}">
+            <a href="/listeboostcontact" class="small-fort {{ r == 'app_listeboostcontact' ? 'active' : '' }}">
+              <i class="fas fa-align-left"></i>Liste Boost Contact
+            </a>
+          </li>
+
+          {# Promotion Affaire #}
+          <li class="{{ r == 'app_newpromoaffaire' ? 'mm-active' : '' }}">
+            <a href="/newpromoaffaire" class="small-fort {{ r == 'app_newpromoaffaire' ? 'active' : '' }}">
+              <i class="fas fa-square-plus"></i>Promotion Affaire
+            </a>
+          </li>
+          <li class="{{ r == 'app_listepromoaffaire' ? 'mm-active' : '' }}">
+            <a href="/listepromoaffaire" class="small-fort {{ r == 'app_listepromoaffaire' ? 'active' : '' }}">
+              <i class="fas fa-align-left"></i>Liste Promo. Affaire
+            </a>
+          </li>
+
+          {# Promotion Réseau Sociaux #}
+          <li class="{{ r == 'app_newpromoreseau' ? 'mm-active' : '' }}">
+            <a href="/newpromoreseau" class="small-fort {{ r == 'app_newpromoreseau' ? 'active' : '' }}">
+              <i class="fas fa-square-plus"></i>Promo. Réseau Sociaux
+            </a>
+          </li>
+          <li class="{{ r == 'app_listepromoreseau' ? 'mm-active' : '' }}">
+            <a href="/listepromoreseau" class="small-fort {{ r == 'app_listepromoreseau' ? 'active' : '' }}">
+              <i class="fas fa-align-left"></i>Liste Promo. Réseau S.
+            </a>
+          </li>
+
+        </ul>
+      </li>
+
+      {# ── Actu ──────────────────────────────────────────────────────── #}
       <li class="{{ actu_active ? 'mm-active' : '' }}">
         <a href="/actu" class="{{ actu_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-folder-plus"></i></div>
+          <div class="parent-icon"><i class="fas fa-newspaper"></i></div>
           <div class="menu-title">Actu</div>
         </a>
       </li>
 
-      <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
-        <a href="/contact" class="{{ r == 'app_contact' ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-users"></i></div>
-          <div class="menu-title">Liste des Contacts</div>
-        </a>
-      </li>
-
-      <li class="{{ promo_active ? 'mm-active' : '' }}">
-        <a href="javascript:;" class="has-arrow {{ promo_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fab fa-sellsy"></i>
-          </div>
-          <div class="menu-title">Promo</div>
-        </a>
-        <ul class="{{ promo_active ? 'mm-show' : '' }}">
-          <li class="{{ r == 'app_newboostcontact' ? 'mm-active' : '' }}"> <a href="/newboostcontact" class="small-fort {{ r == 'app_newboostcontact' ? 'active' : '' }}"><i class="fas fa-square-plus"></i>Boost Contact</a></li>
-
-          <li class="{{ r == 'app_listeboostcontact' ? 'mm-active' : '' }}"> <a href="/listeboostcontact" class="small-fort {{ r == 'app_listeboostcontact' ? 'active' : '' }}"><i class="fas fa-align-left"></i>Liste Boost Contact</a></li>
-          
-          <li class="{{ r == 'app_newpromoaffaire' ? 'mm-active' : '' }}"> <a href="/newpromoaffaire" class="small-fort {{ r == 'app_newpromoaffaire' ? 'active' : '' }}"><i class="fas fa-square-plus"></i>Promo. Affaire</a></li>
-
-          <li class="{{ r == 'app_listepromoaffaire' ? 'mm-active' : '' }}"> <a href="/listepromoaffaire" class="small-fort {{ r == 'app_listepromoaffaire' ? 'active' : '' }}"><i class="fas fa-align-left"></i>Liste Promo. Affaire</a></li>
-          
-          <li class="{{ r == 'app_newpromoreseau' ? 'mm-active' : '' }}"> <a href="/newpromoreseau" class="small-fort {{ r == 'app_newpromoreseau' ? 'active' : '' }}"><i class="fas fa-square-plus"></i>Promo. Réseau S.</a></li>
-          
-          <li class="{{ r == 'app_listepromoreseau' ? 'mm-active' : '' }}"> <a href="/listepromoreseau" class="small-fort {{ r == 'app_listepromoreseau' ? 'active' : '' }}"><i class="fas fa-align-left"></i>Liste Promo. Réseau S.</a></li>
-
-        </ul>
-      </li>
-
+      {# ── Préférences ───────────────────────────────────────────────── #}
       <li class="{{ pref_active ? 'mm-active' : '' }}">
         <a href="javascript:;" class="has-arrow {{ pref_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-heart"></i>
-          </div>
-          <div class="menu-title">Préférence</div>
+          <div class="parent-icon"><i class="fas fa-heart"></i></div>
+          <div class="menu-title">Préférences</div>
         </a>
         <ul class="{{ pref_active ? 'mm-show' : '' }}">
-          <li class="{{ r == 'app_preferencePays' ? 'mm-active' : '' }}"> <a href="/preferencePays" class="small-fort {{ r == 'app_preferencePays' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Pays</a></li>
-
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-address-card"></i>Contacts Dressur
+            </a>
+          </li>
+          <li class="{{ r == 'app_preferencePays' ? 'mm-active' : '' }}">
+            <a href="/preferencePays" class="small-fort {{ r == 'app_preferencePays' ? 'active' : '' }}">
+              <i class="fas fa-globe"></i>Pays ciblés
+            </a>
+          </li>
         </ul>
       </li>
 
-      <li class="{{ autres_active ? 'mm-active' : '' }}">
-        <a href="javascript:;" class="has-arrow {{ autres_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fa fa-cog"></i>
-          </div>
-          <div class="menu-title">Autres Pages</div>
+      {# ── Paramètres ────────────────────────────────────────────────── #}
+      <li class="{{ params_active ? 'mm-active' : '' }}">
+        <a href="javascript:;" class="has-arrow {{ params_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-gear"></i></div>
+          <div class="menu-title">Paramètres</div>
         </a>
-        <ul class="{{ autres_active ? 'mm-show' : '' }}">
-          {# <li> <a href="/partagerDressur" class="small-fort"><i class="fas fa-arrow-right"></i>Partager</a></li> #}
+        <ul class="{{ params_active ? 'mm-show' : '' }}">
 
-          <li class="{{ r == 'app_editprofil' ? 'mm-active' : '' }}"> <a href="/editprofil" class="small-fort {{ r == 'app_editprofil' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Profile</a></li>
+          {# — Mon Compte — #}
+          <li class="sidebar-section-label"><span>Mon Compte</span></li>
+          <li class="{{ r == 'app_editprofil' ? 'mm-active' : '' }}">
+            <a href="/editprofil" class="small-fort {{ r == 'app_editprofil' ? 'active' : '' }}">
+              <i class="fas fa-user"></i>Profil
+            </a>
+          </li>
+          <li class="{{ r == 'app_editPassword' ? 'mm-active' : '' }}">
+            <a href="/editPassword" class="small-fort {{ r == 'app_editPassword' ? 'active' : '' }}">
+              <i class="fas fa-lock"></i>Modifier le mot de passe
+            </a>
+          </li>
 
-          <li class="{{ r == 'app_editPassword' ? 'mm-active' : '' }}"> <a href="/editPassword" class="small-fort {{ r == 'app_editPassword' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Modifier mot de passe</a></li>
-          
-          {# <li> <a href="/invitezVosAmis" class="small-fort"><i class="fas fa-arrow-right"></i>Invitez vos amis</a></li> #}
+          {# — Assistance & Avis — #}
+          <li class="sidebar-section-label"><span>Assistance &amp; Avis</span></li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-headset"></i>Support Technique
+            </a>
+          </li>
+          <li class="{{ r == 'app_addSuggestion' ? 'mm-active' : '' }}">
+            <a href="/addSuggestion" class="small-fort {{ r == 'app_addSuggestion' ? 'active' : '' }}">
+              <i class="fas fa-lightbulb"></i>Suggestions
+            </a>
+          </li>
+          <li class="{{ r == 'app_signalerUser' ? 'mm-active' : '' }}">
+            <a href="/signalerUser" class="small-fort {{ r == 'app_signalerUser' ? 'active' : '' }}">
+              <i class="fas fa-triangle-exclamation"></i>Signaler un utilisateur
+            </a>
+          </li>
 
-          {# <li> <a href="/listeBonusRecu" class="small-fort"><i class="fas fa-arrow-right"></i>Liste des Bonus Reçu</a></li> #}
+          {# — Actions Avancées — #}
+          <li class="sidebar-section-label"><span>Actions Avancées</span></li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon" style="color:#e67e22;">
+              <i class="fas fa-broom"></i>Supprimer les contacts DS
+            </a>
+          </li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon" style="color:#e74c3c;">
+              <i class="fas fa-trash"></i>Supprimer mon compte
+            </a>
+          </li>
 
-          <li class="{{ r == 'app_addSuggestion' ? 'mm-active' : '' }}"> <a href="/addSuggestion" class="small-fort {{ r == 'app_addSuggestion' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Faire une Suggestion</a></li>
-          
-          <li class="{{ r == 'app_signalerUser' ? 'mm-active' : '' }}"> <a href="/signalerUser" class="small-fort {{ r == 'app_signalerUser' ? 'active' : '' }}"><i class="fas fa-arrow-right"></i>Signaler un utilisateur</a></li>
+          {# — Application — #}
+          <li class="sidebar-section-label"><span>Application</span></li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-circle-info"></i>À Propos
+            </a>
+          </li>
+          <li>
+            <a href="/logout" class="small-fort">
+              <i class="fas fa-right-from-bracket"></i>Se déconnecter
+            </a>
+          </li>
+
         </ul>
       </li>
+
     </ul>
     <!--end navigation-->
 </aside>
+
+<style>
+/* Labels de section dans les sous-menus */
+.sidebar-section-label {
+  list-style: none;
+  padding: 10px 20px 4px 20px;
+  pointer-events: none;
+}
+.sidebar-section-label span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #888;
+  opacity: 0.7;
+}
+/* Liens non encore disponibles */
+.sidebar-soon {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+html.dark-theme .sidebar-section-label span {
+  color: #aaa;
+}
+</style>
 
 <script>
 (function () {
