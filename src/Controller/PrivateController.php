@@ -89,9 +89,16 @@ class PrivateController extends AbstractController
             $handle = fopen('php://output', 'w');
 
             foreach ($contacts as $contact) {
+                $parts = array_filter([
+                    $contact['nom'] ?? '',
+                    $contact['pseudo'] ?? '',
+                    $contact['tel'] ?? '',
+                ], fn($v) => $v !== '');
+                $fullName = implode(' - ', $parts) . ' #DS';
+
                 fwrite($handle, "BEGIN:VCARD\n");
                 fwrite($handle, "VERSION:3.0\n");
-                fwrite($handle, "FN:" . $contact['nom'] . " #DS\n");
+                fwrite($handle, "FN:" . $fullName . "\n");
                 fwrite($handle, "EMAIL:" . $contact['mail'] . "\n");
                 fwrite($handle, "TEL:" . $contact['tel'] . "\n");
                 fwrite($handle, "END:VCARD\n");
@@ -117,14 +124,20 @@ class PrivateController extends AbstractController
         $response->setCallback(function () use ($contacts) {
             $handle = fopen('php://output', 'w');
 
-            // Headers CSV
             fputcsv($handle, ['Nom', 'Email', 'Téléphone']);
 
-            // Données des contacts
             foreach ($contacts as $contact) {
+                $parts = array_filter([
+                    $contact['nom'] ?? '',
+                    $contact['pseudo'] ?? '',
+                    $contact['tel'] ?? '',
+                ], fn($v) => $v !== '');
+                $fullName = implode(' - ', $parts) . ' #DS';
+
                 fputcsv($handle, [
-                    $contact['nom']." #DS", 
-                    $contact['mail'], $contact['tel']
+                    $fullName,
+                    $contact['mail'],
+                    $contact['tel'],
                 ]);
             }
 
