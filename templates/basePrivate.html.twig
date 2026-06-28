@@ -145,10 +145,10 @@
 
 <body>
 {% set r = app.request.attributes.get('_route') %}
-{% set _reception_routes = ['app_contact'] %}
-{% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau'] %}
-{% set _pref_routes      = ['app_preferencePays'] %}
-{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte'] %}
+{% set _reception_routes = ['app_contact','app_hub_reception'] %}
+{% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
+{% set _pref_routes      = ['app_preferencePays','app_hub_preferences'] %}
+{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
 {% set _actu_active      = r in ['app_actu','app_actu_detail'] %}
 {% set _reception_active = r in _reception_routes %}
 {% set _services_active  = r in _services_routes %}
@@ -161,8 +161,8 @@
         
         {% include "private/_includes/sidebar_wrapper.html.twig" %}
 
-        {# ── Sous-onglets mobiles (visibles ≤ 1024px) ──────────────────── #}
-        {% if _services_active %}
+        {# ── Sous-onglets mobiles (visibles ≤ 1024px, masqués sur les pages hub) #}
+        {% if _services_active and r != 'app_hub_services' %}
         <nav class="ds-mobile-subtabs">
             <a href="/listeboostcontact" class="{{ r in ['app_listeboostcontact','app_newboostcontact'] ? 'active' : '' }}">
                 <i class="fas fa-users-rectangle"></i>Boost Contact
@@ -174,7 +174,7 @@
                 <i class="fas fa-share-nodes"></i>Promo Réseau
             </a>
         </nav>
-        {% elseif _params_active %}
+        {% elseif _params_active and r != 'app_hub_parametres' %}
         <nav class="ds-mobile-subtabs">
             <a href="/editprofil"    class="{{ r == 'app_editprofil'    ? 'active' : '' }}"><i class="fas fa-user"></i>Profil</a>
             <a href="/editPassword"  class="{{ r == 'app_editPassword'  ? 'active' : '' }}"><i class="fas fa-lock"></i>Mot de passe</a>
@@ -185,11 +185,11 @@
             <a href="/deleteCompte"  class="{{ r == 'app_deleteCompte'  ? 'active' : '' }}" style="color:#dc3545"><i class="fas fa-trash"></i>Supprimer</a>
             <a href="#" data-bs-toggle="modal" data-bs-target="#seDeconnecter" style="color:#dc3545"><i class="fas fa-right-from-bracket"></i>Déconnexion</a>
         </nav>
-        {% elseif _reception_active %}
+        {% elseif _reception_active and r != 'app_hub_reception' %}
         <nav class="ds-mobile-subtabs">
             <a href="/contact" class="{{ r == 'app_contact' ? 'active' : '' }}"><i class="fas fa-address-book"></i>Contacts</a>
         </nav>
-        {% elseif _pref_active %}
+        {% elseif _pref_active and r != 'app_hub_preferences' %}
         <nav class="ds-mobile-subtabs">
             <a href="/preferencePays" class="{{ r == 'app_preferencePays' ? 'active' : '' }}"><i class="fas fa-globe"></i>Pays ciblés</a>
         </nav>
@@ -207,19 +207,19 @@
 
         {# ── Barre de navigation mobile en bas (visibles ≤ 1024px) ──── #}
         <nav class="ds-mobile-bottomnav">
-            <a href="/contact"       class="ds-nav-item {{ _reception_active ? 'active' : '' }}">
+            <a href="/reception"     class="ds-nav-item {{ _reception_active ? 'active' : '' }}">
                 <i class="fas fa-inbox"></i><span>Réception</span>
             </a>
-            <a href="/listeboostcontact" class="ds-nav-item {{ _services_active ? 'active' : '' }}">
+            <a href="/services"      class="ds-nav-item {{ _services_active ? 'active' : '' }}">
                 <i class="fas fa-briefcase"></i><span>Services</span>
             </a>
             <a href="/actu"          class="ds-nav-item {{ _actu_active ? 'active' : '' }}">
                 <i class="fas fa-newspaper"></i><span>Actu</span>
             </a>
-            <a href="/preferencePays" class="ds-nav-item {{ _pref_active ? 'active' : '' }}">
+            <a href="/preferences"   class="ds-nav-item {{ _pref_active ? 'active' : '' }}">
                 <i class="fas fa-heart"></i><span>Préfér.</span>
             </a>
-            <a href="/editprofil"    class="ds-nav-item {{ _params_active ? 'active' : '' }}">
+            <a href="/parametres"    class="ds-nav-item {{ _params_active ? 'active' : '' }}">
                 <i class="fas fa-gear"></i><span>Paramètres</span>
             </a>
         </nav>

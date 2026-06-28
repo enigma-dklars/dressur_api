@@ -1,0 +1,116 @@
+{% extends "basePrivate.html.twig" %}
+{% block title %}Paramètres{% endblock %}
+
+{% block body %}
+<style>
+.ds-hub-wrap{max-width:720px;margin:0 auto}
+.ds-nav-card{display:flex;align-items:center;gap:16px;background:var(--bs-body-bg,#fff);border-radius:15px;border:1px solid var(--bs-border-color,rgba(0,0,0,.08));box-shadow:0 3px 10px rgba(0,0,0,.05);padding:15px 18px;margin-bottom:10px;text-decoration:none;color:inherit;transition:box-shadow .2s,transform .15s}
+.ds-nav-card:hover{box-shadow:0 6px 16px rgba(0,0,0,.10);transform:translateY(-1px);color:inherit}
+.ds-nav-card-icon{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(13,110,253,.10);flex-shrink:0}
+.ds-nav-card-icon i{font-size:22px;color:var(--bs-primary,#0d6efd)}
+.ds-nav-card-body{flex:1}
+.ds-nav-card-body .ds-title{font-weight:600;font-size:15px;margin:0 0 2px;color:var(--bs-body-color,#212529)}
+.ds-nav-card-body .ds-sub{font-size:12.5px;color:var(--bs-secondary-color,#6c757d);margin:0}
+.ds-nav-card-chevron{font-size:14px;color:var(--bs-secondary-color,#adb5bd)}
+.ds-nav-card.ds-danger .ds-nav-card-icon{background:rgba(220,53,69,.10)}
+.ds-nav-card.ds-danger .ds-nav-card-icon i{color:#dc3545}
+.ds-nav-card.ds-danger .ds-nav-card-body .ds-title{color:#dc3545}
+.ds-nav-card.ds-modal{cursor:pointer}
+.ds-section-sep{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--bs-secondary-color,#888);opacity:.7;margin:20px 0 8px}
+.ds-hub-title{font-weight:700;font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+</style>
+
+<div class="ds-hub-wrap">
+
+    <h5 class="ds-hub-title">
+        <i class="fas fa-gear text-primary"></i>Paramètres
+    </h5>
+
+    {# ── Mon Compte ──────────────────────────────────────────────── #}
+    <p class="ds-section-sep">Mon Compte</p>
+
+    <a href="/editprofil" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-user"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Profil</p>
+            <p class="ds-sub">Modifiez vos informations personnelles</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    <a href="/editPassword" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-lock"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Mot de passe</p>
+            <p class="ds-sub">Changez votre mot de passe de connexion</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    {# ── Assistance & Avis ──────────────────────────────────────── #}
+    <p class="ds-section-sep">Assistance &amp; Avis</p>
+
+    <a href="/support" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-headset"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Support Technique</p>
+            <p class="ds-sub">Contactez notre équipe d'assistance</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    <a href="/addSuggestion" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-lightbulb"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Suggestions</p>
+            <p class="ds-sub">Proposez des idées d'amélioration</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    <a href="/signalerUser" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Signaler un utilisateur</p>
+            <p class="ds-sub">Signalez un comportement inapproprié</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    {# ── Application ─────────────────────────────────────────────── #}
+    <p class="ds-section-sep">Application</p>
+
+    <a href="/apropos" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-circle-info"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">À Propos</p>
+            <p class="ds-sub">Version, licences et informations légales</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    <div class="ds-nav-card ds-modal" data-bs-toggle="modal" data-bs-target="#seDeconnecter">
+        <div class="ds-nav-card-icon" style="background:rgba(255,193,7,.10)">
+            <i class="fas fa-right-from-bracket" style="color:#ffc107"></i>
+        </div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title" style="color:#e0a800">Se déconnecter</p>
+            <p class="ds-sub">Fermer la session en cours</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </div>
+
+    {# ── Actions Avancées ─────────────────────────────────────────── #}
+    <p class="ds-section-sep">Actions Avancées</p>
+
+    <a href="/deleteCompte" class="ds-nav-card ds-danger">
+        <div class="ds-nav-card-icon"><i class="fas fa-trash"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Supprimer mon compte</p>
+            <p class="ds-sub">Suppression définitive et irréversible</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+</div>
+{% endblock %}

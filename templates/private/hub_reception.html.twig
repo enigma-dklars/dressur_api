@@ -1,0 +1,53 @@
+{% extends "basePrivate.html.twig" %}
+{% block title %}Réception{% endblock %}
+
+{% block body %}
+<style>
+.ds-hub-wrap{max-width:720px;margin:0 auto}
+.ds-nav-card{display:flex;align-items:center;gap:16px;background:var(--bs-body-bg,#fff);border-radius:15px;border:1px solid var(--bs-border-color,rgba(0,0,0,.08));box-shadow:0 3px 10px rgba(0,0,0,.05);padding:15px 18px;margin-bottom:12px;text-decoration:none;color:inherit;transition:box-shadow .2s,transform .15s}
+.ds-nav-card:hover{box-shadow:0 6px 16px rgba(0,0,0,.10);transform:translateY(-1px);color:inherit}
+.ds-nav-card-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(13,110,253,.10);flex-shrink:0}
+.ds-nav-card-icon i{font-size:24px;color:var(--bs-primary,#0d6efd)}
+.ds-nav-card-body{flex:1}
+.ds-nav-card-body .ds-title{font-weight:600;font-size:16px;margin:0 0 3px;color:var(--bs-body-color,#212529)}
+.ds-nav-card-body .ds-sub{font-size:13px;color:var(--bs-secondary-color,#6c757d);margin:0}
+.ds-nav-card-chevron{font-size:15px;color:var(--bs-secondary-color,#adb5bd)}
+.ds-nav-card.ds-soon{opacity:.5;pointer-events:none;cursor:default}
+.ds-hub-title{font-weight:700;font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+</style>
+
+<div class="ds-hub-wrap">
+
+    <h5 class="ds-hub-title">
+        <i class="fas fa-inbox text-primary"></i>Boîte de Réception
+    </h5>
+
+    <a href="/contact" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-address-book"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Contacts</p>
+            <p class="ds-sub">Gérez vos contacts ajoutés et scannés</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    <div class="ds-nav-card ds-soon">
+        <div class="ds-nav-card-icon"><i class="fas fa-trophy"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Récompenses <span class="badge bg-secondary ms-1" style="font-size:10px;vertical-align:middle">Bientôt</span></p>
+            <p class="ds-sub">Gagnez et suivez vos récompenses</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </div>
+
+    <div class="ds-nav-card ds-soon">
+        <div class="ds-nav-card-icon"><i class="fas fa-arrows-rotate"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Synchronisation avancée <span class="badge bg-secondary ms-1" style="font-size:10px;vertical-align:middle">Bientôt</span></p>
+            <p class="ds-sub">Synchronisez vos contacts avec votre téléphone</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </div>
+
+</div>
+{% endblock %}

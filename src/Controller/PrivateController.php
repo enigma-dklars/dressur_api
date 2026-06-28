@@ -388,6 +388,46 @@ class PrivateController extends AbstractController
     }
 
 
+    #[Route('/reception', name: 'app_hub_reception')]
+    public function hubReception(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/hub_reception.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/services', name: 'app_hub_services')]
+    public function hubServices(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/hub_services.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/preferences', name: 'app_hub_preferences')]
+    public function hubPreferences(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/hub_preferences.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/parametres', name: 'app_hub_parametres')]
+    public function hubParametres(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/hub_parametres.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
     #[Route('/newpromoreseau', name: 'app_newpromoreseau')]
     public function newpromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {

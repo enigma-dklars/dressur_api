@@ -1,0 +1,76 @@
+{% extends "basePrivate.html.twig" %}
+{% block title %}Services{% endblock %}
+
+{% block body %}
+<style>
+.ds-hub-wrap{max-width:720px;margin:0 auto}
+.ds-service-card{background:var(--bs-body-bg,#fff);border-radius:15px;border:1px solid var(--bs-border-color,rgba(0,0,0,.08));box-shadow:0 3px 10px rgba(0,0,0,.05);padding:20px;margin-bottom:14px}
+.ds-svc-header{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.ds-svc-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(13,110,253,.10);flex-shrink:0}
+.ds-svc-icon i{font-size:24px;color:var(--bs-primary,#0d6efd)}
+.ds-svc-title{font-weight:600;font-size:17px;margin:0;color:var(--bs-body-color,#212529)}
+.ds-svc-desc{font-size:14px;color:var(--bs-secondary-color,#6c757d);line-height:1.55;margin-bottom:18px}
+.ds-svc-actions{display:flex;gap:10px}
+.ds-svc-actions a{flex:1;text-align:center}
+.ds-hub-title{font-weight:700;font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+</style>
+
+<div class="ds-hub-wrap">
+
+    <h5 class="ds-hub-title">
+        <i class="fas fa-briefcase text-primary"></i>Services
+    </h5>
+
+    {{# ── Boost Contact ─────────────────────────────────── #}}
+    <div class="ds-service-card">
+        <div class="ds-svc-header">
+            <div class="ds-svc-icon"><i class="fas fa-address-book"></i></div>
+            <h6 class="ds-svc-title">Boost Contact</h6>
+        </div>
+        <p class="ds-svc-desc">Rendez votre numéro visible aux contacts correspondant à vos préférences pays. Augmentez votre réseau professionnel ciblé.</p>
+        <div class="ds-svc-actions">
+            <a href="/newboostcontact" class="btn btn-primary rounded-3 fw-semibold">
+                <i class="fas fa-rocket me-1"></i>Faire un Boost
+            </a>
+            <a href="/listeboostcontact" class="btn btn-outline-secondary rounded-3 fw-semibold">
+                <i class="fas fa-list me-1"></i>Voir la liste
+            </a>
+        </div>
+    </div>
+
+    {{# ── Promotion Affaire ──────────────────────────────── #}}
+    <div class="ds-service-card">
+        <div class="ds-svc-header">
+            <div class="ds-svc-icon"><i class="fas fa-store"></i></div>
+            <h6 class="ds-svc-title">Promotion Affaire</h6>
+        </div>
+        <p class="ds-svc-desc">Faites la promotion de vos produits et services. Les utilisateurs intéressés vous contacteront directement.</p>
+        <div class="ds-svc-actions">
+            <a href="/newpromoaffaire" class="btn btn-primary rounded-3 fw-semibold">
+                <i class="fas fa-plus me-1"></i>Faire une Promo
+            </a>
+            <a href="/listepromoaffaire" class="btn btn-outline-secondary rounded-3 fw-semibold">
+                <i class="fas fa-list me-1"></i>Voir la liste
+            </a>
+        </div>
+    </div>
+
+    {{# ── Promo Réseau Sociaux ───────────────────────────── #}}
+    <div class="ds-service-card">
+        <div class="ds-svc-header">
+            <div class="ds-svc-icon"><i class="fas fa-chart-line"></i></div>
+            <h6 class="ds-svc-title">Promotion Réseau Sociaux</h6>
+        </div>
+        <p class="ds-svc-desc">Gagnez des abonnés, vues, likes sur TikTok, Instagram, Telegram, YouTube et plus encore.</p>
+        <div class="ds-svc-actions">
+            <a href="/newpromoreseau" class="btn btn-primary rounded-3 fw-semibold">
+                <i class="fas fa-play me-1"></i>Démarrer
+            </a>
+            <a href="/listepromoreseau" class="btn btn-outline-secondary rounded-3 fw-semibold">
+                <i class="fas fa-list me-1"></i>Voir la liste
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

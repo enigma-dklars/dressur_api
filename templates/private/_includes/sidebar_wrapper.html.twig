@@ -1,18 +1,18 @@
 {% set r = app.request.attributes.get('_route') %}
 
 {# ── Groupes actifs ──────────────────────────────────────────────────── #}
-{% set reception_routes  = ['app_contact'] %}
+{% set reception_routes  = ['app_contact','app_hub_reception'] %}
 {% set reception_active  = r in reception_routes %}
 
-{% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau'] %}
+{% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
 {% set services_active   = r in services_routes %}
 
 {% set actu_active       = r in ['app_actu','app_actu_detail'] %}
 
-{% set pref_routes       = ['app_preferencePays'] %}
+{% set pref_routes       = ['app_preferencePays','app_hub_preferences'] %}
 {% set pref_active       = r in pref_routes %}
 
-{% set params_routes     = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte'] %}
+{% set params_routes     = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
 {% set params_active     = r in params_routes %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
@@ -57,7 +57,7 @@
 
       {# ── Réception ─────────────────────────────────────────────────── #}
       <li class="{{ reception_active ? 'mm-active' : '' }}">
-        <a href="javascript:;" class="has-arrow {{ reception_active ? 'active' : '' }}">
+        <a href="/reception" class="{{ reception_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-inbox"></i></div>
           <div class="menu-title">Réception</div>
         </a>
@@ -77,7 +77,7 @@
 
       {# ── Services ──────────────────────────────────────────────────── #}
       <li class="{{ services_active ? 'mm-active' : '' }}">
-        <a href="javascript:;" class="has-arrow {{ services_active ? 'active' : '' }}">
+        <a href="/services" class="{{ services_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-briefcase"></i></div>
           <div class="menu-title">Services</div>
         </a>
@@ -132,7 +132,7 @@
 
       {# ── Préférences ───────────────────────────────────────────────── #}
       <li class="{{ pref_active ? 'mm-active' : '' }}">
-        <a href="javascript:;" class="has-arrow {{ pref_active ? 'active' : '' }}">
+        <a href="/preferences" class="{{ pref_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-heart"></i></div>
           <div class="menu-title">Préférences</div>
         </a>
@@ -147,7 +147,7 @@
 
       {# ── Paramètres ────────────────────────────────────────────────── #}
       <li class="{{ params_active ? 'mm-active' : '' }}">
-        <a href="javascript:;" class="has-arrow {{ params_active ? 'active' : '' }}">
+        <a href="/parametres" class="{{ params_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-gear"></i></div>
           <div class="menu-title">Paramètres</div>
         </a>
