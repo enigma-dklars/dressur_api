@@ -140,10 +140,10 @@ class PublicController extends AbstractController
             'controller_name'        => 'PublicController',
             'is_connect'             => $this->is_connect,
             'theme'                  => $this->theme,
-            'formule_boosts'         => $formuleBoostRepository->findAll(),
+            'formule_boosts'         => $formuleBoostRepository->findBy(['activated' => true]),
             'formule_dressur_bots'   => $formuleDressurBotRepository->findBy(['activated' => true]),
             'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
-            'formule_promo_reseaus'  => $formulePromoReseauRepository->findBy([], ['parent' => 'ASC']),
+            'formule_promo_reseaus'  => $formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']),
         ]);
     }
 
