@@ -98,47 +98,11 @@
         .ds-nav-item.active { color: var(--bs-primary, #0d6efd); }
         .ds-nav-item.active i { font-weight: 900; }
 
-        /* ── Sous-onglets de section ─────────────────── */
-        .ds-mobile-subtabs {
-            display: flex !important;
-            overflow-x: auto;
-            background: var(--bs-body-bg, #fff);
-            border-bottom: 1px solid rgba(0,0,0,.08);
-            white-space: nowrap;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-            padding: 0 4px;
-            position: sticky;
-            top: 60px;
-            z-index: 999;
-            box-shadow: 0 2px 6px rgba(0,0,0,.04);
-        }
-        .ds-mobile-subtabs::-webkit-scrollbar { display: none; }
-        .ds-mobile-subtabs a {
-            flex-shrink: 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 11px 14px;
-            text-decoration: none;
-            color: var(--bs-secondary-color, #6c757d);
-            font-size: 13px;
-            font-weight: 500;
-            border-bottom: 2px solid transparent;
-            transition: color .2s, border-color .2s;
-        }
-        .ds-mobile-subtabs a.active {
-            color: var(--bs-primary, #0d6efd);
-            border-bottom-color: var(--bs-primary, #0d6efd);
-        }
-        .ds-mobile-subtabs a[style*="dc3545"] { color: #dc3545 !important; }
-        .ds-mobile-subtabs a[style*="dc3545"].active { border-bottom-color: #dc3545; }
     }
 
     /* Masqué sur desktop */
     @media screen and (min-width: 1025px) {
         .ds-mobile-bottomnav { display: none !important; }
-        .ds-mobile-subtabs   { display: none !important; }
     }
     </style>
 </head>
@@ -149,7 +113,7 @@
 {% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
 {% set _pref_routes      = ['app_preferencePays','app_hub_preferences'] %}
 {% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
-{% set _actu_active      = r in ['app_actu','app_actu_detail'] %}
+{% set _actu_active      = r in ['app_actu','app_actu_detail','app_private'] %}
 {% set _reception_active = r in _reception_routes %}
 {% set _services_active  = r in _services_routes %}
 {% set _pref_active      = r in _pref_routes %}
@@ -161,39 +125,6 @@
         
         {% include "private/_includes/sidebar_wrapper.html.twig" %}
 
-        {# ── Sous-onglets mobiles (visibles ≤ 1024px, masqués sur les pages hub) #}
-        {% if _services_active and r != 'app_hub_services' %}
-        <nav class="ds-mobile-subtabs">
-            <a href="/listeboostcontact" class="{{ r in ['app_listeboostcontact','app_newboostcontact'] ? 'active' : '' }}">
-                <i class="fas fa-users-rectangle"></i>Boost Contact
-            </a>
-            <a href="/listepromoaffaire" class="{{ r in ['app_listepromoaffaire','app_newpromoaffaire'] ? 'active' : '' }}">
-                <i class="fas fa-briefcase"></i>Promo Affaire
-            </a>
-            <a href="/listepromoreseau" class="{{ r in ['app_listepromoreseau','app_newpromoreseau'] ? 'active' : '' }}">
-                <i class="fas fa-share-nodes"></i>Promo Réseau
-            </a>
-        </nav>
-        {% elseif _params_active and r != 'app_hub_parametres' %}
-        <nav class="ds-mobile-subtabs">
-            <a href="/editprofil"    class="{{ r == 'app_editprofil'    ? 'active' : '' }}"><i class="fas fa-user"></i>Profil</a>
-            <a href="/editPassword"  class="{{ r == 'app_editPassword'  ? 'active' : '' }}"><i class="fas fa-lock"></i>Mot de passe</a>
-            <a href="/support"       class="{{ r == 'app_support'       ? 'active' : '' }}"><i class="fas fa-headset"></i>Support</a>
-            <a href="/addSuggestion" class="{{ r == 'app_addSuggestion' ? 'active' : '' }}"><i class="fas fa-lightbulb"></i>Suggestions</a>
-            <a href="/apropos"       class="{{ r == 'app_apropos'       ? 'active' : '' }}"><i class="fas fa-circle-info"></i>À Propos</a>
-            <a href="/signalerUser"  class="{{ r == 'app_signalerUser'  ? 'active' : '' }}" style="color:#dc3545"><i class="fas fa-triangle-exclamation"></i>Signaler</a>
-            <a href="/deleteCompte"  class="{{ r == 'app_deleteCompte'  ? 'active' : '' }}" style="color:#dc3545"><i class="fas fa-trash"></i>Supprimer</a>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#seDeconnecter" style="color:#dc3545"><i class="fas fa-right-from-bracket"></i>Déconnexion</a>
-        </nav>
-        {% elseif _reception_active and r != 'app_hub_reception' %}
-        <nav class="ds-mobile-subtabs">
-            <a href="/contact" class="{{ r == 'app_contact' ? 'active' : '' }}"><i class="fas fa-address-book"></i>Contacts</a>
-        </nav>
-        {% elseif _pref_active and r != 'app_hub_preferences' %}
-        <nav class="ds-mobile-subtabs">
-            <a href="/preferencePays" class="{{ r == 'app_preferencePays' ? 'active' : '' }}"><i class="fas fa-globe"></i>Pays ciblés</a>
-        </nav>
-        {% endif %}
 
         <!--start content-->
             <main class="page-content p-3">
@@ -213,7 +144,7 @@
             <a href="/services"      class="ds-nav-item {{ _services_active ? 'active' : '' }}">
                 <i class="fas fa-briefcase"></i><span>Services</span>
             </a>
-            <a href="/actu"          class="ds-nav-item {{ _actu_active ? 'active' : '' }}">
+            <a href="/private"       class="ds-nav-item {{ _actu_active ? 'active' : '' }}">
                 <i class="fas fa-newspaper"></i><span>Actu</span>
             </a>
             <a href="/preferences"   class="ds-nav-item {{ _pref_active ? 'active' : '' }}">

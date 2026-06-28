@@ -13,6 +13,17 @@
 .ds-svc-actions{display:flex;gap:10px}
 .ds-svc-actions a{flex:1;text-align:center}
 .ds-hub-title{font-weight:700;font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+/* ── Dark theme ─── */
+html.dark-theme .ds-service-card{background:#202a40;border-color:rgba(255,255,255,.08);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+html.dark-theme .ds-svc-title{color:#fcfcfc}
+html.dark-theme .ds-svc-desc{color:#9ea4aa}
+html.dark-theme .ds-hub-title{color:#fcfcfc}
+html.dark-theme .ds-svc-icon{background:rgba(13,110,253,.20)}
+html.semi-dark .ds-service-card{background:#202a40;border-color:rgba(255,255,255,.08);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+html.semi-dark .ds-svc-title{color:#fcfcfc}
+html.semi-dark .ds-svc-desc{color:#9ea4aa}
+html.semi-dark .ds-hub-title{color:#fcfcfc}
 </style>
 
 <div class="ds-hub-wrap">
@@ -21,7 +32,7 @@
         <i class="fas fa-briefcase text-primary"></i>Services
     </h5>
 
-    {{# ── Boost Contact ─────────────────────────────────── #}}
+    {# ── Boost Contact ─────────────────────────────────── #}
     <div class="ds-service-card">
         <div class="ds-svc-header">
             <div class="ds-svc-icon"><i class="fas fa-address-book"></i></div>
@@ -38,7 +49,7 @@
         </div>
     </div>
 
-    {{# ── Promotion Affaire ──────────────────────────────── #}}
+    {# ── Promotion Affaire ──────────────────────────────── #}
     <div class="ds-service-card">
         <div class="ds-svc-header">
             <div class="ds-svc-icon"><i class="fas fa-store"></i></div>
@@ -55,7 +66,7 @@
         </div>
     </div>
 
-    {{# ── Promo Réseau Sociaux ───────────────────────────── #}}
+    {# ── Promo Réseau Sociaux ───────────────────────────── #}
     <div class="ds-service-card">
         <div class="ds-svc-header">
             <div class="ds-svc-icon"><i class="fas fa-chart-line"></i></div>
