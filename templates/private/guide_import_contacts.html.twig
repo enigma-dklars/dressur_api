@@ -21,7 +21,8 @@
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
         <div class="d-flex align-items-start gap-3">
-            <div class="flex-shrink-0 rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" style="width:48px;height:48px;">
+            <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle border border-primary"
+                 style="width:48px;height:48px;min-width:48px;">
                 <i class="fas fa-info-circle text-primary fa-lg"></i>
             </div>
             <div>
@@ -50,15 +51,16 @@
 
         <div class="row g-3">
 
-            {# VCF #}
+            {# VCF — recommandé #}
             <div class="col-sm-6">
-                <div class="card h-100 border border-primary border-opacity-25 bg-primary bg-opacity-10">
+                <div class="card h-100 border-0 shadow-sm border-start border-primary" style="border-left-width:4px!important;">
                     <div class="card-body text-center">
-                        <i class="fas fa-address-card text-primary fa-2x mb-2"></i>
+                        <span class="badge bg-primary mb-2">Recommandé</span>
+                        <div class="mb-1"><i class="fas fa-address-card text-primary fa-2x"></i></div>
                         <h6 class="fw-bold mb-1">Format VCF</h6>
                         <p class="text-muted small mb-3">
                             Format vCard — reconnu nativement par iPhone et Android.
-                            <strong>Recommandé pour importer dans l'app Contacts.</strong>
+                            Idéal pour importer directement dans l'app Contacts.
                         </p>
                         <a href="{{ path('app_export_vcf') }}" class="btn btn-primary btn-sm w-100">
                             <i class="fas fa-download me-1"></i> Télécharger le VCF
@@ -69,9 +71,10 @@
 
             {# CSV #}
             <div class="col-sm-6">
-                <div class="card h-100 border border-secondary border-opacity-25 bg-light">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body text-center">
-                        <i class="fas fa-file-csv text-secondary fa-2x mb-2"></i>
+                        <span class="badge bg-secondary mb-2">Alternatif</span>
+                        <div class="mb-1"><i class="fas fa-file-csv text-secondary fa-2x"></i></div>
                         <h6 class="fw-bold mb-1">Format CSV</h6>
                         <p class="text-muted small mb-3">
                             Format tableur — utile pour ouvrir dans Excel / Google Sheets ou importer via Google Contacts.
@@ -98,14 +101,16 @@
         {# Onglets iPhone / Android #}
         <ul class="nav nav-pills mb-3" id="importTabs" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="iphone-tab" data-bs-toggle="pill" data-bs-target="#iphone-panel"
-                        type="button" role="tab" aria-controls="iphone-panel" aria-selected="true">
+                <button class="nav-link active" id="iphone-tab"
+                        data-bs-toggle="pill" data-bs-target="#iphone-panel"
+                        type="button" role="tab" aria-selected="true">
                     <i class="fab fa-apple me-1"></i> iPhone
                 </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="android-tab" data-bs-toggle="pill" data-bs-target="#android-panel"
-                        type="button" role="tab" aria-controls="android-panel" aria-selected="false">
+                <button class="nav-link" id="android-tab"
+                        data-bs-toggle="pill" data-bs-target="#android-panel"
+                        type="button" role="tab" aria-selected="false">
                     <i class="fab fa-android me-1"></i> Android
                 </button>
             </li>
@@ -114,72 +119,80 @@
         <div class="tab-content">
 
             {# ── iPhone ── #}
-            <div class="tab-pane fade show active" id="iphone-panel" role="tabpanel" aria-labelledby="iphone-tab">
+            <div class="tab-pane fade show active" id="iphone-panel"
+                 role="tabpanel" aria-labelledby="iphone-tab">
 
-                <div class="alert alert-info border-0 small mb-3">
-                    <i class="fas fa-lightbulb me-1"></i>
-                    <strong>Méthode la plus simple sur iPhone :</strong> ouvrez directement le fichier <code>.vcf</code> depuis votre application Fichiers ou depuis votre messagerie — iOS vous proposera de l'importer dans vos Contacts automatiquement.
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body py-2 small">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        <strong>Méthode la plus simple :</strong>
+                        ouvrez directement le fichier <code>.vcf</code> depuis l'app Fichiers ou votre messagerie —
+                        iOS vous proposera de l'importer dans vos Contacts automatiquement.
+                    </div>
                 </div>
 
-                <ol class="list-group list-group-flush list-group-numbered">
-
+                <ol class="list-group list-group-flush list-group-numbered mb-3">
                     <li class="list-group-item border-0 px-0">
                         <div class="ms-2">
                             <strong>Téléchargez le fichier VCF</strong> en cliquant sur le bouton ci-dessus.
-                            Le fichier se retrouvera dans votre dossier <em>Téléchargements</em> (ou dans l'app Fichiers).
+                            Le fichier apparaîtra dans votre dossier <em>Téléchargements</em> (app Fichiers).
                         </div>
                     </li>
-
                     <li class="list-group-item border-0 px-0">
                         <div class="ms-2">
-                            <strong>Ouvrez l'application Fichiers</strong> sur votre iPhone
-                            <span class="badge bg-secondary ms-1">App Fichiers</span> et naviguez jusqu'au fichier <code>.vcf</code> téléchargé.
+                            <strong>Ouvrez l'application Fichiers</strong> sur votre iPhone et naviguez jusqu'au fichier <code>.vcf</code>.
                         </div>
                     </li>
-
                     <li class="list-group-item border-0 px-0">
                         <div class="ms-2">
-                            <strong>Appuyez sur le fichier .vcf</strong> — iOS affichera automatiquement une fenêtre
-                            <em>"Importer X contacts ?"</em>. Tapez <strong>Importer</strong>.
+                            <strong>Appuyez sur le fichier</strong> — iOS affiche automatiquement <em>"Importer X contacts ?"</em>.
+                            Tapez <strong>Importer</strong>.
                         </div>
                     </li>
-
                     <li class="list-group-item border-0 px-0">
                         <div class="ms-2">
-                            <strong>Vos contacts apparaissent</strong> dans l'application <em>Contacts</em> de votre iPhone. ✅
+                            Vos contacts apparaissent dans l'application <em>Contacts</em>. ✅
                         </div>
                     </li>
-
                 </ol>
 
-                <div class="mt-3 p-3 bg-light rounded small text-muted">
-                    <i class="fas fa-info-circle me-1"></i>
-                    <strong>Alternative via iCloud :</strong> connectez-vous sur
-                    <a href="https://icloud.com/contacts" target="_blank" rel="noopener noreferrer">icloud.com/contacts</a>,
-                    cliquez sur la roue dentée en bas à gauche, choisissez <em>Importer une vCard</em> et sélectionnez votre fichier .vcf.
-                    Les contacts seront synchronisés automatiquement sur votre iPhone.
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-2 small text-muted">
+                        <i class="fas fa-info-circle text-primary me-1"></i>
+                        <strong>Alternative via iCloud :</strong>
+                        connectez-vous sur
+                        <a href="https://icloud.com/contacts" target="_blank" rel="noopener noreferrer">icloud.com/contacts</a>,
+                        cliquez sur la roue dentée en bas à gauche → <em>Importer une vCard</em> → sélectionnez votre fichier.
+                        Les contacts se synchroniseront automatiquement sur votre iPhone.
+                    </div>
                 </div>
 
             </div>
 
             {# ── Android ── #}
-            <div class="tab-pane fade" id="android-panel" role="tabpanel" aria-labelledby="android-tab">
+            <div class="tab-pane fade" id="android-panel"
+                 role="tabpanel" aria-labelledby="android-tab">
 
-                <div class="alert alert-success border-0 small mb-3">
-                    <i class="fas fa-lightbulb me-1"></i>
-                    <strong>Méthode recommandée sur Android :</strong> utilisez Google Contacts (disponible sur tous les Android) — il accepte les fichiers VCF et CSV.
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-body py-2 small">
+                        <i class="fas fa-lightbulb text-warning me-1"></i>
+                        <strong>Méthode recommandée :</strong>
+                        utilisez Google Contacts — disponible sur tous les Android, il accepte les fichiers VCF et CSV.
+                    </div>
                 </div>
 
                 {# Sous-onglets méthodes #}
                 <ul class="nav nav-tabs mb-3 small" id="androidTabs" role="tablist">
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="android-vcf-tab" data-bs-toggle="tab" data-bs-target="#android-vcf-panel"
+                        <button class="nav-link active" id="android-vcf-tab"
+                                data-bs-toggle="tab" data-bs-target="#android-vcf-panel"
                                 type="button" role="tab" aria-selected="true">
                             Méthode VCF
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="android-csv-tab" data-bs-toggle="tab" data-bs-target="#android-csv-panel"
+                        <button class="nav-link" id="android-csv-tab"
+                                data-bs-toggle="tab" data-bs-target="#android-csv-panel"
                                 type="button" role="tab" aria-selected="false">
                             Méthode CSV (Google Contacts)
                         </button>
@@ -189,54 +202,48 @@
                 <div class="tab-content">
 
                     {# VCF sur Android #}
-                    <div class="tab-pane fade show active" id="android-vcf-panel" role="tabpanel" aria-labelledby="android-vcf-tab">
+                    <div class="tab-pane fade show active" id="android-vcf-panel"
+                         role="tabpanel" aria-labelledby="android-vcf-tab">
                         <ol class="list-group list-group-flush list-group-numbered">
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     <strong>Téléchargez le fichier VCF</strong> sur votre téléphone Android.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     <strong>Ouvrez l'application Contacts</strong>
                                     <span class="badge bg-secondary ms-1">ou Google Contacts</span>.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     Appuyez sur le <strong>menu ☰</strong> ou les <strong>trois points</strong> en haut à droite,
-                                    puis sélectionnez <em>Importer</em> ou <em>Gérer les contacts → Importer</em>.
+                                    puis choisissez <em>Importer</em> ou <em>Gérer les contacts → Importer</em>.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
-                                    Choisissez <em>Importer depuis un fichier .vcf</em>, naviguez jusqu'au fichier téléchargé et confirmez.
+                                    Sélectionnez <em>Importer depuis un fichier .vcf</em>, naviguez jusqu'au fichier et confirmez.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     <strong>Vos contacts sont importés.</strong> ✅
                                 </div>
                             </li>
-
                         </ol>
                     </div>
 
-                    {# CSV sur Android via Google Contacts #}
-                    <div class="tab-pane fade" id="android-csv-panel" role="tabpanel" aria-labelledby="android-csv-tab">
+                    {# CSV via Google Contacts #}
+                    <div class="tab-pane fade" id="android-csv-panel"
+                         role="tabpanel" aria-labelledby="android-csv-tab">
                         <ol class="list-group list-group-flush list-group-numbered">
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     <strong>Téléchargez le fichier CSV</strong> sur votre ordinateur.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     Connectez-vous sur
@@ -244,19 +251,16 @@
                                     depuis un navigateur.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     Dans le menu de gauche, cliquez sur <em>Importer</em>, puis sélectionnez votre fichier <code>.csv</code>.
                                 </div>
                             </li>
-
                             <li class="list-group-item border-0 px-0">
                                 <div class="ms-2">
                                     Les contacts s'ajoutent à votre compte Google et se <strong>synchronisent automatiquement</strong> sur votre téléphone Android. ✅
                                 </div>
                             </li>
-
                         </ol>
                     </div>
 
@@ -267,7 +271,7 @@
     </div>
 </div>
 
-{# ── Rappel retour ─────────────────────────────────────────────────────── #}
+{# ── Retour ────────────────────────────────────────────────────────────── #}
 <div class="text-center mb-2">
     <a href="{{ path('app_contact') }}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-1"></i> Retour à mes contacts
