@@ -364,6 +364,16 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/contacts/guide-import', name: 'app_guide_import_contacts')]
+    public function guideImportContacts(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/guide_import_contacts.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
 
     #[Route('/newpromoreseau', name: 'app_newpromoreseau')]
     public function newpromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
