@@ -1,0 +1,101 @@
+{# ── Bloc "Abonnez-vous et partagez" — équivalent de SociauxPage() Flutter ── #}
+<div class="ds-sociaux-card mt-4 mb-2">
+    <div class="ds-sociaux-inner">
+
+        <div class="d-flex align-items-start gap-3">
+            <div class="flex-grow-1">
+                <p class="ds-sociaux-title">Abonnez-vous et partagez&nbsp;!</p>
+                <p class="ds-sociaux-sub">Ne manquez aucune offre et faites-en profiter vos proches.</p>
+            </div>
+            <div class="ds-sociaux-icons">
+                <div class="d-flex gap-2 mb-2 justify-content-end">
+                    <a href="https://www.tiktok.com/@bluelife.tech" target="_blank" rel="noopener"
+                       class="ds-soc-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.facebook.com/dressurds" target="_blank" rel="noopener"
+                       class="ds-soc-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+                <div class="d-flex gap-2 justify-content-end">
+                    <a href="https://www.instagram.com/bluelife.tech?igsh=Mjcyc2tpMmw4dXhu" target="_blank" rel="noopener"
+                       class="ds-soc-btn" title="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t" target="_blank" rel="noopener"
+                       class="ds-soc-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <button type="button"
+                class="ds-sociaux-share-btn mt-3 w-100"
+                id="ds-share-dressur-btn">
+            <i class="fas fa-share-nodes me-2"></i>PARTAGER DRESSUR
+        </button>
+
+    </div>
+</div>
+
+<style>
+.ds-sociaux-card { padding: 0 4px; }
+.ds-sociaux-inner {
+    background: linear-gradient(135deg, #2a4b9a 0%, rgba(42,75,154,.85) 100%);
+    border-radius: 16px;
+    padding: 18px 16px 14px;
+    box-shadow: 0 8px 24px rgba(42,75,154,.28);
+}
+.ds-sociaux-title { color:#fff; font-weight:600; font-size:.97rem; margin-bottom:4px; }
+.ds-sociaux-sub   { color:rgba(255,255,255,.82); font-size:.82rem; margin-bottom:0; line-height:1.4; }
+.ds-soc-btn {
+    width:40px; height:40px; border-radius:50%;
+    background:rgba(255,255,255,.15);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:16px; text-decoration:none;
+    transition:background .2s, transform .15s;
+}
+.ds-soc-btn:hover { background:rgba(255,255,255,.30); transform:scale(1.1); color:#fff; }
+.ds-sociaux-share-btn {
+    background:#fff; color:#2a4b9a;
+    border:none; border-radius:50px;
+    padding:10px 20px; font-weight:700; font-size:.85rem; letter-spacing:.5px;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:box-shadow .2s, opacity .15s;
+}
+.ds-sociaux-share-btn:hover { box-shadow:0 4px 16px rgba(255,255,255,.35); opacity:.92; }
+</style>
+
+<script>
+(function () {
+    var MSG = "Utilise Dressur, une application simple, s\u00fbr et fiable pour avoir de la visibilit\u00e9 sur tes diff\u00e9rents r\u00e9seaux sociaux et surtout sur tes statuts WhatsApp.\n"
+            + "Gr\u00e2ce \u00e0 Dressur, fait la promotion de tes produits et services qui seront visibles par des milliers d'utilisateurs en seulement 24H.\n"
+            + "Elle te permet d'avoir plus facilement des contacts WhatsApp selon les pays de ton choix. De plus, ses contacts sont automatiquement enregistr\u00e9s dans ton t\u00e9l\u00e9phone et ton contact dans les leurs, etc.\n\n"
+            + "\u00c0 t\u00e9l\u00e9charger gratuitement sur Play Store\u00a0: https://play.google.com/store/apps/details?id=com.dressur.ds\n\n"
+            + "Ou la version web si tu n'as pas d'Android\u00a0: https://dressur.site/inscription";
+
+    /* ── Bouton PARTAGER DRESSUR ──
+       - navigator.share disponible → panneau natif OS (toutes apps installées)
+       - navigator.share indisponible → téléchargement automatique de l'affiche */
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#ds-share-dressur-btn')) return;
+
+        if (typeof navigator.share === 'function') {
+            navigator.share({
+                title: 'Partager Dressur\u00a0!',
+                text:  MSG,
+                url:   'https://dressur.site/inscription'
+            }).catch(function (err) {
+                if (err.name !== 'AbortError') {
+                    dsDownloadFlyer();
+                }
+            });
+        } else {
+            dsDownloadFlyer();
+        }
+    });
+
+    function dsDownloadFlyer() {
+        var a = document.createElement('a');
+        a.href = '/assets/images/flyers_dressur_fr.png';
+        a.download = 'flyer-dressur.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+})();
+</script>
