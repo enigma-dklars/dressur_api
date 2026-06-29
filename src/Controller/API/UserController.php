@@ -1700,7 +1700,7 @@ class UserController extends AbstractController
             $datas = $request->request;
 
             $uid = $datas->get('uid');
-            $lang = $datas->get('lang');
+            $lang = $datas->get('lang') === 'fr' ? 'fr' : 'en';
 
             $verificationUser = $verificationsDS->verifUSer($uid);
             if ($verificationUser["error"] == true) {
