@@ -93,8 +93,7 @@ class BoostController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $langUserPhone = 'fr';
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
@@ -212,8 +211,7 @@ class BoostController extends AbstractController
     public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository, DeletedDSRepository $deletedDSRepository): Response
     {
         $datas = $request->request;        
-        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $langUserPhone = 'fr';        
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $idFormulBoost = $datas->get('idFormulBoost');
@@ -508,7 +506,7 @@ class BoostController extends AbstractController
     #[Route('/listBoost/{uid}/{langUserPhone}', name: 'listBoost', methods: ['POST', "GET"])]
     public function listBoost(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        
 
         return new JsonResponse($traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])));
     }

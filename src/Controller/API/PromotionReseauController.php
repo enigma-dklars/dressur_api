@@ -55,8 +55,7 @@ class PromotionReseauController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $langUserPhone = 'fr';        
         
         return new JsonResponse([
             'error' => false,
@@ -68,7 +67,7 @@ class PromotionReseauController extends AbstractController
     #[Route('/listPromoReseau/{uid}/{langUserPhone}', name: 'listPromoReseau', methods: ['POST', "GET"])]
     public function listPromoReseau(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        
         
         return new JsonResponse($traitementsDS->userPromoReseaus($user->getPromoReseaus(), $user));
     }
@@ -77,8 +76,7 @@ class PromotionReseauController extends AbstractController
     public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
-        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $langUserPhone = 'fr';        
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         
         $idFormulePromoReseau = $datas->get('idFormulePromoReseau');

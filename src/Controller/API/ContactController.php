@@ -37,7 +37,7 @@ class ContactController extends AbstractController
     #[Route('/listContactDS/{uid}/{langUserPhone}', name: 'listContactDS', methods: ['POST', "GET"])]
     public function listContactDS(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        
         
         return new JsonResponse($traitementsDS->userContacts($user));
     }
@@ -85,8 +85,7 @@ class ContactController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = $datas->get('langUserPhone') ?? 'fr';
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        $langUserPhone = 'fr';        
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $tel = $datas->get('tel');

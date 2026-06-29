@@ -39,7 +39,7 @@ class AddController extends AbstractController
     #[Route('/addTousUserContact/{uid}/{langUserPhone}', name: 'addTousUserContact', methods: ['POST', "GET"])]
     public function addTousUserContact(Request $request, $langUserPhone, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, BoostRepository $boostRepository): Response
     {        
-        $sessionDS->set("langUserPhone", $langUserPhone);
+        
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
