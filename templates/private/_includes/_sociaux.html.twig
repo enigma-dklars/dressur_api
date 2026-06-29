@@ -131,7 +131,37 @@ Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</t
         waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(MSG);
     }
 
-    /* Bouton Copier */
+    /* ── Bouton PARTAGER DRESSUR ──
+       - Si navigator.share disponible (mobile + Chrome/Edge/Safari PC) : panneau natif OS
+       - Sinon : data-bs-toggle ouvre le modal Bootstrap (fallback)
+       stopPropagation() sur l'élément empêche le listener Bootstrap (document-level)
+       de s'exécuter uniquement quand on gère nous-mêmes le partage. */
+    var shareBtn = document.getElementById('ds-share-dressur-btn');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function (e) {
+            if (typeof navigator.share !== 'function') {
+                return; /* pas de Web Share API → laisser data-bs-toggle ouvrir le modal */
+            }
+
+            e.stopPropagation(); /* empêche Bootstrap d'ouvrir le modal */
+
+            navigator.share({
+                title: 'Partager Dressur\u00a0!',
+                text:  MSG
+            }).catch(function (err) {
+                /* AbortError = l'utilisateur a fermé le panneau → rien à faire */
+                if (err.name !== 'AbortError') {
+                    /* Erreur inattendue → ouvrir le modal comme fallback */
+                    var modalEl = document.getElementById('dsShareModal');
+                    if (modalEl && typeof bootstrap !== 'undefined') {
+                        new bootstrap.Modal(modalEl).show();
+                    }
+                }
+            });
+        });
+    }
+
+    /* ── Bouton Copier (dans le modal) ── */
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#ds-copy-msg-btn')) return;
         var btn = document.getElementById('ds-copy-msg-btn');
