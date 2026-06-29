@@ -70,9 +70,13 @@
     var FLYER_URL = '/assets/images/flyers_dressur_fr.png';
 
     /* ── Bouton PARTAGER DRESSUR ──
-       1. Tente de récupérer l'affiche et de la partager en fichier (navigator.canShare + files)
-       2. Sinon partage texte + url uniquement via navigator.share
-       3. Si navigator.share indisponible → téléchargement automatique de l'affiche */
+       Règle : l'affiche accompagne TOUJOURS le partage.
+       Si le partage avec fichier est impossible → téléchargement de l'affiche (jamais de texte seul).
+       1. navigator.share absent                          → téléchargement
+       2. navigator.canShare({ files }) = false           → téléchargement
+       3. navigator.canShare({ files }) = true            → partage natif avec image + texte ✅
+       4. Utilisateur annule (AbortError)                 → rien
+       5. Autre erreur (fetch échoué, etc.)               → téléchargement */
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#ds-share-dressur-btn')) return;
 
@@ -81,7 +85,6 @@
             return;
         }
 
-        /* Essai de partage avec l'image en pièce jointe */
         fetch(FLYER_URL)
             .then(function (r) { return r.blob(); })
             .then(function (blob) {
@@ -92,25 +95,15 @@
                     files: [file]
                 };
                 if (navigator.canShare && navigator.canShare(shareData)) {
+                    /* Partage natif avec l'affiche + le texte */
                     return navigator.share(shareData);
                 }
-                /* Navigateur ne supporte pas le partage de fichiers → texte seul */
-                return navigator.share({
-                    title: 'ADD WhatsApp Gratuitement\u00a0!',
-                    text:  MSG,
-                    url:   'https://dressur.site/inscription'
-                });
+                /* Partage de fichiers non supporté → téléchargement à la place */
+                dsDownloadFlyer();
             })
             .catch(function (err) {
                 if (err.name !== 'AbortError') {
-                    /* Fetch échoué ou share refusé → partage texte seul en dernier recours */
-                    navigator.share({
-                        title: 'ADD WhatsApp Gratuitement\u00a0!',
-                        text:  MSG,
-                        url:   'https://dressur.site/inscription'
-                    }).catch(function (e2) {
-                        if (e2.name !== 'AbortError') { dsDownloadFlyer(); }
-                    });
+                    dsDownloadFlyer();
                 }
             });
     });
