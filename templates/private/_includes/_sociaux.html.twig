@@ -1,6 +1,5 @@
 {# ── Bloc "Abonnez-vous et partagez" — équivalent de SociauxPage() Flutter ── #}
 <div class="ds-sociaux-card mt-4 mb-2">
-
     <div class="ds-sociaux-inner">
 
         <div class="d-flex align-items-start gap-3">
@@ -11,23 +10,21 @@
             <div class="ds-sociaux-icons">
                 <div class="d-flex gap-2 mb-2 justify-content-end">
                     <a href="https://www.tiktok.com/@bluelife.tech" target="_blank" rel="noopener"
-                       class="ds-soc-btn" title="TikTok Dressur"><i class="fab fa-tiktok"></i></a>
+                       class="ds-soc-btn" title="TikTok"><i class="fab fa-tiktok"></i></a>
                     <a href="https://www.facebook.com/dressurds" target="_blank" rel="noopener"
-                       class="ds-soc-btn" title="Facebook Dressur"><i class="fab fa-facebook-f"></i></a>
+                       class="ds-soc-btn" title="Facebook"><i class="fab fa-facebook-f"></i></a>
                 </div>
                 <div class="d-flex gap-2 justify-content-end">
                     <a href="https://www.instagram.com/bluelife.tech?igsh=Mjcyc2tpMmw4dXhu" target="_blank" rel="noopener"
-                       class="ds-soc-btn" title="Instagram Dressur"><i class="fab fa-instagram"></i></a>
+                       class="ds-soc-btn" title="Instagram"><i class="fab fa-instagram"></i></a>
                     <a href="https://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t" target="_blank" rel="noopener"
-                       class="ds-soc-btn" title="Chaîne WhatsApp Dressur"><i class="fab fa-whatsapp"></i></a>
+                       class="ds-soc-btn" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                 </div>
             </div>
         </div>
 
-        {# Le bouton ouvre le modal via data-bs-toggle (fiable, pas de JS requis)
-           Le JS intercepte uniquement pour tenter le partage natif en priorité #}
-        <button class="ds-sociaux-share-btn mt-3 w-100"
-                id="ds-share-dressur-btn"
+        <button type="button"
+                class="ds-sociaux-share-btn mt-3 w-100"
                 data-bs-toggle="modal"
                 data-bs-target="#dsShareModal">
             <i class="fas fa-share-nodes me-2"></i>PARTAGER DRESSUR
@@ -37,17 +34,18 @@
 </div>
 
 {# ── Modal de partage ── #}
-<div class="modal fade" id="dsShareModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="dsShareModal" tabindex="-1" aria-labelledby="dsShareModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow-lg">
+
             <div class="modal-header border-0 pb-0">
-                <h6 class="modal-title fw-bold">
+                <h6 class="modal-title fw-bold" id="dsShareModalLabel">
                     <i class="fas fa-share-nodes me-2 text-primary"></i>Partager Dressur
                 </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
-            <div class="modal-body pt-2 pb-3 px-3">
 
+            <div class="modal-body pt-2 pb-3 px-3">
                 <div class="text-center mb-3">
                     <img src="/assets/images/flyers_dressur_fr.jpg"
                          alt="Flyer Dressur"
@@ -60,24 +58,33 @@
                 </label>
                 <textarea id="ds-share-message" class="form-control small mb-3"
                           rows="6" readonly
-                          style="font-size:.8rem; resize:none; line-height:1.5;"></textarea>
+                          style="font-size:.8rem; resize:none; line-height:1.5;">Utilise Dressur, une application simple, sûr et fiable pour avoir de la visibilité sur tes différents réseaux sociaux et surtout sur tes statuts WhatsApp.
+Grâce à Dressur, fait la promotion de tes produits et services qui seront visibles par des milliers d'utilisateurs en seulement 24H.
+Elle te permet d'avoir plus facilement des contacts WhatsApp selon les pays de ton choix. De plus, ses contacts sont automatiquement enregistrés dans ton téléphone et ton contact dans les leurs, etc.
+
+À télécharger gratuitement sur Play Store : https://play.google.com/store/apps/details?id=com.dressur.ds
+
+Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</textarea>
 
                 <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-sm btn-outline-secondary flex-fill" id="ds-copy-msg-btn">
-                        <i class="fas fa-copy me-1"></i>Copier le message
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="ds-copy-msg-btn">
+                        <i class="fas fa-copy me-1"></i>Copier
                     </button>
-                    <a id="ds-wa-btn" href="#" target="_blank" rel="noopener"
+                    <a id="ds-wa-btn"
+                       href="https://api.whatsapp.com/send?text=Utilise%20Dressur%2C%20une%20application%20simple%2C%20s%C3%BBr%20et%20fiable..."
+                       target="_blank" rel="noopener"
                        class="btn btn-sm flex-fill text-white fw-semibold"
                        style="background:#25d366;">
                         <i class="fab fa-whatsapp me-1"></i>WhatsApp
                     </a>
-                    <a href="/assets/images/flyers_dressur_fr.jpg" download="flyer-dressur.jpg"
+                    <a href="/assets/images/flyers_dressur_fr.jpg"
+                       download="flyer-dressur.jpg"
                        class="btn btn-sm btn-outline-primary flex-fill">
                         <i class="fas fa-download me-1"></i>Flyer
                     </a>
                 </div>
-
             </div>
+
         </div>
     </div>
 </div>
@@ -111,77 +118,35 @@
 </style>
 
 <script>
-(function(){
-    var MESSAGE_FR = "Utilise Dressur, une application simple, sûr et fiable pour avoir de la visibilité sur tes différents réseaux sociaux et surtout sur tes statuts WhatsApp.\n"
-        + "Grâce à Dressur, fait la promotion de tes produits et services qui seront visibles par des milliers d'utilisateurs en seulement 24H.\n"
-        + "Elle te permet d'avoir plus facilement des contacts WhatsApp selon les pays de ton choix. De plus, ses contacts sont automatiquement enregistrés dans ton téléphone et ton contact dans les leurs, etc.\n\n"
-        + "À télécharger gratuitement sur Play Store : https://play.google.com/store/apps/details?id=com.dressur.ds\n\n"
-        + "Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription";
+(function () {
+    var MSG = "Utilise Dressur, une application simple, s\u00fbr et fiable pour avoir de la visibilit\u00e9 sur tes diff\u00e9rents r\u00e9seaux sociaux et surtout sur tes statuts WhatsApp.\n"
+            + "Gr\u00e2ce \u00e0 Dressur, fait la promotion de tes produits et services qui seront visibles par des milliers d'utilisateurs en seulement 24H.\n"
+            + "Elle te permet d'avoir plus facilement des contacts WhatsApp selon les pays de ton choix. De plus, ses contacts sont automatiquement enregistr\u00e9s dans ton t\u00e9l\u00e9phone et ton contact dans les leurs, etc.\n\n"
+            + "\u00c0 t\u00e9l\u00e9charger gratuitement sur Play Store\u00a0: https://play.google.com/store/apps/details?id=com.dressur.ds\n\n"
+            + "Ou la version web si tu n'as pas d'Android\u00a0: https://dressur.site/inscription";
 
-    var FLYER_URL = '/assets/images/flyers_dressur_fr.jpg';
-
-    /* ── Pré-remplir le modal dès que le DOM est prêt ── */
-    function initModal() {
-        var msgArea = document.getElementById('ds-share-message');
-        var waBtn   = document.getElementById('ds-wa-btn');
-        if (msgArea) msgArea.value = MESSAGE_FR;
-        if (waBtn)   waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(MESSAGE_FR);
+    /* Mettre à jour le lien WhatsApp avec le message complet */
+    var waBtn = document.getElementById('ds-wa-btn');
+    if (waBtn) {
+        waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(MSG);
     }
-    initModal();
 
-    /* ── Copier le message ── */
-    document.addEventListener('click', function(e) {
+    /* Bouton Copier */
+    document.addEventListener('click', function (e) {
         if (!e.target.closest('#ds-copy-msg-btn')) return;
-        var copyBtn = document.getElementById('ds-copy-msg-btn');
-        navigator.clipboard.writeText(MESSAGE_FR).then(function() {
-            var orig = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Copié\u00a0!';
-            copyBtn.classList.replace('btn-outline-secondary', 'btn-success');
-            setTimeout(function() {
-                copyBtn.innerHTML = orig;
-                copyBtn.classList.replace('btn-success', 'btn-outline-secondary');
+        var btn = document.getElementById('ds-copy-msg-btn');
+        navigator.clipboard.writeText(MSG).then(function () {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copi\u00e9\u00a0!';
+            btn.classList.replace('btn-outline-secondary', 'btn-success');
+            setTimeout(function () {
+                btn.innerHTML = orig;
+                btn.classList.replace('btn-success', 'btn-outline-secondary');
             }, 2200);
-        }).catch(function() {
+        }).catch(function () {
             var ta = document.getElementById('ds-share-message');
             if (ta) { ta.select(); document.execCommand('copy'); }
         });
     });
-
-    /* ── Partage natif (mobile) : intercepte le clic AVANT l'ouverture du modal ── */
-    document.addEventListener('click', function(e) {
-        var btn = e.target.closest('#ds-share-dressur-btn');
-        if (!btn) return;
-
-        /* Sur mobile avec navigator.share disponible → partage natif, on bloque le modal */
-        if (typeof navigator.share === 'function') {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            (async function() {
-                try {
-                    /* Tenter avec le fichier flyer */
-                    if (typeof navigator.canShare === 'function') {
-                        var resp = await fetch(FLYER_URL);
-                        var blob = await resp.blob();
-                        var file = new File([blob], 'flyer-dressur.jpg', { type: blob.type });
-                        if (navigator.canShare({ files: [file] })) {
-                            await navigator.share({ title: 'Partager Dressur\u00a0!', text: MESSAGE_FR, files: [file] });
-                            return;
-                        }
-                    }
-                    /* Fallback : message seul */
-                    await navigator.share({ title: 'Partager Dressur\u00a0!', text: MESSAGE_FR, url: 'https://dressur.site/inscription' });
-                } catch (err) {
-                    /* Annulé ou échoué → ouvrir le modal manuellement */
-                    var modalEl = document.getElementById('dsShareModal');
-                    if (modalEl && window.bootstrap) {
-                        new window.bootstrap.Modal(modalEl).show();
-                    }
-                }
-            })();
-        }
-        /* Si navigator.share absent : data-bs-toggle ouvre le modal normalement */
-    }, true); /* capture=true pour intercepter avant Bootstrap */
-
 })();
 </script>
