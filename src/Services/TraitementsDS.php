@@ -1033,6 +1033,7 @@ class TraitementsDS extends AbstractController
             "createdAt" => $user->getCreatedAt(),
             "mailIsVerified" => $user->getMailIsVerified(),
             "telIsVerified" => $user->getTelIsVerified(),
+            "lang" => $user->getLang(),
             "nombreContactDispo" => count($this->getAddDisponible($user)),
             "nombreContacts" => count($this->userContacts($user)),
             "lesPublicites" => $lesPublicites,
