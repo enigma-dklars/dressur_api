@@ -965,4 +965,31 @@ class PromotionController extends AbstractController
 
         return new Response("OK");
     }
+
+    #[Route('/getPromotionsDressurStatus', name: 'getPromotionsDressurStatus', methods: ['GET', 'POST'])]
+    public function getPromotionsDressurStatus(PromotionRepository $promotionRepository): Response
+    {
+        $promotions = $promotionRepository->findBy(
+            ['publishOnDressurStatus' => true, 'status' => 3],
+            ['id' => 'DESC']
+        );
+
+        $data = array_map(function (Promotion $p) {
+            $user = $p->getUser();
+            return [
+                'id'          => $p->getId(),
+                'image'       => $p->getImage(),
+                'description' => $p->getDescription(),
+                'pseudo'      => $user ? $user->getPseudo() : '',
+                'whatsapp'    => $user ? $user->getTel() : '',
+                'type'        => $p->getTypePromotionAffaire(),
+                'dateExp'     => $p->getDateExp()?->format('d/m/Y'),
+            ];
+        }, $promotions);
+
+        return new JsonResponse([
+            'error'      => false,
+            'promotions' => $data,
+        ]);
+    }
 }
