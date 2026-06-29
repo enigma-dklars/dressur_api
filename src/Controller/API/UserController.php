@@ -158,9 +158,6 @@ class UserController extends AbstractController
             $lastLoginSource = ($datas->get('source') === 'web') ? 'web' : 'mobile';
             $user->setLastLoginTo(new DateTime())
                 ->setLastLoginSource($lastLoginSource);
-            if($user->getLang() != $langUserPhone) { 
-                $user->setLang($langUserPhone ?? 'fr');
-            }
             $this->em->flush();
 
             $this->traitementsDS->migrateUidIfNeeded($user);
@@ -648,9 +645,6 @@ class UserController extends AbstractController
         if($user) {
             // enregistrement de la langue du user et du last login
             $user->setLastLoginTo(new DateTime());
-            if($user->getLang() != $langUserPhone) {
-                $user->setLang($langUserPhone ?? 'fr');
-            }
             $this->em->flush();
 
             if ($user->getId()) {
@@ -1139,7 +1133,6 @@ class UserController extends AbstractController
             ->setMail($mail)
             ->setPassword(password_hash($rawPassword, PASSWORD_BCRYPT))
             ->setPays($paysTel)
-            ->setLang($langUserPhone ?? 'fr')
             ->setLastLoginTo(new DateTime())
             ->setRegisterSource($registerSource)
             ->setLastLoginSource($registerSource)
