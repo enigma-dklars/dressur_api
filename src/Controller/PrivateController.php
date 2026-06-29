@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Controller\API\UserController;
-use App\Entity\FormulePromoReseau;
 use App\Repository\BoostRepository;
 use App\Repository\DeletedDSRepository;
 use App\Repository\EnvRepository;
@@ -527,18 +525,6 @@ class PrivateController extends AbstractController
         $sessionDS->set("langUserPhone", "fr");
         // dd($formuleCampageMails);
         return $this->render('private/editPassword.html.twig', [
-            'user' => $traitementsDS->infosUser($user),
-            'theme' => $this->theme,
-        ]);
-    }
-
-    #[Route('/invitezVosAmis', name: 'app_invitezVosAmis')]
-    public function invitezVosAmis(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
-    {
-        $user = $this->traitementsDS->getUserByUidInCookies();
-        $sessionDS->set("langUserPhone", "fr");
-        // dd($formuleCampageMails);
-        return $this->render('private/invitezVosAmis.html.twig', [
             'user' => $traitementsDS->infosUser($user),
             'theme' => $this->theme,
         ]);
