@@ -87,13 +87,6 @@ class PromotionReseauController extends AbstractController
         $tel = $datas->get('tel');
         
         if(!$idFormulePromoReseau || !$qteDemander || !$prixQteDemander || !$lien || !$valueMethodePaiement || !$tel){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please fill in all the information requested in the form.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -104,13 +97,6 @@ class PromotionReseauController extends AbstractController
         $url_promo_en_attente = $promoReseauRepository->findBy(['status' => 1, 'url' => $lien]);
         $url_promo_en_cours = $promoReseauRepository->findBy(['status' => 2, 'url' => $lien]);
         if($url_promo_en_attente || $url_promo_en_cours) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => "One of your promotions initiated with this URL has not yet been completed. Please wait until the end before starting another one. THANKS.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -121,13 +107,6 @@ class PromotionReseauController extends AbstractController
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -137,13 +116,7 @@ class PromotionReseauController extends AbstractController
 
         $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
         if(!$formulePromoReseau) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
+
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -153,21 +126,11 @@ class PromotionReseauController extends AbstractController
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
 
         if(!$valueMethodePaiement){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -176,13 +139,6 @@ class PromotionReseauController extends AbstractController
         }
         $methodePaiementEntity = $methodePaiementRepository->find($valueMethodePaiement);
         if(!$methodePaiementEntity) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a valide Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -193,13 +149,6 @@ class PromotionReseauController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -260,13 +209,6 @@ class PromotionReseauController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
     
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -275,13 +217,7 @@ class PromotionReseauController extends AbstractController
                 }
     
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
+
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -293,13 +229,6 @@ class PromotionReseauController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -335,13 +264,6 @@ class PromotionReseauController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
 
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -350,13 +272,6 @@ class PromotionReseauController extends AbstractController
                 }
 
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',

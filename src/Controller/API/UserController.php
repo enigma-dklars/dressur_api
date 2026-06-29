@@ -81,13 +81,6 @@ class UserController extends AbstractController
         $password = $datas->get('password');
 
         if(empty($mail) and empty($password)){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Please enter your E-Mail address and your account password.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -96,13 +89,6 @@ class UserController extends AbstractController
         }
 
         if(!$mail){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Please enter your email.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -111,13 +97,6 @@ class UserController extends AbstractController
         }
 
         if(!$password){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Please enter your password.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -126,9 +105,6 @@ class UserController extends AbstractController
         }
 
         if (!$verificationsDS->verifMail($mail)) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid email address.",]); 
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
         }
 
@@ -176,13 +152,6 @@ class UserController extends AbstractController
                 "user" => $this->traitementsDS->infosUser($user),
             ]);
         } else {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Incorrect credentials.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -224,9 +193,6 @@ class UserController extends AbstractController
                 if (strpos($telClean, $indicatif) === 0) {
                     $afterIndicatif = substr($telClean, strlen($indicatif));
                     if (!preg_match('/^\d{10}$/', $afterIndicatif)) {
-                        if($sessionDS->get("langUserPhone") != "fr") {
-                            return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'For the '.$indicatif.' prefix, please enter exactly 10 digits after the prefix.']);
-                        }
                         return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'Pour l\'indicatif '.$indicatif.', veuillez saisir exactement 10 chiffres après l\'indicatif.']);
                     }
                     break;
@@ -235,13 +201,6 @@ class UserController extends AbstractController
         }
 
         if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "This number has been banned from Dressur. Contact support if this is an error.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -250,13 +209,6 @@ class UserController extends AbstractController
         }
 
         if($mail && $this->env->getUserBanned() && in_array($mail, $this->env->getUserBanned())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "This email address has been banned from Dressur. Contact support if this is a mistake.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -266,12 +218,6 @@ class UserController extends AbstractController
 
         if($instagram) {
             if (!$verificationsDS->isValidSocialUrl($instagram, 'instagram')) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'message' => strtoupper('instagram').' Invalid URL.',
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'message' => strtoupper('instagram').' URL invalide.',
@@ -281,12 +227,6 @@ class UserController extends AbstractController
 
         if($facebook) {
             if (!$verificationsDS->isValidSocialUrl($facebook, 'facebook')) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'message' => strtoupper('facebook').' Invalid URL.',
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'message' => strtoupper('facebook').' URL invalide.',
@@ -296,12 +236,6 @@ class UserController extends AbstractController
 
         if($youtube) {
             if (!$verificationsDS->isValidSocialUrl($youtube, 'youtube')) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'message' => strtoupper('youtube').' Invalid URL.',
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'message' => strtoupper('youtube').' URL invalide.',
@@ -311,12 +245,6 @@ class UserController extends AbstractController
 
         if($tiktok) {
             if (!$verificationsDS->isValidSocialUrl($tiktok, 'tiktok')) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'message' => strtoupper('tiktok').' Invalid URL.',
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'message' => strtoupper('tiktok').' URL invalide.',
@@ -337,20 +265,10 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         if (!$verificationsDS->verifMail($mail)) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid email address.",]); 
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
         }
 
         if(!$mail or !$pseudo){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Please complete all fields!',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -374,13 +292,6 @@ class UserController extends AbstractController
         $userPseudoUid =  $userPseudoUid ? $userPseudoUid->getUid() : null;
         if($userPseudoUid){
             if($userPseudoUid != $uid){
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Whoops!',
-                        'message' => 'This nickname is already used!',
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Oups!',
@@ -393,13 +304,6 @@ class UserController extends AbstractController
         $userMailUid =  $userMailUid ? $userMailUid->getUid() : null;
         if($userMailUid){
             if($userMailUid != $uid){
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Whoops!',
-                        'message' => "This E-Mail address is already in use.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Oups!',
@@ -425,9 +329,6 @@ class UserController extends AbstractController
         if($user->getTelIsVerified() == false) {
             $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
             if($verificationNumTel["error"] == true){
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
-                }
                 return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
             }
             $tel = $verificationNumTel["e164"];
@@ -436,13 +337,6 @@ class UserController extends AbstractController
             $userTel = $userRepository->findOneBy(['tel' => $tel]);
             if($userTel) {
                 if($userTel->getUid() != $user->getUid()) {
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Access Deny!',
-                            'message' => 'This number is already used.',
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Accès Refuser!',
@@ -457,13 +351,6 @@ class UserController extends AbstractController
         $this->em->flush();
 
         if ($user->getId()) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => false,
-                    'message' => 'Profile updated!',
-                    'user' => $this->traitementsDS->infosUser($user),
-                ]);
-            }
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Profil mis a jours!',
@@ -471,13 +358,6 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-            ]);
-        }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
@@ -499,13 +379,6 @@ class UserController extends AbstractController
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         if(strlen($rawNewPassword) < 6) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "For your own security, your password must contain at least 6 characters including at least one capital letter and one number.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
@@ -514,13 +387,6 @@ class UserController extends AbstractController
         }
 
         if(!$rawCurrentPassword or !$rawNewPassword or !$rawConfirmNewPassword){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Please complete all fields!',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -530,18 +396,11 @@ class UserController extends AbstractController
 
         $userUid = $userRepository->findOneBy(['uid' => $uid]);
         if(!$userUid){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
-            'error' => true,
-            'titre' => 'Erreur!',
-            'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-        ]);
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+            ]);
         }
 
         $storedHash = $userUid->getPassword();
@@ -551,13 +410,6 @@ class UserController extends AbstractController
             $currentPasswordValid = sha1(sha1(sha1($rawCurrentPassword))) === $storedHash;
         }
         if (!$currentPasswordValid) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => "Attention!",
-                    'message' => 'Current passwords incorrect!',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Attention!",
@@ -583,13 +435,7 @@ class UserController extends AbstractController
                 "Mot de Passe Modifié sur Dressur", 
                 $this->renderView('emails/pass_edit_mail.html.twig', []
             ));
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => false,
-                    'message' => 'Password updated!',
-                    "user" => $this->traitementsDS->infosUser($user),
-                ]);
-            }
+
             return new JsonResponse([
                 'error' => false,
                 'message' => 'Mot de passe mis a jours!',
@@ -597,13 +443,6 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-            ]);
-        }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
@@ -652,13 +491,6 @@ class UserController extends AbstractController
             }
         }
 
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-            ]);
-        }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
@@ -707,13 +539,6 @@ class UserController extends AbstractController
 
         $sent = $sendMail->smtpMail($user->getMail(), "Confirmation du Mail", $html);
         if (!$sent) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Error sending email.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -748,13 +573,6 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         if($user->getMailIsVerified() == true){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Action Repeat!',
-                    'message' => "Your email is already confirmed.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Action Répéter!',
@@ -765,13 +583,6 @@ class UserController extends AbstractController
         $verifMail = $verifMailRepository->findOneBy(['user' => $user, 'code' => $codeForVerifMail]);
 
         if(!$verifMail){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Check the entered code carefully.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -779,14 +590,8 @@ class UserController extends AbstractController
             ]);
         }
 
-        if((new Datetime()) > $verifMail->getDateExp()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "This code has expired. Please resume the verification process.",
-                ]);
-            }
+        if((new DateTime()) > $verifMail->getDateExp()){
+
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
@@ -841,13 +646,6 @@ class UserController extends AbstractController
 
         $sent = $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
         if (!$sent) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Error sending email. Please try again.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -870,13 +668,6 @@ class UserController extends AbstractController
         $mail = strtolower(str_replace(" ", "", $datas->get('mail')));
 
         if(!$mail){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please enter your email.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -886,13 +677,6 @@ class UserController extends AbstractController
 
         $user = $userRepository->findOneBy(['mail' => $mail]);
         if(!$user){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "No account matches : ".$mail,
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -910,13 +694,6 @@ class UserController extends AbstractController
 
         $sent = $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
         if (!$sent) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Error sending email. Please try again.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -959,9 +736,6 @@ class UserController extends AbstractController
             if (strpos($tel, $indicatif) === 0) {
                 $afterIndicatif = substr($tel, strlen($indicatif));
                 if (!preg_match('/^\d{10}$/', $afterIndicatif)) {
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'For the '.$indicatif.' prefix, please enter exactly 10 digits after the prefix.']);
-                    }
                     return new JsonResponse(['error' => true, 'titre' => 'Attention!', 'message' => 'Pour l\'indicatif '.$indicatif.', veuillez saisir exactement 10 chiffres après l\'indicatif.']);
                 }
                 break;
@@ -974,13 +748,6 @@ class UserController extends AbstractController
         $pseudo = preg_replace('/\D+/', '', $telRaw);
 
         if(!$pseudo or !$tel or !$mail or !$password or !$confirmPassword){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Please complete all fields correctly!',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -989,13 +756,6 @@ class UserController extends AbstractController
         }
         
         if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "This number has been banned from Dressur. Contact support if this is an error.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -1004,13 +764,6 @@ class UserController extends AbstractController
         }
 
         if($mail && $this->env->getUserBanned() && in_array($mail, $this->env->getUserBanned())) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "This email address has been banned from Dressur. Contact support if this is a mistake.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -1020,30 +773,17 @@ class UserController extends AbstractController
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
         $paysTel = $verificationNumTel["country_code"];
 
         if (!$verificationsDS->verifMail($mail)) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid email address.",]); 
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
         }
 
         $userTel = $userRepository->findOneBy(['tel' => $tel]);
         if($userTel){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Access Deny!',
-                    'message' => 'This number is already used.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Accès Refuser!',
@@ -1053,13 +793,6 @@ class UserController extends AbstractController
 
         $userMail = $userRepository->findOneBy(['mail' => $mail]);
         if($userMail){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "This E-Mail address is already in use.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
@@ -1069,13 +802,6 @@ class UserController extends AbstractController
 
         $userPseudo = $userRepository->findOneBy(['pseudo' => $pseudo]);
         if($userPseudo){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "This nickname is already used!",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
@@ -1084,13 +810,6 @@ class UserController extends AbstractController
         }
 
         if(strlen($password) < 6 || !preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "For your own security, your password must contain at least 6 characters including at least one capital letter and one number.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
@@ -1102,13 +821,6 @@ class UserController extends AbstractController
         $rawConfirmPassword = $datas->get('confirmPassword');
 
         if($rawPassword != $rawConfirmPassword){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Whoops!',
-                    'message' => "Password confirmation error!",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Oups!',
@@ -1179,13 +891,6 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-            ]);
-        }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Erreur!',
@@ -1216,13 +921,6 @@ class UserController extends AbstractController
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
         if(!$user) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'User not found... Contact Dressur support on WhatsApp.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -1231,13 +929,6 @@ class UserController extends AbstractController
         }
 
         if(!$motifDeleted){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'The reason for deleting the account is essential...',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -1246,13 +937,6 @@ class UserController extends AbstractController
         }
 
         if(strlen($motifDeleted) < 100){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'The pattern must contain at least 100 characters.',
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -1286,13 +970,6 @@ class UserController extends AbstractController
         $suggestion = $datas->get('suggestion');
 
         if(!$suggestion){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please enter your suggestion carefully...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -1301,13 +978,6 @@ class UserController extends AbstractController
         }
 
         if(strlen($suggestion) < 10){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "The suggestion must contain at least 10 characters",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -1544,13 +1214,6 @@ class UserController extends AbstractController
 
             $capture1 = $files->get('capture1');
             if (!$capture1->isValid()) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Error processing capture – Status list.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -1562,13 +1225,6 @@ class UserController extends AbstractController
 
             $capture2 = $files->get('capture2');
             if (!$capture2->isValid()) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Error processing capture – Open status.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',

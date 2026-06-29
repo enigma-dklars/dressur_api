@@ -197,13 +197,6 @@ class DressurBotController extends AbstractController
         $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
         if(!$envPaiementApi) {
             $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FedaPay");
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Payment error. Please contact the administrators.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -260,13 +253,6 @@ class DressurBotController extends AbstractController
         }
         $methodePaiementEntity = $methodePaiementRepository->find($valueMethodePaiement);
         if(!$methodePaiementEntity) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a valide Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -277,13 +263,6 @@ class DressurBotController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FedaPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -338,14 +317,7 @@ class DressurBotController extends AbstractController
                     $envPaiementApi->setCountTransactionApproved(10);
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
-    
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
+
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -354,13 +326,6 @@ class DressurBotController extends AbstractController
                 }
     
                 $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -372,13 +337,6 @@ class DressurBotController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour FeexPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -409,13 +367,6 @@ class DressurBotController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
 
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -424,13 +375,6 @@ class DressurBotController extends AbstractController
                 }
 
                 $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',

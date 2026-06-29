@@ -45,13 +45,6 @@ class SignalementController extends AbstractController
         $motifSignaler = $datas->get('motifSignaler');
 
         if(!$telSignaler or !$motifSignaler){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Both the number and the reason for the report are essential...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -60,13 +53,6 @@ class SignalementController extends AbstractController
         }
 
         if(strlen($motifSignaler) < 25){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "The pattern must contain at least 25 characters",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -76,9 +62,6 @@ class SignalementController extends AbstractController
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($telSignaler);
         if($verificationNumTel["error"] == true){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $telSignaler = $verificationNumTel["e164"];
@@ -97,13 +80,6 @@ class SignalementController extends AbstractController
 
         $userSignaler = $userRepository->findOneBy(['tel' => $telSignaler]);
         if(!$userSignaler) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "No user matches this number",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -113,13 +89,6 @@ class SignalementController extends AbstractController
 
         $signalementExiste = $signalementRepository->findOneBy(['signaler' => $userSignaler, 'signalant' => $user]);
         if($signalementExiste) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "You have already reported this number.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -141,13 +110,6 @@ class SignalementController extends AbstractController
             $this->em->flush();
         }
 
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Mistake!',
-                'message' => "Report number. Dressur thanks you for your participation.",
-            ]);
-        }
         return new JsonResponse([
             'error' => false,
             'message' => 'Numéro signaler. Dressur vous remercie pour votre participation.',

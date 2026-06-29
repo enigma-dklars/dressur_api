@@ -110,13 +110,6 @@ class BoostController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -231,13 +224,6 @@ class BoostController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -247,13 +233,6 @@ class BoostController extends AbstractController
 
         $formulBoost = $formuleBoostRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -277,21 +256,11 @@ class BoostController extends AbstractController
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
 
         if(!$tel){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please enter a phone number.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -300,13 +269,6 @@ class BoostController extends AbstractController
         }
 
         if(!$valueMethodePaiement) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -315,13 +277,6 @@ class BoostController extends AbstractController
         }
         $methodePaiementEntity = $methodePaiementRepository->find($valueMethodePaiement);
         if(!$methodePaiementEntity) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a valide Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -332,13 +287,6 @@ class BoostController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -396,13 +344,6 @@ class BoostController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
     
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -411,13 +352,6 @@ class BoostController extends AbstractController
                 }
     
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -429,13 +363,6 @@ class BoostController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -468,13 +395,6 @@ class BoostController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
 
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -483,13 +403,6 @@ class BoostController extends AbstractController
                 }
 
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',

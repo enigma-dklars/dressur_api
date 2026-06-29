@@ -98,13 +98,6 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -113,13 +106,6 @@ class PromotionController extends AbstractController
         }
 
         if(!$titre_demande_poste_rechercher || !$description_profil_demandeur || !$competence_qualification|| !$niveau_experience|| !$secteur_activite_rechercher|| !$type_contrat_rechercher|| !$localisation_souhaite|| !$salaire_souhaite|| !$langues_parle|| !$lien_portfolio|| !$coordonne_demandeur){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please fill in all fields...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -150,11 +136,6 @@ class PromotionController extends AbstractController
         ;
         $promotionRepository->save($promotion, true);
 
-        if($sessionDS->get("langUserPhone") != "fr") { 
-            return new JsonResponse([
-                'error' => false
-            ]); 
-        }
         return new JsonResponse([
             'error' => false
         ]);
@@ -201,13 +182,6 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -216,13 +190,6 @@ class PromotionController extends AbstractController
         }
 
         if(!$titre_poste || !$description_poste || !$competences_requises|| !$type_contrat|| !$lieu_travail|| !$salaire|| !$niveau_experience|| !$horaire_travail|| !$avantages|| !$dure_contrat_not_cdi|| !$contact_emploiyeur|| !$date_limite_candidature|| !$lien_information_otionel){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Please fill in all fields...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -255,11 +222,6 @@ class PromotionController extends AbstractController
         ;
         $promotionRepository->save($promotion, true);
 
-        if($sessionDS->get("langUserPhone") != "fr") { 
-            return new JsonResponse([
-                'error' => false
-            ]); 
-        }
         return new JsonResponse([
             'error' => false
         ]);
@@ -312,13 +274,6 @@ class PromotionController extends AbstractController
 
         // Vérification et traitement de l'image
         if (!$image->isValid()) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Error during image processing.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -345,13 +300,6 @@ class PromotionController extends AbstractController
         } else {
             $formulBoost = $formulePromoAffaireRepository->find($idFormulePromoAffaire);
             if(!$formulBoost){
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Mistake!',
-                        'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -373,13 +321,6 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -402,13 +343,6 @@ class PromotionController extends AbstractController
         }
 
         if(!$paymentMethod){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -417,13 +351,6 @@ class PromotionController extends AbstractController
         }
         $methodePaiementEntity = $methodePaiementRepository->find($paymentMethod);
         if(!$methodePaiementEntity) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a valide Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -434,13 +361,6 @@ class PromotionController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -522,13 +442,6 @@ class PromotionController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
 
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -537,13 +450,6 @@ class PromotionController extends AbstractController
                 }
 
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -555,13 +461,6 @@ class PromotionController extends AbstractController
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
             if(!$envPaiementApi) {
                 $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Payment error. Please contact the administrators.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -595,13 +494,6 @@ class PromotionController extends AbstractController
                     $envPaiementApi->setActivated(false);
                     $this->em->flush();
 
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excuse us please!',
-                            'message' => "Please submit the form again. Thank you.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Excusez-nous svp!',
@@ -610,13 +502,6 @@ class PromotionController extends AbstractController
                 }
 
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "We encountered an error. You will be contacted by an administrator.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -627,16 +512,6 @@ class PromotionController extends AbstractController
 
         return new JsonResponse([
             'error' => false,
-        ]);
-    
-
-        if($sessionDS->get("langUserPhone") != "fr") { 
-            return new JsonResponse([
-                'error' => false
-            ]); 
-        }
-        return new JsonResponse([
-            'error' => false
         ]);
     }
 
@@ -672,13 +547,6 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -701,13 +569,6 @@ class PromotionController extends AbstractController
         
         if ($image) {
             if (!$image->isValid()) {
-                if($sessionDS->get("langUserPhone") != "fr") {
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Erreur!',
-                        'message' => "Error during image processing.",
-                    ]);
-                }
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Erreur!',
@@ -748,11 +609,6 @@ class PromotionController extends AbstractController
             $htmlAdmin
         );
 
-        if($sessionDS->get("langUserPhone") != "fr") { 
-            return new JsonResponse([
-                'error' => false
-            ]); 
-        }
         return new JsonResponse([
             'error' => false
         ]);
@@ -782,13 +638,6 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -798,13 +647,6 @@ class PromotionController extends AbstractController
 
         $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -828,13 +670,7 @@ class PromotionController extends AbstractController
                 'error' => false,
             ]);
         }
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Whoops!',
-                'message' => "This promotion has already been started.",
-            ]);                
-        }
+
         return new JsonResponse([
             'error' => true,
             'titre' => 'Oups!',
@@ -881,13 +717,7 @@ class PromotionController extends AbstractController
         $user = $verificationUser["user"];
 
         if(!$user->getTelIsVerified()){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Your WhatsApp number has not yet been confirmed. If this is an error, contact us on WhatsApp.",
-                ]);
-            }
+
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -897,13 +727,7 @@ class PromotionController extends AbstractController
 
         $formulBoost = $formulePromoAffaireRepository->find($idFormulBoost);
         if(!$formulBoost){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
+
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -913,21 +737,11 @@ class PromotionController extends AbstractController
 
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Please enter a valid phone number preceded by its prefix."]);
-            }
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
         }
         $tel = $verificationNumTel["e164"];
 
         if(!$tel){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please enter a phone number.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -936,13 +750,6 @@ class PromotionController extends AbstractController
         }
 
         if(!$valueMethodePaiement){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -951,13 +758,6 @@ class PromotionController extends AbstractController
         }
         $methodePaiementEntity = $methodePaiementRepository->find($valueMethodePaiement);
         if(!$methodePaiementEntity) {
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "Please choose a valide Payment Method...",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -973,13 +773,6 @@ class PromotionController extends AbstractController
                 $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
                 if(!$envPaiementApi) {
                     $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FedaPay");
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "Payment error. Please contact the administrators.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Erreur!',
@@ -1058,13 +851,6 @@ class PromotionController extends AbstractController
                         $envPaiementApi->setActivated(false);
                         $this->em->flush();
         
-                        if($sessionDS->get("langUserPhone") != "fr") {
-                            return new JsonResponse([
-                                'error' => true,
-                                'titre' => 'Excuse us please!',
-                                'message' => "Please submit the form again. Thank you.",
-                            ]);
-                        }
                         return new JsonResponse([
                             'error' => true,
                             'titre' => 'Excusez-nous svp!',
@@ -1073,13 +859,7 @@ class PromotionController extends AbstractController
                     }
         
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "We encountered an error. You will be contacted by an administrator.",
-                        ]);
-                    }
+
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Erreur!',
@@ -1091,13 +871,7 @@ class PromotionController extends AbstractController
                 $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
                 if(!$envPaiementApi) {
                     $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour FeexPay");
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "Payment error. Please contact the administrators.",
-                        ]);
-                    }
+
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Erreur!',
@@ -1131,13 +905,6 @@ class PromotionController extends AbstractController
                         $envPaiementApi->setActivated(false);
                         $this->em->flush();
 
-                        if($sessionDS->get("langUserPhone") != "fr") {
-                            return new JsonResponse([
-                                'error' => true,
-                                'titre' => 'Excuse us please!',
-                                'message' => "Please submit the form again. Thank you.",
-                            ]);
-                        }
                         return new JsonResponse([
                             'error' => true,
                             'titre' => 'Excusez-nous svp!',
@@ -1146,13 +913,6 @@ class PromotionController extends AbstractController
                     }
 
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
-                    if($sessionDS->get("langUserPhone") != "fr") {
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Erreur!',
-                            'message' => "We encountered an error. You will be contacted by an administrator.",
-                        ]);
-                    }
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Erreur!',
@@ -1162,13 +922,6 @@ class PromotionController extends AbstractController
             }
         }
 
-        if($sessionDS->get("langUserPhone") != "fr") {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Whoops!',
-                'message' => "This promotion has already been started.",
-            ]);                
-        }
         return new JsonResponse([
             'error' => true,
             'titre' => 'Oups!',

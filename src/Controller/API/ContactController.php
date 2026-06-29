@@ -104,13 +104,6 @@ class ContactController extends AbstractController
 
         $userAdd = $userRepository->findOneBy(['tel' => $tel]);
         if(!$userAdd){
-            if($sessionDS->get("langUserPhone") != "fr") {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Mistake!',
-                    'message' => "We have encountered a problem, contact Assistance by WhatsApp.",
-                ]);
-            }
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
