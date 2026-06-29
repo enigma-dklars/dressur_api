@@ -32,62 +32,6 @@
     </div>
 </div>
 
-{# ── Modal de partage ── #}
-<div class="modal fade" id="dsShareModal" tabindex="-1" aria-labelledby="dsShareModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
-
-            <div class="modal-header border-0 pb-0">
-                <h6 class="modal-title fw-bold" id="dsShareModalLabel">
-                    <i class="fas fa-share-nodes me-2 text-primary"></i>Partager Dressur
-                </h6>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
-            </div>
-
-            <div class="modal-body pt-2 pb-3 px-3">
-                <div class="text-center mb-3">
-                    <img src="/assets/images/flyers_dressur_fr.png"
-                         alt="Flyer Dressur"
-                         class="img-fluid rounded-3"
-                         style="max-height:220px; object-fit:cover; width:100%;">
-                </div>
-
-                <label class="form-label fw-semibold small mb-1">
-                    <i class="fas fa-comment-dots me-1 text-primary"></i>Message à partager
-                </label>
-                <textarea id="ds-share-message" class="form-control small mb-3"
-                          rows="6" readonly
-                          style="font-size:.8rem; resize:none; line-height:1.5;">Utilise Dressur, une application simple, sûr et fiable pour avoir de la visibilité sur tes différents réseaux sociaux et surtout sur tes statuts WhatsApp.
-Grâce à Dressur, fait la promotion de tes produits et services qui seront visibles par des milliers d'utilisateurs en seulement 24H.
-Elle te permet d'avoir plus facilement des contacts WhatsApp selon les pays de ton choix. De plus, ses contacts sont automatiquement enregistrés dans ton téléphone et ton contact dans les leurs, etc.
-
-À télécharger gratuitement sur Play Store : https://play.google.com/store/apps/details?id=com.dressur.ds
-
-Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</textarea>
-
-                <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-sm btn-outline-secondary flex-fill" id="ds-copy-msg-btn">
-                        <i class="fas fa-copy me-1"></i>Copier
-                    </button>
-                    <a id="ds-wa-btn"
-                       href="https://api.whatsapp.com/send?text=Utilise%20Dressur%2C%20une%20application%20simple%2C%20s%C3%BBr%20et%20fiable..."
-                       target="_blank" rel="noopener"
-                       class="btn btn-sm flex-fill text-white fw-semibold"
-                       style="background:#25d366;">
-                        <i class="fab fa-whatsapp me-1"></i>WhatsApp
-                    </a>
-                    <a href="/assets/images/flyers_dressur_fr.jpg"
-                       download="flyer-dressur.jpg"
-                       class="btn btn-sm btn-outline-primary flex-fill">
-                        <i class="fas fa-download me-1"></i>Flyer
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
 <style>
 .ds-sociaux-card { padding: 0 4px; }
 .ds-sociaux-inner {
@@ -124,62 +68,34 @@ Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</t
             + "\u00c0 t\u00e9l\u00e9charger gratuitement sur Play Store\u00a0: https://play.google.com/store/apps/details?id=com.dressur.ds\n\n"
             + "Ou la version web si tu n'as pas d'Android\u00a0: https://dressur.site/inscription";
 
-    /* Mettre à jour le lien WhatsApp avec le message complet */
-    var waBtn = document.getElementById('ds-wa-btn');
-    if (waBtn) {
-        waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(MSG);
-    }
-
     /* ── Bouton PARTAGER DRESSUR ──
-       Délégation sur document : fiable même si le bouton est injecté dynamiquement.
-       - Appareil tactile (mobile/tablette) ET navigator.share disponible → panneau natif OS
-         (sur desktop, navigator.share peut exister mais résoudre silencieusement sans rien afficher)
-       - Sinon → ouvre le modal Bootstrap */
-    var isTouchDevice = navigator.maxTouchPoints > 0;
-
+       - navigator.share disponible → panneau natif OS (toutes apps installées)
+       - navigator.share indisponible → téléchargement automatique de l'affiche */
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#ds-share-dressur-btn')) return;
 
-        if (isTouchDevice && typeof navigator.share === 'function') {
-            /* Partage natif OS — uniquement sur mobile/tablette où il fonctionne vraiment */
+        if (typeof navigator.share === 'function') {
             navigator.share({
                 title: 'Partager Dressur\u00a0!',
-                text:  MSG
+                text:  MSG,
+                url:   'https://dressur.site/inscription'
             }).catch(function (err) {
                 if (err.name !== 'AbortError') {
-                    dsOpenModal();
+                    dsDownloadFlyer();
                 }
             });
         } else {
-            /* Desktop ou navigator.share indisponible → modal Bootstrap */
-            dsOpenModal();
+            dsDownloadFlyer();
         }
     });
 
-    function dsOpenModal() {
-        var modalEl = document.getElementById('dsShareModal');
-        if (!modalEl) return;
-        if (typeof bootstrap !== 'undefined') {
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-        }
+    function dsDownloadFlyer() {
+        var a = document.createElement('a');
+        a.href = '/assets/images/flyers_dressur_fr.png';
+        a.download = 'flyer-dressur.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
-
-    /* ── Bouton Copier (dans le modal) ── */
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('#ds-copy-msg-btn')) return;
-        var btn = document.getElementById('ds-copy-msg-btn');
-        navigator.clipboard.writeText(MSG).then(function () {
-            var orig = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copi\u00e9\u00a0!';
-            btn.classList.replace('btn-outline-secondary', 'btn-success');
-            setTimeout(function () {
-                btn.innerHTML = orig;
-                btn.classList.replace('btn-success', 'btn-outline-secondary');
-            }, 2200);
-        }).catch(function () {
-            var ta = document.getElementById('ds-share-message');
-            if (ta) { ta.select(); document.execCommand('copy'); }
-        });
-    });
 })();
 </script>
