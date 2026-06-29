@@ -70,7 +70,7 @@ class PromotionController extends AbstractController
 
         $datas = $request->request;
 
-        $langUserPhone = 'fr';        
+                
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $titre_demande_poste_rechercher = $datas->get('titre_demande_poste_rechercher');
@@ -152,7 +152,7 @@ class PromotionController extends AbstractController
 
         $datas = $request->request;
 
-        $langUserPhone = 'fr';        
+                
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $titre_poste = $datas->get('titre_poste');
@@ -239,7 +239,7 @@ class PromotionController extends AbstractController
         $datas = $request->request;
         $files = $request->files;
 
-        $langUserPhone = 'fr';        
+                
 
         $factureLignes = [];
         $montantTotal = 0;
@@ -527,7 +527,7 @@ class PromotionController extends AbstractController
         $datas = $request->request;
         $files = $request->files;
 
-        $langUserPhone = 'fr';        
+                
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $idPromoAffaire = $datas->get('idPromoAffaire');
@@ -619,7 +619,7 @@ class PromotionController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = 'fr';        
+                
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $idFormulBoost = $datas->get('idFormulBoost');
@@ -682,7 +682,7 @@ class PromotionController extends AbstractController
     public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
-        $langUserPhone = 'fr';        
+                
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $factureLignes = [];
@@ -930,10 +930,8 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/listPromotion/{uid}/{langUserPhone}', name: 'listPromotion', methods: ['POST', "GET"])]
-    public function listPromotion(User $user, $langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listPromotion(User $user, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        
-        
         return new JsonResponse($traitementsDS->userPromos($user->getPromotions()));
     }
 

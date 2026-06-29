@@ -151,7 +151,7 @@ class TraitementsDS extends AbstractController
     public function userBoosts($boosts) {
         $userBoosts = [];
         foreach ($boosts as $boost) {
-            $isFr = $this->sessionDS->get("langUserPhone") == "fr";
+            $isFr = true;
             $typeBoost = $boost->getTypeBoost();
             $nbContactsObtenus = $boost->getNbContactsObtenus();
             $nbContactsMax = $boost->getFormuleBoost()->getNbContactsMax();
@@ -159,39 +159,33 @@ class TraitementsDS extends AbstractController
             $dateExp = $boost->getDateExp();
             // --- Statut ---
             $statusNumber = 1;
-            $statut = $isFr ? "En cours" : "In progress";
+            $statut = "En cours";
             if ((new DateTime()) < $dateDebut) {
-                $statut = $isFr ? "Programmé" : "Scheduled";
+                $statut = "Programmé";
                 $statusNumber = 2;
             } elseif ($typeBoost === 'quota') {
                 if ($dateExp !== null) {
-                    $statut = $isFr ? "Terminé" : "Completed";
+                    $statut = "Terminé";
                     $statusNumber = 3;
                 }
             } else {
                 if ($dateExp !== null && (new DateTime()) > $dateExp) {
-                    $statut = $isFr ? "Terminé" : "Completed";
+                    $statut = "Terminé";
                     $statusNumber = 3;
                 }
             }
             // --- Mode ---
             $prix_boost = $boost->getFormuleBoost()->getPrix() . " FCFA";
             $modeNumber = $boost->getMode() == "Gratuit" ? 1 : 2;
-            $boostMode = $boost->getMode() == "Gratuit"
-                ? ($isFr ? "Gratuit" : "Free")
-                : ($isFr ? "Payant" : "Paid");
+            $boostMode = $boost->getMode() == "Gratuit" ? "Gratuit" : "Payant";
             // --- Période / résumé selon le type ---
             if ($typeBoost === 'quota') {
                 $dateDebutStr = $dateDebut->format('d-m-Y à H:i');
                 $dateFinStr = $dateExp ? $dateExp->format('d-m-Y à H:i') : null;
-                $periodeFormule = $isFr
-                    ? "depuis le " . $dateDebutStr . ($dateFinStr ? " · terminé le " . $dateFinStr : "")
-                    : "since " . $dateDebutStr . ($dateFinStr ? " · ended " . $dateFinStr : "");
+                $periodeFormule = "depuis le " . $dateDebutStr . ($dateFinStr ? " · terminé le " . $dateFinStr : "");
             } else {
                 $dateExpStr = $dateExp ? $dateExp->format('d-m-Y à H:i') : '—';
-                $periodeFormule = $isFr
-                    ? "du " . $dateDebut->format('d-m-Y à H:i') . " au " . $dateExpStr
-                    : "from " . $dateDebut->format('d-m-Y à H:i') . " to " . $dateExpStr;
+                $periodeFormule = "du " . $dateDebut->format('d-m-Y à H:i') . " au " . $dateExpStr;
             }
             $unBoost = [
                 'id'                  => (string)$boost->getId(),
@@ -287,37 +281,17 @@ class TraitementsDS extends AbstractController
             $peutPayer = false;
 
             if ($promo->getStatus() == 0) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Rejected";
-                } else {
-                    $statut = "Rejeter";
-                }
+                $statut = "Rejeter";
             } else if($promo->getStatus() == 1) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Waiting for validation";
-                } else {
-                    $statut = "En Attente de validation";
-                }
+                $statut = "En Attente de validation";
             } else if($promo->getStatus() == 2) {
                 $peutPayer = true;
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and pending payment";
-                } else {
-                    $statut = "Accepter et en attente de paiement";
-                }
+                $statut = "Accepter et en attente de paiement";
             } else if($promo->getStatus() == 3) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Accept and in progress";
-                } else {
-                    $statut = "Accepter et en cours";
-                }
+                $statut = "Accepter et en cours";
             } else if($promo->getStatus() == 4) {
                 $peutPayer = true;
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Completed";
-                } else {
-                    $statut = "Terminé";
-                }
+                $statut = "Terminé";
             }
 
             $descp_promo = $promo->getDescription();
@@ -454,29 +428,13 @@ class TraitementsDS extends AbstractController
             $statut = "";
 
             if ($promo->getStatus() == 0) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Wrong URL";
-                } else {
-                    $statut = "Mauvaise URL";
-                }
+                $statut = "Mauvaise URL";
             } else if($promo->getStatus() == 1) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "On hold";
-                } else {
-                    $statut = "En attente";
-                }
+                $statut = "En attente";
             } else if($promo->getStatus() == 2) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "In progress";
-                } else {
-                    $statut = "En cours";
-                }
+                $statut = "En cours";
             } else if($promo->getStatus() == 3) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    $statut = "Completed";
-                } else {
-                    $statut = "Terminer";
-                }
+                $statut = "Terminer";
             }
 
             $titre = $promo->getFormulePromoReseau()->getTitre();

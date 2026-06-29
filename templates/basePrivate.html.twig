@@ -611,7 +611,6 @@
 
         try {
             const formData = new FormData();
-            formData.append('langUserPhone', "fr");
             formData.append('idFormulePromoAffaire', currentFormuleData.id);
             formData.append('text', $('#descriptionPromo').val());
             formData.append('uid', getUID());
@@ -669,7 +668,6 @@
         try {
             const formData = new FormData();
             formData.append('uid', getUID());
-            formData.append('langUserPhone', "fr");
             formData.append('titre_demande_poste_rechercher', $('#titreDemande').val());
             formData.append('description_profil_demandeur', $('#descriptionProfil').val());
             formData.append('competence_qualification', $('#competences').val());
@@ -723,7 +721,6 @@
         try {
             const formData = new FormData();
             formData.append('uid', getUID());
-            formData.append('langUserPhone', "fr");
             formData.append('titre_poste', $('#titrePoste').val());
             formData.append('description_poste', $('#descriptionPoste').val());
             formData.append('competences_requises', $('#competencesRequises').val());

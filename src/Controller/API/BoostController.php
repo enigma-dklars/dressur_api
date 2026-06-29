@@ -93,8 +93,6 @@ class BoostController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = 'fr';
-
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -133,10 +131,10 @@ class BoostController extends AbstractController
             )
         ) {
             $error = true;
-            $message = ($langUserPhone == 'fr') ? "Ce numéro de téléphone ou cette adresse e-mail a déjà été associé(e) à un compte supprimé. Pour continuer, vous devez obligatoirement activer un Boost Contact Payant d’un montant minimum de 500 F." : "This phone number or email address was previously linked to a deleted account. To proceed, you are required to activate a paid Boost Contact with a minimum amount of 500 F.";
+            $message = "Ce numéro de téléphone ou cette adresse e-mail a déjà été associé(e) à un compte supprimé. Pour continuer, vous devez obligatoirement activer un Boost Contact Payant d’un montant minimum de 500 F.";
         } else if ($verificationsDS->siBoostEnCours($boostRepository->findBy(['user' => $user]))) {
             $error = true;
-            $message = ($langUserPhone == 'fr') ? "Vous avez déjà un Boost Contact en cours. Il n'est pas possible de programmer un Boost Contact Gratuit." : "You already have a Contact Boost active. It is not possible to schedule another Free Contact Boost.";
+            $message = "Vous avez déjà un Boost Contact en cours. Il n'est pas possible de programmer un Boost Contact Gratuit.";
         } else if(!$lastBoostContact) {
             $boost = new Boost();
             if ($typeBoost === 'quota') {
@@ -148,7 +146,7 @@ class BoostController extends AbstractController
                     ->setDateDebut(new DateTime())
                 ;
                 $error = false;
-                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit limité à 20 contacts a démarré." : "Your free Boost Contact limited to 20 contacts has started.";
+                $message = "Votre Boost Contact Gratuit limité à 20 contacts a démarré.";
             } else {
                 $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
                 $boost->setFormuleBoost($formuleDateGratuit)
@@ -159,7 +157,7 @@ class BoostController extends AbstractController
                     ->setDateExp(new DateTime("+ 5days"))
                 ;
                 $error = false;
-                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
+                $message = "Votre Boost Contact Gratuit de cinq (05) jours à démarrer.";
             }
             $this->em->persist($boost);
             $this->em->flush();
@@ -174,7 +172,7 @@ class BoostController extends AbstractController
                     ->setDateDebut(new DateTime())
                 ;
                 $error = false;
-                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit limité à 20 contacts a démarré." : "Your free Boost Contact limited to 20 contacts has started.";
+                $message = "Votre Boost Contact Gratuit limité à 20 contacts a démarré.";
             } else {
                 $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
                 $boost->setFormuleBoost($formuleDateGratuit)
@@ -185,13 +183,13 @@ class BoostController extends AbstractController
                     ->setDateExp(new DateTime("+ 5days"))
                 ;
                 $error = false;
-                $message = ($langUserPhone == 'fr') ? "Votre Boost Contact Gratuit de cinq (05) jours à démarrer." : "Your free five (05) day Boost Contact trial is about to begin.";
+                $message = "Votre Boost Contact Gratuit de cinq (05) jours à démarrer.";
             }
             $this->em->persist($boost);
             $this->em->flush();
         } else {
             $error = true;
-            $message = ($langUserPhone == 'fr') ? "Demande de Boost Contact Gratuit refusé. Votre précédent Boost Contact est en mode Gratuit. Vous devez donc faire un Boost Contact Payant avant de pouvoir demander un autre Boost Contact Gratuit." : "Request for a free Contact Boost denied. Your previous Contact Boost was in Free mode. You must therefore complete a Paid Contact Boost before you can request another Free Contact Boost.";
+            $message = "Demande de Boost Contact Gratuit refusé. Votre précédent Boost Contact est en mode Gratuit. Vous devez donc faire un Boost Contact Payant avant de pouvoir demander un autre Boost Contact Gratuit.";
         }
 
         return new JsonResponse([
@@ -204,7 +202,6 @@ class BoostController extends AbstractController
     public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository, DeletedDSRepository $deletedDSRepository): Response
     {
         $datas = $request->request;        
-        $langUserPhone = 'fr';        
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $idFormulBoost = $datas->get('idFormulBoost');
@@ -250,7 +247,7 @@ class BoostController extends AbstractController
             )
         ) {
             if($formulBoost->getPrix() < 500) {
-                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => ($langUserPhone == 'fr') ? "Ce numéro de téléphone ou cette adresse e-mail a déjà été associé(e) à un compte supprimé. Pour continuer, vous devez obligatoirement activer un Boost Contact Payant d’un montant minimum de 500 F." : "This phone number or email address was previously linked to a deleted account. To proceed, you are required to activate a paid Boost Contact with a minimum amount of 500 F."]);
+                return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Ce numéro de téléphone ou cette adresse e-mail a déjà été associé(e) à un compte supprimé. Pour continuer, vous devez obligatoirement activer un Boost Contact Payant d’un montant minimum de 500 F."]);
             }
         }
 
@@ -417,10 +414,8 @@ class BoostController extends AbstractController
     }
 
     #[Route('/listBoost/{uid}/{langUserPhone}', name: 'listBoost', methods: ['POST', "GET"])]
-    public function listBoost(User $user, $langUserPhone, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listBoost(User $user, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
-        
-
         return new JsonResponse($traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])));
     }
 }

@@ -25,18 +25,14 @@ class UserPreferenceController extends AbstractController
     }
 
     #[Route('/listPaysChoisies/{uid}/{langUserPhone}', name: 'listPaysChoisies', methods: ['POST', 'GET'])]
-    public function listPaysChoisies(User $user,$langUserPhone, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
-    {        
-        
-
+    public function listPaysChoisies(User $user, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    {
         return new JsonResponse($user->getPreference()->getPaysChoisies());
     }
 
     #[Route('/updateUserPaysChoisies/{uid}/{langUserPhone}/{paysChoisieJson}', name: 'updateUserPaysChoisies', methods: ['POST', 'GET'])]
-    public function updateUserPaysChoisies(User $user, $langUserPhone, $paysChoisieJson, SessionDS $sessionDS): Response
+    public function updateUserPaysChoisies(User $user, $paysChoisieJson, SessionDS $sessionDS): Response
     {        
-        
-
         $paysChoisieJson = json_decode($paysChoisieJson);
         $arrayPays = [];
 

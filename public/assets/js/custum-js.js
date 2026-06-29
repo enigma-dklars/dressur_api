@@ -225,7 +225,7 @@ $(document).ready(function () {
             type: "POST",
             url: "/api/inscriptionDS",
             data: {
-                langUserPhone : 'fr',
+                
                 // pseudo : inputPseudo,
                 tel : inputNumeroWhatsApp,
                 mail : inputEmail,
@@ -346,7 +346,7 @@ $(document).ready(function () {
             type: "POST",
             url: "/api/sendMailToDressur",
             data: {
-                langUserPhone : 'fr',
+                
                 name : nomPrenom,
                 email : inputEmail,
                 objet : objet,
@@ -446,7 +446,7 @@ $(document).ready(function () {
             type: "POST",
             url: "/api/connect",
             data: {
-                langUserPhone : 'fr',
+                
                 mail : inputEmail,
                 password : inputMotPasse,
                 source : 'web',
@@ -561,7 +561,7 @@ $(document).ready(function () {
             type: "POST",
             url: "/api/sendMailPassForgot",
             data: {
-                langUserPhone : 'fr',
+                
                 mail : inputEmail,
             },
             success: function (response) {
@@ -718,7 +718,7 @@ $(document).ready(function () {
             url: "/api/newCampagneMail",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 idFormuleCampagneMail : formule_campage[0],
                 titre : titre,
                 sujet : sujet,
@@ -823,7 +823,7 @@ $(document).ready(function () {
             data: {
                 uid : uid,
                 idCampagneMail : idCampagneMail,
-                langUserPhone : 'fr',
+                
                 valueMethodePaiement : valueMethodePaiement,
                 tel : tel
             },
@@ -921,7 +921,7 @@ $(document).ready(function () {
             type: "POST",
             url: "/api/newPromoReseau",
             data: {
-                langUserPhone : 'fr',
+                
                 uid : uid,
                 idFormulePromoReseau : service_network_id,
                 qteDemander : qteDemander,
@@ -1157,7 +1157,6 @@ $(document).ready(function () {
             formData.append('idFormulePromoAffaire', idFormulePromoAffaire[0]);
             formData.append('text', description);
             formData.append('uid', uid);
-            formData.append('langUserPhone', "fr");
             formData.append('image', imageInput);
             formData.append('mode', mode);
             formData.append('paymentMethod', paymentMethod);
@@ -1339,7 +1338,6 @@ $(document).ready(function () {
         formData.append('idPromoAffaire', id_promo_affaire);
         formData.append('text', description);
         formData.append('uid', uid);
-        formData.append('langUserPhone', "fr");
         formData.append('image', imageInput);
 
         $.ajax({
@@ -1398,7 +1396,7 @@ $(document).ready(function () {
             url: "/api/newDmdEmploi",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 titre_demande_poste_rechercher : titre_demande_poste_rechercher,
                 niveau_experience : niveau_experience,
                 secteur_activite_rechercher : secteur_activite_rechercher,
@@ -1468,7 +1466,7 @@ $(document).ready(function () {
             url: "/api/newOffreEmploi",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 titre_poste : titre_poste,
                 description_poste : description_poste,
                 competences_requises : competences_requises,
@@ -1563,7 +1561,7 @@ $(document).ready(function () {
 
         console.log({
             uid : uid,
-            langUserPhone : 'fr',
+            
             idPromotion : idPromoAffaire,
             idFormulBoost : idFormulBoost
         });
@@ -1573,7 +1571,7 @@ $(document).ready(function () {
             url: "/api/newPromo",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 idPromotion : idPromoAffaire,
                 idFormulBoost : idFormulBoost
             },
@@ -1680,7 +1678,7 @@ $(document).ready(function () {
             url: "/api/newPromoPayant",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 idPromotion : idPromoAffaire,
                 idFormulBoost : idFormulBoost,
                 valueMethodePaiement : valueMethodePaiement,
@@ -1800,7 +1798,7 @@ $(document).ready(function () {
             url: "/api/updateUserInfo",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 tel : inputTelWhatsApp,
                 mail : inputEmail,
                 nom : inputNomPrenom,
@@ -1895,7 +1893,7 @@ $(document).ready(function () {
             url: "/api/updateUserPassword",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 currentPassword : inputAncienMdp,
                 newPassword : inputNewMdp,
                 confirmNewPassword : inputConfNewMdp,
@@ -1983,7 +1981,7 @@ $(document).ready(function () {
             url: "/api/addParrain",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 codeBonus : codeParrainage,
             },
             success: function (response) {
@@ -2073,7 +2071,7 @@ $(document).ready(function () {
             url: "/api/addBonusPromo",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 codePromo : codePromo,
             },
             success: function (response) {
@@ -2125,7 +2123,7 @@ $(document).ready(function () {
             url: "/api/sendMailVerification",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
             },
             success: function (response) {
                 if(response.error == true){
@@ -2183,7 +2181,7 @@ $(document).ready(function () {
             url: "/api/mailVerification",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 codeForVerifMail : codeVerifMail,
             },
             success: function (response) {
@@ -2265,7 +2263,6 @@ $(document).ready(function () {
             url: "/api/newBoost",
             data: {
                 uid:           uid,
-                langUserPhone: 'fr',
                 source:        'web',
                 typeBoost:     typeBoost,
             },
@@ -2342,7 +2339,6 @@ $(document).ready(function () {
             url: "/api/newBoostPayant",
             data: {
                 uid:                  uid,
-                langUserPhone:        'fr',
                 idFormulBoost:        idFormulBoost,
                 valueMethodePaiement: paymentMethod,
                 tel:                  tel,
@@ -2428,7 +2424,7 @@ $(document).ready(function () {
             url: "/api/addSuggestion",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 suggestion : suggestion,
             },
             success: function (response) {
@@ -2515,7 +2511,7 @@ $(document).ready(function () {
             url: "/api/addSignalement",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 telSignaler : telSignaler,
                 motifSignaler : motifSignaler,
             },
@@ -2569,7 +2565,6 @@ $(document).ready(function () {
     $(document).on("click", ".savedPaysCgoisie", function () {
         $(".savedPaysCgoisie").html("Patientez ... <div class='spinner-border spinner-btn spinner-border-sm' role='status'><span class='visually-hidden'>Loading...</span></div>").attr('disabled', '')
 
-        let langUserPhone = 'fr';
         let uid = $("#uid").val();
         let paysChoisies = [];
 
@@ -2583,7 +2578,7 @@ $(document).ready(function () {
         let paysChoisieJson = JSON.stringify(paysChoisies);
 
         $.ajax({
-            url: `api/updateUserPaysChoisies/${uid}/${langUserPhone}/${paysChoisieJson}`,
+            url: `api/updateUserPaysChoisies/${uid}/fr/${paysChoisieJson}`,
             method: 'POST',
             success: function (response) {
                 if(response.error == true){
@@ -2649,7 +2644,7 @@ $(document).ready(function () {
 
         console.log({
             uid : uid,
-            langUserPhone : 'fr',
+            
             idPromotion : idPromoAffaire,
             idFormulBoost : idFormulBoost
         });
@@ -2659,7 +2654,7 @@ $(document).ready(function () {
             url: "/api/newPromo",
             data: {
                 uid : uid,
-                langUserPhone : 'fr',
+                
                 idPromotion : idPromoAffaire,
                 idFormulBoost : idFormulBoost
             },

@@ -116,13 +116,6 @@ class VerificationsDS extends AbstractController
         }
 
         if(strlen($pseudo) < 3) {
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Nickname too short! 3 characters minimum...',
-                ];
-            }
             return [
                 'error' => true,
                 'titre' => 'Attention!',
@@ -131,13 +124,6 @@ class VerificationsDS extends AbstractController
         }
 
         if(strlen($pseudo) > 20) {
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Nickname too long! 20 characters maximum...',
-                ];
-            }
             return [
                 'error' => true,
                 'titre' => 'Attention!',
@@ -148,13 +134,6 @@ class VerificationsDS extends AbstractController
         foreach ($this->getMotRefusers() as $mot) {
             $pseudoTester = str_replace($mot->getMot(), '', $pseudo);
             if(strlen($pseudoTester) < strlen($pseudo)) {
-                if($this->sessionDS->get("langUserPhone") != "fr") {
-                    return [
-                        'error' => true,
-                        'titre' => 'Attention!',
-                        'message' => 'Your Nickname contains forbidden words...',
-                    ];
-                }
                 return [
                     'error' => true,
                     'titre' => 'Refus!',
@@ -173,15 +152,6 @@ class VerificationsDS extends AbstractController
     public function verifUSer($uid) {
         $user = $this->userRepository->findOneBy(['uid' => $uid]);
         if(!$user) {
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'deleted' => true,
-                    'blocked' => false,
-                    'titre' => 'Mistake!',
-                    'message' => 'This account no longer exists.',
-                ];
-            }
             return [
                 'error' => true,
                 'deleted' => true,
@@ -191,15 +161,6 @@ class VerificationsDS extends AbstractController
             ];
         }
         if($user->getBlocked() == true) {
-            if($this->sessionDS->get("langUserPhone") != "fr") {
-                return [
-                    'error' => true,
-                    'deleted' => false,
-                    'blocked' => true,
-                    'titre' => 'Mistake!',
-                    'message' => 'This account has been blocked.\nIf this is an error, please contact Dressur Support by WhatsApp.',
-                ];
-            }
             return [
                 'error' => true,
                 'deleted' => false,

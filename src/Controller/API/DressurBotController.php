@@ -182,7 +182,7 @@ class DressurBotController extends AbstractController
     public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
-        $sessionDS->set("langUserPhone", "fr");
+        
         
         $email = $request->get("email");
         $numero = $request->get("numero");

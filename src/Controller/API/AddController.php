@@ -37,10 +37,8 @@ class AddController extends AbstractController
     }
 
     #[Route('/addTousUserContact/{uid}/{langUserPhone}', name: 'addTousUserContact', methods: ['POST', "GET"])]
-    public function addTousUserContact(Request $request, $langUserPhone, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, BoostRepository $boostRepository): Response
-    {        
-        
-
+    public function addTousUserContact(Request $request, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, BoostRepository $boostRepository): Response
+    {
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
             return new JsonResponse([

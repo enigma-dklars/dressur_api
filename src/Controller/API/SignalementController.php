@@ -38,8 +38,6 @@ class SignalementController extends AbstractController
     {
         $datas = $request->request;
         
-        $langUserPhone = 'fr';        
-
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         $telSignaler = $datas->get('telSignaler');
         $motifSignaler = $datas->get('motifSignaler');
