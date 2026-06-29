@@ -1692,4 +1692,37 @@ class UserController extends AbstractController
             ]);
         }
     }
+
+    #[Route('/updateUserLang', name: 'updateUserLang', methods: ['POST'])]
+    public function updateUserLang(Request $request, VerificationsDS $verificationsDS): Response
+    {
+        try {
+            $datas = $request->request;
+
+            $uid = $datas->get('uid');
+            $lang = $datas->get('lang');
+
+            $verificationUser = $verificationsDS->verifUSer($uid);
+            if ($verificationUser["error"] == true) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => $verificationUser["titre"],
+                    'message' => $verificationUser["message"],
+                ]);
+            }
+
+            $user = $verificationUser["user"];
+            $user->setLang($lang);
+            $this->em->flush();
+
+            return new JsonResponse(['error' => false]);
+        } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error updateUserLang : UserController', $th . '<br><br><br>');
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => 'Service temporairement indisponible. Veuillez reessayer.',
+            ]);
+        }
+    }
 }
