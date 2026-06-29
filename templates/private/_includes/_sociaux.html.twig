@@ -25,8 +25,7 @@
 
         <button type="button"
                 class="ds-sociaux-share-btn mt-3 w-100"
-                data-bs-toggle="modal"
-                data-bs-target="#dsShareModal">
+                id="ds-share-dressur-btn">
             <i class="fas fa-share-nodes me-2"></i>PARTAGER DRESSUR
         </button>
 
@@ -132,33 +131,34 @@ Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</t
     }
 
     /* ── Bouton PARTAGER DRESSUR ──
-       - Si navigator.share disponible (mobile + Chrome/Edge/Safari PC) : panneau natif OS
-       - Sinon : data-bs-toggle ouvre le modal Bootstrap (fallback)
-       stopPropagation() sur l'élément empêche le listener Bootstrap (document-level)
-       de s'exécuter uniquement quand on gère nous-mêmes le partage. */
-    var shareBtn = document.getElementById('ds-share-dressur-btn');
-    if (shareBtn) {
-        shareBtn.addEventListener('click', function (e) {
-            if (typeof navigator.share !== 'function') {
-                return; /* pas de Web Share API → laisser data-bs-toggle ouvrir le modal */
-            }
+       Délégation sur document : fiable même si le bouton est injecté dynamiquement.
+       - navigator.share disponible → panneau natif OS (mobile + Chrome/Edge/Safari PC)
+       - Sinon → ouvre le modal Bootstrap via JS (bootstrap est chargé avant le clic) */
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('#ds-share-dressur-btn')) return;
 
-            e.stopPropagation(); /* empêche Bootstrap d'ouvrir le modal */
-
+        if (typeof navigator.share === 'function') {
+            /* Partage natif OS */
             navigator.share({
                 title: 'Partager Dressur\u00a0!',
                 text:  MSG
             }).catch(function (err) {
-                /* AbortError = l'utilisateur a fermé le panneau → rien à faire */
                 if (err.name !== 'AbortError') {
-                    /* Erreur inattendue → ouvrir le modal comme fallback */
-                    var modalEl = document.getElementById('dsShareModal');
-                    if (modalEl && typeof bootstrap !== 'undefined') {
-                        new bootstrap.Modal(modalEl).show();
-                    }
+                    dsOpenModal();
                 }
             });
-        });
+        } else {
+            /* Fallback : modal Bootstrap */
+            dsOpenModal();
+        }
+    });
+
+    function dsOpenModal() {
+        var modalEl = document.getElementById('dsShareModal');
+        if (!modalEl) return;
+        if (typeof bootstrap !== 'undefined') {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        }
     }
 
     /* ── Bouton Copier (dans le modal) ── */
