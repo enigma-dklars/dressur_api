@@ -3,7 +3,6 @@
 
     <div class="ds-sociaux-inner">
 
-        {# Texte + icônes sociales #}
         <div class="d-flex align-items-start gap-3">
 
             <div class="flex-grow-1">
@@ -36,19 +35,67 @@
 
         </div>
 
-        {# Bouton partage #}
-        <button class="ds-sociaux-share-btn mt-3 w-100" id="ds-share-btn">
+        <button class="ds-sociaux-share-btn mt-3 w-100" id="ds-share-dressur-btn">
             <i class="fas fa-share-nodes me-2"></i>PARTAGER DRESSUR
         </button>
 
     </div>
+</div>
 
+{# ── Modal de partage (fallback desktop) ── #}
+<div class="modal fade" id="dsShareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold">
+                    <i class="fas fa-share-nodes me-2 text-primary"></i>Partager Dressur
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body pt-2 pb-3 px-3">
+
+                {# Flyer #}
+                <div class="text-center mb-3">
+                    <img src="/assets/images/flyers_dressur_fr.jpg"
+                         alt="Flyer Dressur"
+                         class="img-fluid rounded-3"
+                         style="max-height: 220px; object-fit: cover; width: 100%;">
+                </div>
+
+                {# Message complet #}
+                <label class="form-label fw-semibold small mb-1">
+                    <i class="fas fa-comment-dots me-1 text-primary"></i>Message à partager
+                </label>
+                <textarea id="ds-share-message" class="form-control small mb-3"
+                          rows="6" readonly style="font-size:.8rem; resize:none; line-height:1.5;"></textarea>
+
+                {# Actions #}
+                <div class="d-flex gap-2 flex-wrap">
+
+                    <button class="btn btn-sm btn-outline-secondary flex-fill" id="ds-copy-msg-btn">
+                        <i class="fas fa-copy me-1"></i>Copier le message
+                    </button>
+
+                    <a id="ds-whatsapp-share-btn" href="#" target="_blank" rel="noopener"
+                       class="btn btn-sm flex-fill text-white fw-semibold"
+                       style="background:#25d366;">
+                        <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                    </a>
+
+                    <a href="/assets/images/flyers_dressur_fr.jpg" download="flyer-dressur.jpg"
+                       class="btn btn-sm btn-outline-primary flex-fill">
+                        <i class="fas fa-download me-1"></i>Flyer
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
-.ds-sociaux-card {
-    padding: 0 4px;
-}
+.ds-sociaux-card { padding: 0 4px; }
 .ds-sociaux-inner {
     background: linear-gradient(135deg, #2a4b9a 0%, rgba(42,75,154,.85) 100%);
     border-radius: 16px;
@@ -98,26 +145,82 @@
 
 <script>
 (function(){
-    var btn = document.getElementById('ds-share-btn');
+
+    /* ── Message de partage complet (identique à l'app Flutter) ── */
+    var MESSAGE_FR = "Utilise Dressur, une application simple, sûr et fiable pour avoir de la visibilité sur tes différents réseaux sociaux et surtout sur tes statuts WhatsApp.\n"
+        + "Grâce à Dressur, fait la promotion de tes produits et services qui seront visibles par des milliers d'utilisateurs en seulement 24H.\n"
+        + "Elle te permet d'avoir plus facilement des contacts WhatsApp selon les pays de ton choix. De plus, ses contacts sont automatiquement enregistrés dans ton téléphone et ton contact dans les leurs, etc.\n\n"
+        + "À télécharger gratuitement sur Play Store : https://play.google.com/store/apps/details?id=com.dressur.ds\n\n"
+        + "Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription";
+
+    var FLYER_URL = '/assets/images/flyers_dressur_fr.jpg';
+
+    var btn = document.getElementById('ds-share-dressur-btn');
     if(!btn) return;
+
+    /* Pré-remplir le modal */
+    var msgArea = document.getElementById('ds-share-message');
+    var waBtn   = document.getElementById('ds-whatsapp-share-btn');
+    if(msgArea) msgArea.value = MESSAGE_FR;
+    if(waBtn)   waBtn.href = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(MESSAGE_FR);
+
+    /* Copier le message */
+    var copyBtn = document.getElementById('ds-copy-msg-btn');
+    if(copyBtn){
+        copyBtn.addEventListener('click', function(){
+            navigator.clipboard.writeText(MESSAGE_FR).then(function(){
+                var orig = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Copié !';
+                copyBtn.classList.replace('btn-outline-secondary','btn-success');
+                setTimeout(function(){
+                    copyBtn.innerHTML = orig;
+                    copyBtn.classList.replace('btn-success','btn-outline-secondary');
+                }, 2200);
+            }).catch(function(){
+                msgArea.select();
+                document.execCommand('copy');
+            });
+        });
+    }
+
+    /* ── Clic sur le bouton principal ── */
     btn.addEventListener('click', async function(){
-        var data = {
-            title: 'Dressur',
-            text: 'Rejoignez Dressur — la plateforme africaine de marketing digital. Boostez vos contacts et promouvez votre affaire\u00a0! 🚀',
-            url:  'https://dressur.site'
-        };
-        if(navigator.share){
-            try { await navigator.share(data); } catch(e){}
-        } else {
+
+        /* 1. Essai : navigator.share() natif avec fichier (mobile) */
+        if(navigator.canShare && navigator.share){
             try {
-                await navigator.clipboard.writeText(data.url + '\n' + data.text);
-                var orig = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-check me-2"></i>Lien copié\u00a0!';
-                setTimeout(function(){ btn.innerHTML = orig; }, 2200);
-            } catch(e){
-                window.open('https://dressur.site', '_blank');
-            }
+                var resp = await fetch(FLYER_URL);
+                var blob = await resp.blob();
+                var file = new File([blob], 'flyer-dressur.jpg', {type: blob.type});
+                if(navigator.canShare({ files: [file] })){
+                    await navigator.share({
+                        title:   'Partager Dressur !',
+                        text:    MESSAGE_FR,
+                        files:   [file]
+                    });
+                    return;
+                }
+            } catch(e){ /* fetch ou share échoué → fallback */ }
+        }
+
+        /* 2. Essai : navigator.share() sans fichier (mobile sans support fichier) */
+        if(navigator.share){
+            try {
+                await navigator.share({
+                    title: 'Partager Dressur !',
+                    text:  MESSAGE_FR,
+                    url:   'https://dressur.site/inscription'
+                });
+                return;
+            } catch(e){ /* annulé ou non supporté → modal */ }
+        }
+
+        /* 3. Fallback desktop : afficher le modal Bootstrap */
+        if(typeof bootstrap !== 'undefined'){
+            var modal = new bootstrap.Modal(document.getElementById('dsShareModal'));
+            modal.show();
         }
     });
+
 })();
 </script>
