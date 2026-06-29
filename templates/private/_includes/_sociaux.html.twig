@@ -132,13 +132,16 @@ Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</t
 
     /* ── Bouton PARTAGER DRESSUR ──
        Délégation sur document : fiable même si le bouton est injecté dynamiquement.
-       - navigator.share disponible → panneau natif OS (mobile + Chrome/Edge/Safari PC)
-       - Sinon → ouvre le modal Bootstrap via JS (bootstrap est chargé avant le clic) */
+       - Appareil tactile (mobile/tablette) ET navigator.share disponible → panneau natif OS
+         (sur desktop, navigator.share peut exister mais résoudre silencieusement sans rien afficher)
+       - Sinon → ouvre le modal Bootstrap */
+    var isTouchDevice = navigator.maxTouchPoints > 0;
+
     document.addEventListener('click', function (e) {
         if (!e.target.closest('#ds-share-dressur-btn')) return;
 
-        if (typeof navigator.share === 'function') {
-            /* Partage natif OS */
+        if (isTouchDevice && typeof navigator.share === 'function') {
+            /* Partage natif OS — uniquement sur mobile/tablette où il fonctionne vraiment */
             navigator.share({
                 title: 'Partager Dressur\u00a0!',
                 text:  MSG
@@ -148,7 +151,7 @@ Ou la version web si tu n'as pas d'Android : https://dressur.site/inscription</t
                 }
             });
         } else {
-            /* Fallback : modal Bootstrap */
+            /* Desktop ou navigator.share indisponible → modal Bootstrap */
             dsOpenModal();
         }
     });
