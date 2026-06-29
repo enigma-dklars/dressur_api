@@ -942,6 +942,19 @@ class TraitementsDS extends AbstractController
                                     : ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() !== null && (new DateTime()) <= $boostObj->getDateExp());
                                 if($isActif){
                                         if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
+                                            // Bridage déterministe pour les boosts 'date'
+                                            // quota → toujours visible
+                                            // date payant → ~50% des combinaisons user/boosté/jour
+                                            // date gratuit → ~33% des combinaisons user/boosté/jour
+                                            if ($boostObj->getTypeBoost() === 'date') {
+                                                $jourDuMois = (int)(new DateTime())->format('j');
+                                                $hash = $user->getId() + $userBoost->getId() + $jourDuMois;
+                                                if ($boostObj->getMode() === 'Gratuit') {
+                                                    if ($hash % 3 !== 0) { continue; }
+                                                } else {
+                                                    if ($hash % 2 !== 0) { continue; }
+                                                }
+                                            }
                                             array_push($contacts, [
                                                 'id' => $userBoost->getId(),
                                                 'uid' => $userBoost->getUid(),
