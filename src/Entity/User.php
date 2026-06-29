@@ -131,6 +131,7 @@ class User
         $this->blocked = false;
         $this->isInscritProgrammeRecompense = false;
         $this->soldeProgrammeRecompense = 0;
+        $this->lang = "fr";
         
         $this->promotions = new ArrayCollection();
         $this->promoReseaus = new ArrayCollection();
