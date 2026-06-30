@@ -1214,31 +1214,31 @@ class CommunicationMailController extends AbstractController
     private static function buildWhatsappBoostMessage(?string $pseudo = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-
+        $mot_convertie = self::$mot;
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Boost Contact* sur *Dressur* 📢\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".self::$mot;
+            . "— L'équipe Dressur — TICKET—".$mot_convertie;
     }
 
     private static function buildWhatsappPromoAffaireMessage(?string $pseudo = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-
+        $mot_convertie = self::$mot;
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Promotion Affaire* sur *Dressur* 🎯\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".self::$mot;
+            . "— L'équipe Dressur — TICKET—".$mot_convertie;
     }
 
     private static function buildWhatsappPromoReseauMessage(?string $pseudo = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-
+        $mot_convertie = self::$mot;
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Promotion Réseaux Sociaux* sur *Dressur* 📱\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".self::$mot;
+            . "— L'équipe Dressur — TICKET—".$mot_convertie;
     }
 
     private static function buildWhatsappFeedbackBoostMessage(?string $nom = null, ?string $pseudo = null): string
