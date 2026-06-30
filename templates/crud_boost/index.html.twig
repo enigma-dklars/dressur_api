@@ -90,7 +90,7 @@
                 {% if boost.typeBoost == 'quota' %}
                     {{ boost.nbContactsObtenus }} / {{ boost.formuleBoost.nbContactsMax }}
                 {% else %}
-                    {{ boost.formuleBoost.nbContactsMax ?? 0 }}
+                    {{ boost.nbContactsObtenus ?? 0 }}
                 {% endif %}
             </td>
             <td>{{ boost.dateDebut ? boost.dateDebut|date('Y-m-d H:i') : '' }}</td>

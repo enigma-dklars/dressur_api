@@ -1317,4 +1317,16 @@ class TraitementsDS extends AbstractController
 
         $this->em->flush();
     }
+
+    function genererMotAleatoire(int $longueur): string
+    {
+        $caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $mot = '';
+
+        for ($i = 0; $i < $longueur; $i++) {
+            $mot .= $caracteres[random_int(0, strlen($caracteres) - 1)];
+        }
+
+        return $mot;
+    }
 }

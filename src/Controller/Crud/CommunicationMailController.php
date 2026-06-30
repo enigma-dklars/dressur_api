@@ -31,11 +31,14 @@ class CommunicationMailController extends AbstractController
     private $theme;
     private $cookieDS;
     private $traitementsDS;
+    private $mot;
 
     public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
     {
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
+        $this->mot = $traitementsDS->genererMotAleatoire(rand(6,10));
+
         if ($this->cookieDS->check("theme")) {
             if ($this->cookieDS->get("theme") == "dark-theme") {
                 $this->theme = "dark-theme";
@@ -1213,9 +1216,9 @@ class CommunicationMailController extends AbstractController
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
 
         return $salutation . "\n\n"
-            . "Votre *Boost Contact* sur *Dressur* a expiré 📢\n\n"
-            . "Sans Boost actif, votre profil perd en visibilité et vos concurrents vous devancent dans les recherches.\n\n"
-            . "— L'équipe Dressur";
+            . "Vous avez récemment utilisé notre service *Boost Contact* sur *Dressur* 📢\n\n"
+            . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
+            . "— L'équipe Dressur — TICKET—".self::$mot;
     }
 
     private static function buildWhatsappPromoAffaireMessage(?string $pseudo = null): string
@@ -1223,9 +1226,9 @@ class CommunicationMailController extends AbstractController
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
 
         return $salutation . "\n\n"
-            . "Votre *Promotion Affaire* sur *Dressur* est terminée 🎯\n\n"
-            . "C'est le moment idéal pour en lancer une nouvelle et remettre votre activité en avant auprès de toute la communauté !\n\n"
-            . "— L'équipe Dressur";
+            . "Vous avez récemment utilisé notre service *Promotion Affaire* sur *Dressur* 🎯\n\n"
+            . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
+            . "— L'équipe Dressur — TICKET—".self::$mot;
     }
 
     private static function buildWhatsappPromoReseauMessage(?string $pseudo = null): string
@@ -1233,9 +1236,9 @@ class CommunicationMailController extends AbstractController
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
 
         return $salutation . "\n\n"
-            . "Votre *Promotion Réseaux Sociaux* sur *Dressur* est terminée 📱\n\n"
-            . "Continuez sur votre lancée — boostez à nouveau vos abonnés sur TikTok, Instagram, YouTube et plus !\n\n"
-            . "— L'équipe Dressur";
+            . "Vous avez récemment utilisé notre service *Promotion Réseaux Sociaux* sur *Dressur* 📱\n\n"
+            . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
+            . "— L'équipe Dressur — TICKET—".self::$mot;
     }
 
     private static function buildWhatsappFeedbackBoostMessage(?string $nom = null, ?string $pseudo = null): string
