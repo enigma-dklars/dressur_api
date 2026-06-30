@@ -437,7 +437,7 @@ class CommunicationMailController extends AbstractController
 
     // ─── Helper : récupère les candidats selon le type de campagne ────────────
 
-    private function fetchCandidateUsers(
+    public function fetchCandidateUsers(
         array $config,
         UserRepository $userRepository,
         BoostRepository $boostRepository,
@@ -462,7 +462,7 @@ class CommunicationMailController extends AbstractController
 
     // ─── Helper : count rapide pour le portail (feedback) ────────────────────
 
-    private function countFeedbackCandidates(
+    public function countFeedbackCandidates(
         array $config,
         BoostRepository $boostRepository,
         PromotionRepository $promotionRepository,
@@ -478,7 +478,7 @@ class CommunicationMailController extends AbstractController
 
     // ─── Helper : count rapide pour le portail ────────────────────────────────
 
-    private function countServiceCandidates(
+    public function countServiceCandidates(
         array $config,
         BoostRepository $boostRepository,
         PromotionRepository $promotionRepository,
@@ -538,7 +538,7 @@ class CommunicationMailController extends AbstractController
         }
 
         $previewContent = $isWhatsapp
-            ? self::buildWhatsappMessageForType($config, null)
+            ? $this->buildWhatsappMessageForType($config, null)
             : self::buildMailContentForType(
                 $config,
                 null,
@@ -620,7 +620,7 @@ class CommunicationMailController extends AbstractController
                     $confirmUrl = 'https://dressur.site/confirmer-tel/' . rawurlencode($uid) . '/' . $token;
                 }
 
-                $message = self::buildWhatsappMessageForType($config, $pseudo ?: null, $confirmUrl, $nom ?: null);
+                $message = $this->buildWhatsappMessageForType($config, $pseudo ?: null, $confirmUrl, $nom ?: null);
 
                 $entry = (new FileAttenteWhatsapp())
                     ->setSendto($tel)
@@ -1186,62 +1186,62 @@ class CommunicationMailController extends AbstractController
         };
     }
 
-    private function generateConfirmToken(string $uid, string $mail): string
+    public function generateConfirmToken(string $uid, string $mail): string
     {
         $secret = $this->getParameter('kernel.secret');
         return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($mail)), $secret), 0, 40);
     }
 
-    private function generateConfirmTelToken(string $uid, string $tel): string
+    public function generateConfirmTelToken(string $uid, string $tel): string
     {
         $secret = $this->getParameter('kernel.secret');
         return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($tel)), $secret), 0, 40);
     }
 
-    private static function buildWhatsappMessageForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null, ?string $nom = null): string
+    private function buildWhatsappMessageForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null, ?string $nom = null): string
     {
         return match ($config['queryType'] ?? 'confirm_tel') {
-            'service_boost_wa'   => self::buildWhatsappBoostMessage($pseudo),
-            'service_promo_wa'   => self::buildWhatsappPromoAffaireMessage($pseudo),
-            'service_reseau_wa'  => self::buildWhatsappPromoReseauMessage($pseudo),
-            'feedback_boost_wa'  => self::buildWhatsappFeedbackBoostMessage($nom, $pseudo),
-            'feedback_promo_wa'  => self::buildWhatsappFeedbackPromoMessage($nom, $pseudo),
-            'feedback_reseau_wa' => self::buildWhatsappFeedbackReseauMessage($nom, $pseudo),
-            default              => self::buildWhatsappConfirmMessage($pseudo, $confirmUrl),
+            'service_boost_wa'   => $this->buildWhatsappBoostMessage($pseudo),
+            'service_promo_wa'   => $this->buildWhatsappPromoAffaireMessage($pseudo),
+            'service_reseau_wa'  => $this->buildWhatsappPromoReseauMessage($pseudo),
+            'feedback_boost_wa'  => $this->buildWhatsappFeedbackBoostMessage($nom, $pseudo),
+            'feedback_promo_wa'  => $this->buildWhatsappFeedbackPromoMessage($nom, $pseudo),
+            'feedback_reseau_wa' => $this->buildWhatsappFeedbackReseauMessage($nom, $pseudo),
+            default              => $this->buildWhatsappConfirmMessage($pseudo, $confirmUrl),
         };
     }
 
-    private static function buildWhatsappBoostMessage(?string $pseudo = null): string
+    public function buildWhatsappBoostMessage(?string $pseudo = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-        $mot_convertie = self::$mot;
+
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Boost Contact* sur *Dressur* 📢\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".$mot_convertie;
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
-    private static function buildWhatsappPromoAffaireMessage(?string $pseudo = null): string
+    public function buildWhatsappPromoAffaireMessage(?string $pseudo = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-        $mot_convertie = self::$mot;
+
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Promotion Affaire* sur *Dressur* 🎯\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".$mot_convertie;
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
-    private static function buildWhatsappPromoReseauMessage(?string $pseudo = null): string
+    public function buildWhatsappPromoReseauMessage(?string $pseudo = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-        $mot_convertie = self::$mot;
+
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Promotion Réseaux Sociaux* sur *Dressur* 📱\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".$mot_convertie;
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
-    private static function buildWhatsappFeedbackBoostMessage(?string $nom = null, ?string $pseudo = null): string
+    public function buildWhatsappFeedbackBoostMessage(?string $nom = null, ?string $pseudo = null): string
     {
         $salutation = ($nom && $pseudo)
             ? 'Bonjour *' . $nom . ' (' . $pseudo . ')* 👋'
@@ -1254,10 +1254,10 @@ class CommunicationMailController extends AbstractController
             . "• Avez-vous obtenu les résultats attendus ?\n"
             . "• Avez-vous des suggestions pour l'améliorer ?\n\n"
             . "Répondez directement à ce message, votre avis compte beaucoup pour nous ! 💬\n\n"
-            . "— L'équipe Dressur";
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
-    private static function buildWhatsappFeedbackPromoMessage(?string $nom = null, ?string $pseudo = null): string
+    public function buildWhatsappFeedbackPromoMessage(?string $nom = null, ?string $pseudo = null): string
     {
         $salutation = ($nom && $pseudo)
             ? 'Bonjour *' . $nom . ' (' . $pseudo . ')* 👋'
@@ -1270,10 +1270,10 @@ class CommunicationMailController extends AbstractController
             . "• Avez-vous remarqué un impact sur votre activité ?\n"
             . "• Des améliorations à suggérer ?\n\n"
             . "Répondez directement ici, votre retour nous aide à faire mieux ! 💬\n\n"
-            . "— L'équipe Dressur";
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
-    private static function buildWhatsappFeedbackReseauMessage(?string $nom = null, ?string $pseudo = null): string
+    public function buildWhatsappFeedbackReseauMessage(?string $nom = null, ?string $pseudo = null): string
     {
         $salutation = ($nom && $pseudo)
             ? 'Bonjour *' . $nom . ' (' . $pseudo . ')* 👋'
@@ -1286,10 +1286,10 @@ class CommunicationMailController extends AbstractController
             . "• La visibilité sur vos réseaux a-t-elle évolué ?\n"
             . "• Que pourrions-nous améliorer ?\n\n"
             . "Répondez directement à ce message, nous lisons chaque retour ! 💬\n\n"
-            . "— L'équipe Dressur";
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
-    private static function buildWhatsappConfirmMessage(?string $pseudo = null, ?string $confirmUrl = null): string
+    public function buildWhatsappConfirmMessage(?string $pseudo = null, ?string $confirmUrl = null): string
     {
         $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
         $url        = $confirmUrl ?? 'https://dressur.site/confirmer-tel/[uid]/[token]';
@@ -1300,7 +1300,7 @@ class CommunicationMailController extends AbstractController
             . $url . "\n\n"
             . "🚫 *Vous n'êtes pas à l'origine de cette inscription ?*\n"
             . "Répondez simplement *SUPPRIMER* à ce message et nous supprimerons votre numéro immédiatement.\n\n"
-            . "— L'équipe Dressur";
+            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
     // ─── Contenu HTML : Confirmation d'adresse mail ──────────────────────────
