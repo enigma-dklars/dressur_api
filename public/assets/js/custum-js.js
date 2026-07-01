@@ -467,33 +467,21 @@ $(document).ready(function () {
                     `);
                     $("#msgError").toggle(800)
                 } else {
-                    msgError = "Connexion réussie, vous serez redirigé dans quelques secondes. <span class='decompte'>5</span>s"
+                    msgError = "Connexion réussie ! Redirection en cours..."
                     $("#msgError").html(`
                         <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
                         <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
+                        <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i>
                         </div>
                         <div class="ms-3">
                             <div class="text-success">`+msgError+`</div>
                         </div>
                         </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     `);
                     $(".getInfo").val("");
                     $("#msgError").show();
-                    let timerr = setInterval(() => {
-                        let temps = parseInt($('.decompte').text());
-                        if(temps >= 1){
-                            temps = temps - 1
-                            $('.decompte').text(""+temps+"")
-                        } else {
-                            clearInterval(timerr)
-                            $('.decompte').text(0)
-                            location.href = "/private"
-                            return;
-                        }
-                    }, 1000);
+                    location.href = "/private";
                 }
                 traitementContact("connexion", "fin", "CONNEXION")
             },
