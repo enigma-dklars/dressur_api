@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 
 class CookieDS {
@@ -46,15 +47,16 @@ class CookieDS {
         return $value;
     }
 
-    public function set($key, $val){
+    public function set($key, $val): Cookie
+    {
         $signed = $this->sign((string) $val);
-        setcookie($key, $signed, [
-            'expires'  => time() + 365 * 24 * 3600,
-            'path'     => '/',
-            'httponly' => true,
-            'secure'   => $this->isSecure(),
-            'samesite' => 'Lax',
-        ]);
+        return Cookie::create($key)
+            ->withValue($signed)
+            ->withExpires(time() + 365 * 24 * 3600)
+            ->withPath('/')
+            ->withHttpOnly(true)
+            ->withSecure($this->isSecure())
+            ->withSameSite('lax');
     }
 
     /**
@@ -129,14 +131,15 @@ class CookieDS {
         return false;
     }
 
-    public function remove($key){
-        setcookie($key, '', [
-            'expires'  => time() - 3600,
-            'path'     => '/',
-            'httponly' => true,
-            'secure'   => $this->isSecure(),
-            'samesite' => 'Lax',
-        ]);
+    public function remove($key): Cookie
+    {
+        return Cookie::create($key)
+            ->withValue('')
+            ->withExpires(time() - 3600)
+            ->withPath('/')
+            ->withHttpOnly(true)
+            ->withSecure($this->isSecure())
+            ->withSameSite('lax');
     }
     
 }
