@@ -148,8 +148,9 @@ class PrivateController extends AbstractController
     #[Route('/logout', name: 'app_logout')]
     public function logout(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
     {
-        $cookieDS->remove("uid");
-        return $this->redirectToRoute('app_connexion');
+        $response = $this->redirectToRoute('app_connexion');
+        $response->headers->setCookie($cookieDS->remove("uid"));
+        return $response;
     }
 
     #[Route('/private', name: 'app_private')]
@@ -159,18 +160,18 @@ class PrivateController extends AbstractController
             $uid = $cookieDS->get("uid");
             $user = $userRepository->findOneBy(['uid' => $uid]);
 
-            $userinfo = $this->traitementsDS->infosUser($user);
-
-            $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
-            foreach ($actusList as &$a) {
-                $a['token'] = $this->encodePromoToken($a['id']);
-            }
-            unset($a);
-            $actu = $this->renderView('private/actu_partial.html.twig', [
-                'actus' => $actusList,
-            ]);
-
             if($user){
+                $userinfo = $this->traitementsDS->infosUser($user);
+
+                $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
+                foreach ($actusList as &$a) {
+                    $a['token'] = $this->encodePromoToken($a['id']);
+                }
+                unset($a);
+                $actu = $this->renderView('private/actu_partial.html.twig', [
+                    'actus' => $actusList,
+                ]);
+
                 $user->setLastLoginTo(new DateTime('now', new \DateTimeZone('Africa/Lagos')));
                 $this->em->flush();
 
@@ -179,7 +180,7 @@ class PrivateController extends AbstractController
 
                 return $this->render('private/index.html.twig', [
                     'theme' => $this->theme,
-                    'user' => $traitementsDS->infosUser($user),
+                    'user' => $userinfo,
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
                     'actu' => $actu,
                     'stories' => $stories,

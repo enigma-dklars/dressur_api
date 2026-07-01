@@ -144,12 +144,14 @@ class UserController extends AbstractController
                 ]);
             }
 
-            $this->cookieDS->set("uid", $user->getUid());
-            return new JsonResponse([
+            $uidCookie = $this->cookieDS->set("uid", $user->getUid());
+            $response = new JsonResponse([
                 'error' => false,
                 'message' => 'Connecter!',
                 "user" => $this->traitementsDS->infosUser($user),
             ]);
+            $response->headers->setCookie($uidCookie);
+            return $response;
         } else {
             return new JsonResponse([
                 'error' => true,
@@ -471,9 +473,10 @@ class UserController extends AbstractController
             ]);
         }
         $user = $verificationUser["user"];
+        $uidCookie = null;
         if ($user) {
             $this->traitementsDS->migrateUidIfNeeded($user);
-            $this->cookieDS->set("uid", $user->getUid());
+            $uidCookie = $this->cookieDS->set("uid", $user->getUid());
         }
         
         if($user) {
@@ -482,11 +485,13 @@ class UserController extends AbstractController
             $this->em->flush();
 
             if ($user->getId()) {
-                return new JsonResponse([
+                $response = new JsonResponse([
                     'error' => false,
                     'message' => 'Ok!',
                     "user" => $this->traitementsDS->infosUser($user),
                 ]);
+                if ($uidCookie) { $response->headers->setCookie($uidCookie); }
+                return $response;
             }
         }
 
@@ -633,7 +638,7 @@ class UserController extends AbstractController
         $user = $verificationUser["user"];
 
         $this->traitementsDS->migrateUidIfNeeded($user);
-        $this->cookieDS->set("uid", $user->getUid());
+        $uidCookie = $this->cookieDS->set("uid", $user->getUid());
         $newPassword = $traitementsDS->resetPassword();
         $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
         $this->em->flush();
@@ -645,15 +650,17 @@ class UserController extends AbstractController
 
         $sent = $sendMail->smtpMail($user->getMail(), "Réinitialisation du mot de passe", $html);
         if (!$sent) {
-            return new JsonResponse([
+            $errResponse = new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
                 'message' => "Erreur d'envoi du mail. Veuillez réessayer.",
             ]);
+            $errResponse->headers->setCookie($uidCookie);
+            return $errResponse;
         }
-        return new JsonResponse([
-            'error' => false,
-        ]);
+        $okResponse = new JsonResponse(['error' => false]);
+        $okResponse->headers->setCookie($uidCookie);
+        return $okResponse;
     }
 
     #[Route('/sendMailPassForgot', name: 'sendMailPassForgot', methods: ['POST'])]
@@ -883,11 +890,13 @@ class UserController extends AbstractController
                 ]
             ));
 
-            $this->cookieDS->set("uid", $userAfterRegister->getUid());
-            return new JsonResponse([
+            $uidCookie = $this->cookieDS->set("uid", $userAfterRegister->getUid());
+            $response = new JsonResponse([
                 'error' => false,
                 'user' => $this->traitementsDS->infosUser($userAfterRegister),
             ]);
+            $response->headers->setCookie($uidCookie);
+            return $response;
         }
 
         return new JsonResponse([
