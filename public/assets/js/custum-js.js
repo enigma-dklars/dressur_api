@@ -249,7 +249,7 @@ $(document).ready(function () {
                     `);
                     $("#msgError").toggle(800)
                 } else {
-                    msgError = "Inscription réussie, vous serez redirigé dans quelques secondes. <span class='decompte'>5</span>s"
+                    msgError = "Inscription réussie! Redirection en cours..."
                     $("#msgError").html(`
                         <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
                         <div class="d-flex align-items-center">
@@ -264,18 +264,7 @@ $(document).ready(function () {
                     `);
                     $(".getInfo").val("");
                     $("#msgError").show();
-                    let timerr = setInterval(() => {
-                        let temps = parseInt($('.decompte').text());
-                        if(temps >= 1){
-                            temps = temps - 1
-                            $('.decompte').text(""+temps+"")
-                        } else {
-                            clearInterval(timerr)
-                            $('.decompte').text(0)
-                            location.href = "/private"
-                            return;
-                        }
-                    }, 1000);
+                    location.href = "/private"
                 }
                 traitementContact("inscription", "fin", "INSCRIPTION")
             },
