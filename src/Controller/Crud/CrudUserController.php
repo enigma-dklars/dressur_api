@@ -345,40 +345,61 @@ class CrudUserController extends AbstractController
         $lid = trim($lid);
 
         if ($lid === '') {
-            return new Response("Veuillez utiliser le numéro WhatsApp lié à votre compte Dressur pour effectuer la demande de confirmation du numéro WhatsApp.");
+            return new Response("Pour confirmer votre numéro WhatsApp, utilisez le même numéro que celui enregistré sur votre compte Dressur.");
         }
 
         $matches = $userRepository->findBy(['lid' => $lid]);
 
         if (count($matches) > 1) {
-            return new Response("Apparemment, vous avez plusieurs comptes Dressur liés à ce numéro.\nVeuillez patienter, un assistant vous aidera sous peu.");
+            return new Response("Il semble que plusieurs comptes Dressur soient associés à ce numéro.\nVeuillez envoyer COMPTE EN MULTIPLE pour obtenir l'aide d'un assistant.");
         }
 
         if (count($matches) === 0) {
-            return new Response("Veuillez utiliser le numéro WhatsApp lié à votre compte Dressur pour effectuer la demande de confirmation du numéro WhatsApp.");
+            return new Response("Pour confirmer votre numéro WhatsApp, utilisez le même numéro que celui enregistré sur votre compte Dressur.");
         }
 
         $user = $matches[0];
 
         if ($user->getTelIsVerified() == true) {
-            return new Response("Le compte lié à ce numéro est déjà confirmé.");
+            return new Response("Le compte associé à ce numéro est déjà confirmé. Aucune action n'est nécessaire. ✅");
         }
 
         $message = "";
         if (empty($user->getNom())) {
-            $message .= "Veuillez ajouter votre nom et prénom(s) sur Dressur.\n";
+            $message .= "Veuillez renseigner votre nom et votre prénom sur Dressur.\n";
         }
         if ($user->getMailIsVerified() == false) {
-            $message .= "Veuillez confirmer votre adresse e-mail sur Dressur.\n";
+            $message .= "Veuillez confirmer l'adresse e-mail associée à votre compte Dressur.\n";
         }
 
         if ($message == "") {
             $user->setTelIsVerified(true);
             $em->flush();
-            return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\nVous pouvez désormais profiter pleinement de toutes les fonctionnalités de Dressur :\n\n✔️ Boost Contact (ADD)\n✔️ Promotion Affaire\n✔️ Promotion Réseaux Sociaux\n✔️ Participation au programme des récompenses\n\n📚 Afin de bien comprendre le fonctionnement de la plateforme et d'utiliser efficacement chaque fonctionnalité, nous vous invitons à consulter les tutoriels Dressur. Il ne s'agit pas uniquement de démonstrations, mais également d'explications détaillées qui vous permettront de maîtriser tous les outils mis à votre disposition.\n\n📖 Tutoriel 1 :\nhttps://drive.google.com/file/d/1KNSISt6CzyV9r7Rj6qRO1Y-1m2d3CBpZ/view?usp=drive_link\n\n🎥 Tutoriel 2 :\nhttps://www.youtube.com/watch?v=BSwKlix-3dM\n\n🎥 Tutoriel 3 :\nhttps://www.youtube.com/watch?v=Y3MDBHFcyyQ\n\n🎥 Tutoriel 4 :\nhttps://www.youtube.com/watch?v=jq6QG1Vz6mY\n\n🎥 Tutoriel 5 :\nhttps://www.youtube.com/watch?v=dX8NmhEX5KY\n\n👉 Nous vous recommandons de suivre chaque tutoriel dans l'ordre et d'appliquer les différentes étapes présentées afin de tirer le meilleur parti de Dressur.\n\n📢 Suivez également notre chaîne WhatsApp pour rester informé des nouveautés, mises à jour et opportunités :\n\nhttps://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t \n\nNous restons disponibles pour toutes vos préoccupations et vous souhaitons une excellente expérience sur Dressur.");
+            return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\n"
+                . "Vous pouvez désormais profiter pleinement de toutes les fonctionnalités de Dressur :\n\n"
+                . "✔️ Boost Contact (ADD)\n"
+                . "✔️ Promotion Affaire\n"
+                . "✔️ Promotion Réseaux Sociaux\n"
+                . "✔️ Programme de récompenses\n\n"
+                . "📚 Pour mieux comprendre le fonctionnement de la plateforme et utiliser efficacement chaque fonctionnalité, nous vous invitons à consulter les tutoriels Dressur. "
+                . "Ils vous guideront pas à pas et vous aideront à maîtriser l’ensemble des outils disponibles.\n\n"
+                . "📖 Tutoriel 1 :\nhttps://drive.google.com/file/d/1KNSISt6CzyV9r7Rj6qRO1Y-1m2d3CBpZ/view?usp=drive_link\n\n"
+                . "🎥 Tutoriel 2 :\nhttps://www.youtube.com/watch?v=BSwKlix-3dM\n"
+                . "🎥 Tutoriel 3 :\nhttps://www.youtube.com/watch?v=Y3MDBHFcyyQ\n"
+                . "🎥 Tutoriel 4 :\nhttps://www.youtube.com/watch?v=jq6QG1Vz6mY\n"
+                . "🎥 Tutoriel 5 :\nhttps://www.youtube.com/watch?v=dX8NmhEX5KY\n\n"
+                . "👉 Nous vous recommandons de suivre les tutoriels dans l’ordre et de les appliquer étape par étape afin de tirer le meilleur parti de Dressur.\n\n"
+                . "📢 Rejoignez notre chaîne WhatsApp pour suivre les nouveautés, mises à jour et opportunités :\n"
+                . "https://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t\n\n"
+                . "Nous restons disponibles pour toute assistance et vous souhaitons une excellente expérience sur Dressur."
+            );
         }
 
-        return new Response("$message\nVous pouvez renvoyer une nouvelle demande de confirmation après avoir rempli les exigences mentionnées.");
+        return new Response(
+            "$message\n"
+            . "Une nouvelle demande de confirmation pourra être effectuée une fois les conditions remplies.\n\n"
+            . "👉 Pour relancer la confirmation, envoyez : WhatsApp Confirmation"
+        );
     }
 
     #[Route('/find_all_info_with_tel_user/{search}', name: 'app_crud_user_find_all_info_with_tel_user', methods: ['GET', 'POST'])]
