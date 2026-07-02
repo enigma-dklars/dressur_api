@@ -27,21 +27,7 @@ class Env
     private ?string $versionDressurBot = null;
 
     #[ORM\Column(nullable: true)]
-    private ?array $usersParrainer = [];
-
-    #[ORM\Column(nullable: true)]
     private ?array $userBanned = null;
-
-    public function addUsersParrainer($tel_or_mail): self
-    {
-        if($this->usersParrainer == NULL) {
-            $this->usersParrainer = [];
-        }
-        if (!in_array($tel_or_mail, $this->usersParrainer)) {
-            array_push($this->usersParrainer, $tel_or_mail);
-        }
-        return $this;
-    }
 
     public function addUsersTel($tel_or_mail): self
     {
@@ -111,18 +97,6 @@ class Env
     public function setVersionDressurBot(?string $versionDressurBot): static
     {
         $this->versionDressurBot = $versionDressurBot;
-
-        return $this;
-    }
-
-    public function getUsersParrainer(): ?array
-    {
-        return $this->usersParrainer;
-    }
-
-    public function setUsersParrainer(?array $usersParrainer): static
-    {
-        $this->usersParrainer = $usersParrainer;
 
         return $this;
     }
