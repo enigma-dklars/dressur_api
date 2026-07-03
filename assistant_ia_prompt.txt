@@ -15,7 +15,7 @@ Titre : "Boîte de Réception"
 Contenu :
 - Bannière résumé : affiche ton Solde FCFA, le nombre de Contacts reçus, et l'état du Boost (En cours / Inactif).
 - Liste de raccourcis :
-  • "Contacts" — gérer les contacts ajoutés et scannés → ouvre la liste de contacts DS.
+  • "Contacts" — gérer les contacts ajoutés → ouvre la liste de contacts DS.
   • "Récompenses" — suivre et encaisser tes points → ouvre le tableau de bord du programme de récompenses.
   • "Synchronisation avancée" — synchroniser tes contacts Dressur avec le répertoire de ton téléphone.
   • "Notifications" — voir les cadeaux, astuces et recommandations.
