@@ -35,6 +35,29 @@ class ChatController extends AbstractController
         $this->httpClient = $httpClient;
     }
 
+    #[Route('/chat/history', name: 'history', methods: ['GET', 'POST'])]
+    public function history(
+        Request $request,
+        VerificationsDS $verificationsDS,
+        ChatMessageRepository $chatMessageRepository
+    ): JsonResponse {
+        $uid = $this->cookieDS->getWithFallback('uid', $request);
+        $verifUser = $verificationsDS->verifUSer($uid);
+        if ($verifUser['error']) {
+            return new JsonResponse(['error' => false, 'messages' => []]);
+        }
+        /** @var User $user */
+        $user = $verifUser['user'];
+
+        $history = $chatMessageRepository->findLastByUser($user, 20);
+        $result  = array_map(fn($m) => [
+            'role'    => $m->getRole(),
+            'content' => $m->getContent(),
+        ], $history);
+
+        return new JsonResponse(['error' => false, 'messages' => $result]);
+    }
+
     #[Route('/chat', name: 'chat', methods: ['POST'])]
     public function chat(
         Request $request,
