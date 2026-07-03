@@ -85,7 +85,6 @@ class UserType extends AbstractType
             // ->add('uid')
             // ->add('password')
             // ->add('createdAt')
-            // ->add('themeDark')
             // ->add('lang')
             // ->add('lastLoginTo')
             // ->add('preference')

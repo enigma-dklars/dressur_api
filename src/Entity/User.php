@@ -58,9 +58,6 @@ class User
     private $boosts;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private $themeDark;
-
-    #[ORM\Column(type: 'boolean', nullable: true)]
     private $admin;
 
     #[ORM\Column(type: 'boolean')]
@@ -127,7 +124,6 @@ class User
         $this->boosts = new ArrayCollection();
         $this->telIsVerified = false;
         $this->mailIsVerified = false;
-        $this->themeDark = false;
         $this->blocked = false;
         $this->isInscritProgrammeRecompense = false;
         $this->soldeProgrammeRecompense = 0;
@@ -327,18 +323,6 @@ class User
                 $boost->setUser(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getThemeDark(): ?bool
-    {
-        return $this->themeDark;
-    }
-
-    public function setThemeDark(?bool $themeDark): self
-    {
-        $this->themeDark = $themeDark;
 
         return $this;
     }
