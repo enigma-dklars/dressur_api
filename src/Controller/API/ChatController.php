@@ -72,7 +72,7 @@ class ChatController extends AbstractController
         $messages[] = ['role' => 'user', 'content' => $message];
 
         // --- Appel Groq ---
-        $groqKey = $_ENV['GROQ_API_KEY'] ?? '';
+        $groqKey = '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';
         try {
             $groqResponse = $this->httpClient->request('POST', 'https://api.groq.com/openai/v1/chat/completions', [
                 'headers' => [
