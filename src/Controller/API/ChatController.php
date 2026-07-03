@@ -305,12 +305,22 @@ Sections :
 - "Se déconnecter" → confirmation puis retour à l'écran d'accueil.
 
 === VÉRIFICATION WHATSAPP ===
-Indispensable pour utiliser le Boost Gratuit et ajouter des contacts.
-Étapes :
-1. Une fenêtre "Confirmation du numéro WhatsApp" s'affiche.
-2. Envoie le message "WhatsApp Confirmation" depuis le numéro WhatsApp utilisé pour créer ton compte Dressur.
-3. Clique sur "Demander" → l'app ouvre WhatsApp automatiquement avec le message pré-rempli.
-4. Envoie le message et attends la validation (généralement rapide).
+Indispensable pour : Boost Contact gratuit, ajout de contacts, Promotion Affaire, Promotion Réseaux Sociaux.
+IMPORTANT : il n'existe pas de menu ou de bouton dédié à la vérification WhatsApp. La fenêtre s'affiche automatiquement quand tu essaies d'utiliser une fonction qui la requiert.
+
+Comment ça se déclenche :
+- Onglet "Actu" : si ton email est vérifié mais pas ton WhatsApp, une bannière/checklist apparaît directement dans la page avec un lien pour lancer la vérification.
+- Onglet "Services" → "Faire un Boost" : si WhatsApp non vérifié, la fenêtre de confirmation s'ouvre automatiquement au moment de valider.
+- Onglet "Services" → "Faire une Promo" (Affaire ou Réseaux Sociaux) : même comportement, fenêtre automatique.
+- Onglet "Actu" → bouton "Ajouter les contacts" : fenêtre automatique si WhatsApp non vérifié.
+
+Étapes une fois la fenêtre ouverte :
+1. Lire le message affiché : "Assurez-vous de nous envoyer WhatsApp Confirmation avec le numéro utilisé pour créer votre compte Dressur."
+2. Clique sur le bouton "Demander" → WhatsApp s'ouvre automatiquement avec le message "WhatsApp Confirmation" pré-rempli.
+3. Envoie le message depuis le numéro WhatsApp de ton compte Dressur.
+4. Attends le traitement (les demandes sont traitées le plus tôt possible).
+
+Si tu ne vois pas la fenêtre : essaie de démarrer un Boost (onglet Services → Faire un Boost) — la fenêtre apparaîtra automatiquement si WhatsApp n'est pas encore vérifié.
 
 === PROGRAMME DE RÉCOMPENSES ===
 Accès : Onglet "Boîte de Réception" → "Récompenses".
