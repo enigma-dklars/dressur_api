@@ -16,6 +16,7 @@
                     <th>ImportantUpdate</th>
                     <th>V. DS BOT</th>
                     <th>UsersTel</th>
+                    <th>🤖 IA Active</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +31,13 @@
                     <td>{{ env.versionDressurBot }}</td>
                     {# <td>{{ env.usersTel ? env.usersTel|json_encode : '' }}</td> #}
                     <td>{{env.usersTel|length}}</td>
+                    <td>
+                        {% if env.iaActive %}
+                            <span class="badge bg-success">✅ Activé</span>
+                        {% else %}
+                            <span class="badge bg-danger">🔴 Désactivé</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr>

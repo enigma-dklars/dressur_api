@@ -27,6 +27,15 @@ class EnvType extends AbstractType
                     'class' => 'form-control mb-2'
                 ],
             ])
+            ->add('iaActive', null, [
+                'label' => '🤖 Assistant IA actif',
+                'attr'  => [
+                    'class' => 'ms-2 mb-3 mt-3'
+                ],
+                'label_attr' => [
+                    'class' => 'fw-semibold'
+                ],
+            ])
 
             ->remove('usersTel')
         ;
