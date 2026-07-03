@@ -29,6 +29,9 @@ class Env
     #[ORM\Column(nullable: true)]
     private ?array $userBanned = null;
 
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
+    private bool $iaActive = true;
+
     public function addUsersTel($tel_or_mail): self
     {
         if (!in_array($tel_or_mail, $this->usersTel)) {
@@ -109,6 +112,18 @@ class Env
     public function setUserBanned(?array $userBanned): static
     {
         $this->userBanned = $userBanned;
+
+        return $this;
+    }
+
+    public function isIaActive(): bool
+    {
+        return $this->iaActive;
+    }
+
+    public function setIaActive(bool $iaActive): static
+    {
+        $this->iaActive = $iaActive;
 
         return $this;
     }

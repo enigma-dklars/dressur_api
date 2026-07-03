@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\BoostRepository;
 use App\Repository\ChatMessageRepository;
 use App\Repository\ContactRepository;
+use App\Repository\EnvRepository;
 use App\Services\CookieDS;
 use App\Services\VerificationsDS;
 use DateTime;
@@ -24,15 +25,18 @@ class ChatController extends AbstractController
     private EntityManagerInterface $em;
     private CookieDS $cookieDS;
     private HttpClientInterface $httpClient;
+    private EnvRepository $envRepository;
 
     public function __construct(
         EntityManagerInterface $em,
         CookieDS $cookieDS,
-        HttpClientInterface $httpClient
+        HttpClientInterface $httpClient,
+        EnvRepository $envRepository
     ) {
-        $this->em       = $em;
-        $this->cookieDS = $cookieDS;
-        $this->httpClient = $httpClient;
+        $this->em           = $em;
+        $this->cookieDS     = $cookieDS;
+        $this->httpClient   = $httpClient;
+        $this->envRepository = $envRepository;
     }
 
     #[Route('/chat/history', name: 'history', methods: ['GET', 'POST'])]
@@ -49,7 +53,7 @@ class ChatController extends AbstractController
         /** @var User $user */
         $user = $verifUser['user'];
 
-        $history = $chatMessageRepository->findLastByUser($user, 20);
+        $history = $chatMessageRepository->findAllByUser($user);
         $result  = array_map(fn($m) => [
             'role'    => $m->getRole(),
             'content' => $m->getContent(),
@@ -81,7 +85,18 @@ class ChatController extends AbstractController
             return new JsonResponse(['error' => true, 'message' => 'Message vide.']);
         }
 
-        // --- Historique (10 derniers échanges) ---
+        // --- Vérification interrupteur IA ---
+        $env = $this->envRepository->findOneBy([]);
+        if ($env !== null && !$env->isIaActive()) {
+            $isFrChat = ($user->getLang() ?? 'fr') === 'fr';
+            $unavailableMsg = $isFrChat
+                ? "L'assistant IA est actuellement indisponible. Veuillez réessayer plus tard."
+                : "The AI assistant is currently unavailable. Please try again later.";
+
+            return new JsonResponse(['error' => false, 'reply' => $unavailableMsg]);
+        }
+
+        // --- Historique (20 derniers échanges pour le contexte Groq) ---
         $history = $chatMessageRepository->findLastByUser($user, 20);
 
         // --- Contexte utilisateur dynamique ---

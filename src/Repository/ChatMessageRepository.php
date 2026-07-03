@@ -29,4 +29,17 @@ class ChatMessageRepository extends ServiceEntityRepository
 
         return array_reverse($results);
     }
+
+    /**
+     * Retourne TOUS les messages d'un utilisateur, du plus ancien au plus récent.
+     */
+    public function findAllByUser(User $user): array
+    {
+        return $this->createQueryBuilder('m')
+            ->where('m.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('m.createdAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
