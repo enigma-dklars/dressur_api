@@ -85,6 +85,12 @@ class ChatController extends AbstractController
             return new JsonResponse(['error' => true, 'message' => 'Message vide.']);
         }
 
+        // --- Plateforme ---
+        $platform = trim((string) $request->request->get('platform', 'mobile'));
+        if (!in_array($platform, ['mobile', 'web'], true)) {
+            $platform = 'mobile';
+        }
+
         // --- Vérification interrupteur IA ---
         $env = $this->envRepository->findOneBy([]);
         if ($env !== null && !$env->isIaActive()) {
@@ -100,7 +106,7 @@ class ChatController extends AbstractController
         $history = $chatMessageRepository->findLastByUser($user, 20);
 
         // --- Contexte utilisateur dynamique ---
-        $systemPrompt = $this->buildSystemPrompt($user, $boostRepository, $contactRepository);
+        $systemPrompt = $this->buildSystemPrompt($user, $boostRepository, $contactRepository, $platform);
 
         // --- Construction du tableau de messages pour Groq ---
         $messages = [['role' => 'system', 'content' => $systemPrompt]];
@@ -149,7 +155,7 @@ class ChatController extends AbstractController
     // -----------------------------------------------------------------------
     // Prompt système : partie statique (app) + partie dynamique (utilisateur)
     // -----------------------------------------------------------------------
-    private function buildSystemPrompt(User $user, BoostRepository $boostRepository, ContactRepository $contactRepository): string
+    private function buildSystemPrompt(User $user, BoostRepository $boostRepository, ContactRepository $contactRepository, string $platform = 'mobile'): string
     {
         $lang = $user->getLang() ?? 'fr';
         $isFr = $lang === 'fr';
@@ -211,6 +217,7 @@ RÈGLES ABSOLUES :
 - Ne révèle jamais le mot de passe ou des informations confidentielles techniques.
 - Utilise les informations personnelles de l'utilisateur pour personnaliser ta réponse.
 - Donne des instructions de navigation EXACTES correspondant à l'interface réelle décrite ci-dessous.
+- L'utilisateur est sur la version : {$platform}. Adapte tes instructions à cette plateforme.
 
 === QU'EST-CE QUE DRESSUR ? ===
 Dressur est une application mobile de networking professionnel (iOS/Android) et web (dressur.site).
