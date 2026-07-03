@@ -149,7 +149,7 @@ class ChatController extends AbstractController
             'Langue : '        . $lang,
             'Email vérifié : '    . ($user->getMailIsVerified() ? 'Oui' : 'Non'),
             'WhatsApp vérifié : ' . ($user->getTelIsVerified()  ? 'Oui' : 'Non'),
-            'Inscrit au programme récompenses : ' . ($user->isInscritProgrammeRecompense() ? 'Oui' : 'Non'),
+            'Inscrit au programme récompenses : ' . ($user->getIsInscritProgrammeRecompense() ? 'Oui' : 'Non'),
             'Solde récompenses : ' . ($user->getSoldeProgrammeRecompense() ?? 0) . ' pts',
             'Contacts reçus : '   . $nbrContactsRecus,
             'Contacts ajoutés : ' . $nbrContactsAjoutes,
