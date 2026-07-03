@@ -140,25 +140,26 @@ class ChatController extends AbstractController
         $nbrContactsAjoutes = $contact ? count($contact->getWhoIAdd()) : 0;
 
         // --- Données utilisateur (sans mot de passe ni token) ---
+        // Seules les données non-sensibles sont transmises au LLM tiers
         $userContext = implode("\n", [
             '=== PROFIL UTILISATEUR ACTUEL ===',
-            'Nom complet : '   . ($user->getNom()    ?? 'Non renseigné'),
+            'Prénom/Nom : '    . ($user->getNom()    ?? 'Non renseigné'),
             'Pseudo : '        . ($user->getPseudo() ?? 'Non renseigné'),
-            'Email : '         . ($user->getMail()   ?? 'Non renseigné'),
-            'Téléphone : '     . ($user->getTel()    ?? 'Non renseigné'),
             'À propos : '      . ($user->getApropos() ?? 'Non renseigné'),
             'Langue : '        . $lang,
-            'Email vérifié : ' . ($user->getMailIsVerified() ? 'Oui' : 'Non'),
-            'WhatsApp vérifié : ' . ($user->getTelIsVerified() ? 'Oui' : 'Non'),
+            'Email vérifié : '    . ($user->getMailIsVerified() ? 'Oui' : 'Non'),
+            'WhatsApp vérifié : ' . ($user->getTelIsVerified()  ? 'Oui' : 'Non'),
             'Inscrit au programme récompenses : ' . ($user->isInscritProgrammeRecompense() ? 'Oui' : 'Non'),
             'Solde récompenses : ' . ($user->getSoldeProgrammeRecompense() ?? 0) . ' pts',
             'Contacts reçus : '   . $nbrContactsRecus,
             'Contacts ajoutés : ' . $nbrContactsAjoutes,
             'Boost contact actif : ' . ($boostActif ? 'Oui (' . $boostInfo . ')' : 'Non'),
-            'TikTok : '    . ($user->getTiktok()    ?? 'Non renseigné'),
-            'Instagram : ' . ($user->getInstagram() ?? 'Non renseigné'),
-            'Facebook : '  . ($user->getFacebook()  ?? 'Non renseigné'),
-            'YouTube : '   . ($user->getYoutube()   ?? 'Non renseigné'),
+            'Réseaux sociaux renseignés : ' . implode(', ', array_filter([
+                $user->getTiktok()    ? 'TikTok'    : null,
+                $user->getInstagram() ? 'Instagram' : null,
+                $user->getFacebook()  ? 'Facebook'  : null,
+                $user->getYoutube()   ? 'YouTube'   : null,
+            ])) ?: 'Aucun',
             'Membre depuis : ' . ($user->getCreatedAt() ? $user->getCreatedAt()->format('d/m/Y') : 'Inconnu'),
         ]);
 
