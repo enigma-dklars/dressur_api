@@ -146,7 +146,7 @@ class BoostController extends AbstractController
                     ->setDateDebut(new DateTime())
                 ;
                 $error = false;
-                $message = "Votre Boost Contact Gratuit limité à 20 contacts a démarré.";
+                $message = "Votre Boost Contact Gratuit limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s) a démarré.";
             } else {
                 $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
                 $boost->setFormuleBoost($formuleDateGratuit)
@@ -154,10 +154,10 @@ class BoostController extends AbstractController
                     ->setSource($source)
                     ->setTypeBoost('date')
                     ->setDateDebut(new DateTime())
-                    ->setDateExp(new DateTime("+ 5days"))
+                    ->setDateExp(new DateTime("+ ".$formuleDateGratuit->getNbrJour()."days"))
                 ;
                 $error = false;
-                $message = "Votre Boost Contact Gratuit de cinq (05) jours à démarrer.";
+                $message = "Votre Boost Contact Gratuit de ".$formuleDateGratuit->getNbrJour()." jour(s) à démarrer.";
             }
             $this->em->persist($boost);
             $this->em->flush();
@@ -172,7 +172,7 @@ class BoostController extends AbstractController
                     ->setDateDebut(new DateTime())
                 ;
                 $error = false;
-                $message = "Votre Boost Contact Gratuit limité à 20 contacts a démarré.";
+                $message = "Votre Boost Contact Gratuit limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s) a démarré.";
             } else {
                 $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
                 $boost->setFormuleBoost($formuleDateGratuit)
@@ -180,10 +180,10 @@ class BoostController extends AbstractController
                     ->setSource($source)
                     ->setTypeBoost('date')
                     ->setDateDebut(new DateTime())
-                    ->setDateExp(new DateTime("+ 5days"))
+                    ->setDateExp(new DateTime("+ ".$formuleDateGratuit->getNbrJour()."days"))
                 ;
                 $error = false;
-                $message = "Votre Boost Contact Gratuit de cinq (05) jours à démarrer.";
+                $message = "Votre Boost Contact Gratuit de ".$formuleDateGratuit->getNbrJour()." jour(s) à démarrer.";
             }
             $this->em->persist($boost);
             $this->em->flush();
