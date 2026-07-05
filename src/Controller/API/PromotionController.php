@@ -436,7 +436,6 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
@@ -480,7 +479,6 @@ class PromotionController extends AbstractController
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
@@ -825,7 +823,6 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
-                    $msgError = (string)$th;
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
 
                     return new JsonResponse([
@@ -870,7 +867,6 @@ class PromotionController extends AbstractController
                     );
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
-                    $msgError = (string)$th;
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                     return new JsonResponse([
                         'error' => true,
