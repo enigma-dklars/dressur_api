@@ -309,6 +309,116 @@ class WebhookController extends AbstractController
         }
     }
 
+    #[Route('/wkp/{routeWebhook}', name: 'webhookKPay', methods: ['POST'])]
+    public function webhookKPay(Request $request, $routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository): Response
+    {
+        try {
+            $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook, 'aggregator' => 'KPay']);
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport('KPay webhook : configuration introuvable', 'routeWebhook: ' . $routeWebhook);
+                return new Response('Configuration KPay introuvable', 200);
+            }
+
+            $rawBody = $request->getContent();
+            $signature = $request->headers->get('X-KPAY-Signature');
+            $secret = $envPaiementApi->getEndpointSecret();
+
+            if (!$signature || !$secret) {
+                $this->sendMail->sendReport('KPay webhook : signature ou secret manquant', 'routeWebhook: ' . $routeWebhook);
+                return new Response('Missing signature', 400);
+            }
+
+            $expectedSignature = hash_hmac('sha256', $rawBody, $secret);
+            if (!hash_equals($expectedSignature, (string)$signature)) {
+                $this->sendMail->sendReport('KPay webhook : signature invalide', 'routeWebhook: ' . $routeWebhook . '<br>Body: ' . htmlspecialchars($rawBody));
+                return new Response('Invalid signature', 400);
+            }
+
+            $payload = json_decode($rawBody, true);
+            $event = $payload['event'] ?? null;
+            $reference = $payload['reference'] ?? null;
+            $status = $payload['status'] ?? null;
+
+            if (!$reference) {
+                $this->sendMail->sendReport('KPay webhook sans reference : ' . $routeWebhook, '<pre>' . htmlspecialchars($rawBody) . '</pre>');
+                return new Response('Missing reference', 200);
+            }
+
+            $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $reference]);
+            if (!$myTransaction) {
+                return new Response('Transaction non trouvee', 200);
+            }
+
+            if (!in_array($myTransaction->getStatus(), ['pending', 'canceled'])) {
+                return new Response('Transaction deja traitee', 200);
+            }
+
+            if ($event !== 'payment.completed' || strtoupper((string)$status) !== 'COMPLETED') {
+                $myTransaction->setStatus(strtolower((string)$status ?: 'failed'))->isUpdated();
+                $this->em->flush();
+                return new Response('Statut : ' . $status, 200);
+            }
+
+            $myTransaction->setStatus('approved')->isUpdated();
+
+            $this->em->beginTransaction();
+            $this->allWebhookDressur($myTransaction);
+            $this->em->flush();
+            $this->em->commit();
+            return new Response('KPay transaction activee', 200);
+        } catch (\Throwable $th) {
+            try { $this->em->rollback(); } catch (\Throwable $ignored) {}
+            $this->sendMail->sendReport('Error webhookKPay : ' . $routeWebhook, $th . '<br><br><br>');
+            return new Response('Erreur interne — rapport envoyé', 200);
+        }
+    }
+
+    /**
+     * Pages de retour navigateur après un paiement KPay en mode GATEWAY. N'écrivent
+     * jamais en base : uniquement un message d'attente/confirmation pour le client.
+     * La seule source de vérité pour la confirmation reste webhookKPay (POST serveur-à-serveur).
+     */
+    #[Route('/wkp-return/{routeWebhook}', name: 'webhookKPayReturn', methods: ['GET'])]
+    public function webhookKPayReturn(Request $request, $routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository): Response
+    {
+        return $this->renderKPayGatewayFeedback($request, $routeWebhook, $envPaiementApiRepository, false);
+    }
+
+    #[Route('/wkp-cancel/{routeWebhook}', name: 'webhookKPayCancel', methods: ['GET'])]
+    public function webhookKPayCancel(Request $request, $routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository): Response
+    {
+        return $this->renderKPayGatewayFeedback($request, $routeWebhook, $envPaiementApiRepository, true);
+    }
+
+    private function renderKPayGatewayFeedback(Request $request, $routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository, bool $isCancel): Response
+    {
+        $envPaiementApi = $envPaiementApiRepository->findOneBy(['routeWebhook' => $routeWebhook, 'aggregator' => 'KPay']);
+
+        $status = $request->query->get('status');
+        $reference = $request->query->get('reference');
+        $externalId = $request->query->get('externalId');
+        $ts = $request->query->get('ts');
+        $sig = $request->query->get('sig');
+
+        $verified = false;
+        if ($envPaiementApi && $status && $reference && $ts && $sig) {
+            $stringToSign = $status . '|' . $reference . '|' . ($externalId ?? '') . '|' . $ts;
+            $expected = hash_hmac('sha256', $stringToSign, (string)$envPaiementApi->getEndpointSecret());
+            $verified = hash_equals($expected, (string)$sig) && ((time() * 1000) - (int)$ts) < 600000;
+        }
+
+        $message = $isCancel
+            ? "Paiement annulé."
+            : (($verified && strtoupper((string)$status) === 'COMPLETED')
+                ? "Paiement reçu, merci ! Vous pouvez fermer cette page."
+                : "Paiement en cours de vérification. Vous serez notifié une fois confirmé.");
+
+        return new Response(
+            '<html><body style="font-family:sans-serif;text-align:center;padding:40px;"><h2>' . htmlspecialchars($message) . '</h2></body></html>',
+            200
+        );
+    }
+
     #[Route('/admin/force-process/{id}', name: 'forceProcessTransaction', methods: ['POST'])]
     public function forceProcessTransaction(int $id, EnvPaiementApiRepository $envPaiementApiRepository): JsonResponse
     {
