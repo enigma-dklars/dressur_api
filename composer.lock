@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2eec08f8876437f0234697bf5e281a3f",
+    "content-hash": "0295910adac28be52f83e7141aac9848",
     "packages": [
         {
             "name": "amphp/amp",
@@ -2496,16 +2496,16 @@
         },
         {
             "name": "feexpay/feexpay-php",
-            "version": "1.0.12",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/La-Vedette-Media/feexpay-php-sdk.git",
-                "reference": "5cf7399a5a9363777ba83d16ca8bb9a53b8ebda0"
+                "reference": "120b97f93dd8b8b5f1f5c04e3a0df75502c008d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/La-Vedette-Media/feexpay-php-sdk/zipball/5cf7399a5a9363777ba83d16ca8bb9a53b8ebda0",
-                "reference": "5cf7399a5a9363777ba83d16ca8bb9a53b8ebda0",
+                "url": "https://api.github.com/repos/La-Vedette-Media/feexpay-php-sdk/zipball/120b97f93dd8b8b5f1f5c04e3a0df75502c008d4",
+                "reference": "120b97f93dd8b8b5f1f5c04e3a0df75502c008d4",
                 "shasum": ""
             },
             "type": "library",
@@ -2530,9 +2530,9 @@
             "description": "Php sdk of Feexpay - Online payment solution by credit card and mobile money\"",
             "support": {
                 "issues": "https://github.com/La-Vedette-Media/feexpay-php-sdk/issues",
-                "source": "https://github.com/La-Vedette-Media/feexpay-php-sdk/tree/1.0.12"
+                "source": "https://github.com/La-Vedette-Media/feexpay-php-sdk/tree/v2.0.0"
             },
-            "time": "2024-07-24T15:30:57+00:00"
+            "time": "2026-04-08T18:04:44+00:00"
         },
         {
             "name": "friendsofphp/proxy-manager-lts",
@@ -11604,5 +11604,5 @@
         "ext-iconv": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
