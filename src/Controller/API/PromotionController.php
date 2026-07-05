@@ -483,8 +483,12 @@ class PromotionController extends AbstractController
                         'formulePromoAffaire' => $formulBoost->getId(),
                         'image' => $fileName,
                         'description' => $text,
+                        'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'publishOnDressurStatus' => $publishOnDressurStatus,
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ],
-                    $user
+                    $user,
+                    $request->getSchemeAndHttpHost()
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
@@ -893,9 +897,12 @@ class PromotionController extends AbstractController
                             'userUid' => $user->getUid(),
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
+                            'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'publishOnDressurStatus' => $publishOnDressurStatus,
                             'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                         ],
-                        $user
+                        $user,
+                        $request->getSchemeAndHttpHost()
                     );
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
