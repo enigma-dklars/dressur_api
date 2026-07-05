@@ -381,8 +381,10 @@ class BoostController extends AbstractController
                         'userUid' => $user->getUid(),
                         'formulBoostId' => $formulBoost->getId(),
                         'typeBoost' => $formulBoost->getTypeBoost(),
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ],
-                    $user
+                    $user,
+                    $request->getSchemeAndHttpHost()
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
