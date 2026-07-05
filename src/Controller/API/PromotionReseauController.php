@@ -246,8 +246,10 @@ class PromotionReseauController extends AbstractController
                         'prixQteDemander' => $prixQteDemander,
                         'lien' => $lien,
                         'tel' => $tel,
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ],
-                    $user
+                    $user,
+                    $request->getSchemeAndHttpHost()
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
