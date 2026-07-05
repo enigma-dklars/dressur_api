@@ -437,18 +437,6 @@ class PromotionController extends AbstractController
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $msgError = (string)$th;
-                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
-                    $envPaiementApi->setCountTransactionApproved(10);
-                    $envPaiementApi->setActivated(false);
-                    $this->em->flush();
-
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Excusez-nous svp!',
-                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
-                    ]);
-                }
-
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
@@ -493,18 +481,6 @@ class PromotionController extends AbstractController
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
                 $msgError = (string)$th;
-                if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
-                    $envPaiementApi->setCountTransactionApproved(10);
-                    $envPaiementApi->setActivated(false);
-                    $this->em->flush();
-
-                    return new JsonResponse([
-                        'error' => true,
-                        'titre' => 'Excusez-nous svp!',
-                        'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
-                    ]);
-                }
-
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
@@ -850,18 +826,6 @@ class PromotionController extends AbstractController
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;
-                    if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
-                        $envPaiementApi->setCountTransactionApproved(10);
-                        $envPaiementApi->setActivated(false);
-                        $this->em->flush();
-        
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excusez-nous svp!',
-                            'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
-                        ]);
-                    }
-        
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
 
                     return new JsonResponse([
@@ -907,18 +871,6 @@ class PromotionController extends AbstractController
                     return new JsonResponse($resultat);
                 } catch (\Throwable $th) {
                     $msgError = (string)$th;
-                    if (strpos($msgError, "Vous avez excédé le nombre de transactions hebdomadaire requis. 10 transactions approuvées sont autorisées par semaine.") !== false) {
-                        $envPaiementApi->setCountTransactionApproved(10);
-                        $envPaiementApi->setActivated(false);
-                        $this->em->flush();
-
-                        return new JsonResponse([
-                            'error' => true,
-                            'titre' => 'Excusez-nous svp!',
-                            'message' => "Veuillez soumettre une nouvelle fois le formulaire. Merci.",
-                        ]);
-                    }
-
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                     return new JsonResponse([
                         'error' => true,
