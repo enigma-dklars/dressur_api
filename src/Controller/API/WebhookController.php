@@ -279,6 +279,149 @@ class WebhookController extends AbstractController
         }
     }
 
+    #[Route('/wfd/{routeWebhook}', name: 'webhookFeexPay', methods: ['GET', 'POST'])]
+    public function webhookFeexPay(Request $request, $routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository): Response
+    {
+        try {
+            $reference = $request->query->get('reference') ?? $request->request->get('reference');
+            $status    = $request->query->get('status')    ?? $request->request->get('status');
+
+            if (!$reference) {
+                $payload = json_decode($request->getContent(), true);
+                $reference = $payload['reference'] ?? null;
+                $status    = $payload['status']    ?? $status;
+            }
+
+            if (!$reference) {
+                $this->sendMail->sendReport("FeexPay webhook sans reference : ".$routeWebhook, $request->getContent()."<br>GET: ".json_encode($request->query->all())."<br>POST: ".json_encode($request->request->all()));
+                return new Response('Missing reference', 200);
+            }
+
+            $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $reference]);
+            if (!$myTransaction) {
+                return new Response('Transaction non trouvee', 200);
+            }
+
+            if (!in_array(strtolower($myTransaction->getStatus()), ['pending', 'canceled'])) {
+                return new Response('Transaction deja traitee', 200);
+            }
+
+            $normalizedStatus = strtoupper((string)$status);
+            if ($normalizedStatus !== 'SUCCESSFUL') {
+                $myTransaction->setStatus(strtolower($normalizedStatus ?: 'failed'))->isUpdated();
+                $this->em->flush();
+                return new Response('Statut : ' . $normalizedStatus, 200);
+            }
+
+            $this->em->beginTransaction();
+
+            $myTransaction->setStatus('approved')->isUpdated();
+
+            if ($myTransaction->getTransactionFor() == 'boost_contact') {
+                $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                $typeBoost = $myTransaction->getAnnotherInfo()['typeBoost'] ?? 'date';
+                $boost = new Boost();
+                $boost->setFormuleBoost($formuleBoost)
+                    ->setMode('Payant')
+                    ->setUser($myTransaction->getUser())
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                    ->setTypeBoost($typeBoost);
+                if ($typeBoost === 'quota') {
+                    $boost->setDateDebut(new DateTime());
+                } elseif ($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $myTransaction->getUser()]))) {
+                    $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $myTransaction->getUser()], ['id' => 'DESC']))->getDateExp();
+                    $boost->setDateDebut($lastBoostDateExp)
+                        ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime('+ ' . $formuleBoost->getNbrJour() . 'days ' . $lastBoostDateExp->format('d-m-Y H:i')))));
+                } else {
+                    $boost->setDateDebut(new DateTime())
+                        ->setDateExp(new DateTime('+ ' . $formuleBoost->getNbrJour() . 'days'));
+                }
+                $this->em->persist($boost);
+            }
+
+            if ($myTransaction->getTransactionFor() == 'boost_affaire') {
+                $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
+                $inProgrammeRecompense   = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']   ?? false;
+                $publishOnDressurStatus  = $myTransaction->getAnnotherInfo()['publishOnDressurStatus']  ?? false;
+                $promotion = new Promotion();
+                $promotion->setMode('Payant')
+                    ->setUser($myTransaction->getUser())
+                    ->setFormulePromoAffaire($formulePromoAffaire)
+                    ->setImage($myTransaction->getAnnotherInfo()['image'])
+                    ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                    ->setInProgrammeRecompense($inProgrammeRecompense)
+                    ->setPublishOnDressurStatus($publishOnDressurStatus)
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+                $this->em->persist($promotion);
+            }
+
+            if ($myTransaction->getTransactionFor() == 're_boost_affaire') {
+                $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+                $inProgrammeRecompense   = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']   ?? false;
+                $publishOnDressurStatus  = $myTransaction->getAnnotherInfo()['publishOnDressurStatus']  ?? false;
+                $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+                $promotion->setMode('Payant')
+                    ->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime('+ ' . $formulePromoAffaire->getNbrJour() . 'days'))
+                    ->setReferencement($formulePromoAffaire->getReferencement())
+                    ->setStatus(3)
+                    ->setInProgrammeRecompense($inProgrammeRecompense)
+                    ->setPublishOnDressurStatus($publishOnDressurStatus)
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+            }
+
+            if ($myTransaction->getTransactionFor() == 'boost_reseau_sociaux') {
+                $formulePromoReseau = $this->formulePromoReseauRepository->find($myTransaction->getAnnotherInfo()['idFormulePromoReseau']);
+                $boost = new PromoReseau();
+                $boost->setFormulePromoReseau($formulePromoReseau)
+                    ->setUser($myTransaction->getUser())
+                    ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
+                    ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
+                    ->setUrl($myTransaction->getAnnotherInfo()['lien'])
+                    ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                    ->setPrixZefame($formulePromoReseau->getPrixZefame() !== null
+                        ? round((int)$myTransaction->getAnnotherInfo()['qteDemander'] * $formulePromoReseau->getPrixZefame() / 1000, 5)
+                        : null);
+                $this->em->persist($boost);
+
+                $formuleLower = mb_strtolower((string)$boost->getFormulePromoReseau(), 'UTF-8');
+                if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
+                        || (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
+                    ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
+                    $resultZefame = $this->zefameApi->order([
+                        'service' => $boost->getFormulePromoReseau()->getIdZefame(),
+                        'link'     => $boost->getUrl(),
+                        'quantity' => $boost->getQteDemander(),
+                        'runs'     => 2,
+                        'interval' => 5,
+                    ]);
+                    if (isset($resultZefame->order)) {
+                        $boost->setIdZefame($resultZefame->order)->setStatus(2);
+                    } else {
+                        $this->sendMail->sendReport('FeexPay Promo Reseau erreur Zefame', (string)($resultZefame->error ?? $resultZefame));
+                    }
+                } else {
+                    $this->sendMail->sendReport('FeexPay Promo Reseau en attente', 'Commentaire ou custom — traitement manuel requis.');
+                }
+            }
+
+            if ($myTransaction->getTransactionFor() == 'dressur_bot_activation') {
+                $formuleDressurBot = $this->formuleDressurBotRepository->find($myTransaction->getAnnotherInfo()['formulDressurBotId']);
+                $userBot = $myTransaction->getUserBot();
+                $userBot->setExpiratedAt(new DateTime('+ ' . $formuleDressurBot->getNbrJour() . 'days'))
+                    ->setSignature($formuleDressurBot->getSignature());
+            }
+
+            $this->em->flush();
+            $this->em->commit();
+            return new Response('FeexPay transaction activée', 200);
+        } catch (\Throwable $th) {
+            try { $this->em->rollback(); } catch (\Throwable $ignored) {}
+            $this->sendMail->sendReport('Error webhookFeexPay : ' . $routeWebhook, $th . '<br><br><br>');
+            return new Response('Erreur interne — rapport envoyé', 200);
+        }
+    }
+
     #[Route('/admin/force-process/{id}', name: 'forceProcessTransaction', methods: ['POST'])]
     public function forceProcessTransaction(int $id, EnvPaiementApiRepository $envPaiementApiRepository): JsonResponse
     {
