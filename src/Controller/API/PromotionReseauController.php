@@ -196,7 +196,6 @@ class PromotionReseauController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
 
                 return new JsonResponse([
@@ -241,7 +240,6 @@ class PromotionReseauController extends AbstractController
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
