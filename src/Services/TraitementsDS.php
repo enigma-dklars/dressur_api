@@ -1011,8 +1011,17 @@ class TraitementsDS extends AbstractController
         }
     }
 
-    public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user) {
-        $skeleton = new FeexpayClass($envPaiementApi->getEndpointSecret(), $envPaiementApi->getApiKey(), "callback_url", $envPaiementApi->getEnvironment(), "error_callback_url");
+    public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user, string $baseUrl = '') {
+        $callbackUrl      = $baseUrl . '/api/wfd/' . $envPaiementApi->getRouteWebhook();
+        $errorCallbackUrl = $baseUrl . '/api/wfd/error/' . $envPaiementApi->getRouteWebhook();
+
+        $skeleton = new FeexpayClass(
+            $envPaiementApi->getEndpointSecret(),
+            $envPaiementApi->getApiKey(),
+            $callbackUrl,
+            $envPaiementApi->getEnvironment(),
+            $errorCallbackUrl
+        );
         $reference = "";
         $url = "none";
         $customer_id = rand(111111, 999999);
@@ -1025,13 +1034,11 @@ class TraitementsDS extends AbstractController
                 $username,
                 $email,
                 json_encode($another_info),
-                $customer_id,
+                (string)$customer_id,
                 ""
             );
             $reference = $response;
-        }
-
-        if($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
+        } elseif($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
             $response = $skeleton->requestToPayWeb(
                 $amount,
                 $tel,
@@ -1039,15 +1046,13 @@ class TraitementsDS extends AbstractController
                 $username,
                 $email,
                 json_encode($another_info),
-                $customer_id,
+                (string)$customer_id,
                 "",
                 ""
             );
             $reference = $response["reference"];
             $url = $response["payment_url"];
-        }
-
-        if($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
+        } elseif($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
             $responseCard = $skeleton->paiementCard(
                 $amount,
                 $tel,
@@ -1055,15 +1060,21 @@ class TraitementsDS extends AbstractController
                 $username,
                 $username,
                 $email,
-                "Benin", // "country(Benin)", 
-                "Cotonou", // "address(Cotonou)", 
-                "Littoral", // "district(Littoral)", 
-                "XOF", // "currency(XOF, USD, EUR)",
+                "Benin",
+                "Cotonou",
+                "Littoral",
+                "XOF",
                 json_encode($another_info),
-                $customer_id,
+                (string)$customer_id,
             );
             $url = $responseCard["url"];
             $reference = $responseCard["reference"];
+        } else {
+            throw new \RuntimeException("typeFeexPay inconnu : " . $methodePaiementEntity->getTypeFeexPay());
+        }
+
+        if (empty($reference)) {
+            throw new \RuntimeException("FeexPay n'a retourné aucune référence de transaction.");
         }
 
         $myTransaction  = new Transaction();
@@ -1077,7 +1088,7 @@ class TraitementsDS extends AbstractController
             ->setIdTransaction($reference)
             ->setReference($reference)
             ->setAmount($amount)
-            ->setStatus("PENDING")
+            ->setStatus("pending")
             ->setCustomerId($customer_id)
             ->setCurrencyId(1)
             ->setAnnotherInfo($another_info)
