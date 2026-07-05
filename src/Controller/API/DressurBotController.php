@@ -319,6 +319,42 @@ class DressurBotController extends AbstractController
                     'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
                 ]);
             }
+        } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("user bot tel : ".$tel, "Aucun Webhook Disponible pour KPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementKPay(
+                    $envPaiementApi, 
+                    $methodePaiementEntity, 
+                    $formulDressurBot->getPrix(),
+                    $tel,
+                    $userBotFind->getNom(),
+                    $userBotFind->getEmail(),
+                    "dressur_bot_activation",
+                    [
+                        'userBotId' => $userBotFind->getId(),
+                        'formulDressurBotId' => $formulDressurBot->getId(),
+                    ],
+                    $userBotFind,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         } else {
             // logique fait de paiement FeexPay
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
