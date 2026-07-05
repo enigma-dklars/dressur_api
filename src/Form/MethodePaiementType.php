@@ -64,11 +64,6 @@ class MethodePaiementType extends AbstractType
                     'class' => 'form-control mb-2'
                 ],
             ])
-            ->add('autreMethodeUn', null, [
-                'attr' => [
-                    'class' => 'form-select single-select mb-2'
-                ],
-            ])
         ;
     }
 

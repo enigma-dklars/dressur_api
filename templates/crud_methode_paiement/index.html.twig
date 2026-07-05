@@ -22,7 +22,6 @@
                     <th>Type</th>
                     <th>Activ.</th>
                     <th>Isdirect</th>
-                    <th>Autre 1</th>
                     <th>Requires</th>
                 </tr>
             </thead>
@@ -66,13 +65,6 @@
                     <td class="text-center">
                         {% if methode_paiement.isdirect == true %}
                             <span class="badge bg-success">Yes</span>
-                        {% else %}
-                            <span class="badge bg-danger">No</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">
-                        {% if methode_paiement.autreMethodeUn is not null %}
-                            <span class="badge bg-success">Yes</span> | <span class="badge bg-success"> {{methode_paiement.autreMethodeUn.id}} </span>
                         {% else %}
                             <span class="badge bg-danger">No</span>
                         {% endif %}

@@ -331,30 +331,16 @@ class TraitementsDS extends AbstractController
     public function listeMethodePaiements() {
         $listeMethodePaiement = [];
         foreach ($this->methodePaiementRepository->findBy([], ['pays' => "ASC", 'titre' => "ASC"]) as $methode) {
-            if(!$this->methodePaiementRepository->findOneBy(['autreMethodeUn' => $methode])) {
-                if($methode->isActivated()){
-                    array_push($listeMethodePaiement, [
-                        "id" => $methode->getId(),
-                        "value" => $methode->getId(),
-                        "label" => $methode->getPays()." - ".$methode->getTitre(),
-                        "titre" => $methode->getPays()." - ".$methode->getTitre(),
-                        "code" => $methode->getCode(),
-                        "pays" => $methode->getPays(),
-                        "aggregator" => $methode->getAggregator(),
-                    ]);
-                } else if($methode->getAutreMethodeUn()) {
-                    if($methode->getAutreMethodeUn()->isActivated()) {
-                        array_push($listeMethodePaiement, [
-                            "id" => $methode->getAutreMethodeUn()->getId(),
-                            "value" => $methode->getAutreMethodeUn()->getId(),
-                            "label" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
-                            "titre" => $methode->getAutreMethodeUn()->getPays()." - ".$methode->getAutreMethodeUn()->getTitre(),
-                            "code" => $methode->getAutreMethodeUn()->getCode(),
-                            "pays" => $methode->getAutreMethodeUn()->getPays(),
-                            "aggregator" => $methode->getAutreMethodeUn()->getAggregator(),
-                        ]);
-                    }
-                }
+            if($methode->isActivated()){
+                array_push($listeMethodePaiement, [
+                    "id" => $methode->getId(),
+                    "value" => $methode->getId(),
+                    "label" => $methode->getPays()." - ".$methode->getTitre()." (".$methode->getAggregator().")",
+                    "titre" => $methode->getPays()." - ".$methode->getTitre()." (".$methode->getAggregator().")",
+                    "code" => $methode->getCode(),
+                    "pays" => $methode->getPays(),
+                    "aggregator" => $methode->getAggregator(),
+                ]);
             }
         }
         return $listeMethodePaiement;
