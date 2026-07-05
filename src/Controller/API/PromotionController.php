@@ -443,6 +443,48 @@ class PromotionController extends AbstractController
                     'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
                 ]);
             }
+        } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour KPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementKPay(
+                    $envPaiementApi, 
+                    $methodePaiementEntity, 
+                    $formulBoost->getPrix(),
+                    $tel,
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "boost_affaire",
+                    [
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
+                        'formulePromoAffaire' => $formulBoost->getId(),
+                        'image' => $fileName,
+                        'description' => $text,
+                        'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'publishOnDressurStatus' => $publishOnDressurStatus,
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                    ],
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         } else {
             // logique fait de paiement FeexPay
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
@@ -825,6 +867,48 @@ class PromotionController extends AbstractController
                 } catch (\Throwable $th) {
                     $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
 
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                    ]);
+                }
+            } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+                $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+                if(!$envPaiementApi) {
+                    $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour KPay");
+
+                    return new JsonResponse([
+                        'error' => true,
+                        'titre' => 'Erreur!',
+                        'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                    ]);
+                }
+
+                try {
+                    $resultat = $traitementsDS->startPaiementKPay(
+                        $envPaiementApi, 
+                        $methodePaiementEntity, 
+                        $formulBoost->getPrix(),
+                        $tel,
+                        $user->getPseudo(),
+                        $user->getMail(),
+                        "re_boost_affaire",
+                        [
+                            'userId' => $user->getId(),
+                            'userUid' => $user->getUid(),
+                            'formulBoostId' => $formulBoost->getId(),
+                            'promotionId' => $promotion->getId(),
+                            'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'publishOnDressurStatus' => $publishOnDressurStatus,
+                            'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                        ],
+                        $user,
+                        $request->getSchemeAndHttpHost()
+                    );
+                    return new JsonResponse($resultat);
+                } catch (\Throwable $th) {
+                    $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                     return new JsonResponse([
                         'error' => true,
                         'titre' => 'Erreur!',
