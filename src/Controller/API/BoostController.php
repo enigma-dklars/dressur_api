@@ -335,7 +335,6 @@ class BoostController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
@@ -376,7 +375,6 @@ class BoostController extends AbstractController
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
                 return new JsonResponse([
                     'error' => true,
