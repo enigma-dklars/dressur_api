@@ -357,7 +357,8 @@ class DressurBotController extends AbstractController
                         'userBotId' => $userBotFind->getId(),
                         'formulDressurBotId' => $formulDressurBot->getId(),
                     ],
-                    $userBotFind
+                    $userBotFind,
+                    $request->getSchemeAndHttpHost()
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
