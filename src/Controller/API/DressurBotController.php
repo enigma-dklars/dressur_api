@@ -312,7 +312,6 @@ class DressurBotController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
                 return new JsonResponse([
                     'error' => true,
@@ -350,7 +349,6 @@ class DressurBotController extends AbstractController
                 );
                 return new JsonResponse($resultat);
             } catch (\Throwable $th) {
-                $msgError = (string)$th;
                 $this->sendMail->sendReport("DressurBot uUid : ".$userBotFind->getId()." WhatsApp : ".$userBotFind->getNumero(), $th);
                 return new JsonResponse([
                     'error' => true,
