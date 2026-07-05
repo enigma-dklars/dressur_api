@@ -33,7 +33,6 @@ use App\Repository\FormulePromoReseauRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\MethodePaiementRepository;
 use App\Utilities\SendMail;
-use Feexpay\FeexpayPhp\FeexpayClass;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
@@ -1017,84 +1016,113 @@ class TraitementsDS extends AbstractController
         }
     }
 
+    /**
+     * Fait l'appel HTTP nous-mêmes (au lieu de passer par le SDK feexpay/feexpay-php)
+     * afin de conserver la réponse brute complète de l'API, y compris en cas d'erreur.
+     * Le SDK, lui, ne renvoie qu'un sous-ensemble de champs (ex: uniquement ->reference)
+     * et jette silencieusement le reste de la réponse, ce qui rend le diagnostic impossible.
+     */
+    private function feexPayRawPost(string $url, array $post): array
+    {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS     => http_build_query($post),
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+        $raw = curl_exec($ch);
+        $curlErrno = curl_errno($ch);
+        $curlError = $curlErrno ? curl_error($ch) : null;
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $decoded = null;
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+        }
+
+        return [
+            "httpCode"  => $httpCode,
+            "curlError" => $curlError,
+            "raw"       => $raw,
+            "decoded"   => $decoded,
+        ];
+    }
+
     public function startPaiementFeexPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user, string $baseUrl = '') {
         $callbackUrl      = $baseUrl . '/api/wfd/' . $envPaiementApi->getRouteWebhook();
         $errorCallbackUrl = $baseUrl . '/api/wfd/error/' . $envPaiementApi->getRouteWebhook();
+        $shopId           = $envPaiementApi->getEndpointSecret();
+        $apiToken         = $envPaiementApi->getApiKey();
 
-        $skeleton = new FeexpayClass(
-            $envPaiementApi->getEndpointSecret(),
-            $envPaiementApi->getApiKey(),
-            $callbackUrl,
-            $envPaiementApi->getEnvironment(),
-            $errorCallbackUrl
-        );
         $reference = "";
         $url = "none";
         $customer_id = rand(111111, 999999);
         $typeFeexPay = $methodePaiementEntity->getTypeFeexPay();
         $rawResponse = null;
-        $curlErrorCaptured = null;
 
-        set_error_handler(function ($errno, $errstr) use (&$curlErrorCaptured) {
-            $curlErrorCaptured = $curlErrorCaptured
-                ? $curlErrorCaptured . " | " . $errstr
-                : $errstr;
-            return true;
-        });
-
-        try {
-            if ($typeFeexPay == "paiementLocal") {
-                $response = $skeleton->paiementLocal(
-                    $amount,
-                    $tel,
-                    $methodePaiementEntity->getCode(),
-                    $username,
-                    $email,
-                    json_encode($another_info),
-                    (string)$customer_id,
-                    ""
-                );
-                $rawResponse = $response;
-                $reference = $response;
-            } elseif ($typeFeexPay == "requestToPayWeb") {
-                $response = $skeleton->requestToPayWeb(
-                    $amount,
-                    $tel,
-                    $methodePaiementEntity->getCode(),
-                    $username,
-                    $email,
-                    json_encode($another_info),
-                    (string)$customer_id,
-                    "",
-                    ""
-                );
-                $rawResponse = $response;
-                $reference = is_array($response) ? ($response["reference"] ?? null) : null;
-                $url = is_array($response) ? ($response["payment_url"] ?? "none") : "none";
-            } elseif ($typeFeexPay == "paiementCard") {
-                $responseCard = $skeleton->paiementCard(
-                    $amount,
-                    $tel,
-                    $methodePaiementEntity->getCode(),
-                    $username,
-                    $username,
-                    $email,
-                    "Benin",
-                    "Cotonou",
-                    "Littoral",
-                    "XOF",
-                    json_encode($another_info),
-                    (string)$customer_id,
-                );
-                $rawResponse = $responseCard;
-                $url = is_array($responseCard) ? ($responseCard["url"] ?? "none") : "none";
-                $reference = is_array($responseCard) ? ($responseCard["reference"] ?? null) : null;
-            } else {
-                restore_error_handler();
-                throw new \RuntimeException("typeFeexPay inconnu : " . $typeFeexPay);
-            }
-        } finally {
-            restore_error_handler();
+        if ($typeFeexPay == "paiementLocal") {
+            $rawResponse = $this->feexPayRawPost(
+                "https://api.feexpay.me/api/transactions/requesttopay/integration",
+                [
+                    "phoneNumber"   => $tel,
+                    "amount"        => $amount,
+                    "reseau"        => $methodePaiementEntity->getCode(),
+                    "token"         => $apiToken,
+                    "shop"          => $shopId,
+                    "first_name"    => $username,
+                    "email"         => $email,
+                    "callback_info" => json_encode($another_info),
+                    "reference"     => (string)$customer_id,
+                    "otp"           => "",
+                ]
+            );
+            $reference = $rawResponse["decoded"]["reference"] ?? null;
+        } elseif ($typeFeexPay == "requestToPayWeb") {
+            $rawResponse = $this->feexPayRawPost(
+                "https://api.feexpay.me/api/transactions/requesttopay/integration",
+                [
+                    "phoneNumber"   => $tel,
+                    "amount"        => $amount,
+                    "reseau"        => $methodePaiementEntity->getCode(),
+                    "token"         => $apiToken,
+                    "shop"          => $shopId,
+                    "first_name"    => $username,
+                    "email"         => $email,
+                    "callback_info" => json_encode($another_info),
+                    "reference"     => (string)$customer_id,
+                    "return_url"    => "",
+                    "cancel_url"    => "",
+                ]
+            );
+            $reference = $rawResponse["decoded"]["reference"] ?? null;
+            $url = $rawResponse["decoded"]["payment_url"] ?? "none";
+        } elseif ($typeFeexPay == "paiementCard") {
+            $rawResponse = $this->feexPayRawPost(
+                "https://api.feexpay.me/api/transactions/card/inittransact/integration",
+                [
+                    "phone"         => $tel,
+                    "amount"        => $amount,
+                    "reseau"        => $methodePaiementEntity->getCode(),
+                    "token"         => $apiToken,
+                    "shop"          => $shopId,
+                    "first_name"    => $username,
+                    "last_name"     => $username,
+                    "email"         => $email,
+                    "country"       => "Benin",
+                    "address1"      => "Cotonou",
+                    "district"      => "Littoral",
+                    "currency"      => "XOF",
+                    "callback_info" => json_encode($another_info),
+                    "reference"     => (string)$customer_id,
+                ]
+            );
+            $url = $rawResponse["decoded"]["url"] ?? "none";
+            $reference = $rawResponse["decoded"]["reference"] ?? null;
+        } else {
+            throw new \RuntimeException("typeFeexPay inconnu : " . $typeFeexPay);
         }
 
         if (empty($reference)) {
@@ -1109,8 +1137,10 @@ class TraitementsDS extends AbstractController
                 "environment"     => $envPaiementApi->getEnvironment(),
                 "routeWebhook"    => $envPaiementApi->getRouteWebhook(),
                 "callbackUrl"     => $callbackUrl,
-                "rawResponse"     => $rawResponse,
-                "phpWarnings"     => $curlErrorCaptured,
+                "httpCode"        => $rawResponse["httpCode"] ?? null,
+                "curlError"       => $rawResponse["curlError"] ?? null,
+                "rawResponseBody" => $rawResponse["raw"] ?? null,
+                "decodedResponse" => $rawResponse["decoded"] ?? null,
             ];
             $debugMessage = "FeexPay n'a retourné aucune référence de transaction.<br><br>"
                 . "<pre>" . htmlspecialchars(json_encode($debugContext, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) . "</pre>";
