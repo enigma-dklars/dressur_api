@@ -85,7 +85,10 @@ class WebhookController extends AbstractController
                     $idTransaction = $event->entity->id;
                     $myTransaction = $this->transactionRepository->findOneBy(['idTransaction' => $idTransaction]);
 
-                    if (!$myTransaction || !$myTransaction->getUser()) {
+                    if (!$myTransaction) {
+                        return [200, "Transaction non trouvee"];
+                    }
+                    if (!$myTransaction->getUser() && $myTransaction->getTransactionFor() !== 'dressur_bot_activation') {
                         return [200, "Transaction sans utilisateur"];
                     }
 
@@ -280,7 +283,7 @@ class WebhookController extends AbstractController
     }
 
     #[Route('/wfd/{routeWebhook}', name: 'webhookFeexPay', methods: ['GET', 'POST'])]
-    public function webhookFeexPay(Request $request, $routeWebhook, EnvPaiementApiRepository $envPaiementApiRepository): Response
+    public function webhookFeexPay(Request $request, $routeWebhook): Response
     {
         try {
             $reference = $request->query->get('reference') ?? $request->request->get('reference');
