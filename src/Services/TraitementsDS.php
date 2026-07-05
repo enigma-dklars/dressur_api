@@ -32,7 +32,9 @@ use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\MethodePaiementRepository;
+use App\Utilities\SendMail;
 use Feexpay\FeexpayPhp\FeexpayClass;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class TraitementsDS extends AbstractController
@@ -62,8 +64,10 @@ class TraitementsDS extends AbstractController
     private $formulePromoAffaireRepository;
     private $methodePaiementRepository;
     private $historiqueProgrammeRecompenseRepository;
+    private $sendMail;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SendMail $sendMail, LoggerInterface $logger)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
@@ -90,6 +94,8 @@ class TraitementsDS extends AbstractController
         $this->envPaiementApiRepository = $envPaiementApiRepository;
         $this->envMailSenderRepository = $envMailSenderRepository;
         $this->historiqueProgrammeRecompenseRepository = $historiqueProgrammeRecompenseRepository;
+        $this->sendMail = $sendMail;
+        $this->logger = $logger;
     }
 
     public function migrateUidIfNeeded(\App\Entity\User $user): void
@@ -1025,55 +1031,98 @@ class TraitementsDS extends AbstractController
         $reference = "";
         $url = "none";
         $customer_id = rand(111111, 999999);
+        $typeFeexPay = $methodePaiementEntity->getTypeFeexPay();
+        $rawResponse = null;
+        $curlErrorCaptured = null;
 
-        if($methodePaiementEntity->getTypeFeexPay() == "paiementLocal") {
-            $response = $skeleton->paiementLocal(
-                $amount,
-                $tel,
-                $methodePaiementEntity->getCode(),
-                $username,
-                $email,
-                json_encode($another_info),
-                (string)$customer_id,
-                ""
-            );
-            $reference = $response;
-        } elseif($methodePaiementEntity->getTypeFeexPay() == "requestToPayWeb") {
-            $response = $skeleton->requestToPayWeb(
-                $amount,
-                $tel,
-                $methodePaiementEntity->getCode(),
-                $username,
-                $email,
-                json_encode($another_info),
-                (string)$customer_id,
-                "",
-                ""
-            );
-            $reference = $response["reference"];
-            $url = $response["payment_url"];
-        } elseif($methodePaiementEntity->getTypeFeexPay() == "paiementCard") {
-            $responseCard = $skeleton->paiementCard(
-                $amount,
-                $tel,
-                $methodePaiementEntity->getCode(),
-                $username,
-                $username,
-                $email,
-                "Benin",
-                "Cotonou",
-                "Littoral",
-                "XOF",
-                json_encode($another_info),
-                (string)$customer_id,
-            );
-            $url = $responseCard["url"];
-            $reference = $responseCard["reference"];
-        } else {
-            throw new \RuntimeException("typeFeexPay inconnu : " . $methodePaiementEntity->getTypeFeexPay());
+        set_error_handler(function ($errno, $errstr) use (&$curlErrorCaptured) {
+            $curlErrorCaptured = $curlErrorCaptured
+                ? $curlErrorCaptured . " | " . $errstr
+                : $errstr;
+            return true;
+        });
+
+        try {
+            if ($typeFeexPay == "paiementLocal") {
+                $response = $skeleton->paiementLocal(
+                    $amount,
+                    $tel,
+                    $methodePaiementEntity->getCode(),
+                    $username,
+                    $email,
+                    json_encode($another_info),
+                    (string)$customer_id,
+                    ""
+                );
+                $rawResponse = $response;
+                $reference = $response;
+            } elseif ($typeFeexPay == "requestToPayWeb") {
+                $response = $skeleton->requestToPayWeb(
+                    $amount,
+                    $tel,
+                    $methodePaiementEntity->getCode(),
+                    $username,
+                    $email,
+                    json_encode($another_info),
+                    (string)$customer_id,
+                    "",
+                    ""
+                );
+                $rawResponse = $response;
+                $reference = is_array($response) ? ($response["reference"] ?? null) : null;
+                $url = is_array($response) ? ($response["payment_url"] ?? "none") : "none";
+            } elseif ($typeFeexPay == "paiementCard") {
+                $responseCard = $skeleton->paiementCard(
+                    $amount,
+                    $tel,
+                    $methodePaiementEntity->getCode(),
+                    $username,
+                    $username,
+                    $email,
+                    "Benin",
+                    "Cotonou",
+                    "Littoral",
+                    "XOF",
+                    json_encode($another_info),
+                    (string)$customer_id,
+                );
+                $rawResponse = $responseCard;
+                $url = is_array($responseCard) ? ($responseCard["url"] ?? "none") : "none";
+                $reference = is_array($responseCard) ? ($responseCard["reference"] ?? null) : null;
+            } else {
+                restore_error_handler();
+                throw new \RuntimeException("typeFeexPay inconnu : " . $typeFeexPay);
+            }
+        } finally {
+            restore_error_handler();
         }
 
         if (empty($reference)) {
+            $debugContext = [
+                "typeFeexPay"     => $typeFeexPay,
+                "amount"          => $amount,
+                "tel"             => $tel,
+                "username"        => $username,
+                "email"           => $email,
+                "transaction_for" => $transaction_for,
+                "methodeCode"     => $methodePaiementEntity->getCode(),
+                "environment"     => $envPaiementApi->getEnvironment(),
+                "routeWebhook"    => $envPaiementApi->getRouteWebhook(),
+                "callbackUrl"     => $callbackUrl,
+                "rawResponse"     => $rawResponse,
+                "phpWarnings"     => $curlErrorCaptured,
+            ];
+            $debugMessage = "FeexPay n'a retourné aucune référence de transaction.<br><br>"
+                . "<pre>" . htmlspecialchars(json_encode($debugContext, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) . "</pre>";
+
+            $this->logger->error("FeexPay: aucune reference retournee", $debugContext);
+
+            try {
+                $this->sendMail->sendReport("Echec paiement FeexPay - aucune reference", $debugMessage);
+            } catch (\Throwable $mailError) {
+                $this->logger->error("FeexPay: echec envoi mail de rapport", ["error" => $mailError->getMessage()]);
+            }
+
             throw new \RuntimeException("FeexPay n'a retourné aucune référence de transaction.");
         }
 
