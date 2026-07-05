@@ -342,6 +342,45 @@ class BoostController extends AbstractController
                     'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
                 ]);
             }
+        } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+            if(!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : ".$uid, "Aucun Webhook Disponible pour KPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementKPay(
+                    $envPaiementApi, 
+                    $methodePaiementEntity, 
+                    $formulBoost->getPrix(),
+                    $tel,
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "boost_contact",
+                    [
+                        'userId' => $user->getId(),
+                        'userUid' => $user->getUid(),
+                        'formulBoostId' => $formulBoost->getId(),
+                        'typeBoost' => $formulBoost->getTypeBoost(),
+                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                    ],
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : ".$user->getUid()." WhatsApp : ".$user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         } else {
             // logique fait de paiement FeexPay
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
