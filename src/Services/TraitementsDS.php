@@ -1352,6 +1352,140 @@ class TraitementsDS extends AbstractController
         return false;
     }
 
+    public function getEnvPaiementApiKPayDisponible() {
+        $envPaiementApis = $this->envPaiementApiRepository->findBy(['activated' => true, 'aggregator' => "KPay"]);
+        foreach ($envPaiementApis as $envPaiementApi) {
+            return $envPaiementApi;
+        }
+        return false;
+    }
+
+    /**
+     * Appel HTTP dédié à KPay (indépendant du helper feexPayRawPost : gardé séparé
+     * volontairement pour ne pas coupler les deux intégrations). KPay attend un corps
+     * JSON avec authentification par headers X-API-Key / X-Secret-Key, contrairement à
+     * FeexPay qui attend un corps x-www-form-urlencoded.
+     */
+    private function kpayRawPost(string $url, array $headers, array $jsonBody): array
+    {
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_POSTFIELDS     => json_encode($jsonBody),
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+        $raw = curl_exec($ch);
+        $curlErrno = curl_errno($ch);
+        $curlError = $curlErrno ? curl_error($ch) : null;
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        $decoded = null;
+        if (is_string($raw) && $raw !== '') {
+            $decoded = json_decode($raw, true);
+        }
+
+        return [
+            "httpCode"  => $httpCode,
+            "curlError" => $curlError,
+            "raw"       => $raw,
+            "decoded"   => $decoded,
+        ];
+    }
+
+    /**
+     * Paiement KPay en mode GATEWAY uniquement (page de paiement hébergée par KPay,
+     * le client choisit lui-même son opérateur/numéro). Le webhook POST reste la
+     * source de vérité pour la confirmation ; les URLs de retour ne servent qu'à
+     * afficher un message immédiat au client dans son navigateur.
+     */
+    public function startPaiementKPay($envPaiementApi, $methodePaiementEntity, $amount, $tel, $username, $email, $transaction_for, $another_info, $user, string $baseUrl = '') {
+        $customer_id = rand(111111, 999999);
+        $externalId  = (string)$customer_id;
+
+        $returnUrl = $baseUrl . '/api/wkp-return/' . $envPaiementApi->getRouteWebhook() . '?externalId=' . $externalId;
+        $cancelUrl = $baseUrl . '/api/wkp-cancel/' . $envPaiementApi->getRouteWebhook() . '?externalId=' . $externalId;
+
+        $rawResponse = $this->kpayRawPost(
+            "https://admin.kpay.site/api/v1/payments/init",
+            [
+                "X-API-Key: " . $envPaiementApi->getApiKey(),
+                "X-Secret-Key: " . $envPaiementApi->getEndpointSecret(),
+                "Content-Type: application/json",
+            ],
+            [
+                "amount"      => $amount,
+                "externalId"  => $externalId,
+                "returnUrl"   => $returnUrl,
+                "cancelUrl"   => $cancelUrl,
+                "description" => "Dressur : paiement " . $transaction_for,
+            ]
+        );
+
+        $decoded    = $rawResponse["decoded"];
+        $gatewayUrl = $decoded["gatewayUrl"] ?? null;
+        $reference  = $decoded["reference"] ?? null;
+
+        if (empty($gatewayUrl) || empty($reference)) {
+            $debugContext = [
+                "aggregator"      => "KPay",
+                "amount"          => $amount,
+                "tel"             => $tel,
+                "username"        => $username,
+                "email"           => $email,
+                "transaction_for" => $transaction_for,
+                "methodeCode"     => $methodePaiementEntity->getCode(),
+                "environment"     => $envPaiementApi->getEnvironment(),
+                "routeWebhook"    => $envPaiementApi->getRouteWebhook(),
+                "returnUrl"       => $returnUrl,
+                "httpCode"        => $rawResponse["httpCode"],
+                "curlError"       => $rawResponse["curlError"],
+                "rawResponseBody" => $rawResponse["raw"],
+                "decodedResponse" => $decoded,
+            ];
+            $debugMessage = "KPay n'a retourné aucune URL de paiement (gatewayUrl) ou reference.<br><br>"
+                . "<pre>" . htmlspecialchars(json_encode($debugContext, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) . "</pre>";
+
+            $this->logger->error("KPay: aucune gatewayUrl/reference retournee", $debugContext);
+
+            try {
+                $this->sendMail->sendReport("Echec paiement KPay - aucune gatewayUrl", $debugMessage);
+            } catch (\Throwable $mailError) {
+                $this->logger->error("KPay: echec envoi mail de rapport", ["error" => $mailError->getMessage()]);
+            }
+
+            throw new \RuntimeException("KPay n'a retourné aucune URL de paiement.");
+        }
+
+        $myTransaction = new Transaction();
+        if ($transaction_for == "dressur_bot_activation") {
+            $myTransaction->setUserBot($user);
+        } else {
+            $myTransaction->setUser($user);
+        }
+        $myTransaction
+            ->setTransactionFor($transaction_for)
+            ->setIdTransaction($reference)
+            ->setReference($reference)
+            ->setAmount($amount)
+            ->setStatus("pending")
+            ->setCustomerId($customer_id)
+            ->setCurrencyId(1)
+            ->setAnnotherInfo($another_info)
+        ;
+        $this->em->persist($myTransaction);
+        $this->em->flush();
+
+        return [
+            "error"  => false,
+            "direct" => false,
+            "url"    => $gatewayUrl,
+        ];
+    }
+
     public function execPurge($user){
         foreach ($this->promoReseauRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
         
