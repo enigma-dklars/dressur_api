@@ -14,7 +14,7 @@
 {% set pref_routes       = ['app_preferencePays','app_hub_preferences'] %}
 {% set pref_active       = r in pref_routes %}
 
-{% set params_routes     = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
+{% set params_routes     = ['app_editprofil','app_editPassword','app_tutoriels','app_assistant','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
 {% set params_active     = r in params_routes %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
@@ -193,6 +193,16 @@
 
           {# — Assistance & Avis — #}
           <li class="sidebar-section-label"><span>Assistance &amp; Avis</span></li>
+          <li class="{{ r == 'app_tutoriels' ? 'mm-active' : '' }}">
+            <a href="{{ path('app_tutoriels') }}" class="small-fort {{ r == 'app_tutoriels' ? 'active' : '' }}">
+              <i class="fas fa-graduation-cap"></i>Tutoriels
+            </a>
+          </li>
+          <li class="{{ r == 'app_assistant' ? 'mm-active' : '' }}">
+            <a href="{{ path('app_assistant') }}" class="small-fort {{ r == 'app_assistant' ? 'active' : '' }}">
+              <i class="fas fa-comments"></i>Assistant IA
+            </a>
+          </li>
           <li class="{{ r == 'app_support' ? 'mm-active' : '' }}">
             <a href="/support" class="small-fort {{ r == 'app_support' ? 'active' : '' }}">
               <i class="fas fa-headset"></i>Support Technique
