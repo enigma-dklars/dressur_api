@@ -53,6 +53,7 @@
                     <th>Mail</th>
                     <th>Mail V.</th>
                     <th>Rec?</th>
+                    <th>Vendeur?</th>
                     <th>Solde</th>
                     <th>Reseau Retrait</th>
                     <th>Numero Retrait</th>
@@ -114,6 +115,13 @@
                             <span class="badge bg-success">Yes</span>
                         {% else %}
                             <span class="badge bg-danger">No</span>                                
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if user.isVendeur %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
                         {% endif %}
                     </td>
                     <td class="text-end">{{user.soldeProgrammeRecompense}}</td>
