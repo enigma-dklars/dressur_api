@@ -96,7 +96,7 @@ class VerificationsDS extends AbstractController
         $whoAddMe      = $contact ? count($contact->getWhoAddMe()) : 0;
         $whoIAdd       = $contact ? count($contact->getWhoIAdd()) : 0;
 
-        $maxAjouts     = ($nbBoostPayant * 50) + ($nbBoostGratuit * 10) + $whoAddMe;
+        $maxAjouts     = ($nbBoostPayant * 50) + ($nbBoostGratuit * 3) + $whoAddMe;
         $resteAjouter  = $maxAjouts - $whoIAdd;
 
         if ($resteAjouter > 0) {
