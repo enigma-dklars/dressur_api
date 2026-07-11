@@ -71,9 +71,16 @@ class VerificationsDS extends AbstractController
 
     public function permissionAdd($user)
     {
+        $boosts = $user->getBoosts();
+        if ($this->siBoostEnCours($boosts)) {
+            return [
+                "permissionAdd" => true,
+                "messageErreurPermissionAdd" => "Dressur",
+            ];
+        }
         return [
-            "permissionAdd" => true,
-            "messageErreurPermissionAdd" => "Dressur",
+            "permissionAdd" => false,
+            "messageErreurPermissionAdd" => "Vous devez avoir un boost contact en cours pour ajouter des contacts.",
         ];
     }
 
