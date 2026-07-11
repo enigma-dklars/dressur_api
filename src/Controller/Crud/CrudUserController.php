@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
+use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -201,10 +202,11 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/check', name: 'app_crud_user_check', methods: ['GET', 'POST'])]
-    public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    public function check(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS, TransactionRepository $transactionRepository): Response
     {
         $user = null;
         $paysChoisies = [];
+        $transactions = [];
 
         // Process the form submission
         if ($request->isMethod('POST')) {
@@ -235,6 +237,7 @@ class CrudUserController extends AbstractController
                 $this->addFlash('success', 'User found.');
                 $user_array['user_info'] = $user;
                 $paysChoisies = $user->getPreference()->getPaysChoisies();
+                $transactions = $transactionRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
             } else {
                 // Add a flash message if user is not found
                 $this->addFlash('danger', 'User not found.');
@@ -248,6 +251,7 @@ class CrudUserController extends AbstractController
             'user_check' => $user ? $user_array : null,
             'nbr_pays_preference' => count($paysChoisies),
             'pays_preference' => implode(", ", $paysChoisies),
+            'transactions' => $transactions,
         ]);
     }
 
