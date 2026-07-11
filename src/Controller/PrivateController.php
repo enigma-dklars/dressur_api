@@ -438,6 +438,26 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/tutoriels', name: 'app_tutoriels')]
+    public function tutoriels(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/tutoriels.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/assistant', name: 'app_assistant')]
+    public function assistant(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/assistant.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
     #[Route('/newpromoreseau', name: 'app_newpromoreseau')]
     public function newpromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {
