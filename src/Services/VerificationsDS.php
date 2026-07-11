@@ -72,15 +72,43 @@ class VerificationsDS extends AbstractController
     public function permissionAdd($user)
     {
         $boosts = $user->getBoosts();
+
+        // Boost actif en cours → ajout illimité
         if ($this->siBoostEnCours($boosts)) {
             return [
                 "permissionAdd" => true,
                 "messageErreurPermissionAdd" => "Dressur",
             ];
         }
+
+        // Calcul du quota restant selon l'historique
+        $nbBoostPayant = 0;
+        $nbBoostGratuit = 0;
+        foreach ($boosts as $boost) {
+            if ($boost->getMode() === 'Payant') {
+                $nbBoostPayant++;
+            } else {
+                $nbBoostGratuit++;
+            }
+        }
+
+        $contact       = $user->getContact();
+        $whoAddMe      = $contact ? count($contact->getWhoAddMe()) : 0;
+        $whoIAdd       = $contact ? count($contact->getWhoIAdd()) : 0;
+
+        $maxAjouts     = ($nbBoostPayant * 50) + ($nbBoostGratuit * 10) + $whoAddMe;
+        $resteAjouter  = $maxAjouts - $whoIAdd;
+
+        if ($resteAjouter > 0) {
+            return [
+                "permissionAdd" => true,
+                "messageErreurPermissionAdd" => "Dressur",
+            ];
+        }
+
         return [
             "permissionAdd" => false,
-            "messageErreurPermissionAdd" => "Vous devez avoir un boost contact en cours pour ajouter des contacts.",
+            "messageErreurPermissionAdd" => "Vous avez atteint votre limite d'ajout de contacts. Lancez un boost contact pour continuer.",
         ];
     }
 
