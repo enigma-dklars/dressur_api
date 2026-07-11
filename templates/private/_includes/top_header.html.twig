@@ -122,9 +122,12 @@
     color: #fff;
     font-size: 10px;
     font-weight: 700;
-    line-height: 16px;
+    line-height: 1;
     text-align: center;
     display: none;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 /* dark / semi-dark */
 html.dark-theme .ds-appbar {
@@ -273,7 +276,7 @@ html.semi-dark .ds-appbar-btn { color: #fcfcfc; }
         badges.forEach(function(el){
             if (count > 0) {
                 el.textContent = count > 9 ? '9+' : String(count);
-                el.style.display = 'inline-block';
+                el.style.display = 'inline-flex';
             } else {
                 el.style.display = 'none';
             }

@@ -14,7 +14,7 @@
 .ds-nav-card-chevron{font-size:15px;color:var(--bs-secondary-color,#adb5bd)}
 .ds-nav-card.ds-soon{opacity:.5;pointer-events:none;cursor:default}
 .ds-hub-title{font-weight:700;font-size:1.1rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.ds-nav-card-badge{min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#dc3545;color:#fff;font-size:11px;font-weight:700;line-height:20px;text-align:center;display:none;flex-shrink:0}
+.ds-nav-card-badge{min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#dc3545;color:#fff;font-size:11px;font-weight:700;line-height:1;text-align:center;display:none;align-items:center;justify-content:center;flex-shrink:0;box-sizing:border-box}
 
 /* ── Dark theme ─── */
 html.dark-theme .ds-nav-card{background:#202a40;border-color:rgba(255,255,255,.08);box-shadow:0 3px 10px rgba(0,0,0,.3);color:#fcfcfc}
@@ -110,7 +110,7 @@ html.semi-dark .ds-hub-title{color:#fcfcfc}
             var unseen = Math.max(0, total - lastSeen);
             if (unseen > 0) {
                 badge.textContent = unseen > 9 ? '9+' : String(unseen);
-                badge.style.display = 'inline-block';
+                badge.style.display = 'inline-flex';
             }
         })
         .catch(function(){});
