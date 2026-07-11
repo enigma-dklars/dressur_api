@@ -87,6 +87,21 @@ class AddController extends AbstractController
                     }
                 }
             }
+
+            if(count($contactsAdd) > 0) {
+                // Incrémenter le boost actif de $userAdd s'il en a un (quota ou date)
+                $userBoostActif = $boostRepository->findBoostActif($user);
+                if($userBoostActif) {
+                    $userBoostActif->setNbContactsObtenus((int)($userBoostActif->getNbContactsObtenus() ?? 0) + count($contactsAdd));
+                    if ($userBoostActif->getTypeBoost() === 'quota') {
+                        $nbContactsMax = $userBoostActif->getFormuleBoost()->getNbContactsMax();
+                        if ($nbContactsMax !== null && $userBoostActif->getNbContactsObtenus() >= $nbContactsMax) {
+                            $userBoostActif->setDateExp(new \DateTime());
+                        }
+                    }
+                    $this->em->flush();
+                }
+            }
         }
         return new JsonResponse([
             'error' => false,
