@@ -1195,6 +1195,14 @@ class TraitementsDS extends AbstractController
         return round($coutFournisseur * 1.3, 3);
     }
 
+    private function calcPrixVendeur(float $coutFournisseur): float
+    {
+        if ($coutFournisseur <= 1)  return max(round($coutFournisseur * 2.7, 3), 0.9);
+        if ($coutFournisseur <= 5)  return round($coutFournisseur * 1.8,  3);
+        if ($coutFournisseur <= 15) return round($coutFournisseur * 1.35, 3);
+        return round($coutFournisseur * 1.17, 3);
+    }
+
     public function majServicesZefame() {
         $newFormuleText = "New : ";
         if(count($this->formulePromoReseauRepository->findAll()) == 0) {
@@ -1263,6 +1271,7 @@ class TraitementsDS extends AbstractController
                     ->setQteMax((int) $unservice->max)
                     ->setPrixZefame((float) $unservice->rate)
                     ->setPrix($this->calcPrixReseau((float) $unservice->rate))
+                    ->setPrixVendeur($this->calcPrixVendeur((float) $unservice->rate))
                 ;
             } else {
                 $newFormuleText .= "<br> $unservice->service => $unservice->name | ... |";
@@ -1273,6 +1282,7 @@ class TraitementsDS extends AbstractController
                     ->setTitre($unservice->name)
                     ->setPrix($this->calcPrixReseau((float) $unservice->rate))
                     ->setPrixZefame((float) $unservice->rate)
+                    ->setPrixVendeur($this->calcPrixVendeur((float) $unservice->rate))
                     ->setQteMin((int) $unservice->min)
                     ->setQteMax((int) $unservice->max)
                 ;

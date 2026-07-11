@@ -49,6 +49,9 @@ class FormulePromoReseau
     #[ORM\Column(nullable: true)]
     private ?float $prixZefame = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $prixVendeur = null;
+
     public function __construct()
     {
         $this->sonFormulePromoReseaus = new ArrayCollection();
@@ -213,6 +216,18 @@ class FormulePromoReseau
     public function setPrixZefame(?float $prixZefame): static
     {
         $this->prixZefame = $prixZefame;
+
+        return $this;
+    }
+
+    public function getPrixVendeur(): ?float
+    {
+        return $this->prixVendeur;
+    }
+
+    public function setPrixVendeur(?float $prixVendeur): static
+    {
+        $this->prixVendeur = $prixVendeur;
 
         return $this;
     }
