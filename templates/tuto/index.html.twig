@@ -1,0 +1,162 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Tuto index{% endblock %}
+
+{% block body %}
+    <div class="row g-2">
+        <div class="col-8">
+            <span class="h4 me-3">Tuto index</span>
+        </div>
+        <div class="col-4 text-end fs-5 d-flex gap-2 justify-content-end align-items-center">
+            <a class="btn btn-sm btn-primary h4 js-confirm-orphan" href="{{ path('app_tuto_new') }}">Nouveau Tuto</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Url</th>
+                    <th>Activated</th>
+                    <th>CreatedAt</th>
+                    <th>UpdatedAt</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for tuto in tutos %}
+                <tr>
+                    <td>
+                        {{ include('tuto/_delete_form.html.twig') }}
+                    </td>
+
+                    <td>{{ tuto.titre }}</td>
+
+                    <td class="text-center">
+                        {% if tuto.description is not empty %}
+                            <button
+                                class="btn btn-sm btn-outline-primary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#descriptionModal{{ tuto.id }}"
+                                title="Afficher la description">
+                                Afficher <i class="fas fa-eye"></i>
+                            </button>
+                        {% else %}
+                            <button
+                                class="btn btn-sm btn-outline-secondary"
+                                disabled
+                                title="Aucune description">
+                                Afficher <i class="fas fa-eye-slash"></i>
+                            </button>
+                        {% endif %}
+                    </td>
+
+                    {# URL #}
+                    <td class="text-center">
+                        <button
+                                class="btn btn-sm btn-outline-warning copy-url"
+                                data-url="{{ tuto.url }}"
+                                title="Copier l'URL">
+                            Copier <i class="fas fa-copy"></i>
+                        </button>
+                    </td>
+
+                    <td class="text-center">
+                        {{ tuto.activated
+                        ? '<span class="badge bg-success">Yes</span>'|raw
+                        : '<span class="badge bg-danger">No</span>'|raw }}
+                    </td>
+
+                    <td>{{ tuto.createdAt ? tuto.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ tuto.updatedAt ? tuto.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ tuto.id }}</td>
+                </tr>
+
+                {# Modal Description #}
+                <div class="modal fade"
+                    id="descriptionModal{{ tuto.id }}"
+                    tabindex="-1"
+                    aria-hidden="true">
+
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+                                <h5 class="modal-title">
+                                    {{ tuto.titre }}
+                                </h5>
+
+                                <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="modal">
+                                </button>
+                            </div>
+
+                            <div class="modal-body">
+                                {{ tuto.description|nl2br }}
+                            </div>
+
+                            <div class="modal-footer">
+                                <button
+                                        class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                    Fermer
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+                {% else %}
+                <tr>
+                    <td colspan="8">no records found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block script %}
+    {{ parent() }}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            document.querySelectorAll('.copy-url').forEach(button => {
+
+                button.addEventListener('click', async function () {
+
+                    const url = this.dataset.url;
+
+                    try {
+                        await navigator.clipboard.writeText(url);
+
+                        const icon = this.querySelector('i');
+
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check');
+
+                        setTimeout(() => {
+                            icon.classList.remove('fa-check');
+                            icon.classList.add('fa-copy');
+                        }, 1500);
+
+                    } catch (e) {
+                        alert("Impossible de copier l'URL.");
+                    }
+
+                });
+
+            });
+
+        });
+    </script>
+{% endblock %}
