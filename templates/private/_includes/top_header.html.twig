@@ -18,6 +18,7 @@
     'app_hub_preferences':      'Préférences',
     'app_preferencePays':       'Pays ciblés',
     'app_hub_parametres':       'Paramètres',
+    'app_notifications':        'Notifications',
     'app_editprofil':           'Profil',
     'app_editPassword':         'Mot de passe',
     'app_support':              'Support',
@@ -103,6 +104,24 @@
     align-items: center;
     flex-shrink: 0;
 }
+/* Badge de notification (appbar mobile + navbar desktop) */
+.ds-notif-badge-wrap { position: relative; display: inline-flex; }
+.ds-notif-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: #dc3545;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    display: none;
+}
 /* dark / semi-dark */
 html.dark-theme .ds-appbar {
     background: #1a2232;
@@ -149,15 +168,10 @@ html.semi-dark .ds-appbar-btn { color: #fcfcfc; }
             <button class="ds-appbar-btn change-theme" title="Changer le thème">
                 <i class="fas {% if theme == 'dark-theme' %}fa-moon{% else %}fa-sun{% endif %} ici-theme"></i>
             </button>
-            <button class="ds-appbar-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside" title="Notifications">
+            <a href="{{ path('app_notifications') }}" class="ds-appbar-btn ds-notif-badge-wrap" title="Notifications">
                 <i class="bi bi-bell-fill"></i>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end p-0" style="min-width:280px">
-                <div class="p-2 border-bottom m-2">
-                    <h6 class="mb-0">Notifications</h6>
-                </div>
-                <div class="p-3 text-center text-secondary small">Aucune notification</div>
-            </ul>
+                <span class="ds-notif-badge" id="dsNotifBadgeMobile"></span>
+            </a>
         </div>
     </div>
 
@@ -230,44 +244,51 @@ html.semi-dark .ds-appbar-btn { color: #fcfcfc; }
                 <div class="notifications change-theme">
                     <i class="fas {% if theme == "dark-theme" %}fa-moon{% else %}fa-sun{% endif %} ici-theme"></i>
                 </div>
-                <li class="nav-item dropdown dropdown-large d-none d-sm-block">
-                    <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" data-bs-toggle="dropdown">
-                    <div class="notifications">
+                <li class="nav-item d-none d-sm-block">
+                    <a href="{{ path('app_notifications') }}" class="nav-link">
+                    <div class="notifications ds-notif-badge-wrap">
                         <i class="bi bi-bell-fill"></i>
+                        <span class="ds-notif-badge" id="dsNotifBadgeDesktop"></span>
                     </div>
                     </a>
-                    <div class="dropdown-menu dropdown-menu-end p-0">
-                    <div class="p-2 border-bottom m-2">
-                        <h5 class="h5 mb-0">Notifications</h5>
-                    </div>
-                    <div class="header-notifications-list p-2">
-                        <div class="dropdown-item bg-light radius-10 mb-1">
-                        <form class="dropdown-searchbar position-relative">
-                            <div class="position-absolute top-50 start-0 translate-middle-y px-3 search-icon"><i class="bi bi-search"></i></div>
-                            <input class="form-control" type="search" placeholder="Rechercher Notification">
-                        </form>
-                        </div>
-                        <a class="dropdown-item" href="#">
-                        <div class="d-flex align-items-center">
-                            <div class="ms-3 flex-grow-1">
-                            <h6 class="mb-0 dropdown-msg-user">Aucune notification</h6>
-                            <small class="mb-0 dropdown-msg-text text-secondary d-flex align-items-center">Aucune notification</small>
-                            </div>
-                        </div>
-                        </a>
-                    </div>
-                    <div class="p-2">
-                    <div><hr class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="#">
-                        <div class="text-center">Afficher toutes les Notifications</div>
-                        </a>
-                    </div>
-                    </div>
                 </li>
             </ul>
         </div>
     </nav>
 </header>
+
+<script>
+(function(){
+    const LAST_SEEN_KEY = 'ds_notif_last_seen_total';
+    const badges = [
+        document.getElementById('dsNotifBadgeMobile'),
+        document.getElementById('dsNotifBadgeDesktop')
+    ].filter(Boolean);
+
+    function updateBadge(count){
+        badges.forEach(function(el){
+            if (count > 0) {
+                el.textContent = count > 9 ? '9+' : String(count);
+                el.style.display = 'inline-block';
+            } else {
+                el.style.display = 'none';
+            }
+        });
+    }
+    window.dsUpdateNotifBadge = updateBadge;
+
+    fetch('/api/getNotifications', { method: 'POST', credentials: 'same-origin' })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if (data.error) return;
+            const total = (data.notifications || []).length;
+            let lastSeen = 0;
+            try { lastSeen = parseInt(localStorage.getItem(LAST_SEEN_KEY) || '0', 10) || 0; } catch(e) {}
+            updateBadge(Math.max(0, total - lastSeen));
+        })
+        .catch(function(){});
+})();
+</script>
 
 <style>
 .ds-avatar-sm,.ds-avatar-lg{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.5px;}

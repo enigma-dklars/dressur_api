@@ -427,6 +427,17 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/notifications', name: 'app_notifications')]
+    public function notifications(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/notification.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+            'chaine_whatsapp' => 'https://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t',
+        ]);
+    }
+
     #[Route('/newpromoreseau', name: 'app_newpromoreseau')]
     public function newpromoreseau(TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
     {

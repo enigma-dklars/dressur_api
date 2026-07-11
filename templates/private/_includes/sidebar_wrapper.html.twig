@@ -9,6 +9,8 @@
 
 {% set actu_active       = r in ['app_actu','app_actu_detail'] %}
 
+{% set notifications_active = r in ['app_notifications'] %}
+
 {% set pref_routes       = ['app_preferencePays','app_hub_preferences'] %}
 {% set pref_active       = r in pref_routes %}
 
@@ -142,6 +144,14 @@
         <a href="/actu" class="{{ actu_active ? 'active' : '' }}">
           <div class="parent-icon"><i class="fas fa-newspaper"></i></div>
           <div class="menu-title">Actu</div>
+        </a>
+      </li>
+
+      {# ── Notifications ─────────────────────────────────────────────── #}
+      <li class="{{ notifications_active ? 'mm-active' : '' }}">
+        <a href="{{ path('app_notifications') }}" class="{{ notifications_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-bell"></i></div>
+          <div class="menu-title">Notifications</div>
         </a>
       </li>
 
