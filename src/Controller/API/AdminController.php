@@ -154,7 +154,8 @@ class AdminController extends AbstractController
         VerificationsDS $verificationsDS,
         PromotionRepository $promotionRepository,
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
-        SendMail $sendMail
+        SendMail $sendMail,
+        TraitementsDS $traitementsDS
     ): JsonResponse {
         $uid = $cookieDS->getWithFallback('uid', $request) ?: null;
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -204,6 +205,8 @@ class AdminController extends AbstractController
             }
 
             $promotion->setMotif('')->setStatus(3)->setDateDebut(new \DateTime());
+            $user = $promotion->getUser();
+            $traitementsDS->addNotification("Votre promotion a été acceptée 🎉.", $user);
             $this->em->flush();
 
             $promoUser = $promotion->getUser();
@@ -241,7 +244,8 @@ class AdminController extends AbstractController
         CookieDS $cookieDS,
         VerificationsDS $verificationsDS,
         PromotionRepository $promotionRepository,
-        SendMail $sendMail
+        SendMail $sendMail,
+        TraitementsDS $traitementsDS
     ): JsonResponse {
         $uid = $cookieDS->getWithFallback('uid', $request) ?: null;
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -273,6 +277,8 @@ class AdminController extends AbstractController
 
         try {
             $promotion->setMotif($motif)->setStatus(0);
+            $user = $promotion->getUser();
+            $traitementsDS->addNotification("Votre promotion a été refusée.", $user);
             $this->em->flush();
 
             $promoUser = $promotion->getUser();

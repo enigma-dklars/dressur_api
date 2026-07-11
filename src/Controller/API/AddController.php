@@ -102,6 +102,9 @@ class AddController extends AbstractController
                     $this->em->flush();
                 }
             }
+
+            $traitementsDS->addNotification("Vous avez enregistrer ".count($contactsAdd)." contact(s).", $user);
+            $this->em->flush();
         }
         return new JsonResponse([
             'error' => false,

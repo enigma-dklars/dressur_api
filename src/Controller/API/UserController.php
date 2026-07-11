@@ -555,7 +555,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/mailVerification', name: 'mailVerification', methods: ['POST'])]
-    public function mailVerification(Request $request, UserRepository $userRepository, VerifMailRepository $verifMailRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function mailVerification(Request $request, UserRepository $userRepository, VerifMailRepository $verifMailRepository, VerificationsDS $verificationsDS, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
@@ -603,6 +603,7 @@ class UserController extends AbstractController
             ]);
         }
 
+        $traitementsDS->addNotification("Votre mail a été confirmer.", $user);
         $user->setMailIsVerified(true);
         $this->em->flush();
 

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
+use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,8 @@ class ConfirmTelController extends AbstractController
         string $uid,
         string $token,
         UserRepository $userRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        TraitementsDS $traitementsDS
     ): Response {
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
@@ -57,11 +59,12 @@ class ConfirmTelController extends AbstractController
         }
 
         $user->setTelIsVerified(true);
+        $traitementsDS->addNotification("Votre numéro WhatsApp a bien été confirmé !", $user);
         $em->flush();
 
         return $this->render('confirm_tel/index.html.twig', [
             'status'  => 'success',
-            'message' => 'Votre numéro de téléphone a bien été confirmé !',
+            'message' => 'Votre numéro WhatsApp a bien été confirmé !',
         ]);
     }
 }

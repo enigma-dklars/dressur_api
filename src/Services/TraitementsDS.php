@@ -27,6 +27,7 @@ use App\Repository\EnvMailSenderRepository;
 use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleDressurBotRepository;
 use App\Entity\FormulePromoReseau;
+use App\Entity\Notification;
 use App\Entity\Transaction;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
@@ -1538,5 +1539,14 @@ class TraitementsDS extends AbstractController
         }
 
         return $mot;
+    }
+
+    function addNotification(string $text, $user = null) {
+        $newNotif = new Notification();
+        $newNotif->setText($text)->setCreatedAt(new DateTime());
+        if($user) {
+            $newNotif->setUser($user);
+        }
+        $this->em->persist($newNotif);
     }
 }

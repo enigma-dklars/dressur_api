@@ -21,6 +21,7 @@ use App\Repository\FormuleDressurBotRepository;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
+use App\Services\TraitementsDS;
 use App\Utilities\SendMail;
 use App\Utilities\ZefameApi;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,8 +43,9 @@ class WebhookController extends AbstractController
     private $formuleDressurBotRepository;
     private $sendMail;
     private $zefameApi;
+    private $traitementsDS;
 
-    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi, TraitementsDS $traitementsDS)
     {
         $this->em = $em;
         $this->transactionRepository = $transactionRepository;
@@ -56,6 +58,7 @@ class WebhookController extends AbstractController
         $this->formuleDressurBotRepository = $formuleDressurBotRepository;
         $this->sendMail = $sendMail;
         $this->zefameApi = $zefameApi;
+        $this->traitementsDS = $traitementsDS;
     }
 
     /**
@@ -88,6 +91,7 @@ class WebhookController extends AbstractController
                     ->setDateExp(new DateTime("+ ".$formuleBoost->getNbrJour()."days"))
                 ;
             }
+            $this->traitementsDS->addNotification("Paiement confirmer. Boost Contact enregistrer.", $myTransaction->getUser());
             $this->em->persist($boost);
         }
 
@@ -125,6 +129,7 @@ class WebhookController extends AbstractController
                 "Nouvelle Promotion Affaire en attente — " . $user->getNom(),
                 $htmlAdmin
             );
+            $this->traitementsDS->addNotification("Paiement confirmer. Promotion Affaire enregistrer. En attente d'approbation.", $myTransaction->getUser());
         }
 
         if ($myTransaction->getTransactionFor() == "re_boost_affaire") {
@@ -141,6 +146,7 @@ class WebhookController extends AbstractController
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
             ;
+            $this->traitementsDS->addNotification("Paiement confirmer. Promotion Affaire enregistrer et démarrer.", $myTransaction->getUser());
         }
 
         if ($myTransaction->getTransactionFor() == "boost_reseau_sociaux") {
@@ -181,6 +187,7 @@ class WebhookController extends AbstractController
             } else {
                 $this->sendMail->sendReport("Promo Reseau en attente --- ID = ".$boost->getId(), "Impossible de demarrer la promo reseau directement... surrement une demande de commentaire");
             }
+            $this->traitementsDS->addNotification("Paiement confirmer. Promotion Reseau enregistrer et démarrer.", $myTransaction->getUser());
         }
 
         if ($myTransaction->getTransactionFor() == "dressur_bot_activation") {

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
+use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,7 +16,8 @@ class ConfirmMailController extends AbstractController
         string $uid,
         string $token,
         UserRepository $userRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        TraitementsDS $traitementsDS
     ): Response {
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
@@ -44,6 +46,7 @@ class ConfirmMailController extends AbstractController
         }
 
         $user->setMailIsVerified(true);
+        $traitementsDS->addNotification("Votre adresse mail a bien été confirmée !", $user);
         $em->flush();
 
         return $this->render('confirm_mail/index.html.twig', [

@@ -142,7 +142,8 @@ class PreuveController extends AbstractController
     public function accept(
         Preuve $preuve,
         EntityManagerInterface $em,
-        Request $request
+        Request $request, 
+        TraitementsDS $traitementsDS
     ): Response {
         // 🔐 Vérification CSRF
         if (!$this->isCsrfTokenValid('accept' . $preuve->getId(), $request->request->get('_token'))) {
@@ -197,6 +198,7 @@ class PreuveController extends AbstractController
             $user->addSoldeProgrammeRecompense($gain);
         }
 
+        $traitementsDS->addNotification("Preuve approuvée et gain ajouté.", $user);
         $em->flush();
 
         $this->addFlash('success', 'Preuve approuvée et gain ajouté.');
@@ -236,7 +238,7 @@ class PreuveController extends AbstractController
     }
 
     #[Route('/{id}/refuse', name: 'app_preuve_refuse', methods: ['POST'])]
-    public function refuse(Preuve $preuve, EntityManagerInterface $em, Request $request): Response
+    public function refuse(Preuve $preuve, EntityManagerInterface $em, Request $request, TraitementsDS $traitementsDS): Response
     {
         if ($this->isCsrfTokenValid('refuse' . $preuve->getId(), $request->request->get('_token'))) {
             $preuve->setIsTreated(true);
@@ -246,6 +248,8 @@ class PreuveController extends AbstractController
                 $historique->setStatus('refuser');
             }
 
+            $user = $historique->getUser();
+            $traitementsDS->addNotification("Preuve refusée !", $user);
             $em->flush();
             $this->addFlash('danger', 'Preuve refusée !');
         }

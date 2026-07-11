@@ -89,7 +89,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoost', name: 'newBoost', methods: ['POST'])]
-    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository): Response
+    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
@@ -159,6 +159,7 @@ class BoostController extends AbstractController
                 $error = false;
                 $message = "Votre Boost Contact Gratuit de ".$formuleDateGratuit->getNbrJour()." jour(s) à démarrer.";
             }
+            $traitementsDS->addNotification($message, $user);
             $this->em->persist($boost);
             $this->em->flush();
         } else if($lastBoostContact->getMode() == "Payant") {
@@ -185,6 +186,7 @@ class BoostController extends AbstractController
                 $error = false;
                 $message = "Votre Boost Contact Gratuit de ".$formuleDateGratuit->getNbrJour()." jour(s) à démarrer.";
             }
+            $traitementsDS->addNotification($message, $user);
             $this->em->persist($boost);
             $this->em->flush();
         } else {

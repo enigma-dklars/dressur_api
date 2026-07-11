@@ -78,52 +78,6 @@ class ContactController extends AbstractController
         }
     }
 
-    #[Route('/addUserContactAfterScanneQRCode', name: 'addUserContactAfterScanneQRCode')]
-    public function addUserContactAfterScanneQRCode(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
-    {
-        $datas = $request->request;
-        
-        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
-        $tel = $datas->get('tel');
-
-        $verificationUser = $verificationsDS->verifUSer($uid);
-        if($verificationUser["error"] == true){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => $verificationUser["titre"],
-                'message' => $verificationUser["message"],
-                'deleted' => $verificationUser["deleted"],
-                'blocked' => $verificationUser["blocked"],
-            ]);
-        }
-        $user = $verificationUser["user"];
-
-        $userAdd = $userRepository->findOneBy(['tel' => $tel]);
-        if(!$userAdd){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-            ]);
-        }
-
-        try {
-            $user->getContact()->setNewIAdd($userAdd);
-            $userAdd->getContact()->setNewAddMe($user);
-            $this->em->flush();
-            return new JsonResponse([
-                'error' => false,
-            ]);
-        } catch (\Throwable $th) {
-            $this->sendMail->sendReport('Error addUserContactAfterScanneQRCode : ContactController', $th . '<br><br><br>');
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
-            ]);
-        }
-    }
-
     #[Route('/stockerUserContacts', name: 'stockerUserContacts', methods: ['POST', "GET"])]
     public function stockerUserContacts(Request $request): Response
     {
