@@ -84,6 +84,38 @@ class CrudFormulePromoReseauController extends AbstractController
      * Endpoint JSON — retourne les infos d'un service par idZefame
      * GET /crud/formule/promo/reseau/service_description/info?id_service=1234
      */
+    /**
+     * Endpoint JSON — retourne l'idZefame de la première formule active sans description
+     * GET /crud/formule/promo/reseau/service_description/next-sans-description
+     */
+    #[Route('/service_description/next-sans-description', name: 'app_crud_formule_promo_reseau_next_sans_description', methods: ['GET'])]
+    public function nextSansDescription(FormulePromoReseauRepository $repo): JsonResponse
+    {
+        $formule = $repo->createQueryBuilder('f')
+            ->where('f.available = :available')
+            ->andWhere('f.parent IS NOT NULL')
+            ->andWhere('f.description IS NULL OR f.description = :empty')
+            ->setParameter('available', true)
+            ->setParameter('empty', '')
+            ->orderBy('f.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$formule) {
+            return $this->json(['found' => false, 'message' => 'Toutes les formules actives ont déjà une description. ✅']);
+        }
+
+        return $this->json([
+            'found'    => true,
+            'idZefame' => $formule->getIdZefame(),
+        ]);
+    }
+
+    /**
+     * Endpoint JSON — retourne les infos d'un service par idZefame
+     * GET /crud/formule/promo/reseau/service_description/info?id_service=1234
+     */
     #[Route('/service_description/info', name: 'app_crud_formule_promo_reseau_service_info', methods: ['GET'])]
     public function serviceInfo(Request $request, FormulePromoReseauRepository $repo): JsonResponse
     {
