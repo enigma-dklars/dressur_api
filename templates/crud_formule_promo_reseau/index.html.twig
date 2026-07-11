@@ -27,6 +27,7 @@
                     {# <th>IconFlutterName</th> #}
                     {# <th>Description</th> #}
                     {# <th>DescriptionEn</th> #}
+                    <th>Descp</th>
                     <th>Prix DS</th>
                     <th>Prix Vendeur</th>
                     <th>Qte</th>
@@ -51,6 +52,13 @@
                     {# <td>{{ formule_promo_reseau.iconFlutterName }}</td> #}
                     {# <td>{{ formule_promo_reseau.description|nl2br }}</td> #}
                     {# <td>{{ formule_promo_reseau.descriptionEn|nl2br }}</td> #}
+                    <td class="text-center">
+                        {% if formule_promo_reseau.description %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
                     <td>{{ formule_promo_reseau.prix }}</td>
                     <td>{{ formule_promo_reseau.prixVendeur }}</td>
                     <td>{{ formule_promo_reseau.qte }}</td>
