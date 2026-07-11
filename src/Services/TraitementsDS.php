@@ -457,10 +457,15 @@ class TraitementsDS extends AbstractController
 
     public function listeFormulePromoReseau() {
         $listeFormulePromoReseau = [];
+        $user = $this->getUserByUidInCookies();
+        $isVendeur = $user && $user->isVendeur();
         foreach ($this->formulePromoReseauRepository->findBy(['parent' => NULL, 'available' => true]) as $formule) {
             $lesFormulesFils = [];
             foreach ($this->formulePromoReseauRepository->findBy(['parent' => $formule, 'available' => true]) as $formuleFils) {
-                $prix_service_fcfa = $formuleFils->getPrix() * 1.2 * 1.7 * 700;
+                $prixBase = ($isVendeur && $formuleFils->getPrixVendeur() !== null)
+                    ? $formuleFils->getPrixVendeur()
+                    : $formuleFils->getPrix();
+                $prix_service_fcfa = $prixBase * 1.2 * 1.7 * 700;
                 $prix_service_fcfa = round($prix_service_fcfa) + 1;
                 $description_service = "💰 ".$formuleFils->getQte()." ".$formuleFils->getTitre()." pour ".$prix_service_fcfa." FCFA\n\nQuantité Min : ".$formuleFils->getQteMin()." - Max : ".$formuleFils->getQteMax()."\n\n".$formuleFils->getDescription();
                 $description_service .= "\n\nAucun remboursement n'est possible, vérifiez donc bien avant d'effectuer votre commande et surtout, ne faites pas d'erreur d'URL.";

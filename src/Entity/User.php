@@ -115,9 +115,13 @@ class User
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $lastLoginSource = null;
 
+    #[ORM\Column(type: 'boolean')]
+    private bool $vendeur = false;
+
     public function __construct()
     {
         $this->admin = false;
+        $this->vendeur = false;
         $this->createdAt = new DateTime();
         $this->lastLoginTo = new DateTime();
         $this->uid = \App\Utilities\UuidGenerator::v4();
@@ -622,6 +626,18 @@ class User
     public function setLastLoginSource(?string $lastLoginSource): static
     {
         $this->lastLoginSource = $lastLoginSource;
+
+        return $this;
+    }
+
+    public function isVendeur(): bool
+    {
+        return $this->vendeur;
+    }
+
+    public function setVendeur(bool $vendeur): static
+    {
+        $this->vendeur = $vendeur;
 
         return $this;
     }
