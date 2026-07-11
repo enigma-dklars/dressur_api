@@ -238,6 +238,15 @@ class CrudUserController extends AbstractController
                 $user_array['user_info'] = $user;
                 $paysChoisies = $user->getPreference()->getPaysChoisies();
                 $transactions = $transactionRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+
+                // Calcul du vrai nombre de contacts
+                $contact = $user->getContact();
+                $whoIAdd  = $contact ? $contact->getWhoIAdd()  : [];
+                $whoAddMe = $contact ? $contact->getWhoAddMe() : [];
+                $mergedIds   = array_unique(array_merge($whoIAdd, $whoAddMe));
+                $allUserIds  = $userRepository->findAllIds();
+                $allIdsFlip  = array_flip($allUserIds);
+                $contactCount = count(array_intersect_key(array_flip($mergedIds), $allIdsFlip));
             } else {
                 // Add a flash message if user is not found
                 $this->addFlash('danger', 'User not found.');
@@ -252,6 +261,7 @@ class CrudUserController extends AbstractController
             'nbr_pays_preference' => count($paysChoisies),
             'pays_preference' => implode(", ", $paysChoisies),
             'transactions' => $transactions,
+            'contactCount' => $contactCount ?? 0,
         ]);
     }
 
