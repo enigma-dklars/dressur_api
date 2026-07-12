@@ -40,6 +40,8 @@ use App\Repository\MethodePaiementRepository;
 use App\Utilities\SendMail;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class TraitementsDS extends AbstractController
 {
@@ -70,8 +72,9 @@ class TraitementsDS extends AbstractController
     private $historiqueProgrammeRecompenseRepository;
     private $sendMail;
     private $logger;
+    private CacheInterface $cache;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SendMail $sendMail, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SendMail $sendMail, LoggerInterface $logger, CacheInterface $cache)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
@@ -100,6 +103,7 @@ class TraitementsDS extends AbstractController
         $this->historiqueProgrammeRecompenseRepository = $historiqueProgrammeRecompenseRepository;
         $this->sendMail = $sendMail;
         $this->logger = $logger;
+        $this->cache = $cache;
     }
 
     public function migrateUidIfNeeded(\App\Entity\User $user): void
@@ -566,11 +570,21 @@ class TraitementsDS extends AbstractController
     }
 
     public function listePubliciteAffichageAuxUsers($user){
+        // Option 3 — résultat mis en cache 3 min par utilisateur
+        // (stats de vues/impressions peuvent décaler de 3 min max — tradeoff acceptable)
+        return $this->cache->get(
+            'promo_pub_v1_' . $user->getId(),
+            fn(ItemInterface $item) => $this->_computeListePubliciteAffichageAuxUsers($user, $item)
+        );
+    }
+
+    /** @internal Appelé uniquement sur cache miss — Option 1 + 3 */
+    private function _computeListePubliciteAffichageAuxUsers($user, ItemInterface $item): array {
+        $item->expiresAfter(180); // 3 minutes
+
         $listePubliciteAffichageAuxUsers = [];
-        $promos = $this->promotionRepository->findBy([
-            "status" => 3,
-            "limited" => true,
-        ]);
+        // Option 1 — JOIN FETCH User + Preference : 1 requête SQL au lieu de 1 + 2N
+        $promos = $this->promotionRepository->findActiveWithUserAndPreference();
 
         $this->applyExpiredPromoStatusUpdates($promos);
         $this->applyUserViewTracking($user, $promos);
@@ -634,7 +648,8 @@ class TraitementsDS extends AbstractController
             }
         }
 
-        foreach ($this->promotionRepository->findBy(["limited" => false]) as $promoVIP) {
+        // Option 1 — JOIN FETCH VIP : User + Preference pré-chargés
+        foreach ($this->promotionRepository->findVipWithUserAndPreference() as $promoVIP) {
             if ($promoVIP->getIsFakeVue() && $promoVIP->getUser()->getId() !== $user->getId()) {
                 continue;
             }
@@ -665,12 +680,20 @@ class TraitementsDS extends AbstractController
     }
 
     public function listePromotionAffaireInProgrammeRecompense($user){
+        // Option 3 — cache 3 min par utilisateur
+        return $this->cache->get(
+            'promo_recompense_v1_' . $user->getId(),
+            fn(ItemInterface $item) => $this->_computeListePromotionAffaireInProgrammeRecompense($user, $item)
+        );
+    }
+
+    /** @internal Appelé uniquement sur cache miss — Option 1 + 3 */
+    private function _computeListePromotionAffaireInProgrammeRecompense($user, ItemInterface $item): array {
+        $item->expiresAfter(180);
+
         $listePubliciteAffichageAuxUsers = [];
-        $promos = $this->promotionRepository->findBy([
-            "status" => 3,
-            "limited" => true,
-            "inProgrammeRecompense" => true,
-        ], ['id' => 'DESC']);
+        // Option 1 — JOIN FETCH User + Preference : 1 requête SQL au lieu de 1 + 2N
+        $promos = $this->promotionRepository->findRecompenseWithUserAndPreference();
 
         $this->applyExpiredPromoStatusUpdates($promos);
 

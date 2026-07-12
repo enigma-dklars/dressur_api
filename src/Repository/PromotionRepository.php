@@ -39,6 +39,73 @@ class PromotionRepository extends ServiceEntityRepository
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Option 1 — JOIN FETCH : résout le N+1 sur getUser()->getPreference()
+    // Ces méthodes chargent Promotion + User + Preference en UNE seule requête SQL
+    // au lieu de 1 + 2N requêtes avec le lazy loading de Doctrine.
+    // -------------------------------------------------------------------------
+
+    /**
+     * Promotions actives (status=3, limited=true) avec User + Preference pré-chargés.
+     * Utilisé par listePubliciteAffichageAuxUsers().
+     *
+     * @return Promotion[]
+     */
+    public function findActiveWithUserAndPreference(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('u', 'pref')
+            ->innerJoin('p.user', 'u')
+            ->leftJoin('u.preference', 'pref')
+            ->where('p.status = :status')
+            ->andWhere('p.limited = :limited')
+            ->setParameter('status', 3)
+            ->setParameter('limited', true)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Promotions VIP (limited=false) avec User + Preference pré-chargés.
+     * Utilisé par la boucle VIP dans listePubliciteAffichageAuxUsers().
+     *
+     * @return Promotion[]
+     */
+    public function findVipWithUserAndPreference(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('u', 'pref')
+            ->innerJoin('p.user', 'u')
+            ->leftJoin('u.preference', 'pref')
+            ->where('p.limited = :limited')
+            ->setParameter('limited', false)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Promotions du Programme de Récompense (status=3, limited=true, inProgrammeRecompense=true)
+     * avec User + Preference pré-chargés. Utilisé par listePromotionAffaireInProgrammeRecompense().
+     *
+     * @return Promotion[]
+     */
+    public function findRecompenseWithUserAndPreference(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('u', 'pref')
+            ->innerJoin('p.user', 'u')
+            ->leftJoin('u.preference', 'pref')
+            ->where('p.status = :status')
+            ->andWhere('p.limited = :limited')
+            ->andWhere('p.inProgrammeRecompense = :inRecompense')
+            ->setParameter('status', 3)
+            ->setParameter('limited', true)
+            ->setParameter('inRecompense', true)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     /**
      * Utilisateurs dont la dernière Promotion Affaire est terminée (status=4, dateExp dans les
      * $maxDaysAgo derniers jours) et sans Promotion active (status IN 1,2,3).
