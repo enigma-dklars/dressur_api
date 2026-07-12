@@ -15,7 +15,6 @@ use App\Repository\MessageRepository;
 use App\Repository\DeletedDSRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\VerifMailRepository;
-use App\Repository\MotRefuserRepository;
 use App\Repository\PreferenceRepository;
 use App\Repository\SuggestionRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -66,7 +65,6 @@ class TraitementsDS extends AbstractController
     private $zefameApi;
     private $envPaiementApiRepository;
     private $envMailSenderRepository;
-    private $motRefusers;
     private $formulePromoAffaireRepository;
     private $methodePaiementRepository;
     private $historiqueProgrammeRecompenseRepository;
@@ -76,11 +74,10 @@ class TraitementsDS extends AbstractController
     /** Mémoïsation intra-requête : évite de recalculer userContacts() plusieurs fois par requête */
     private array $userContactsCache = [];
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SendMail $sendMail, LoggerInterface $logger, CacheInterface $cache)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SendMail $sendMail, LoggerInterface $logger, CacheInterface $cache)
     {
         $this->methodePaiementRepository = $methodePaiementRepository;
         $this->formulePromoAffaireRepository = $formulePromoAffaireRepository;
-        $this->motRefusers = $motRefuserRepository->findAll();
         $this->zefameApi = $zefameApi;
         $this->messageRepository = $messageRepository;
         $this->suggestionRepository = $suggestionRepository;
