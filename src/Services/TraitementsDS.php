@@ -246,18 +246,6 @@ class TraitementsDS extends AbstractController
         }
     }
 
-    private function applyWebViewTracking(iterable $promos): void
-    {
-        $dirty = false;
-        foreach ($promos as $promo) {
-            $promo->setToWatch(null, 'web');
-            $dirty = true;
-        }
-        if ($dirty) {
-            $this->em->flush();
-        }
-    }
-
     private function applyUserViewTracking($user, iterable $promos): void
     {
         $dirty = false;
@@ -523,9 +511,6 @@ class TraitementsDS extends AbstractController
     {
         // 1 requête SQL avec LIMIT/OFFSET + JOIN FETCH User (évite le lazy N+1 sur getUser())
         $promos = $this->promotionRepository->findAffairesPaginated($offset, $limit);
-
-        // Tracking uniquement sur les promos réellement retournées, pas sur 90
-        $this->applyWebViewTracking($promos);
 
         $result = [];
         foreach ($promos as $promo) {
