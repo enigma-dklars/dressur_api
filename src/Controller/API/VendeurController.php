@@ -65,6 +65,11 @@ class VendeurController extends AbstractController
 
         $fraisAdhesion = 2000;
 
+        $tel = trim((string)$request->request->get('tel', ''));
+        if (empty($tel)) {
+            $tel = $user->getTel();
+        }
+
         $montantRecharge = (int)$request->request->get('montantRecharge', 0);
         if ($montantRecharge < 500) {
             return new JsonResponse([
@@ -111,7 +116,7 @@ class VendeurController extends AbstractController
                         "lastname" => $user->getNom(),
                         "email" => $user->getMail(),
                         "phone_number" => [
-                            "number" => $user->getTel(),
+                            "number" => $tel,
                             "country" => $methodePaiementEntity->getCodePays(),
                         ],
                     ],
@@ -156,7 +161,7 @@ class VendeurController extends AbstractController
                     $envPaiementApi,
                     $methodePaiementEntity,
                     $montant,
-                    $user->getTel(),
+                    $tel,
                     $user->getPseudo(),
                     $user->getMail(),
                     "adhesion_vendeur",
@@ -190,7 +195,7 @@ class VendeurController extends AbstractController
                     $envPaiementApi,
                     $methodePaiementEntity,
                     $montant,
-                    $user->getTel(),
+                    $tel,
                     $user->getPseudo(),
                     $user->getMail(),
                     "adhesion_vendeur",
