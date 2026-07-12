@@ -66,14 +66,11 @@ class VendeurController extends AbstractController
         $fraisAdhesion = 2000;
 
         $montantRecharge = (int)$request->request->get('montantRecharge', 0);
-        if ($montantRecharge < 0) {
-            $montantRecharge = 0;
-        }
-        if ($montantRecharge > 0 && $montantRecharge < 500) {
+        if ($montantRecharge < 500) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Montant insuffisant',
-                'message' => 'Le montant de recharge minimum est de 500 FCFA (ou laissez vide pour ne pas recharger).',
+                'message' => 'Un montant de recharge initial minimum de 500 FCFA est requis pour l\'adhésion.',
             ]);
         }
 
