@@ -940,7 +940,6 @@ class TraitementsDS extends AbstractController
             }
         } else {
             // Option 1 — requête unique multi-pays avec JOIN FETCH User + Preference + Contact
-            // Remplace : foreach(paysChoisies) → getBoostAndUser($codePays) + N+1 lazy loads
             // Après    : 1 seule requête SQL, toutes les entités pré-chargées
             $paysChoisies = $user->getPreference()->getPaysChoisies();
             $boosts = $this->boostRepository->findActiveBoostsForCountries($paysChoisies, $user->getId());

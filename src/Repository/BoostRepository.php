@@ -151,18 +151,6 @@ class BoostRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 
-    public function getBoostAndUser($pays) //: array
-    {
-        return $this->createQueryBuilder('b')
-            ->join("b.user", 'u')
-            ->select('b boost')
-            ->where('u.pays = :paysChoisie')
-            ->setParameter('paysChoisie', $pays)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
     // -------------------------------------------------------------------------
     // Option 1 — JOIN FETCH : résout le N+1 dans getAddDisponible()
     // -------------------------------------------------------------------------
@@ -171,7 +159,6 @@ class BoostRepository extends ServiceEntityRepository
      * Boosts actifs dont le user est dans l'un des $pays donnés,
      * avec User + Preference + Contact pré-chargés en une seule requête SQL.
      *
-     * Remplace la boucle foreach(paysChoisies) → getBoostAndUser($codePays).
      * Avant : 1 SQL par pays + N lazy loads (User, Contact, Preference).
      * Après : 1 seule requête SQL, zéro lazy load.
      *
