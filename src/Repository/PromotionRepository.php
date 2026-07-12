@@ -335,6 +335,26 @@ class PromotionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Incrémente nombre_impression de 1 pour une liste d'IDs en une seule requête SQL.
+     * Remplace le find() en boucle + flush ORM (N SELECT + N UPDATE → 1 UPDATE).
+     * Bypass Doctrine intentionnel : les entités ne sont pas relues après cet appel dans /actu.
+     *
+     * @param int[] $ids
+     */
+    public function bulkIncrementImpression(array $ids): void
+    {
+        if (empty($ids)) {
+            return;
+        }
+        $conn = $this->getEntityManager()->getConnection();
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $conn->executeStatement(
+            "UPDATE promotion SET nombre_impression = COALESCE(nombre_impression, 0) + 1 WHERE id IN ({$placeholders})",
+            array_values($ids)
+        );
+    }
+
     public function findAllImageNames(): array
     {
         $rows = $this->createQueryBuilder('p')

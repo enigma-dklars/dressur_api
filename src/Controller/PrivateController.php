@@ -321,15 +321,14 @@ class PrivateController extends AbstractController
         $user = $this->traitementsDS->getUserByUidInCookies();
         $userinfo = $this->traitementsDS->infosUser($user);
         $actusList = json_decode($userinfo['lesPublicites'], true) ?? [];
+        $promoIds  = [];
         foreach ($actusList as &$a) {
             $a['token'] = $this->encodePromoToken($a['id']);
-            $promo = $promotionRepository->find($a['id']);
-            if ($promo) {
-                $promo->setNombreImpression(($promo->getNombreImpression() ?? 0) + 1);
-            }
+            $promoIds[] = $a['id'];
         }
         unset($a);
-        $this->em->flush();
+        // 1 UPDATE WHERE id IN (...) au lieu de N SELECT + N UPDATE via ORM
+        $promotionRepository->bulkIncrementImpression($promoIds);
         return $this->render('private/actu.html.twig', [
             'actus' => $actusList,
             'user' => $userinfo,
