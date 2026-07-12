@@ -40,18 +40,46 @@ class ContactController extends AbstractController
     #[Route('/allUserAddDressur', name: 'addUserContact')]
     public function addUserContact(UserRepository $userRepository, VerificationsDS $verificationsDS): Response
     {
-        $dressurId  = 2;
-        $batchSize  = 50;
-        $iteration  = 0;
+        $dressurId = 2;
+        $batchSize = 50;
+        $iteration = 0;
+        $now       = new \DateTime();
 
         try {
             $dressur = $userRepository->find($dressurId);
 
-            $query          = $this->em->createQuery('SELECT u FROM App\Entity\User u');
+            // Pre-charger tous les boosts en une seule requête (remplace N lazy-loads)
+            $allBoosts = $this->em->createQuery(
+                'SELECT IDENTITY(b.user) as userId, b.mode, b.typeBoost, b.dateExp
+                 FROM App\Entity\Boost b'
+            )->getArrayResult();
+
+            $boostsByUser = [];
+            foreach ($allBoosts as $b) {
+                $boostsByUser[$b['userId']][] = $b;
+            }
+            unset($allBoosts);
+
+            // Pre-charger tous les contacts en une seule requête (remplace N lazy-loads)
+            $allContacts = $this->em->createQuery(
+                'SELECT IDENTITY(c.user) as userId, c.whoIAdd, c.whoAddMe
+                 FROM App\Entity\Contact c'
+            )->getArrayResult();
+
+            $contactByUser = [];
+            foreach ($allContacts as $c) {
+                $contactByUser[$c['userId']] = $c;
+            }
+            unset($allContacts);
+
+            $query = $this->em->createQuery('SELECT u FROM App\Entity\User u WHERE u.id != :dressurId')
+                ->setParameter('dressurId', $dressurId);
             $iterableResult = $query->toIterable();
 
             foreach ($iterableResult as $user) {
-                if (($verificationsDS->permissionAdd($user))["permissionAdd"] == true) {
+                $userId = $user->getId();
+
+                if ($this->isEligible($boostsByUser[$userId] ?? [], $contactByUser[$userId] ?? null, $now)) {
                     $user->getContact()->setNewIAdd($dressur);
                     $dressur->getContact()->setNewAddMe($user);
                 }
@@ -66,12 +94,49 @@ class ContactController extends AbstractController
 
             $this->em->flush();
 
-            return new JsonResponse([
-                'error' => false,
-            ]);
+            return new JsonResponse(['error' => false]);
+
         } catch (\Throwable $th) {
             $this->sendMail->sendReport('Error addUserContact : ContactController', $th . '<br><br><br>');
             throw $th;
         }
+    }
+
+    /**
+     * Calcule l'éligibilité depuis des données pré-chargées (arrays).
+     * Reproduit exactement la logique de VerificationsDS::permissionAdd() +
+     * VerificationsDS::siBoostEnCours() sans déclencher aucun lazy-load Doctrine.
+     */
+    private function isEligible(array $boosts, ?array $contact, \DateTime $now): bool
+    {
+        // Boost actif → ajout illimité
+        foreach ($boosts as $boost) {
+            if ($boost['typeBoost'] === 'quota') {
+                if ($boost['dateExp'] === null) {
+                    return true;
+                }
+            } else {
+                if ($boost['dateExp'] instanceof \DateTimeInterface && $now < $boost['dateExp']) {
+                    return true;
+                }
+            }
+        }
+
+        // Calcul du quota restant
+        $nbBoostPayant  = 0;
+        $nbBoostGratuit = 0;
+        foreach ($boosts as $boost) {
+            if ($boost['mode'] === 'Payant') {
+                $nbBoostPayant++;
+            } else {
+                $nbBoostGratuit++;
+            }
+        }
+
+        $whoAddMe  = $contact ? count($contact['whoAddMe']) : 0;
+        $whoIAdd   = $contact ? count($contact['whoIAdd'])  : 0;
+        $maxAjouts = ($nbBoostPayant * 25) + ($nbBoostGratuit * 3) + $whoAddMe;
+
+        return ($maxAjouts - $whoIAdd) > 0;
     }
 }
