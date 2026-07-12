@@ -3,6 +3,14 @@
 {% block title %}ADMIN DASHBOARD{% endblock %}
 
 {% block body %}
+    {% for label, messages in app.flashes %}
+        <div class="alert alert-{{ label }} mb-5">
+            {% for message in messages %}
+                <p>{{ message|raw }}</p>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
     <div class="row g-2 mb-2 row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5">
         <div class="col">
             <div class="card radius-10 mb-0">

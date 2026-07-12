@@ -24,16 +24,13 @@
                     <th></th>
                     <th>Id.Zef</th>
                     <th>Titre</th>
-                    {# <th>IconFlutterName</th> #}
-                    {# <th>Description</th> #}
-                    {# <th>DescriptionEn</th> #}
                     <th>Descp</th>
                     <th>Prix DS</th>
-                    <th>Prix Vendeur</th>
-                    <th>Qte</th>
+                    <th>Prix VD</th>
+                    <th>Prix ZF</th>
                     <th>QteMin</th>
                     <th>QteMax</th>
-                    <th>Prix.Zef</th>
+                    <th>Qte</th>
                     <th>Activ.</th>
                     <th>Id</th>
                 </tr>
@@ -49,9 +46,6 @@
                         {% endif %}
                         {{ formule_promo_reseau.titre }}
                     </td>
-                    {# <td>{{ formule_promo_reseau.iconFlutterName }}</td> #}
-                    {# <td>{{ formule_promo_reseau.description|nl2br }}</td> #}
-                    {# <td>{{ formule_promo_reseau.descriptionEn|nl2br }}</td> #}
                     <td class="text-center">
                         {% if formule_promo_reseau.description %}
                             <span class="badge bg-success">Yes</span>
@@ -61,10 +55,10 @@
                     </td>
                     <td>{{ formule_promo_reseau.prix }}</td>
                     <td>{{ formule_promo_reseau.prixVendeur }}</td>
-                    <td>{{ formule_promo_reseau.qte }}</td>
+                    <td>{{ formule_promo_reseau.prixZefame }}</td>
                     <td>{{ formule_promo_reseau.qteMin }}</td>
                     <td>{{ formule_promo_reseau.qteMax }}</td>
-                    <td>{{ formule_promo_reseau.prixZefame }}</td>
+                    <td>{{ formule_promo_reseau.qte }}</td>
                     <td class="text-center">{{ formule_promo_reseau.available ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td>{{ formule_promo_reseau.id }}</td>
                 </tr>
