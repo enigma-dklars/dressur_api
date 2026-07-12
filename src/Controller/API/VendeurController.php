@@ -253,6 +253,15 @@ class VendeurController extends AbstractController
             ]);
         }
 
+        $tel = trim((string)$request->request->get('tel', ''));
+        if (empty($tel)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Numéro requis',
+                'message' => 'Veuillez renseigner votre numéro de téléphone au format international (ex: +22890000000).',
+            ]);
+        }
+
         $methodePaiementId = $request->request->get('methodePaiementId');
         $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);
         if (!$methodePaiementEntity) {
@@ -288,7 +297,7 @@ class VendeurController extends AbstractController
                         "lastname" => $user->getNom(),
                         "email" => $user->getMail(),
                         "phone_number" => [
-                            "number" => $user->getTel(),
+                            "number" => $tel,
                             "country" => $methodePaiementEntity->getCodePays(),
                         ],
                     ],
@@ -333,7 +342,7 @@ class VendeurController extends AbstractController
                     $envPaiementApi,
                     $methodePaiementEntity,
                     $montant,
-                    $user->getTel(),
+                    $tel,
                     $user->getPseudo(),
                     $user->getMail(),
                     "recharge_vendeur",
@@ -367,7 +376,7 @@ class VendeurController extends AbstractController
                     $envPaiementApi,
                     $methodePaiementEntity,
                     $montant,
-                    $user->getTel(),
+                    $tel,
                     $user->getPseudo(),
                     $user->getMail(),
                     "recharge_vendeur",
