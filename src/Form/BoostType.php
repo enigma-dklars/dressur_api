@@ -31,6 +31,10 @@ class BoostType extends AbstractType
                 'attr'  => ['class' => 'form-control mb-2'],
             ])
             ->add('mode')
+            ->add('source', null, [
+                'required' => false,
+                'attr'     => ['class' => 'form-control mb-2'],
+            ])
             ->add('formuleBoost')
             ->add('user')
         ;
