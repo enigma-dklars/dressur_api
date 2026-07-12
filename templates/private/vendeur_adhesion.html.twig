@@ -1,0 +1,169 @@
+{% extends "basePrivate.html.twig" %}
+{% block title %}Devenir Vendeur{% endblock %}
+
+{% block body %}
+<style>
+.va-wrap{max-width:600px;margin:0 auto}
+.va-hero{background:linear-gradient(135deg,var(--bs-primary,#0d6efd) 0%,#0047c9 100%);border-radius:16px;padding:28px 20px;color:#fff;text-align:center;margin-bottom:20px}
+.va-hero .va-price{font-size:2.4rem;font-weight:800;line-height:1}
+.va-hero .va-label{font-size:.9rem;opacity:.85;margin-top:4px}
+.va-hero .va-note{font-size:.78rem;opacity:.65;margin-top:6px}
+.va-avantage{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.va-avantage i{color:var(--bs-primary,#0d6efd);margin-top:3px;flex-shrink:0}
+.va-avantage span{font-size:.9rem;color:var(--bs-secondary-color,#6c757d)}
+.va-total-box{background:rgba(13,110,253,.07);border:1px solid rgba(13,110,253,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px}
+
+html.dark-theme .va-avantage span,html.semi-dark .va-avantage span{color:#9ea4aa}
+html.dark-theme .va-total-box,html.semi-dark .va-total-box{background:rgba(13,110,253,.15);border-color:rgba(13,110,253,.3)}
+</style>
+
+<div class="va-wrap">
+    <div class="d-flex align-items-center gap-2 mb-3">
+        <a href="/parametres" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <h5 class="mb-0 fw-bold">Devenir Vendeur</h5>
+    </div>
+
+    {# Bloc prix #}
+    <div class="va-hero">
+        <i class="fas fa-store fa-2x mb-3 opacity-90"></i>
+        <p class="mb-1" style="font-size:.95rem;opacity:.85">Frais d'adhésion</p>
+        <div class="va-price">2 000 FCFA</div>
+        <div class="va-note">Paiement unique, non répétable.</div>
+    </div>
+
+    {# Avantages #}
+    <div class="card border-0 shadow-sm mb-4 p-3">
+        <p class="fw-semibold mb-3" style="font-size:.95rem">Avantages vendeur :</p>
+        <div class="va-avantage">
+            <i class="fas fa-tag fa-sm"></i>
+            <span>10% de réduction sur toutes les promotions réseau sociaux</span>
+        </div>
+        <div class="va-avantage">
+            <i class="fas fa-wallet fa-sm"></i>
+            <span>Solde rechargeable utilisable pour vos achats sur Dressur</span>
+        </div>
+        <div class="va-avantage">
+            <i class="fas fa-headset fa-sm"></i>
+            <span>Support prioritaire réservé aux vendeurs</span>
+        </div>
+    </div>
+
+    {# Formulaire #}
+    <div class="card border-0 shadow-sm p-3 mb-4">
+
+        {# Méthode de paiement #}
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Moyen de paiement mobile ou par carte</label>
+            <select id="va_methode" class="form-select">
+                <option value="" disabled selected>Choisissez un moyen de paiement</option>
+                {% for m in listeMethodePaiements %}
+                    <option value="{{ m.value }}">{{ m.titre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# Numéro de paiement #}
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Indicatif + Numéro du paiement</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                <input type="tel" id="va_tel" class="form-control" placeholder="+22890000000"
+                       value="{{ user.tel ?? '' }}">
+            </div>
+        </div>
+
+        {# Recharge initiale #}
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Recharge initiale <span class="text-muted fw-normal">(obligatoire, min 500 FCFA)</span></label>
+            <div class="input-group">
+                <input type="number" id="va_montant" class="form-control" min="500" value="500" placeholder="500">
+                <span class="input-group-text">FCFA</span>
+            </div>
+            <div id="va_montantError" class="text-danger small mt-1" style="display:none"></div>
+        </div>
+
+        {# Total dynamique #}
+        <div class="va-total-box d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Total à payer</span>
+            <strong id="va_total" class="text-primary" style="font-size:1.2rem">2 500 FCFA</strong>
+        </div>
+
+        <button id="va_btn" class="btn btn-primary w-100 btn-lg mt-3">
+            <span id="va_btnText">Payer <span id="va_btnTotal">2 500</span> FCFA</span>
+            <span id="va_spinner" class="spinner-border spinner-border-sm ms-2" style="display:none"></span>
+        </button>
+    </div>
+</div>
+
+<div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index:1050"></div>
+
+<script>
+(function(){
+    const montantInput = document.getElementById('va_montant');
+    const totalEl      = document.getElementById('va_total');
+    const btnTotalEl   = document.getElementById('va_btnTotal');
+    const errEl        = document.getElementById('va_montantError');
+    const btn          = document.getElementById('va_btn');
+    const spinner      = document.getElementById('va_spinner');
+    const btnText      = document.getElementById('va_btnText');
+
+    function fmt(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+
+    function updateTotal(){
+        const recharge = Math.max(0, parseInt(montantInput.value,10)||0);
+        const total = 2000 + recharge;
+        totalEl.textContent   = fmt(total) + ' FCFA';
+        btnText.innerHTML     = 'Payer <span id="va_btnTotal">' + fmt(total) + '</span> FCFA<span id="va_spinner" class="spinner-border spinner-border-sm ms-2" style="display:none"></span>';
+    }
+    montantInput.addEventListener('input', updateTotal);
+    updateTotal();
+
+    document.getElementById('va_btn').addEventListener('click', async function(){
+        // Validation
+        const methode = document.getElementById('va_methode').value;
+        const tel     = document.getElementById('va_tel').value.trim();
+        const montant = parseInt(montantInput.value,10)||0;
+
+        if(!methode){ showAlert('Attention','Veuillez choisir un moyen de paiement.','warning'); return; }
+        if(!tel)    { showAlert('Attention','Veuillez saisir votre numéro de paiement (format international).','warning'); return; }
+        if(montant < 500){
+            errEl.textContent = 'Une recharge initiale d\'au moins 500 FCFA est obligatoire.';
+            errEl.style.display = 'block';
+            return;
+        }
+        errEl.style.display = 'none';
+
+        // Envoi
+        btn.disabled = true;
+        document.querySelector('#va_btn .spinner-border').style.display = 'inline-block';
+
+        try{
+            const fd = new FormData();
+            fd.append('uid',               getUID());
+            fd.append('methodePaiementId', methode);
+            fd.append('montantRecharge',   montant);
+            fd.append('tel',               tel);
+
+            const res  = await fetch(`${API_BASE_URL}/vendeur/adhesion`, { method:'POST', body:fd });
+            const data = await res.json();
+
+            if(data.error){
+                showAlert(data.titre||'Erreur', data.message||'Une erreur est survenue.', 'danger');
+            } else if(data.url && data.url !== 'none'){
+                window.location.href = data.url;
+            } else if(data.direct){
+                showAlert('Succès 🎉','Paiement confirmé. Vous êtes maintenant vendeur ! Actualisation en cours…','success');
+                setTimeout(()=>{ window.location.href = '/parametres'; }, 2500);
+            }
+        } catch(e){
+            showAlert('Erreur','Une erreur réseau s\'est produite. Veuillez réessayer.','danger');
+        } finally{
+            btn.disabled = false;
+            document.querySelector('#va_btn .spinner-border').style.display = 'none';
+        }
+    });
+})();
+</script>
+{% endblock %}

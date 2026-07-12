@@ -485,6 +485,28 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/vendeur/adhesion', name: 'app_vendeur_adhesion')]
+    public function vendeurAdhesion(TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/vendeur_adhesion.html.twig', [
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
+            'user'  => $traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/vendeur/recharge', name: 'app_vendeur_recharge')]
+    public function vendeurRecharge(TraitementsDS $traitementsDS): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/vendeur_recharge.html.twig', [
+            'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
+            'user'  => $traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
     #[Route('/newpromoaffaire', name: 'app_newpromoaffaire')]
     public function newpromoaffaire(TraitementsDS $traitementsDS, SessionDS $sessionDS, FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
     {
