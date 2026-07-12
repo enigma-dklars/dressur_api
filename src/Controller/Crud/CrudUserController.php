@@ -308,30 +308,9 @@ class CrudUserController extends AbstractController
                 }
 
                 if(!$user->getTelIsVerified()) {
-                    if(true) {
-                        $user->setTelIsVerified(true);
-                        $entityManager->flush();
-                        $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
-                    } else {
-                        $this->addFlash('danger', 'Echec de confirmation du numéro fournis.');
-
-                        $tel = strtolower(trim((string) $user->getTel()));
-                        if ($tel !== '') {
-                            $uid        = (string) $user->getUid();
-                            $secret     = $this->getParameter('kernel.secret');
-                            $token      = substr(hash_hmac('sha256', $uid . ':' . $tel, $secret), 0, 40);
-                            $confirmUrl = 'https://dressur.site/confirmer-tel/' . rawurlencode($uid) . '/' . $token;
-                            $pseudo     = trim((string) $user->getNom()) ?: null;
-                            $salutation = $pseudo ? 'Bonjour ' . $pseudo . ' 👋' : 'Bonjour 👋';
-                            $waMessage  = $salutation . "\n\n"
-                                . "Votre numéro a été enregistré sur *Dressur* 🐴\n"
-                                . "Confirmez-le en un clic :\n"
-                                . $confirmUrl . "\n\n"
-                                . "🚫 *Vous n'êtes pas à l'origine de cette inscription ?*\n"
-                                . "Répondez simplement *SUPPRIMER* à ce message et nous supprimerons votre numéro immédiatement.\n\n"
-                                . "— L'équipe Dressur";
-                        }
-                    }
+                    $user->setTelIsVerified(true);
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
                 } else {
                     $message[] = "Le numéro WhatsApp (".$user->getTel().") avais déja été confirmé.";
                 }
