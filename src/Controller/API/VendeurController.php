@@ -67,7 +67,11 @@ class VendeurController extends AbstractController
 
         $tel = trim((string)$request->request->get('tel', ''));
         if (empty($tel)) {
-            $tel = $user->getTel();
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Numéro requis',
+                'message' => 'Veuillez renseigner votre numéro de téléphone au format international (ex: +22890000000).',
+            ]);
         }
 
         $montantRecharge = (int)$request->request->get('montantRecharge', 0);
