@@ -41,85 +41,56 @@ class VendeurController extends AbstractController
     #[Route('/vendeur/adhesion', name: 'vendeur_adhesion', methods: ['POST'])]
     public function adhesion(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository, MethodePaiementRepository $methodePaiementRepository, TransactionRepository $transactionRepository): Response
     {
-        try {
-            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
-            $verificationUser = $verificationsDS->verifUSer($uid);
-            if ($verificationUser["error"] == true) {
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if ($verificationUser["error"] == true) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if ($user->isVendeur() == true) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Déjà vendeur',
+                'message' => 'Vous êtes déjà vendeur sur Dressur.',
+            ]);
+        }
+
+        $montant = 2000;
+
+        $methodePaiementId = $request->request->get('methodePaiementId');
+        $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);
+        if (!$methodePaiementEntity) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une méthode de paiement valide.',
+            ]);
+        }
+
+        $anotherInfo = ['userId' => $user->getId(), 'userUid' => $user->getUid()];
+
+        if ($methodePaiementEntity->getAggregator() == "FedaPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour FedaPay");
                 return new JsonResponse([
                     'error' => true,
-                    'titre' => $verificationUser["titre"],
-                    'message' => $verificationUser["message"],
-                    'deleted' => $verificationUser["deleted"],
-                    'blocked' => $verificationUser["blocked"],
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
                 ]);
             }
-            $user = $verificationUser["user"];
+            FedaPay::setApiKey($envPaiementApi->getApiKey());
+            FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
-            if ($user->isVendeur() == true) {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Déjà vendeur',
-                    'message' => 'Vous êtes déjà vendeur sur Dressur.',
-                ]);
-            }
-
-            $montant = 2000;
-
-            $methodePaiementId = $request->request->get('methodePaiementId');
-            $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);
-            if (!$methodePaiementEntity) {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Veuillez choisir une méthode de paiement valide.',
-                ]);
-            }
-
-            $anotherInfo = ['userId' => $user->getId(), 'userUid' => $user->getUid()];
-
-            // Priorité FeexPay
-            $envFeexPay = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
-            if ($envFeexPay) {
-                $resultat = $traitementsDS->startPaiementFeexPay(
-                    $envFeexPay,
-                    $methodePaiementEntity,
-                    $montant,
-                    $user->getTel(),
-                    $user->getPseudo(),
-                    $user->getMail(),
-                    "adhesion_vendeur",
-                    $anotherInfo,
-                    $user,
-                    $request->getSchemeAndHttpHost()
-                );
-                return new JsonResponse($resultat);
-            }
-
-            // Priorité KPay
-            $envKPay = $traitementsDS->getEnvPaiementApiKPayDisponible();
-            if ($envKPay) {
-                $resultat = $traitementsDS->startPaiementKPay(
-                    $envKPay,
-                    $methodePaiementEntity,
-                    $montant,
-                    $user->getTel(),
-                    $user->getPseudo(),
-                    $user->getMail(),
-                    "adhesion_vendeur",
-                    $anotherInfo,
-                    $user,
-                    $request->getSchemeAndHttpHost()
-                );
-                return new JsonResponse($resultat);
-            }
-
-            // Priorité FedaPay
-            $envFedaPay = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
-            if ($envFedaPay) {
-                FedaPay::setApiKey($envFedaPay->getApiKey());
-                FedaPay::setEnvironment($envFedaPay->getEnvironment());
-
+            try {
                 $transaction = Transaction::create([
                     "description" => "Dressur : Adhésion Vendeur - " . $montant . " FCFA : " . $user->getPseudo() . " " . $user->getMail(),
                     "amount" => $montant,
@@ -150,112 +121,144 @@ class VendeurController extends AbstractController
 
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour KPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
             }
 
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => 'Aucun prestataire de paiement disponible.',
-            ]);
-        } catch (\Throwable $th) {
-            $this->sendMail->sendReport("VendeurController::adhesion", $th);
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
-            ]);
+            try {
+                $resultat = $traitementsDS->startPaiementKPay(
+                    $envPaiementApi,
+                    $methodePaiementEntity,
+                    $montant,
+                    $user->getTel(),
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "adhesion_vendeur",
+                    $anotherInfo,
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } else {
+            // FeexPay (par défaut)
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour FeexPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementFeexPay(
+                    $envPaiementApi,
+                    $methodePaiementEntity,
+                    $montant,
+                    $user->getTel(),
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "adhesion_vendeur",
+                    $anotherInfo,
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         }
     }
 
     #[Route('/vendeur/recharge', name: 'vendeur_recharge', methods: ['POST'])]
     public function recharge(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository, MethodePaiementRepository $methodePaiementRepository, TransactionRepository $transactionRepository): Response
     {
-        try {
-            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
-            $verificationUser = $verificationsDS->verifUSer($uid);
-            if ($verificationUser["error"] == true) {
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if ($verificationUser["error"] == true) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if ($user->isVendeur() == false) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Non autorisé',
+                'message' => 'Vous devez être vendeur pour recharger votre solde.',
+            ]);
+        }
+
+        $montant = (int)$request->request->get('montant');
+        if ($montant < 500) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant insuffisant',
+                'message' => 'Le montant minimum de recharge est de 500 FCFA.',
+            ]);
+        }
+
+        $methodePaiementId = $request->request->get('methodePaiementId');
+        $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);
+        if (!$methodePaiementEntity) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Veuillez choisir une méthode de paiement valide.',
+            ]);
+        }
+
+        $anotherInfo = ['userId' => $user->getId(), 'userUid' => $user->getUid(), 'montant' => $montant];
+
+        if ($methodePaiementEntity->getAggregator() == "FedaPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour FedaPay");
                 return new JsonResponse([
                     'error' => true,
-                    'titre' => $verificationUser["titre"],
-                    'message' => $verificationUser["message"],
-                    'deleted' => $verificationUser["deleted"],
-                    'blocked' => $verificationUser["blocked"],
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
                 ]);
             }
-            $user = $verificationUser["user"];
+            FedaPay::setApiKey($envPaiementApi->getApiKey());
+            FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
-            if ($user->isVendeur() == false) {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Non autorisé',
-                    'message' => 'Vous devez être vendeur pour recharger votre solde.',
-                ]);
-            }
-
-            $montant = (int)$request->request->get('montant');
-            if ($montant < 500) {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Montant insuffisant',
-                    'message' => 'Le montant minimum de recharge est de 500 FCFA.',
-                ]);
-            }
-
-            $methodePaiementId = $request->request->get('methodePaiementId');
-            $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);
-            if (!$methodePaiementEntity) {
-                return new JsonResponse([
-                    'error' => true,
-                    'titre' => 'Attention!',
-                    'message' => 'Veuillez choisir une méthode de paiement valide.',
-                ]);
-            }
-
-            $anotherInfo = ['userId' => $user->getId(), 'userUid' => $user->getUid(), 'montant' => $montant];
-
-            // Priorité FeexPay
-            $envFeexPay = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
-            if ($envFeexPay) {
-                $resultat = $traitementsDS->startPaiementFeexPay(
-                    $envFeexPay,
-                    $methodePaiementEntity,
-                    $montant,
-                    $user->getTel(),
-                    $user->getPseudo(),
-                    $user->getMail(),
-                    "recharge_vendeur",
-                    $anotherInfo,
-                    $user,
-                    $request->getSchemeAndHttpHost()
-                );
-                return new JsonResponse($resultat);
-            }
-
-            // Priorité KPay
-            $envKPay = $traitementsDS->getEnvPaiementApiKPayDisponible();
-            if ($envKPay) {
-                $resultat = $traitementsDS->startPaiementKPay(
-                    $envKPay,
-                    $methodePaiementEntity,
-                    $montant,
-                    $user->getTel(),
-                    $user->getPseudo(),
-                    $user->getMail(),
-                    "recharge_vendeur",
-                    $anotherInfo,
-                    $user,
-                    $request->getSchemeAndHttpHost()
-                );
-                return new JsonResponse($resultat);
-            }
-
-            // Priorité FedaPay
-            $envFedaPay = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
-            if ($envFedaPay) {
-                FedaPay::setApiKey($envFedaPay->getApiKey());
-                FedaPay::setEnvironment($envFedaPay->getEnvironment());
-
+            try {
                 $transaction = Transaction::create([
                     "description" => "Dressur : Recharge Vendeur - " . $montant . " FCFA : " . $user->getPseudo() . " " . $user->getMail(),
                     "amount" => $montant,
@@ -286,20 +289,81 @@ class VendeurController extends AbstractController
 
                 $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
                 return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour KPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
             }
 
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => 'Aucun prestataire de paiement disponible.',
-            ]);
-        } catch (\Throwable $th) {
-            $this->sendMail->sendReport("VendeurController::recharge", $th);
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
-            ]);
+            try {
+                $resultat = $traitementsDS->startPaiementKPay(
+                    $envPaiementApi,
+                    $methodePaiementEntity,
+                    $montant,
+                    $user->getTel(),
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "recharge_vendeur",
+                    $anotherInfo,
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } else {
+            // FeexPay (par défaut)
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour FeexPay");
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementFeexPay(
+                    $envPaiementApi,
+                    $methodePaiementEntity,
+                    $montant,
+                    $user->getTel(),
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "recharge_vendeur",
+                    $anotherInfo,
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
         }
     }
 }
