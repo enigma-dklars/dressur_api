@@ -51,10 +51,12 @@ class AddController extends AbstractController
         $user = $verificationUser["user"];
         $contactsAdd = [];
         if ($user->getTelIsVerified() == true) {
+            // Calculé une seule fois : la permission ne change pas pendant la requête
+            $permission = $verificationsDS->permissionAdd($user);
             foreach ($traitementsDS->getAddDisponible($user) as $add) {
                 $userAdd = $userRepository->findOneBy(['tel' => $add['tel']]);
                 if($userAdd){
-                    if(($verificationsDS->permissionAdd($user))["permissionAdd"] == true){
+                    if($permission["permissionAdd"] == true){
                         // MOD
                         $user->getContact()->setNewIAdd($userAdd);
                         $userAdd->getContact()->setNewAddMe($user);
@@ -80,8 +82,8 @@ class AddController extends AbstractController
                         return new JsonResponse([
                             'error' => true,
                             "contactsAdd" => $contactsAdd,
-                            "permissionAdd" => ($verificationsDS->permissionAdd($user))["permissionAdd"],
-                            "messageErreurPermissionAdd" => ($verificationsDS->permissionAdd($user))["messageErreurPermissionAdd"],
+                            "permissionAdd" => $permission["permissionAdd"],
+                            "messageErreurPermissionAdd" => $permission["messageErreurPermissionAdd"],
                         ]);
                     }
                 }
