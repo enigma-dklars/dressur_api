@@ -1384,31 +1384,52 @@ class TraitementsDS extends AbstractController
             $criteria['user'] = $user;
         }
         $promoReseauStatut2 = $this->promoReseauRepository->findBy($criteria);
-        foreach ($promoReseauStatut2 as $unePromoReseau) {
-            if(!empty($unePromoReseau->getIdZefame())) {
-                $resultZefame = $this->zefameApi->status($unePromoReseau->getIdZefame());
-                if(!isset($resultZefame->error)){
-                    if($resultZefame->status == "In progress"){
-                        $unePromoReseau->setPrixZefame($resultZefame->charge)
-                            ->setCompteurDebut($resultZefame->start_count)
-                            ->setCompteurRestant($resultZefame->remains)
-                            ->setUpdatedAt(new DateTime())
-                        ;
-                    }
-                    if($resultZefame->status == "Completed"){
-                        $unePromoReseau->setStatus(3)
-                            ->setCompteurRestant(0)
-                            ->setUpdatedAt(new DateTime())
-                        ;
-                    }
-                    if($resultZefame->status == "Canceled"){
-                        $unePromoReseau->setStatus(0)
-                            ->setUpdatedAt(new DateTime())
-                        ;
-                    }
-                    // dump($unePromoReseau);
-                    // dd($resultZefame);
-                }
+
+        // Filtrer uniquement les commandes ayant un ID Zefame
+        $promoReseauxAvecId = array_filter(
+            $promoReseauStatut2,
+            fn($p) => !empty($p->getIdZefame())
+        );
+
+        if (empty($promoReseauxAvecId)) {
+            return;
+        }
+
+        // 1 seul appel HTTP (multiStatus) au lieu de N appels status() séquentiels
+        $ids = array_map(fn($p) => $p->getIdZefame(), $promoReseauxAvecId);
+        $resultZefame = $this->zefameApi->multiStatus($ids);
+
+        // Si l'API est injoignable ou retourne une erreur globale, on abandonne proprement
+        if (empty($resultZefame) || isset($resultZefame->error)) {
+            return;
+        }
+
+        foreach ($promoReseauxAvecId as $unePromoReseau) {
+            $orderId = $unePromoReseau->getIdZefame();
+            // La réponse multiStatus est un objet indexé par order_id (ex: $result->{"123"})
+            $orderStatus = $resultZefame->{$orderId} ?? null;
+
+            if ($orderStatus === null || isset($orderStatus->error)) {
+                continue; // Commande absente de la réponse ou en erreur individuelle — on skip
+            }
+
+            if ($orderStatus->status == "In progress") {
+                $unePromoReseau->setPrixZefame($orderStatus->charge)
+                    ->setCompteurDebut($orderStatus->start_count)
+                    ->setCompteurRestant($orderStatus->remains)
+                    ->setUpdatedAt(new DateTime())
+                ;
+            }
+            if ($orderStatus->status == "Completed") {
+                $unePromoReseau->setStatus(3)
+                    ->setCompteurRestant(0)
+                    ->setUpdatedAt(new DateTime())
+                ;
+            }
+            if ($orderStatus->status == "Canceled") {
+                $unePromoReseau->setStatus(0)
+                    ->setUpdatedAt(new DateTime())
+                ;
             }
         }
         $this->em->flush();
