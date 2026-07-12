@@ -46,14 +46,13 @@ class ConfirmTelController extends AbstractController
             ]);
         }
 
-        $missingNom  = trim((string) $user->getNom()) === '';
-        $missingMail = !$user->getMailIsVerified();
+        $missingNom = trim((string) $user->getNom()) === '';
 
-        if ($missingNom || $missingMail) {
+        if ($missingNom) {
             return $this->render('confirm_tel/index.html.twig', [
                 'status'       => 'prerequisites',
                 'missing_nom'  => $missingNom,
-                'missing_mail' => $missingMail,
+                'missing_mail' => false,
                 'confirm_url'  => $this->generateUrl('app_confirm_tel', ['uid' => $uid, 'token' => $token]),
             ]);
         }
