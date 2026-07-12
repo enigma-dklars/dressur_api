@@ -1591,26 +1591,29 @@ class TraitementsDS extends AbstractController
         ];
     }
 
-    public function execPurge($user){
-        foreach ($this->promoReseauRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->promotionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->suggestionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->transactionRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->verifMailRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->boostRepository->findBy(['user' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->signalementRepository->findBy(['signaler' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->signalementRepository->findBy(['signalant' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->messageRepository->findBy(['emetteur' => $user]) as $element) { $this->em->remove($element); }
-        
-        foreach ($this->messageRepository->findBy(['recepteur' => $user]) as $element) { $this->em->remove($element); }
+    public function execPurge($user): void
+    {
+        // Bulk DELETE via DQL — évite de charger toutes les entités en mémoire
+        // et remplace N SELECT + N×DELETE individuels par une seule requête chacun.
+        $dqlDeletes = [
+            ['App\Entity\PromoReseau',  'user',      $user],
+            ['App\Entity\Promotion',    'user',      $user],
+            ['App\Entity\Suggestion',   'user',      $user],
+            ['App\Entity\Transaction',  'user',      $user],
+            ['App\Entity\VerifMail',    'user',      $user],
+            ['App\Entity\Boost',        'user',      $user],
+            ['App\Entity\Signalement',  'signaler',  $user],
+            ['App\Entity\Signalement',  'signalant', $user],
+            ['App\Entity\Message',      'emetteur',  $user],
+            ['App\Entity\Message',      'recepteur', $user],
+            ['App\Entity\DeletedDS',    'user',      $user],
+        ];
+
+        foreach ($dqlDeletes as [$entity, $field, $value]) {
+            $this->em->createQuery("DELETE $entity e WHERE e.$field = :val")
+                ->setParameter('val', $value)
+                ->execute();
+        }
 
         try {
             $this->em->getConnection()->executeStatement(
@@ -1627,9 +1630,7 @@ class TraitementsDS extends AbstractController
             ->setMotif("GET OUT BY ADMIN")
         ;
         $this->em->persist($deletedDS);
-
         $this->em->remove($user);
-
         $this->em->flush();
     }
 
