@@ -3,14 +3,8 @@
 namespace App\Controller\API;
 
 use App\Entity\User;
-use App\Repository\BoostRepository;
-use App\Repository\DeletedDSRepository;
-use App\Repository\PreferenceRepository;
-use App\Repository\SignalementRepository;
-use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
-use App\Repository\VerifMailRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Services\TraitementsDS;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,25 +13,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PurgeController extends AbstractController
 {
-    private $em;
-    private $boostRepository;
-    private $deletedDSRepository;
-    private $preferenceRepository;
-    private $transactionRepository;
-    private $verifMailRepository;
-    private $signalementRepository;
-    private $userRepository;
-    
-    public function __construct(EntityManagerInterface $em, BoostRepository $boostRepository, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, UserRepository $userRepository)
+    private $traitementsDS;
+
+    public function __construct(TraitementsDS $traitementsDS)
     {
-        $this->em = $em; 
-        $this->boostRepository = $boostRepository;
-        $this->deletedDSRepository = $deletedDSRepository;
-        $this->preferenceRepository = $preferenceRepository;
-        $this->transactionRepository = $transactionRepository;
-        $this->verifMailRepository = $verifMailRepository;
-        $this->signalementRepository = $signalementRepository;
-        $this->userRepository = $userRepository;
+        $this->traitementsDS = $traitementsDS;
     }
 
     #[Route('/purge_ds_by_user_id/{id}', name: 'purge_ds_by_user_id')]
@@ -45,7 +25,7 @@ class PurgeController extends AbstractController
     {
         set_time_limit(10000);
 
-        $this->execPurge($user);
+        $this->traitementsDS->execPurge($user);
         
         return new Response("ok");
     }
@@ -57,27 +37,27 @@ class PurgeController extends AbstractController
 
         $users = $userRepository->findBy(['blocked' => true]);
         foreach ($users as $user) {
-            $this->execPurge($user);
+            $this->traitementsDS->execPurge($user);
         }
 
         $usersDeleted = $userRepository->findBy(['deleted' => true]);
         foreach ($usersDeleted as $userDeleted) {
-            $this->execPurge($userDeleted);
+            $this->traitementsDS->execPurge($userDeleted);
         }
 
         $usersSuspend = $userRepository->findBy(['suspended' => true]);
         foreach ($usersSuspend as $userSuspend) {
-            $this->execPurge($userSuspend);
+            $this->traitementsDS->execPurge($userSuspend);
         }
 
         $usersnomailnotel = $userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false]);
         foreach ($usersnomailnotel as $usernomailnotel) {
-            $this->execPurge($usernomailnotel);
+            $this->traitementsDS->execPurge($usernomailnotel);
         }
 
         $usersnotelhavemail = $userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => true]);
         foreach ($usersnotelhavemail as $usernotelhavemail) {
-            $this->execPurge($usernotelhavemail);
+            $this->traitementsDS->execPurge($usernotelhavemail);
         }
         
         return new Response("ok");
@@ -90,52 +70,28 @@ class PurgeController extends AbstractController
 
         $usersDeleted = $userRepository->findBy(['deleted' => true]);
         foreach ($usersDeleted as $userDeleted) {
-            $this->execPurge($userDeleted);
+            $this->traitementsDS->execPurge($userDeleted);
         }
 
         $usersSuspend = $userRepository->findBy(['suspended' => true]);
         foreach ($usersSuspend as $userSuspend) {
-            $this->execPurge($userSuspend);
+            $this->traitementsDS->execPurge($userSuspend);
         }
 
         $usersnottel = $userRepository->findBy(['telIsVerified' => false]);
         foreach ($usersnottel as $usernottel) {
-            if($id_max >= $usernottel->getId()) {
-                $this->execPurge($usernottel);
+            if ($id_max >= $usernottel->getId()) {
+                $this->traitementsDS->execPurge($usernottel);
             }
         }
 
         $usersnotmail = $userRepository->findBy(['mailIsVerified' => false]);
         foreach ($usersnotmail as $usernotmail) {
-            if($id_max >= $usernotmail->getId()) {
-                $this->execPurge($usernotmail);
+            if ($id_max >= $usernotmail->getId()) {
+                $this->traitementsDS->execPurge($usernotmail);
             }
         }
         
         return new Response("ok");
-    }
-
-    public function execPurge($user){
-        foreach ($this->boostRepository->findBy(['user' => $user]) as $element) {
-            $this->boostRepository->remove($element, true);
-        }
-
-        foreach ($this->deletedDSRepository->findBy(['user' => $user]) as $element) {
-            $this->deletedDSRepository->remove($element, true);
-        }
-
-        foreach ($this->transactionRepository->findBy(['user' => $user]) as $element) {
-            $this->transactionRepository->remove($element, true);
-        }
-
-        foreach ($this->verifMailRepository->findBy(['user' => $user]) as $element) {
-            $this->verifMailRepository->remove($element, true);
-        }
-
-        foreach ($this->signalementRepository->findBy(['signaler' => $user]) as $element) {
-            $this->signalementRepository->remove($element, true);
-        }
-
-        $this->userRepository->remove($user, true);
     }
 }
