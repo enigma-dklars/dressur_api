@@ -384,7 +384,13 @@ class PromotionController extends AbstractController
             $this->em->persist($myTransaction);
             $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
             $this->em->flush();
-            return new JsonResponse(['error' => false]);
+            return new JsonResponse([
+                'error'      => false,
+                'direct'     => true,
+                'solde_used' => true,
+                'titre'      => 'Succès',
+                'message'    => 'Solde débité de '.(int)$montantSolde.' FCFA. Promotion Affaire enregistrée.',
+            ]);
         }
         // ─────────────────────────────────────────────────────────────────────
 
@@ -845,7 +851,13 @@ class PromotionController extends AbstractController
                 $this->em->persist($myTransaction);
                 $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
                 $this->em->flush();
-                return new JsonResponse(['error' => false]);
+                return new JsonResponse([
+                    'error'      => false,
+                    'direct'     => true,
+                    'solde_used' => true,
+                    'titre'      => 'Succès',
+                    'message'    => 'Solde débité de '.(int)$montantSolde.' FCFA. Promotion Affaire relancée.',
+                ]);
             }
             // ─────────────────────────────────────────────────────────────────────
 
