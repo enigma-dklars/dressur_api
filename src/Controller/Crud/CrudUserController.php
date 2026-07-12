@@ -308,7 +308,7 @@ class CrudUserController extends AbstractController
                 }
 
                 if(!$user->getTelIsVerified()) {
-                    if($user->getMailIsVerified() and !empty($user->getNom())) {
+                    if(true) {
                         $user->setTelIsVerified(true);
                         $entityManager->flush();
                         $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
@@ -379,12 +379,6 @@ class CrudUserController extends AbstractController
         }
 
         $message = "";
-        if (empty($user->getNom())) {
-            $message .= "Veuillez renseigner votre nom et votre prénom sur Dressur.\n";
-        }
-        if ($user->getMailIsVerified() == false) {
-            $message .= "Veuillez confirmer l'adresse e-mail associée à votre compte Dressur.\n";
-        }
 
         if ($message == "") {
             $user->setTelIsVerified(true);

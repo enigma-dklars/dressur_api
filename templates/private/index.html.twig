@@ -332,7 +332,6 @@ function expandStoryDesc() {
         
         {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
             user.telIsVerified == false or
-            user.mailIsVerified == false or
             user.nom|replace({' ': ''}) == '' or
             user.nom is null %}
 
