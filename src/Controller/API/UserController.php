@@ -952,6 +952,7 @@ class UserController extends AbstractController
             ]);
         }
 
+        // Tracer la suppression avec le vrai motif utilisateur avant de purger
         $deletedDS = new DeletedDS();
         $deletedDS->setMail($user->getMail())
             ->setTel($user->getTel())
@@ -960,7 +961,12 @@ class UserController extends AbstractController
         $this->em->persist($deletedDS);
         $this->em->flush();
 
-        $traitementsDS->execPurge($user);
+        // false → execPurge ne recrée pas un second DeletedDS et ne supprime pas l'user ici
+        $traitementsDS->execPurge($user, false);
+
+        // Suppression de l'user après purge de toutes ses entités liées
+        $this->em->remove($user);
+        $this->em->flush();
 
         return new JsonResponse([
             'error' => false,
