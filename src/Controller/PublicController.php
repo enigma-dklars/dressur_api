@@ -167,12 +167,12 @@ class PublicController extends AbstractController
     #[Route('/actualite', name: 'app_actualite')]
     public function actualite(TraitementsDS $traitementsDS): Response
     {
-        $rawActus = $traitementsDS->getAffaires(90);
-        $total    = count($rawActus);
-        $actus    = array_map(function ($a) {
+        // 1 COUNT(*) pour le badge + la pagination JS, 1 SELECT LIMIT 12 pour la première page
+        $total = $traitementsDS->countAffaires();
+        $actus = array_map(function ($a) {
             $a['token'] = $this->encodePromoToken($a['id']);
             return $a;
-        }, array_slice($rawActus, 0, 12));
+        }, $traitementsDS->getAffaires(0, 12));
         return $this->render('public/actualite.html.twig', [
             'actus'      => $actus,
             'total'      => $total,
@@ -184,16 +184,15 @@ class PublicController extends AbstractController
     #[Route('/actualite/more', name: 'app_actualite_more')]
     public function actualiteMore(Request $request, TraitementsDS $traitementsDS): Response
     {
-        $offset   = max(0, (int) $request->query->get('offset', 0));
-        $limit    = 12;
-        $rawActus = $traitementsDS->getAffaires(90);
-        $total    = count($rawActus);
-        $actus    = array_map(function ($a) {
+        $offset  = max(0, (int) $request->query->get('offset', 0));
+        $limit   = 12;
+        $total   = $traitementsDS->countAffaires();
+        $actus   = array_map(function ($a) {
             $a['token'] = $this->encodePromoToken($a['id']);
             return $a;
-        }, array_slice($rawActus, $offset, $limit));
-        $hasMore  = $total > $offset + $limit;
-        $html     = $this->renderView('public/actualite_cards.html.twig', ['actus' => $actus]);
+        }, $traitementsDS->getAffaires($offset, $limit));
+        $hasMore = $total > $offset + $limit;
+        $html    = $this->renderView('public/actualite_cards.html.twig', ['actus' => $actus]);
         return new Response($html, 200, [
             'X-Has-More'   => $hasMore ? '1' : '0',
             'Content-Type' => 'text/html; charset=UTF-8',

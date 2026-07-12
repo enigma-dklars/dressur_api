@@ -296,6 +296,45 @@ class PromotionRepository extends ServiceEntityRepository
         return $result;
     }
 
+    /**
+     * Nombre total de promotions publiques (isFakeVue=false, status IN 3,4).
+     * Utilisé par /actualite pour afficher le badge de comptage et piloter la pagination JS.
+     */
+    public function countAffaires(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.isFakeVue = :fake')
+            ->andWhere('p.status IN (:statuses)')
+            ->setParameter('fake', false)
+            ->setParameter('statuses', [3, 4])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Promotions publiques paginées avec User pré-chargé (JOIN FETCH).
+     * Remplace findBy() + lazy load N×getUser() par 1 seule requête JOIN.
+     * Ordrées par nombreDeVue DESC — ordre stable, cohérent entre pages.
+     *
+     * @return Promotion[]
+     */
+    public function findAffairesPaginated(int $offset, int $limit): array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('u')
+            ->innerJoin('p.user', 'u')
+            ->where('p.isFakeVue = :fake')
+            ->andWhere('p.status IN (:statuses)')
+            ->setParameter('fake', false)
+            ->setParameter('statuses', [3, 4])
+            ->orderBy('p.nombreDeVue', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findAllImageNames(): array
     {
         $rows = $this->createQueryBuilder('p')

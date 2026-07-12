@@ -503,40 +503,57 @@ class TraitementsDS extends AbstractController
         return $listeFormulePromoReseau;
     }
 
-    public function getAffaires($limit){
-        $top_trois_affaires = [];
-        $promos = $this->promotionRepository->findBy(
-            [
-                "isFakeVue" => false,
-                "status" => [3, 4],
-            ], ["nombreDeVue" => "DESC"], $limit
-        );
+    /**
+     * Retourne le nombre total de promotions publiques (isFakeVue=false, status IN 3,4).
+     * Délègue au repository — 1 COUNT(*) SQL.
+     */
+    public function countAffaires(): int
+    {
+        return $this->promotionRepository->countAffaires();
+    }
+
+    /**
+     * Retourne une page de promotions publiques pour /actualite.
+     *
+     * Avant : chargeait 90 promos, appliquait le tracking sur les 90, retournait tout,
+     *         le controller faisait array_slice() + shuffle en PHP.
+     * Après : 1 requête SQL LIMIT/OFFSET (JOIN FETCH User inclus), tracking uniquement
+     *         sur les promos effectivement affichées, plus de shuffle.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getAffaires(int $offset = 0, int $limit = 12): array
+    {
+        // 1 requête SQL avec LIMIT/OFFSET + JOIN FETCH User (évite le lazy N+1 sur getUser())
+        $promos = $this->promotionRepository->findAffairesPaginated($offset, $limit);
+
+        // Tracking uniquement sur les promos réellement retournées, pas sur 90
         $this->applyWebViewTracking($promos);
+
+        $result = [];
         foreach ($promos as $promo) {
             $descp_promo = $promo->getDescription();
-            if($promo->getTypePromotionAffaire() == "offre_emploi") {
+            if ($promo->getTypePromotionAffaire() == "offre_emploi") {
                 $descp_promo = $promo->getAnnotherInfo()["description_poste"];
             }
-            if($promo->getTypePromotionAffaire() == "dmd_emploi") {
+            if ($promo->getTypePromotionAffaire() == "dmd_emploi") {
                 $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
             }
-            $unePromo = [
-                "uidUser" => $promo->getUser()->getUid(),
-                "id" => $promo->getId(),
-                "image" => $promo->getImage(),
-                "description" => $descp_promo,
-                "whatsappNumber" => $promo->getUser()->getTel(),
-                "pseudoAnnonceur" => $promo->getUser()->getPseudo(),
-                "nombreDeVues" => (string)$this->formatNumber($promo->getNombreDeVue()),
-                "nombreImpression" => (string)$this->formatNumber($promo->getNombreImpression()),
+            $result[] = [
+                "uidUser"              => $promo->getUser()->getUid(),
+                "id"                   => $promo->getId(),
+                "image"                => $promo->getImage(),
+                "description"          => $descp_promo,
+                "whatsappNumber"       => $promo->getUser()->getTel(),
+                "pseudoAnnonceur"      => $promo->getUser()->getPseudo(),
+                "nombreDeVues"         => (string) $this->formatNumber($promo->getNombreDeVue()),
+                "nombreImpression"     => (string) $this->formatNumber($promo->getNombreImpression()),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
-                "annotherInfo" => $promo->getAnnotherInfo(),
+                "annotherInfo"         => $promo->getAnnotherInfo(),
                 "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
-            array_push($top_trois_affaires, $unePromo);            
         }
-        shuffle($top_trois_affaires);
-        return $top_trois_affaires;
+        return $result;
     }
 
     public function getTopAffaires($limite){
