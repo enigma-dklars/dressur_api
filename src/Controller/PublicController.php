@@ -136,35 +136,43 @@ class PublicController extends AbstractController
 
     #[Route('/tarifs', name: 'app_tarifs')]
     public function tarifs(
-        FormuleBoostRepository       $formuleBoostRepository,
-        FormuleDressurBotRepository  $formuleDressurBotRepository,
+        FormuleBoostRepository        $formuleBoostRepository,
+        FormuleDressurBotRepository   $formuleDressurBotRepository,
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
-        FormulePromoReseauRepository  $formulePromoReseauRepository
+        FormulePromoReseauRepository  $formulePromoReseauRepository,
+        CacheInterface                $cache
     ): Response {
-        // Chargé une seule fois — réutilisé pour le groupement ET pour formule_promo_reseaus
-        $formulePromoReseaus = $formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']);
+        // Données stables (changent uniquement sur modification CRUD) — TTL 10 min
+        $tarifsData = $cache->get('tarifs_page_data', function (ItemInterface $item) use (
+            $formuleBoostRepository, $formuleDressurBotRepository,
+            $formulePromoAffaireRepository, $formulePromoReseauRepository
+        ) {
+            $item->expiresAfter(600);
 
-        $promoReseauGroups = [];
-        foreach ($formulePromoReseaus as $f) {
-            // isAvailable() déjà garanti par findBy(['available' => true]) — seul getPrix() > 0 est nouveau
-            if ($f->getPrix() > 0) {
-                $nomReseau = $f->getParent() ? $f->getParent()->getTitre() : $f->getTitre();
-                if (!isset($promoReseauGroups[$nomReseau])) {
-                    $promoReseauGroups[$nomReseau] = [];
+            $formulePromoReseaus = $formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']);
+
+            // getParent() est appelé ici — les proxies Doctrine sont initialisés avant la sérialisation
+            $promoReseauGroups = [];
+            foreach ($formulePromoReseaus as $f) {
+                if ($f->getPrix() > 0) {
+                    $nomReseau = $f->getParent() ? $f->getParent()->getTitre() : $f->getTitre();
+                    $promoReseauGroups[$nomReseau][] = $f;
                 }
-                $promoReseauGroups[$nomReseau][] = $f;
             }
-        }
 
-        return $this->render('public/tarifs.html.twig', [
-            'controller_name'        => 'PublicController',
-            'is_connect'             => $this->is_connect,
-            'theme'                  => $this->theme,
-            'formule_boosts'         => $formuleBoostRepository->findBy(['activated' => true]),
-            'formule_dressur_bots'   => $formuleDressurBotRepository->findBy(['activated' => true]),
-            'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
-            'formule_promo_reseaus'  => $formulePromoReseaus,
-            'promo_reseau_groups'    => $promoReseauGroups,
+            return [
+                'formule_boosts'         => $formuleBoostRepository->findBy(['activated' => true]),
+                'formule_dressur_bots'   => $formuleDressurBotRepository->findBy(['activated' => true]),
+                'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
+                'formule_promo_reseaus'  => $formulePromoReseaus,
+                'promo_reseau_groups'    => $promoReseauGroups,
+            ];
+        });
+
+        return $this->render('public/tarifs.html.twig', $tarifsData + [
+            'controller_name' => 'PublicController',
+            'is_connect'      => $this->is_connect,
+            'theme'           => $this->theme,
         ]);
     }
 
@@ -252,14 +260,19 @@ class PublicController extends AbstractController
     }
 
     #[Route('/dressur-bot', name: 'app_dressur_bot')]
-    public function dressur_bot(FormuleDressurBotRepository $formuleDressurBotRepository): Response
+    public function dressur_bot(FormuleDressurBotRepository $formuleDressurBotRepository, CacheInterface $cache): Response
     {
-        $prices = array_map(fn($f) => $f->getPrix(), $formuleDressurBotRepository->findAll());
-        sort($prices);
+        $min_price = $cache->get('dressurbot_min_price', function (ItemInterface $item) use ($formuleDressurBotRepository) {
+            $item->expiresAfter(600);
+            $prices = array_map(fn($f) => $f->getPrix(), $formuleDressurBotRepository->findAll());
+            sort($prices);
+            return !empty($prices) ? (int) $prices[0] : 0;
+        });
+
         return $this->render('public/dressur_bot.html.twig', [
             'is_connect' => $this->is_connect,
             'theme'      => $this->theme,
-            'min_price'  => !empty($prices) ? (int) $prices[0] : 0,
+            'min_price'  => $min_price,
         ]);
     }
 
@@ -273,27 +286,36 @@ class PublicController extends AbstractController
     }
 
     #[Route('/promotion-affaire', name: 'app_promotion_affaire')]
-    public function promotion_affaire(FormulePromoAffaireRepository $formulePromoAffaireRepository): Response
+    public function promotion_affaire(FormulePromoAffaireRepository $formulePromoAffaireRepository, CacheInterface $cache): Response
     {
-        $prices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
-        sort($prices);
+        $min_price = $cache->get('promo_affaire_min_price', function (ItemInterface $item) use ($formulePromoAffaireRepository) {
+            $item->expiresAfter(600);
+            $prices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
+            sort($prices);
+            return !empty($prices) ? (int) $prices[0] : 0;
+        });
+
         return $this->render('public/promotion_affaire.html.twig', [
             'is_connect' => $this->is_connect,
             'theme'      => $this->theme,
-            'min_price'  => !empty($prices) ? (int) $prices[0] : 0,
+            'min_price'  => $min_price,
         ]);
     }
 
     #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
-    public function promotion_reseau_sociaux(FormulePromoReseauRepository $formulePromoReseauRepository): Response
+    public function promotion_reseau_sociaux(FormulePromoReseauRepository $formulePromoReseauRepository, CacheInterface $cache): Response
     {
-        $formulas = $formulePromoReseauRepository->findAvailableWithPrice();
-        $prices   = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulas);
-        sort($prices);
+        $min_price = $cache->get('promo_reseau_min_price', function (ItemInterface $item) use ($formulePromoReseauRepository) {
+            $item->expiresAfter(600);
+            $prices = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulePromoReseauRepository->findAvailableWithPrice());
+            sort($prices);
+            return !empty($prices) ? $prices[0] : 0;
+        });
+
         return $this->render('public/promotion_reseaux_sociaux.html.twig', [
             'is_connect' => $this->is_connect,
             'theme'      => $this->theme,
-            'min_price'  => !empty($prices) ? $prices[0] : 0,
+            'min_price'  => $min_price,
         ]);
     }
 
@@ -373,20 +395,28 @@ class PublicController extends AbstractController
     #[Route('/services-all', name: 'app_services')]
     public function services(
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
-        FormulePromoReseauRepository  $formulePromoReseauRepository
+        FormulePromoReseauRepository  $formulePromoReseauRepository,
+        CacheInterface                $cache
     ): Response {
-        $affairePrices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
-        sort($affairePrices);
+        $min_price_affaire = $cache->get('services_affaire_min_price', function (ItemInterface $item) use ($formulePromoAffaireRepository) {
+            $item->expiresAfter(600);
+            $prices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
+            sort($prices);
+            return !empty($prices) ? (int) $prices[0] : 0;
+        });
 
-        $reseauFormulas = $formulePromoReseauRepository->findAvailableWithPrice();
-        $reseauPrices   = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $reseauFormulas);
-        sort($reseauPrices);
+        $min_price_reseau = $cache->get('services_reseau_min_price', function (ItemInterface $item) use ($formulePromoReseauRepository) {
+            $item->expiresAfter(600);
+            $prices = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulePromoReseauRepository->findAvailableWithPrice());
+            sort($prices);
+            return !empty($prices) ? $prices[0] : 0;
+        });
 
         return $this->render('public/services.html.twig', [
             'is_connect'        => $this->is_connect,
             'theme'             => $this->theme,
-            'min_price_affaire' => !empty($affairePrices) ? (int) $affairePrices[0] : 0,
-            'min_price_reseau'  => !empty($reseauPrices)  ? $reseauPrices[0]        : 0,
+            'min_price_affaire' => $min_price_affaire,
+            'min_price_reseau'  => $min_price_reseau,
         ]);
     }
 
