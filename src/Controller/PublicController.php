@@ -141,6 +141,17 @@ class PublicController extends AbstractController
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
         FormulePromoReseauRepository  $formulePromoReseauRepository
     ): Response {
+        $promoReseauGroups = [];
+        foreach ($formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']) as $f) {
+            if ($f->getPrix() > 0 && $f->isAvailable() == true) {
+                $nomReseau = $f->getParent() ? $f->getParent()->getTitre() : $f->getTitre();
+                if (!isset($promoReseauGroups[$nomReseau])) {
+                    $promoReseauGroups[$nomReseau] = [];
+                }
+                $promoReseauGroups[$nomReseau][] = $f;
+            }
+        }
+
         return $this->render('public/tarifs.html.twig', [
             'controller_name'        => 'PublicController',
             'is_connect'             => $this->is_connect,
@@ -149,6 +160,7 @@ class PublicController extends AbstractController
             'formule_dressur_bots'   => $formuleDressurBotRepository->findBy(['activated' => true]),
             'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
             'formule_promo_reseaus'  => $formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']),
+            'promo_reseau_groups'    => $promoReseauGroups,
         ]);
     }
 
