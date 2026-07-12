@@ -304,11 +304,44 @@
                 <p class="tarif-service-desc">Disponible en mode <span class="fw-bold text-success">Gratuit</span> et <span class="fw-bold text-danger">Payant</span>. Ci-dessous les formules payantes.</p>
             </div>
         </div>
-        {% set formule_boosts_duree = formule_boosts|filter(f => f.typeBoost != 'quota') %}
-        {% set formule_boosts_quota = formule_boosts|filter(f => f.typeBoost == 'quota') %}
+        {% set formule_boosts_duree_gratuit = formule_boosts|filter(f => f.typeBoost != 'quota' and f.prix <= 0) %}
+        {% set formule_boosts_quota_gratuit = formule_boosts|filter(f => f.typeBoost == 'quota' and f.prix <= 0) %}
+        {% set formule_boosts_duree_payant  = formule_boosts|filter(f => f.typeBoost != 'quota' and f.prix > 0) %}
+        {% set formule_boosts_quota_payant  = formule_boosts|filter(f => f.typeBoost == 'quota' and f.prix > 0) %}
 
-        {% if formule_boosts_duree|length > 0 %}
-        <p class="fw-semibold mt-3 mb-2"><i class="fas fa-calendar-days me-1"></i> Par durée</p>
+        {% if formule_boosts_duree_gratuit|length > 0 or formule_boosts_quota_gratuit|length > 0 %}
+        <p class="fw-semibold mt-3 mb-2 text-success"><i class="fas fa-gift me-1"></i> Gratuit</p>
+        <div class="table-responsive">
+            <table class="tarif-table">
+                <thead>
+                    <tr>
+                        <th>Formule</th>
+                        <th>Type</th>
+                        <th>Quantité</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in formule_boosts_duree_gratuit %}
+                    <tr>
+                        <td><span class="fw-semibold">{{ f.titre }}</span></td>
+                        <td>Par durée</td>
+                        <td>{{ f.nbrJour }} jour(s)</td>
+                    </tr>
+                    {% endfor %}
+                    {% for f in formule_boosts_quota_gratuit %}
+                    <tr>
+                        <td><span class="fw-semibold">{{ f.titre }}</span></td>
+                        <td>Par quota</td>
+                        <td>{{ f.nbContactsMax }} contact(s)</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if formule_boosts_duree_payant|length > 0 %}
+        <p class="fw-semibold mt-3 mb-2"><i class="fas fa-calendar-days me-1"></i> Payant — Par durée</p>
         <div class="table-responsive">
             <table class="tarif-table">
                 <thead>
@@ -319,7 +352,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for f in formule_boosts_duree %}
+                    {% for f in formule_boosts_duree_payant %}
                     <tr>
                         <td><span class="fw-semibold">{{ f.titre }}</span></td>
                         <td class="price-cell">{{ f.prix }} FCFA</td>
@@ -331,8 +364,8 @@
         </div>
         {% endif %}
 
-        {% if formule_boosts_quota|length > 0 %}
-        <p class="fw-semibold mt-3 mb-2"><i class="fas fa-address-book me-1"></i> Par nombre de contacts</p>
+        {% if formule_boosts_quota_payant|length > 0 %}
+        <p class="fw-semibold mt-3 mb-2"><i class="fas fa-address-book me-1"></i> Payant — Par quota</p>
         <div class="table-responsive">
             <table class="tarif-table">
                 <thead>
@@ -343,7 +376,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for f in formule_boosts_quota %}
+                    {% for f in formule_boosts_quota_payant %}
                     <tr>
                         <td><span class="fw-semibold">{{ f.titre }}</span></td>
                         <td class="price-cell">{{ f.prix }} FCFA</td>
