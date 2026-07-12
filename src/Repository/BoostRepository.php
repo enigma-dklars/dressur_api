@@ -163,6 +163,85 @@ class BoostRepository extends ServiceEntityRepository
         ;
     }
 
+    // -------------------------------------------------------------------------
+    // Option 1 — JOIN FETCH : résout le N+1 dans getAddDisponible()
+    // -------------------------------------------------------------------------
+
+    /**
+     * Boosts actifs dont le user est dans l'un des $pays donnés,
+     * avec User + Preference + Contact pré-chargés en une seule requête SQL.
+     *
+     * Remplace la boucle foreach(paysChoisies) → getBoostAndUser($codePays).
+     * Avant : 1 SQL par pays + N lazy loads (User, Contact, Preference).
+     * Après : 1 seule requête SQL, zéro lazy load.
+     *
+     * Les filtres SQL appliqués ici sont les mêmes que les vérifications PHP
+     * du service — ils réduisent le volume hydraté ; les checks PHP restent
+     * en place comme filet de sécurité.
+     *
+     * @param string[] $pays      Codes pays cibles (paysChoisies du user courant)
+     * @param int      $excludeId ID du user courant (exclu des résultats)
+     * @return Boost[]
+     */
+    public function findActiveBoostsForCountries(array $pays, int $excludeId): array
+    {
+        $now    = new \DateTime();
+        $cutoff = (new \DateTime())->modify('-48 hours');
+
+        return $this->createQueryBuilder('b')
+            ->addSelect('u', 'pref', 'c')
+            ->innerJoin('b.user', 'u')
+            ->leftJoin('u.preference', 'pref')
+            ->leftJoin('u.contact', 'c')
+            ->where('u.pays IN (:pays)')
+            ->andWhere('u.id != :excludeId')
+            ->andWhere('u.lastLoginTo IS NOT NULL')
+            ->andWhere('u.lastLoginTo >= :cutoff')
+            ->andWhere('b.dateDebut <= :now')
+            ->andWhere(
+                '(b.typeBoost = :quota AND b.dateExp IS NULL) OR ' .
+                '(b.typeBoost != :quota AND b.dateExp IS NOT NULL AND b.dateExp >= :now)'
+            )
+            ->setParameter('pays', $pays)
+            ->setParameter('excludeId', $excludeId)
+            ->setParameter('cutoff', $cutoff)
+            ->setParameter('now', $now)
+            ->setParameter('quota', 'quota')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Boosts actifs de tous pays confondus, avec User pré-chargé.
+     *
+     * Remplace findAll() dans le chemin admin de getAddDisponible().
+     * Avant : toute la table + N lazy loads sur getUser().
+     * Après : seulement les boosts actifs de users connectés dans les 48h.
+     *
+     * @return Boost[]
+     */
+    public function findActiveBoostsWithUser(): array
+    {
+        $now    = new \DateTime();
+        $cutoff = (new \DateTime())->modify('-48 hours');
+
+        return $this->createQueryBuilder('b')
+            ->addSelect('u')
+            ->innerJoin('b.user', 'u')
+            ->where('u.lastLoginTo IS NOT NULL')
+            ->andWhere('u.lastLoginTo >= :cutoff')
+            ->andWhere('b.dateDebut <= :now')
+            ->andWhere(
+                '(b.typeBoost = :quota AND b.dateExp IS NULL) OR ' .
+                '(b.typeBoost != :quota AND b.dateExp IS NOT NULL AND b.dateExp >= :now)'
+            )
+            ->setParameter('cutoff', $cutoff)
+            ->setParameter('now', $now)
+            ->setParameter('quota', 'quota')
+            ->getQuery()
+            ->getResult();
+    }
+
     public function getSourceCounts(): array
     {
         $rows = $this->createQueryBuilder('b')

@@ -871,9 +871,10 @@ class TraitementsDS extends AbstractController
     public function getAddDisponible($user){
         $contacts = [];
         if($user->getAdmin() === true) {
-            $boosts = $this->boostRepository->findAll();
+            // Option 1 — JOIN FETCH User + filtres SQL (actif, 48h) : remplace findAll()
+            $boosts = $this->boostRepository->findActiveBoostsWithUser();
             foreach ($boosts as $boost){
-                $userBoost = $boost->getUser();
+                $userBoost = $boost->getUser(); // déjà chargé via JOIN FETCH
 
                 if($userBoost->getLastLoginTo() != Null) {
                     $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
@@ -901,51 +902,53 @@ class TraitementsDS extends AbstractController
                 }
             }
         } else {
-            foreach ($user->getPreference()->getPaysChoisies() as $codePays){
-                $boosts = $this->boostRepository->getBoostAndUser($codePays);
-                foreach ($boosts as $boost){
-                    $userBoost = $boost["boost"]->getUser();
-                    if($userBoost->getLastLoginTo() != Null) {
-                        $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
-                        $hoursDifference = $intervale->h;
-                        if ($intervale->d > 0) {
-                            $hoursDifference += $intervale->d * 24;
-                        }
+            // Option 1 — requête unique multi-pays avec JOIN FETCH User + Preference + Contact
+            // Remplace : foreach(paysChoisies) → getBoostAndUser($codePays) + N+1 lazy loads
+            // Après    : 1 seule requête SQL, toutes les entités pré-chargées
+            $paysChoisies = $user->getPreference()->getPaysChoisies();
+            $boosts = $this->boostRepository->findActiveBoostsForCountries($paysChoisies, $user->getId());
+            foreach ($boosts as $boost){
+                $userBoost = $boost->getUser(); // déjà chargé via JOIN FETCH
+                if($userBoost->getLastLoginTo() != Null) {
+                    $intervale = ($userBoost->getLastLoginTo())->diff(new DateTime());
+                    $hoursDifference = $intervale->h;
+                    if ($intervale->d > 0) {
+                        $hoursDifference += $intervale->d * 24;
+                    }
 
-                        // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
-                        if($hoursDifference <= 48) {
-                            if($userBoost->getId() != $user->getId()){
-                                $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
-                                $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd());
-                                if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
-                                $boostObj = $boost["boost"];
-                                $isActif = $boostObj->getTypeBoost() === 'quota'
-                                    ? ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() === null)
-                                    : ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() !== null && (new DateTime()) <= $boostObj->getDateExp());
-                                if($isActif){
-                                        if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){
-                                            // Bridage déterministe pour les boosts 'date'
-                                            // quota → toujours visible
-                                            // date payant → ~50% des combinaisons user/boosté/jour
-                                            // date gratuit → ~33% des combinaisons user/boosté/jour
-                                            if ($boostObj->getTypeBoost() === 'date') {
-                                                $jourDuMois = (int)(new DateTime())->format('j');
-                                                $hash = $user->getId() + $userBoost->getId() + $jourDuMois;
-                                                if ($boostObj->getMode() === 'Gratuit') {
-                                                    if ($hash % 3 !== 0) { continue; }
-                                                } else {
-                                                    if ($hash % 2 !== 0) { continue; }
-                                                }
+                    // si le user sai connecter il y a plus de 48H, le boost n'est pas proposer
+                    if($hoursDifference <= 48) {
+                        if($userBoost->getId() != $user->getId()){
+                            $contactPossibiliteUn = in_array($userBoost->getId(), $user->getContact()->getWhoIAdd());
+                            $contactPossibiliteDeux = in_array($user->getId(), $userBoost->getContact()->getWhoIAdd()); // Contact déjà chargé via JOIN FETCH
+                            if( !$contactPossibiliteUn and !$contactPossibiliteDeux ){
+                            $boostObj = $boost;
+                            $isActif = $boostObj->getTypeBoost() === 'quota'
+                                ? ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() === null)
+                                : ((new DateTime()) >= $boostObj->getDateDebut() && $boostObj->getDateExp() !== null && (new DateTime()) <= $boostObj->getDateExp());
+                            if($isActif){
+                                    if(in_array($user->getPays(), $userBoost->getPreference()->getPaysChoisies())){ // Preference déjà chargée via JOIN FETCH
+                                        // Bridage déterministe pour les boosts 'date'
+                                        // quota → toujours visible
+                                        // date payant → ~50% des combinaisons user/boosté/jour
+                                        // date gratuit → ~33% des combinaisons user/boosté/jour
+                                        if ($boostObj->getTypeBoost() === 'date') {
+                                            $jourDuMois = (int)(new DateTime())->format('j');
+                                            $hash = $user->getId() + $userBoost->getId() + $jourDuMois;
+                                            if ($boostObj->getMode() === 'Gratuit') {
+                                                if ($hash % 3 !== 0) { continue; }
+                                            } else {
+                                                if ($hash % 2 !== 0) { continue; }
                                             }
-                                            array_push($contacts, [
-                                                'id' => $userBoost->getId(),
-                                                'uid' => $userBoost->getUid(),
-                                                'pseudo' => $userBoost->getPseudo(),
-                                                'pays' => (string)$userBoost->getPays(),
-                                                'nom' => (string)$userBoost,
-                                                'tel' => $userBoost->getTel(),
-                                            ]);
                                         }
+                                        array_push($contacts, [
+                                            'id' => $userBoost->getId(),
+                                            'uid' => $userBoost->getUid(),
+                                            'pseudo' => $userBoost->getPseudo(),
+                                            'pays' => (string)$userBoost->getPays(),
+                                            'nom' => (string)$userBoost,
+                                            'tel' => $userBoost->getTel(),
+                                        ]);
                                     }
                                 }
                             }
