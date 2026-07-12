@@ -339,16 +339,33 @@ function expandStoryDesc() {
         {% endif %}
 
         {% if user.telIsVerified == false and user.mailIsVerified == true and user.nom is not null and user.nom|trim != '' %}
-            <div class="{% if user.mailIsVerified == false %}col-md-6 {% else %}col-md-12{% endif %}">
-                <div class="card radius-10 mb-0 h-100">
+            <div class="col-12">
+                <div class="card radius-10 mb-0" style="border:2px solid #198754;">
                     <div class="card-body">
-                        <p class="mb-0 text-secondary"><i class="fab fa-whatsapp me-1"></i> Confirmation du numéro WhatsApp</p>
-                        <p class="mt-1 mb-2">
-                            Assurez-vous de nous envoyer <span class="text-success fw-bold">WhatsApp Confirmation</span> avec le numéro WhatsApp utiliser pour créer votre compte Dressur. 
-                            Cliquez juste sur <span class="mx-1 px-2 rounded bg-success text-white">Demander</span> ci-dessous pour demander la confirmation de votre numéro WhatsApp. 
-                            Les demandes sont traitées le plus tôt possible, ne vous inquiétez pas. 
-                        </p>
-                        <a href="https://wa.me/22964044294??text=WhatsApp Confirmation" target="_blank" class="btn btn-sm btn-success">Demander</a>
+
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success flex-shrink-0" style="width:46px;height:46px;">
+                                <i class="fab fa-whatsapp text-white fs-4"></i>
+                            </span>
+                            <p class="mb-0 fw-semibold text-success fs-6">Confirmation du numéro WhatsApp</p>
+                        </div>
+
+                        <p class="text-muted small mb-2">Pour confirmer votre numéro, suivez ces étapes&nbsp;:</p>
+
+                        <ol class="small text-muted mb-3 ps-3" style="line-height:1.9;">
+                            <li>Ouvrez <strong>WhatsApp</strong> depuis le numéro utilisé pour votre inscription.</li>
+                            <li>Envoyez-nous <strong>exactement</strong> ce message, sans faute ni modification&nbsp;:
+                                <div class="mt-2 mb-1 px-3 py-2 rounded text-center fw-bold text-success" style="background:rgba(25,135,84,.1);font-size:1.05rem;font-family:monospace;letter-spacing:.5px;">
+                                    WhatsApp Confirmation
+                                </div>
+                            </li>
+                            <li>Votre numéro sera confirmé dès que possible.</li>
+                        </ol>
+
+                        <a href="https://wa.me/22964044294?text=WhatsApp%20Confirmation" target="_blank" class="btn btn-success w-100">
+                            <i class="fab fa-whatsapp me-2"></i> Envoyer la demande sur WhatsApp
+                        </a>
+
                     </div>
                 </div>
             </div>
