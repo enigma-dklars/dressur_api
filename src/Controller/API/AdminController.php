@@ -2,6 +2,7 @@
 
 namespace App\Controller\API;
 
+use App\Entity\Story;
 use App\Entity\User;
 use App\Services\CookieDS;
 use App\Services\SessionDS;
@@ -207,6 +208,35 @@ class AdminController extends AbstractController
             $promotion->setMotif('')->setStatus(3)->setDateDebut(new \DateTime());
             $user = $promotion->getUser();
             $traitementsDS->addNotification("Votre promotion a été acceptée 🎉.", $user);
+
+            // Création automatique de la Story si publishOnDressurStatus est activé
+            if ($promotion->isPublishOnDressurStatus()) {
+                // Description : premiers 150 caractères de la description de la promo
+                $descriptionBrute = $promotion->getDescription() ?? '';
+                $descriptionStory = mb_strlen($descriptionBrute) > 150
+                    ? mb_substr($descriptionBrute, 0, 150) . '…'
+                    : $descriptionBrute;
+
+                // URL : lien WhatsApp de l'utilisateur (tel en format international → wa.me)
+                $telUser = $user ? $user->getTel() : '';
+                $telNettoyé = ltrim((string)$telUser, '+');
+                $urlWhatsApp = $telNettoyé ? 'https://wa.me/' . $telNettoyé : null;
+
+                $story = new Story();
+                $story->setUser($user);
+                $story->setDescription($descriptionStory);
+                $story->setUrl($urlWhatsApp);
+                $story->setExpiredAt($promotion->getDateExp());
+
+                // Image de la promotion
+                $imagePromo = $promotion->getImage();
+                if ($imagePromo) {
+                    $story->setImages([$imagePromo]);
+                }
+
+                $this->em->persist($story);
+            }
+
             $this->em->flush();
 
             $promoUser = $promotion->getUser();
