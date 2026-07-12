@@ -201,10 +201,20 @@ class WebhookController extends AbstractController
         if ($myTransaction->getTransactionFor() == "adhesion_vendeur") {
             $user = $myTransaction->getUser();
             $user->setVendeur(true);
-            $this->traitementsDS->addNotification(
-                "Paiement confirmé. Vous êtes maintenant vendeur sur Dressur !",
-                $user
-            );
+            $montantRecharge = (int)($myTransaction->getAnnotherInfo()['montantRecharge'] ?? 0);
+            if ($montantRecharge > 0) {
+                $nouveauSolde = ($user->getSoldeProgrammeRecompense() ?? 0) + $montantRecharge;
+                $user->setSoldeProgrammeRecompense($nouveauSolde);
+                $this->traitementsDS->addNotification(
+                    "Paiement confirmé. Vous êtes maintenant vendeur sur Dressur ! Votre solde a été crédité de {$montantRecharge} FCFA.",
+                    $user
+                );
+            } else {
+                $this->traitementsDS->addNotification(
+                    "Paiement confirmé. Vous êtes maintenant vendeur sur Dressur !",
+                    $user
+                );
+            }
         }
 
         if ($myTransaction->getTransactionFor() == "recharge_vendeur") {
