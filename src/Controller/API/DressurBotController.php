@@ -5,7 +5,6 @@ namespace App\Controller\API;
 use App\Entity\User;
 use FedaPay\FedaPay;
 use FedaPay\Transaction;
-use App\Services\SessionDS;
 use App\Entity\Promotion;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
@@ -179,7 +178,7 @@ class DressurBotController extends AbstractController
     }
 
     #[Route('/paiementDressurUserBot', name: 'paiementDressurUserBot', methods: ['POST'])]
-    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository, MethodePaiementRepository $methodePaiementRepository): Response
+    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
         

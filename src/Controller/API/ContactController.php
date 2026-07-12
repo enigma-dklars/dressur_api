@@ -5,7 +5,6 @@ namespace App\Controller\API;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
 use Doctrine\ORM\EntityManagerInterface;
@@ -33,7 +32,7 @@ class ContactController extends AbstractController
     }   
     
     #[Route('/listContactDS/{uid}/{langUserPhone}', name: 'listContactDS', methods: ['POST', "GET"])]
-    public function listContactDS(User $user, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listContactDS(User $user, TraitementsDS $traitementsDS): Response
     {
         return new JsonResponse($traitementsDS->userContacts($user));
     }

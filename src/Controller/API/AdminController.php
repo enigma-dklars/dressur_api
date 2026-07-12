@@ -5,7 +5,6 @@ namespace App\Controller\API;
 use App\Entity\Story;
 use App\Entity\User;
 use App\Services\CookieDS;
-use App\Services\SessionDS;
 use App\Entity\Promotion;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;

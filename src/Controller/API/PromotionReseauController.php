@@ -8,7 +8,6 @@ use FedaPay\Webhook;
 use App\Entity\Boost;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -51,7 +50,7 @@ class PromotionReseauController extends AbstractController
 
 
     #[Route('/listeFormulePromoReseau', name: 'listeFormulePromoReseau', methods: ['POST', 'GET'])]
-    public function listeFormulePromoReseau(Request $request, SessionDS $sessionDS, TraitementsDS $traitementsDS): Response
+    public function listeFormulePromoReseau(Request $request, TraitementsDS $traitementsDS): Response
     {                
         return new JsonResponse([
             'error' => false,
@@ -61,13 +60,13 @@ class PromotionReseauController extends AbstractController
     }
 
     #[Route('/listPromoReseau/{uid}/{langUserPhone}', name: 'listPromoReseau', methods: ['POST', "GET"])]
-    public function listPromoReseau(User $user, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listPromoReseau(User $user, TraitementsDS $traitementsDS): Response
     {
         return new JsonResponse($traitementsDS->userPromoReseaus($user->getPromoReseaus(), $user));
     }
 
     #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]
-    public function newPromoReseau(Request $request, SessionDS $sessionDS, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository, MethodePaiementRepository $methodePaiementRepository): Response
+    public function newPromoReseau(Request $request, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;

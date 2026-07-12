@@ -98,6 +98,10 @@ class CookieDS {
      * Résoudre le uid : cookie en priorité (signé HMAC), puis fallback sur le body POST.
      * Permet aux clients mobiles (Flutter) qui ne gèrent pas les cookies
      * d'envoyer le uid directement dans le corps de la requête.
+     *
+     * @convention — Obligatoire sur tous les endpoints /api/* pour garantir
+     * la compatibilité web (cookie) ET mobile (body POST).
+     * Ne jamais utiliser cookieDS->get('uid') directement dans un controller API.
      */
     public function getWithFallback(string $key, Request $request): string|false
     {

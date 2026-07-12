@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
 use App\Services\CookieDS;
-use App\Services\SessionDS;
 use App\Utilities\UuidGenerator;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
@@ -70,7 +69,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/connect', name: 'connect', methods: ['POST'])]
-    public function connect(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function connect(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS): Response
     {
         try {
         $datas = $request->request;
@@ -170,7 +169,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserInfo', name: 'updateUserInfo', methods: ['POST'])]
-    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS): Response
     {
         $datas = $request->request;
 
@@ -367,7 +366,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserPassword', name: 'updateUserPassword', methods: ['POST'])]
-    public function updateUserPassword(Request $request, UserRepository $userRepository, SessionDS $sessionDS, SendMail $sendMail): Response
+    public function updateUserPassword(Request $request, UserRepository $userRepository, SendMail $sendMail): Response
     {
         $datas = $request->request;
 
@@ -452,7 +451,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/getUserInfo', name: 'getUserInfo', methods: ['POST'])]
-    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function getUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS): Response
     {
         try {
         $datas = $request->request;
@@ -511,7 +510,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/sendMailVerification', name: 'sendMailVerification', methods: ['POST'])]
-    public function sendMailVerification(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function sendMailVerification(Request $request, UserRepository $userRepository, SendMail $sendMail, VerificationsDS $verificationsDS): Response
     {
         $datas = $request->request;
         
@@ -618,7 +617,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/sendMailPassForgotWithConnecte', name: 'sendMailPassForgotWithConnecte', methods: ['POST'])]
-    public function sendMailPassForgotWithConnecte(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function sendMailPassForgotWithConnecte(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS): Response
     {
         $datas = $request->request;
         
@@ -665,7 +664,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/sendMailPassForgot', name: 'sendMailPassForgot', methods: ['POST'])]
-    public function sendMailPassForgot(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function sendMailPassForgot(Request $request, UserRepository $userRepository, SendMail $sendMail, TraitementsDS $traitementsDS): Response
     {
         try {
         $datas = $request->request;
@@ -725,7 +724,7 @@ class UserController extends AbstractController
     }   
 
     #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
-    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, SendMail $sendMail): Response
+    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SendMail $sendMail): Response
     {
         try {
         $datas = $request->request;
@@ -916,7 +915,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/deleteCompteDS', name: 'deleteCompteDS', methods: ['POST'])]
-    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository): Response
+    public function deleteCompteDS(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, UserRepository $userRepository): Response
     {
         set_time_limit(10000);
 
@@ -969,7 +968,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/addSuggestion', name: 'addSuggestion')]
-    public function addSuggestion(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function addSuggestion(Request $request, VerificationsDS $verificationsDS): Response
     {
         $datas = $request->request;
         
@@ -1016,7 +1015,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/addToRecompenseProgramme', name: 'addToRecompenseProgramme')]
-    public function addToRecompenseProgramme(Request $request,UserRepository $userRepository, SessionDS $sessionDS): Response
+    public function addToRecompenseProgramme(Request $request,UserRepository $userRepository): Response
     {
         try {
             $datas = $request->request;
@@ -1043,7 +1042,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/getPromotionAffaireInProgrammeRecompense', name: 'getPromotionAffaireInProgrammeRecompense')]
-    public function getPromotionAffaireInProgrammeRecompense(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function getPromotionAffaireInProgrammeRecompense(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
     {
         try {
             $datas = $request->request;
@@ -1069,7 +1068,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/partageInProgrammeRecompense', name: 'partageInProgrammeRecompense')]
-    public function partageInProgrammeRecompense(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    public function partageInProgrammeRecompense(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
     {
         try {
             $datas = $request->request;
@@ -1132,7 +1131,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/getMyProgrammeRecompenseInformations', name: 'getMyProgrammeRecompenseInformations')]
-    public function getMyProgrammeRecompenseInformations(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    public function getMyProgrammeRecompenseInformations(Request $request, UserRepository $userRepository, PromotionRepository $promotionRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
     {
         $vuesTotales = 0;
         $gainsTotales = 0;
@@ -1199,7 +1198,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/submitProgrammeRecompenseProofs', name: 'submitProgrammeRecompenseProofs')]
-    public function submitProgrammeRecompenseProofs(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    public function submitProgrammeRecompenseProofs(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
     {
         $filesystem = new Filesystem();
         $uploadDir = $this->getParameter('preuve_recompense');
@@ -1269,7 +1268,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/saveRetraitConfiguration', name: 'saveRetraitConfiguration')]
-    public function saveRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    public function saveRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
     {
 
         try {
@@ -1303,7 +1302,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/getRetraitConfiguration', name: 'getRetraitConfiguration')]
-    public function getRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SessionDS $sessionDS): Response
+    public function getRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
     {
 
         try {

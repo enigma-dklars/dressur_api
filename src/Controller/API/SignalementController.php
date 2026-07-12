@@ -4,7 +4,6 @@ namespace App\Controller\API;
 
 use App\Entity\Signalement;
 use App\Services\CookieDS;
-use App\Services\SessionDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
 use App\Repository\UserRepository;
@@ -34,7 +33,7 @@ class SignalementController extends AbstractController
     }
 
     #[Route('/addSignalement', name: 'addSignalement')]
-    public function addSignalement(Request $request, UserRepository $userRepository, SignalementRepository $signalementRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS): Response
+    public function addSignalement(Request $request, UserRepository $userRepository, SignalementRepository $signalementRepository, VerificationsDS $verificationsDS): Response
     {
         $datas = $request->request;
         

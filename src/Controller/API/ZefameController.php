@@ -3,7 +3,6 @@
 namespace App\Controller\API;
 
 use App\Entity\User;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;

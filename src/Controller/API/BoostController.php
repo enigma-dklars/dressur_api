@@ -8,7 +8,6 @@ use FedaPay\FedaPay;
 use FedaPay\Webhook;
 use App\Entity\Boost;
 use FedaPay\Transaction;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -89,7 +88,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoost', name: 'newBoost', methods: ['POST'])]
-    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, TraitementsDS $traitementsDS): Response
+    public function newBoost(Request $request, FormuleBoostRepository $formuleBoostRepository, UserRepository $userRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, DeletedDSRepository $deletedDSRepository, TraitementsDS $traitementsDS): Response
     {
         $datas = $request->request;
         
@@ -201,7 +200,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/newBoostPayant', name: 'newBoostPayant', methods: ['POST'])]
-    public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository, DeletedDSRepository $deletedDSRepository): Response
+    public function newBoostPayant(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository, DeletedDSRepository $deletedDSRepository): Response
     {
         $datas = $request->request;        
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
@@ -458,7 +457,7 @@ class BoostController extends AbstractController
     }
 
     #[Route('/listBoost/{uid}/{langUserPhone}', name: 'listBoost', methods: ['POST', "GET"])]
-    public function listBoost(User $user, BoostRepository $boostRepository, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listBoost(User $user, BoostRepository $boostRepository, TraitementsDS $traitementsDS): Response
     {
         return new JsonResponse($traitementsDS->userBoosts($boostRepository->findBy(['user' => $user])));
     }

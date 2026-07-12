@@ -3,7 +3,6 @@
 namespace App\Controller\API;
 
 use App\Entity\User;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -37,7 +36,7 @@ class AddController extends AbstractController
     }
 
     #[Route('/addTousUserContact/{uid}/{langUserPhone}', name: 'addTousUserContact', methods: ['POST', "GET"])]
-    public function addTousUserContact(Request $request, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, TraitementsDS $traitementsDS, BoostRepository $boostRepository): Response
+    public function addTousUserContact(Request $request, $uid, UserRepository $userRepository, VerificationsDS $verificationsDS, TraitementsDS $traitementsDS, BoostRepository $boostRepository): Response
     {
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){

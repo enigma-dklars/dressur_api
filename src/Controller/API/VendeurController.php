@@ -4,7 +4,6 @@ namespace App\Controller\API;
 
 use FedaPay\FedaPay;
 use FedaPay\Transaction;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -39,7 +38,7 @@ class VendeurController extends AbstractController
     }
 
     #[Route('/vendeur/adhesion', name: 'vendeur_adhesion', methods: ['POST'])]
-    public function adhesion(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository, MethodePaiementRepository $methodePaiementRepository, TransactionRepository $transactionRepository): Response
+    public function adhesion(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, UserRepository $userRepository, MethodePaiementRepository $methodePaiementRepository, TransactionRepository $transactionRepository): Response
     {
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
@@ -220,7 +219,7 @@ class VendeurController extends AbstractController
     }
 
     #[Route('/vendeur/recharge', name: 'vendeur_recharge', methods: ['POST'])]
-    public function recharge(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SessionDS $sessionDS, UserRepository $userRepository, MethodePaiementRepository $methodePaiementRepository, TransactionRepository $transactionRepository): Response
+    public function recharge(Request $request, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, UserRepository $userRepository, MethodePaiementRepository $methodePaiementRepository, TransactionRepository $transactionRepository): Response
     {
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 

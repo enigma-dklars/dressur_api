@@ -130,6 +130,14 @@ class TraitementsDS extends AbstractController
         return $result;
     }
 
+    /**
+     * Résout l'utilisateur depuis le cookie uid signé HMAC.
+     *
+     * @web-only — À utiliser exclusivement dans les controllers web (Twig/admin).
+     * Pour les endpoints API (/api/*) consommés par le mobile Flutter,
+     * utiliser CookieDS::getWithFallback('uid', $request) qui supporte
+     * en plus l'envoi du uid dans le body POST.
+     */
     function getUserByUidInCookies() {
         if($this->cookieDS->get("uid")){
             $uid = $this->cookieDS->get("uid");

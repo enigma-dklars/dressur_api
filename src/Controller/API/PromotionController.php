@@ -8,7 +8,6 @@ use FedaPay\Webhook;
 use App\Entity\Boost;
 use App\Entity\Promotion;
 use FedaPay\Transaction;
-use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -60,7 +59,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newDmdEmploi', name: 'newDmdEmploi', methods: ['POST'])]
-    public function newDmdEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    public function newDmdEmploi(Request $request, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository): Response
     {
         return new JsonResponse([
             'error' => true,
@@ -142,7 +141,7 @@ class PromotionController extends AbstractController
     }
     
     #[Route('/newOffreEmploi', name: 'newOffreEmploi', methods: ['POST'])]
-    public function newOffreEmploi(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    public function newOffreEmploi(Request $request, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository): Response
     {
         return new JsonResponse([
             'error' => true,
@@ -228,7 +227,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/addProduitService', name: 'addProduitService', methods: ['POST'])]
-    public function addProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
+    public function addProduitService(Request $request, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $filesystem = new Filesystem();
         $uploadDir = $this->getParameter('promotion_directory');
@@ -573,7 +572,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/editProduitService', name: 'editProduitService', methods: ['POST'])]
-    public function editProduitService(Request $request, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
+    public function editProduitService(Request $request, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {
         $filesystem = new Filesystem();
         $uploadDir = $this->getParameter('promotion_directory');
@@ -672,7 +671,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromo', name: 'newPromo', methods: ['POST'])]
-    public function newPromo(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository): Response
+    public function newPromo(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, UserRepository $userRepository, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository): Response
     {
         $datas = $request->request;
         
@@ -736,7 +735,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/newPromoPayant', name: 'newPromoPayant', methods: ['POST'])]
-    public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, SessionDS $sessionDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
+    public function newPromoPayant(Request $request, FormulePromoAffaireRepository $formulePromoAffaireRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
                 
@@ -1041,7 +1040,7 @@ class PromotionController extends AbstractController
     }
 
     #[Route('/listPromotion/{uid}/{langUserPhone}', name: 'listPromotion', methods: ['POST', "GET"])]
-    public function listPromotion(User $user, TraitementsDS $traitementsDS, SessionDS $sessionDS): Response
+    public function listPromotion(User $user, TraitementsDS $traitementsDS): Response
     {
         return new JsonResponse($traitementsDS->userPromos($user->getPromotions()));
     }
