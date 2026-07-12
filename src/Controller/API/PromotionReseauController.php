@@ -98,14 +98,6 @@ class PromotionReseauController extends AbstractController
 
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
-        if(!$user->getTelIsVerified()){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
-            ]);
-        }
-
         $formulePromoReseau = $formulePromoReseauRepository->find($idFormulePromoReseau);
         if(!$formulePromoReseau) {
 
