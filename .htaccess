@@ -1,5 +1,5 @@
 RewriteEngine on
-RewriteCond %{HTTP_HOST} ^ai-quizos.site.site$ [NC,OR]
-RewriteCond %{HTTP_HOST} ^www.ai-quizos.site.site$
+RewriteCond %{HTTP_HOST} ^dressur.site$ [NC,OR]
+RewriteCond %{HTTP_HOST} ^www.dressur.site$
 RewriteCond %{REQUEST_URI} !public/
 RewriteRule (.*) /public/$1 [L]
