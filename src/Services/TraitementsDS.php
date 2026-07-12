@@ -767,29 +767,47 @@ class TraitementsDS extends AbstractController
     }
 
     public function userContacts($user){
-        $userContacts = [];
-        foreach ($user->getContact()->getAllIdOfMyContacts() as $key => $idContact){
-            $userContact = $this->userRepository->find($idContact);
-            if($userContact) {
-                $unContact = [
-                    "id" => (string)$userContact->getUid(),
-                    "pseudo" => $userContact->getPseudo(),
-                    "mail" => $userContact->getMail(),
-                    "pays" => (string)$userContact->getPays(),
-                    "tel" => $userContact->getTel(),
-                    "nom" => $userContact->getNom() ? $userContact->getNom() : "",
-                    "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
-                    "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
-                    "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
-                    "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
-                    "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
-                ];
-                array_push($userContacts, $unContact);
-            }
-        }
-        // return $userContacts;
+        // Option 1 — requête unique IN : remplace find() en boucle (1 SQL par contact)
+        // whoIAdd + whoAddMe sont des tableaux d'IDs bruts (pas de relation Doctrine),
+        // findBy(['id' => $ids]) génère un WHERE id IN (...) en une seule requête.
+        $ids = $user->getContact()->getAllIdOfMyContacts();
 
-        // inverser l'ordre du tableau
+        if (empty($ids)) {
+            return [];
+        }
+
+        // 1 requête SQL au lieu de N
+        $foundUsers = $this->userRepository->findBy(['id' => $ids]);
+
+        // Réindexer par ID pour reconstruire dans l'ordre d'insertion original
+        // (findBy avec IN ne garantit pas l'ordre côté SQL)
+        $byId = [];
+        foreach ($foundUsers as $u) {
+            $byId[$u->getId()] = $u;
+        }
+
+        $userContacts = [];
+        foreach ($ids as $idContact) {
+            if (!isset($byId[$idContact])) {
+                continue; // user supprimé entre-temps — même comportement qu'avant
+            }
+            $userContact = $byId[$idContact];
+            array_push($userContacts, [
+                "id" => (string)$userContact->getUid(),
+                "pseudo" => $userContact->getPseudo(),
+                "mail" => $userContact->getMail(),
+                "pays" => (string)$userContact->getPays(),
+                "tel" => $userContact->getTel(),
+                "nom" => $userContact->getNom() ? $userContact->getNom() : "",
+                "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
+                "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
+                "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
+                "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
+                "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
+            ]);
+        }
+
+        // Inverser l'ordre : plus récent en premier (comportement identique à l'original)
         return array_reverse($userContacts);
     }
 
