@@ -441,36 +441,56 @@
                 <p class="tarif-service-desc">Augmentez votre visibilité sur les réseaux sociaux. Les tarifs peuvent varier selon les plateformes.</p>
             </div>
         </div>
-        <div class="table-responsive">
-            <table class="tarif-table">
-                <thead>
-                    <tr>
-                        <th>Service</th>
-                        <th>Prix / 1000</th>
-                        <th>Qté</th>
-                        <th>Min</th>
-                        <th>Max</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for f in formule_promo_reseaus %}
-                        {% if f.prix > 0 and f.available == true %}
+        {% set reseau_items = formule_promo_reseaus|filter(f => f.prix > 0 and f.available == true) %}
+        {% set reseau_icons = {
+            'facebook':  'fa-brands fa-facebook',
+            'instagram': 'fa-brands fa-instagram',
+            'tiktok':    'fa-brands fa-tiktok',
+            'youtube':   'fa-brands fa-youtube',
+            'telegram':  'fa-brands fa-telegram',
+            'twitter':   'fa-brands fa-x-twitter',
+            'twitch':    'fa-brands fa-twitch',
+            'spotify':   'fa-brands fa-spotify',
+        } %}
+        {% set ns = namespace(current: null) %}
+        {% for f in reseau_items %}
+            {% set reseau_name = f.parent ? f.parent.titre : f.titre %}
+            {% if reseau_name != ns.current %}
+                {% if not loop.first %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                {% set ns.current = reseau_name %}
+                <p class="fw-semibold mt-3 mb-2">
+                    <i class="{{ reseau_icons[reseau_name|lower]|default('fas fa-share-nodes') }} me-1"></i> {{ reseau_name }}
+                </p>
+                <div class="table-responsive">
+                    <table class="tarif-table">
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Prix / 1000</th>
+                                <th>Qté</th>
+                                <th>Min</th>
+                                <th>Max</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            {% endif %}
                         <tr>
-                            <td>
-                                <span class="fw-semibold">
-                                    {% if f.parent %}{{ f.parent.titre }} — {% endif %}{{ f.titre }}
-                                </span>
-                            </td>
+                            <td><span class="fw-semibold">{{ f.titre }}</span></td>
                             <td class="price-cell">{{ f.prix * 1.2 * 1.7 * 700 }} FCFA</td>
                             <td>{{ f.qte }}</td>
                             <td>{{ f.qteMin }}</td>
                             <td>{{ f.qteMax }}</td>
                         </tr>
-                        {% endif %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+            {% if loop.last %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        {% endfor %}
     </div>
 
     {# CTA #}
