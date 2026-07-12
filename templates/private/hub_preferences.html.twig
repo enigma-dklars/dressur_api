@@ -35,15 +35,6 @@ html.semi-dark .ds-hub-title{color:#fcfcfc}
         <i class="fas fa-heart text-primary"></i>Préférences
     </h5>
 
-    <a href="/preferencePays" class="ds-nav-card">
-        <div class="ds-nav-card-icon"><i class="fas fa-globe"></i></div>
-        <div class="ds-nav-card-body">
-            <p class="ds-title">Pays ciblés</p>
-            <p class="ds-sub">Définissez les pays pour vos contacts et promotions</p>
-        </div>
-        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
-    </a>
-
     <div class="ds-nav-card" style="cursor:default">
         <div class="ds-nav-card-icon"><i class="fas fa-address-book"></i></div>
         <div class="ds-nav-card-body">
@@ -54,6 +45,15 @@ html.semi-dark .ds-hub-title{color:#fcfcfc}
             <input class="form-check-input" type="checkbox" role="switch" id="dsAddPageActuSwitch" {{ user.addPageActu ? 'checked' : '' }}>
         </div>
     </div>
+
+    <a href="/preferencePays" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-globe"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Pays ciblés</p>
+            <p class="ds-sub">Définissez les pays pour vos contacts et promotions</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
 
     {% include 'private/_includes/_sociaux.html.twig' %}
 
