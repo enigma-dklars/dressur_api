@@ -360,17 +360,12 @@ function expandStoryDesc() {
                     <div class="card-body">
                         <p class="mb-0 text-secondary"><i class="fas fa-envelope me-1"></i> Confirmation de l'adresse mail</p>
                         <p class="mt-1 mb-2">
-                            Cliquez sur <span class="mx-1 px-2 rounded bg-primary text-white">Envoyer le code</span> pour recevoir un nouveau code de confirmation de votre adresse mail (<span class="mx-1 px-2 rounded bg-primary text-white">{{user.mail}}</span>). Contactez simplement l'Assistance Dressur après 2H d'attente...
+                            Votre adresse e-mail <strong>{{ user.mail }}</strong> n'est pas encore confirmée.
+                            Confirmez-la pour accéder à toutes les fonctionnalités de Dressur.
                         </p>
-                        <div class="mb-0">
-                            <div class="mt-0 mb-0 msgError" id="msgErrorValideMail" style="display: none;"></div>
-                        </div>
-                        <label for="" hidden>Code reçu par mail</label>
-                        <input type="text" class="form-control form-control-sm mt-1 mb-2 getInfo getInfoVerifMail" placeholder="Code reçu par mail" id="codeVerifMail">
-                        <div class="text-end">
-                            <button class="btn btn-sm btn-primary me-1" id="envoyerCodeMail">Envoyer le Code</button>
-                            <button class="btn btn-sm btn-primary ms-1" id="validerVerifMail">Valider</button>
-                        </div>
+                        <a href="/confirmer-votre-mail" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-envelope-open-text me-1"></i> Confirmer mon adresse mail
+                        </a>
                     </div>
                 </div>
             </div>

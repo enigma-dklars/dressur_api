@@ -155,6 +155,28 @@ class PrivateController extends AbstractController
         return $response;
     }
 
+    #[Route('/confirmer-votre-mail', name: 'app_confirmer_mail_web')]
+    public function confirmerMailWeb(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
+    {
+        if ($cookieDS->get("uid")) {
+            $uid  = $cookieDS->get("uid");
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            if ($user) {
+                if ($user->getMailIsVerified() === true) {
+                    return $this->redirectToRoute('app_private');
+                }
+
+                return $this->render('private/confirmer_mail.html.twig', [
+                    'theme' => $this->theme,
+                    'user'  => $traitementsDS->infosUser($user),
+                ]);
+            }
+        }
+
+        return $this->redirectToRoute('app_connexion');
+    }
+
     #[Route('/private', name: 'app_private')]
     public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, StoryRepository $storyRepository): Response
     {
