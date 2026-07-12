@@ -209,4 +209,17 @@ class PromoReseauRepository extends ServiceEntityRepository
         }
         return $result;
     }
+
+    /**
+     * SELECT COUNT(*) par statut — remplace count(findBy(['status' => $s])) dans le dashboard admin.
+     */
+    public function countByStatus(int $status): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.status = :status')
+            ->setParameter('status', $status)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

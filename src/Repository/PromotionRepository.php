@@ -307,4 +307,27 @@ class PromotionRepository extends ServiceEntityRepository
             ->getScalarResult();
         return array_column($rows, 'image');
     }
+
+    /**
+     * Comptages agrégés pour le dashboard admin.
+     * Remplace 5 count(findBy(['status' => ...])) séparés qui chargeaient des entités complètes.
+     * Avant : 5 requêtes × hydratation ORM. Après : 1 seule requête SELECT SUM.
+     *
+     * @return array{valid_promo_affaire:int, affaire_valider_sans_payer:int,
+     *               encour_affaire:int, p_aff_recomp:int, p_aff_ds_statut:int}
+     */
+    public function getAdminPromoStats(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql  = '
+            SELECT
+                SUM(status = 1)                    AS valid_promo_affaire,
+                SUM(status = 2)                    AS affaire_valider_sans_payer,
+                SUM(status = 3)                    AS encour_affaire,
+                SUM(in_programme_recompense = 1)   AS p_aff_recomp,
+                SUM(publish_on_dressur_status = 1) AS p_aff_ds_statut
+            FROM promotion
+        ';
+        return $conn->prepare($sql)->executeQuery()->fetchAssociative();
+    }
 }

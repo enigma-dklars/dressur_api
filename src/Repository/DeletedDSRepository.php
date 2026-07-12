@@ -39,5 +39,14 @@ class DeletedDSRepository extends ServiceEntityRepository
         }
     }
 
-
+    /**
+     * SELECT COUNT(*) — remplace count(findAll()) dans le dashboard admin.
+     */
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

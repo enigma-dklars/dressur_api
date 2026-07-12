@@ -24,6 +24,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class PrivateController extends AbstractController
 {
@@ -191,7 +193,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin')]
-    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository): Response
+    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository, CacheInterface $cache): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -248,27 +250,53 @@ class PrivateController extends AbstractController
                      'variation' => $calcVariation($totalCurPromoRes, $totalPrevPromoRes)],
                 ];
                 
+                // Option 1+3 — 14 count(findAll/findBy) → 5 requêtes COUNT(*) agrégées + cache 5 min
+                $s = $cache->get('admin_dashboard_stats_v1', function (ItemInterface $item) use (
+                    $userRepository, $promotionRepository, $promoReseauRepository,
+                    $userBotRepository, $deletedDSRepository
+                ) {
+                    $item->expiresAfter(300); // 5 minutes — données stables, pas besoin du temps réel
+                    $u = $userRepository->getAdminUserStats();
+                    $p = $promotionRepository->getAdminPromoStats();
+                    return [
+                        'nbr_user'               => (int) $u['nbr_user'],
+                        'nbr_tel_mail_no_conf'   => (int) $u['nbr_tel_mail_no_conf'],
+                        'nbr_tel_mail_yes_conf'  => (int) $u['nbr_tel_mail_yes_conf'],
+                        'nbr_tel_no_conf'        => (int) $u['nbr_tel_no_conf'],
+                        'nbr_mail_no_conf'       => (int) $u['nbr_mail_no_conf'],
+                        'users_prog_recomp'      => (int) $u['users_prog_recomp'],
+                        'valid_promo_affaire'    => (int) $p['valid_promo_affaire'],
+                        'affaire_valider_sans_payer' => (int) $p['affaire_valider_sans_payer'],
+                        'encour_affaire'         => (int) $p['encour_affaire'],
+                        'p_aff_recomp'           => (int) $p['p_aff_recomp'],
+                        'p_aff_ds_statut'        => (int) $p['p_aff_ds_statut'],
+                        'nbr_user_bot'           => $userBotRepository->countAll(),
+                        'deleted_users'          => $deletedDSRepository->countAll(),
+                        'valid_promo_reseau'     => $promoReseauRepository->countByStatus(1),
+                    ];
+                });
+
                 return $this->render('private/index_admin.html.twig', [
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                    'nbr_tel_mail_no_conf' => count($userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false])),
-                    'nbr_tel_mail_yes_conf' => count($userRepository->findBy(['telIsVerified' => true, 'mailIsVerified' => true])),
-                    'nbr_tel_no_conf' => count($userRepository->findBy(['telIsVerified' => false])),
-                    'nbr_mail_no_conf' => count($userRepository->findBy(['mailIsVerified' => false])),
-                    'affaire_valider_sans_payer' => count($promotionRepository->findBy(['status' => 2])),
-                    'valid_promo_affaire' => count($promotionRepository->findBy(['status' => 1])),
-                    'valid_promo_reseau' => count($promoReseauRepository->findBy(['status' => 1])),
-                    'nbr_user' => count($userRepository->findAll()),
-                    'nbr_user_bot' => count($userBotRepository->findAll()),
-                    'deleted_users' => count($deletedDSRepository->findAll()),
+                    'nbr_tel_mail_no_conf'       => $s['nbr_tel_mail_no_conf'],
+                    'nbr_tel_mail_yes_conf'      => $s['nbr_tel_mail_yes_conf'],
+                    'nbr_tel_no_conf'            => $s['nbr_tel_no_conf'],
+                    'nbr_mail_no_conf'           => $s['nbr_mail_no_conf'],
+                    'affaire_valider_sans_payer' => $s['affaire_valider_sans_payer'],
+                    'valid_promo_affaire'        => $s['valid_promo_affaire'],
+                    'valid_promo_reseau'         => $s['valid_promo_reseau'],
+                    'nbr_user'                   => $s['nbr_user'],
+                    'nbr_user_bot'               => $s['nbr_user_bot'],
+                    'deleted_users'              => $s['deleted_users'],
                     'banned_users' => count($this->env->getUserBanned()) / 3,
                     'encour_boost' => $traitementsDS->getBoostEnCoursCount(),
                     'programmer_boost' => $traitementsDS->getAddProgrammer(),
-                    'encour_affaire' => count($promotionRepository->findBy(['status' => 3])),
-                    'users_prog_recomp' => count($userRepository->findBy(['isInscritProgrammeRecompense' => true])),
-                    'p_aff_recomp' => count($promotionRepository->findBy(['inProgrammeRecompense' => true])),
-                    'p_aff_ds_statut' => count($promotionRepository->findBy(['publishOnDressurStatus' => true])),
+                    'encour_affaire'             => $s['encour_affaire'],
+                    'users_prog_recomp'          => $s['users_prog_recomp'],
+                    'p_aff_recomp'               => $s['p_aff_recomp'],
+                    'p_aff_ds_statut'            => $s['p_aff_ds_statut'],
                     'soldeZefame' => $traitementsDS->getSoldeZefame(),
                     'userSourceCounts' => $userRepository->getRegisterSourceCounts(),
                     'promotionSourceCounts' => $promotionRepository->getSourceCounts(),

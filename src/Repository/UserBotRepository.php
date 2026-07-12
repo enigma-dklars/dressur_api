@@ -21,5 +21,14 @@ class UserBotRepository extends ServiceEntityRepository
         parent::__construct($registry, UserBot::class);
     }
 
-
+    /**
+     * SELECT COUNT(*) — remplace count(findAll()) dans le dashboard admin.
+     */
+    public function countAll(): int
+    {
+        return (int) $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
