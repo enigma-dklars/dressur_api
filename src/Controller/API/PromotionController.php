@@ -357,6 +357,37 @@ class PromotionController extends AbstractController
                 'message' => 'Veuillez choisir une Methode de Paiement valide...',
             ]);
         }
+
+        // ── Paiement via solde ────────────────────────────────────────────────
+        $montantSolde = $formulBoost->getPrix();
+        if ($inProgrammeRecompense) {
+            $montantSolde += round((($totalViewsGoal * 2500) / 4000) * 1.20);
+        }
+        if ($publishOnDressurStatus) {
+            $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
+        }
+        if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+            $myTransaction = (new EntityTransaction())
+                ->setUser($user)
+                ->setTransactionFor("boost_affaire")
+                ->setAmount($montantSolde)
+                ->setAnnotherInfo([
+                    'userId'                => $user->getId(),
+                    'userUid'               => $user->getUid(),
+                    'formulePromoAffaire'   => $formulBoost->getId(),
+                    'image'                 => $fileName,
+                    'description'           => $text,
+                    'inProgrammeRecompense' => $inProgrammeRecompense,
+                    'publishOnDressurStatus'=> $publishOnDressurStatus,
+                    'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                ]);
+            $this->em->persist($myTransaction);
+            $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+            $this->em->flush();
+            return new JsonResponse(['error' => false]);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {
@@ -788,6 +819,35 @@ class PromotionController extends AbstractController
         $promotion = $promotionRepository->find($idPromotion);
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
             $promotion->setFormulePromoAffaire($formulBoost);
+
+            // ── Paiement via solde ────────────────────────────────────────────────
+            $montantSolde = $formulBoost->getPrix();
+            if ($inProgrammeRecompense) {
+                $montantSolde += round((($totalViewsGoal * 2500) / 4000) * 1.20);
+            }
+            if ($publishOnDressurStatus) {
+                $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
+            }
+            if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+                $myTransaction = (new EntityTransaction())
+                    ->setUser($user)
+                    ->setTransactionFor("re_boost_affaire")
+                    ->setAmount($montantSolde)
+                    ->setAnnotherInfo([
+                        'userId'                => $user->getId(),
+                        'userUid'               => $user->getUid(),
+                        'formulBoostId'         => $formulBoost->getId(),
+                        'promotionId'           => $promotion->getId(),
+                        'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'publishOnDressurStatus'=> $publishOnDressurStatus,
+                        'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                    ]);
+                $this->em->persist($myTransaction);
+                $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+                $this->em->flush();
+                return new JsonResponse(['error' => false]);
+            }
+            // ─────────────────────────────────────────────────────────────────────
 
             if($methodePaiementEntity->getAggregator() == "FedaPay"){
                 $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();

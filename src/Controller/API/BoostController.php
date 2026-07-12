@@ -282,6 +282,27 @@ class BoostController extends AbstractController
                 'message' => 'Veuillez choisir une Methode de Paiement valide...',
             ]);
         }
+
+        // ── Paiement via solde ────────────────────────────────────────────────
+        if ($user->getSoldeProgrammeRecompense() >= $formulBoost->getPrix()) {
+            $myTransaction = (new EntityTransaction())
+                ->setUser($user)
+                ->setTransactionFor("boost_contact")
+                ->setAmount($formulBoost->getPrix())
+                ->setAnnotherInfo([
+                    'userId'        => $user->getId(),
+                    'userUid'       => $user->getUid(),
+                    'formulBoostId' => $formulBoost->getId(),
+                    'typeBoost'     => $formulBoost->getTypeBoost(),
+                    'source'        => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                ]);
+            $this->em->persist($myTransaction);
+            $traitementsDS->payerViaSolde($myTransaction, $user, $formulBoost->getPrix());
+            $this->em->flush();
+            return new JsonResponse(['error' => false]);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {

@@ -138,6 +138,30 @@ class PromotionReseauController extends AbstractController
                 'message' => 'Veuillez choisir une Methode de Paiement valide...',
             ]);
         }
+
+        // ── Paiement via solde ────────────────────────────────────────────────
+        if ($user->getSoldeProgrammeRecompense() >= (int)$prixQteDemander) {
+            $myTransaction = (new EntityTransaction())
+                ->setUser($user)
+                ->setTransactionFor("boost_reseau_sociaux")
+                ->setAmount((int)$prixQteDemander)
+                ->setAnnotherInfo([
+                    'userId'               => $user->getId(),
+                    'userUid'              => $user->getUid(),
+                    'idFormulePromoReseau' => $idFormulePromoReseau,
+                    'qteDemander'          => $qteDemander,
+                    'prixQteDemander'      => $prixQteDemander,
+                    'lien'                 => $lien,
+                    'tel'                  => $tel,
+                    'source'               => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                ]);
+            $this->em->persist($myTransaction);
+            $traitementsDS->payerViaSolde($myTransaction, $user, (int)$prixQteDemander);
+            $this->em->flush();
+            return new JsonResponse(['error' => false]);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         if($methodePaiementEntity->getAggregator() == "FedaPay"){
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
             if(!$envPaiementApi) {

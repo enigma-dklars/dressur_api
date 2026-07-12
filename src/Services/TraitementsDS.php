@@ -26,9 +26,13 @@ use App\Repository\FormuleBoostRepository;
 use App\Repository\EnvMailSenderRepository;
 use App\Repository\EnvPaiementApiRepository;
 use App\Repository\FormuleDressurBotRepository;
+use App\Entity\Boost;
 use App\Entity\FormulePromoReseau;
 use App\Entity\Notification;
+use App\Entity\PromoReseau;
+use App\Entity\Promotion;
 use App\Entity\Transaction;
+use App\Entity\User;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
@@ -1554,6 +1558,125 @@ class TraitementsDS extends AbstractController
         }
 
         return $mot;
+    }
+
+    public function payerViaSolde(Transaction $myTransaction, User $user, int $montant): void
+    {
+        // Débiter le solde
+        $user->setSoldeProgrammeRecompense($user->getSoldeProgrammeRecompense() - $montant);
+        $myTransaction->setStatus('approved');
+
+        $transactionFor = $myTransaction->getTransactionFor();
+
+        if ($transactionFor === 'boost_contact') {
+            $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+            $typeBoost    = $myTransaction->getAnnotherInfo()['typeBoost'] ?? 'date';
+            $boost = new Boost();
+            $boost->setFormuleBoost($formuleBoost)
+                ->setMode("Payant")
+                ->setUser($user)
+                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                ->setTypeBoost($typeBoost);
+            if ($typeBoost === 'quota') {
+                $boost->setDateDebut(new DateTime());
+            } elseif ($this->verificationsDS->siBoostEnCours($this->boostRepository->findBy(['user' => $user]))) {
+                $lastBoostDateExp = ($this->boostRepository->findOneBy(['user' => $user], ['id' => 'DESC']))->getDateExp();
+                $boost->setDateDebut($lastBoostDateExp)
+                    ->setDateExp(new DateTime(date('d-m-Y H:i', strtotime('+ '.$formuleBoost->getNbrJour().'days '.$lastBoostDateExp->format('d-m-Y H:i')))));
+            } else {
+                $boost->setDateDebut(new DateTime())
+                    ->setDateExp(new DateTime('+ '.$formuleBoost->getNbrJour().'days'));
+            }
+            $this->em->persist($boost);
+            $this->addNotification("Solde débité de {$montant} FCFA. Boost Contact enregistré.", $user);
+        }
+
+        if ($transactionFor === 'boost_affaire') {
+            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
+            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+            $promotion = new Promotion();
+            $promotion
+                ->setMode("Payant")
+                ->setUser($user)
+                ->setFormulePromoAffaire($formulePromoAffaire)
+                ->setImage($myTransaction->getAnnotherInfo()['image'])
+                ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                ->setInProgrammeRecompense($inProgrammeRecompense)
+                ->setPublishOnDressurStatus($publishOnDressurStatus)
+                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+            $this->em->persist($promotion);
+
+            $htmlAdmin = $this->renderView('emails/promo_affaire_admin_notif.html.twig', [
+                'user_nom'                  => $user->getNom(),
+                'user_mail'                 => $user->getMail(),
+                'user_tel'                  => $user->getTel() ?? '—',
+                'formule_titre'             => $formulePromoAffaire->getTitre(),
+                'formule_prix'              => $formulePromoAffaire->getPrix(),
+                'formule_nbr_jour'          => $formulePromoAffaire->getNbrJour(),
+                'description'               => $myTransaction->getAnnotherInfo()['description'] ?? '—',
+                'in_programme_recompense'   => $inProgrammeRecompense,
+                'publish_on_dressur_status' => $publishOnDressurStatus,
+            ]);
+            $this->sendMail->smtpMail($_ENV['ADMIN_EMAIL'], "Nouvelle Promotion Affaire en attente — ".$user->getNom(), $htmlAdmin);
+            $this->addNotification("Solde débité de {$montant} FCFA. Promotion Affaire enregistrée. En attente d'approbation.", $user);
+        }
+
+        if ($transactionFor === 're_boost_affaire') {
+            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
+            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+            $promotion              = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+            $promotion->setMode("Payant")
+                ->setDateDebut(new DateTime())
+                ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
+                ->setReferencement($formulePromoAffaire->getReferencement())
+                ->setStatus(3)
+                ->setInProgrammeRecompense($inProgrammeRecompense)
+                ->setPublishOnDressurStatus($publishOnDressurStatus)
+                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+            $this->addNotification("Solde débité de {$montant} FCFA. Promotion Affaire enregistrée et démarrée.", $user);
+        }
+
+        if ($transactionFor === 'boost_reseau_sociaux') {
+            $formulePromoReseau = $this->formulePromoReseauRepository->find($myTransaction->getAnnotherInfo()['idFormulePromoReseau']);
+            $boost = new PromoReseau();
+            $boost->setFormulePromoReseau($formulePromoReseau)
+                ->setUser($user)
+                ->setQteDemander($myTransaction->getAnnotherInfo()['qteDemander'])
+                ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
+                ->setUrl($myTransaction->getAnnotherInfo()['lien'])
+                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                ->setPrixZefame($formulePromoReseau->getPrixZefame() !== null
+                    ? round((int)$myTransaction->getAnnotherInfo()['qteDemander'] * $formulePromoReseau->getPrixZefame() / 1000, 5)
+                    : null);
+            $this->em->persist($boost);
+
+            $formule      = $boost->getFormulePromoReseau();
+            $formuleLower = mb_strtolower($formule, 'UTF-8');
+            if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
+                    OR
+                    (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
+                ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
+                $resultZefame = $this->zefameApi->order([
+                    'service'  => $boost->getFormulePromoReseau()->getIdZefame(),
+                    'link'     => $boost->getUrl(),
+                    'quantity' => $boost->getQteDemander(),
+                    'runs'     => 2,
+                    'interval' => 5,
+                ]);
+                if (isset($resultZefame->order)) {
+                    $boost->setIdZefame($resultZefame->order)->setStatus(2);
+                } elseif (isset($resultZefame->error)) {
+                    $this->sendMail->sendReport("Error Promo Reseau (solde) --- ID = ".$boost->getId(), $resultZefame->error);
+                } else {
+                    $this->sendMail->sendReport("Error Promo Reseau (solde) --- ID = ".$boost->getId(), (string)$resultZefame);
+                }
+            } else {
+                $this->sendMail->sendReport("Promo Reseau en attente (solde) --- ID = ".$boost->getId(), "Impossible de demarrer la promo reseau directement... surrement une demande de commentaire");
+            }
+            $this->addNotification("Solde débité de {$montant} FCFA. Promotion Réseau enregistrée et démarrée.", $user);
+        }
     }
 
     function addNotification(string $text, $user = null) {
