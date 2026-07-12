@@ -288,8 +288,10 @@ class WebhookController extends AbstractController
                         return new Response("Transaction ".$transaction->status, 200);
                 }
             } catch (\Throwable $th) {
-                try { $this->em->rollback(); } catch (\Throwable $ignored) {}
-                $this->sendMail->sendReport("Error in webhookFedaPay function", $th."<br><br><br>");
+                $rollbackError = null;
+                try { $this->em->rollback(); } catch (\Throwable $rbEx) { $rollbackError = $rbEx; }
+                $report = $th."<br><br><br>".($rollbackError ? "<br><b>[Rollback failed]</b> ".$rollbackError : "");
+                $this->sendMail->sendReport("Error in webhookFedaPay function", $report);
                 return new Response('Internal error but webhook acknowledged', 200);
             }
         } catch (\Throwable $th) {
@@ -340,8 +342,10 @@ class WebhookController extends AbstractController
             $this->em->commit();
             return new Response('FeexPay transaction activée', 200);
         } catch (\Throwable $th) {
-            try { $this->em->rollback(); } catch (\Throwable $ignored) {}
-            $this->sendMail->sendReport('Error webhookFeexPay : ' . $routeWebhook, $th . '<br><br><br>');
+            $rollbackError = null;
+            try { $this->em->rollback(); } catch (\Throwable $rbEx) { $rollbackError = $rbEx; }
+            $report = $th.'<br><br><br>'.($rollbackError ? '<br><b>[Rollback failed]</b> '.$rollbackError : '');
+            $this->sendMail->sendReport('Error webhookFeexPay : ' . $routeWebhook, $report);
             return new Response('Erreur interne — rapport envoyé', 200);
         }
     }
@@ -404,8 +408,10 @@ class WebhookController extends AbstractController
             $this->em->commit();
             return new Response('KPay transaction activee', 200);
         } catch (\Throwable $th) {
-            try { $this->em->rollback(); } catch (\Throwable $ignored) {}
-            $this->sendMail->sendReport('Error webhookKPay : ' . $routeWebhook, $th . '<br><br><br>');
+            $rollbackError = null;
+            try { $this->em->rollback(); } catch (\Throwable $rbEx) { $rollbackError = $rbEx; }
+            $report = $th.'<br><br><br>'.($rollbackError ? '<br><b>[Rollback failed]</b> '.$rollbackError : '');
+            $this->sendMail->sendReport('Error webhookKPay : ' . $routeWebhook, $report);
             return new Response('Erreur interne — rapport envoyé', 200);
         }
     }
