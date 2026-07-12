@@ -52,4 +52,20 @@ class FormulePromoReseauRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * Formules disponibles avec un prix non nul.
+     * Remplace findAll() + array_filter(getPrix > 0 && isAvailable) en PHP
+     * sur /promotion-reseaux-sociaux et /services-all.
+     *
+     * @return FormulePromoReseau[]
+     */
+    public function findAvailableWithPrice(): array
+    {
+        return $this->createQueryBuilder('f')
+            ->where('f.available = true')
+            ->andWhere('f.prix > 0')
+            ->getQuery()
+            ->getResult();
+    }
 }

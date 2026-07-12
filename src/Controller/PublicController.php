@@ -287,7 +287,7 @@ class PublicController extends AbstractController
     #[Route('/promotion-reseaux-sociaux', name: 'app_promotion_reseaux_sociaux')]
     public function promotion_reseau_sociaux(FormulePromoReseauRepository $formulePromoReseauRepository): Response
     {
-        $formulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->isAvailable());
+        $formulas = $formulePromoReseauRepository->findAvailableWithPrice();
         $prices   = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $formulas);
         sort($prices);
         return $this->render('public/promotion_reseaux_sociaux.html.twig', [
@@ -378,7 +378,7 @@ class PublicController extends AbstractController
         $affairePrices = array_map(fn($f) => $f->getPrix(), $formulePromoAffaireRepository->findBy(['activated' => true]));
         sort($affairePrices);
 
-        $reseauFormulas = array_filter($formulePromoReseauRepository->findAll(), fn($f) => $f->getPrix() > 0 && $f->isAvailable());
+        $reseauFormulas = $formulePromoReseauRepository->findAvailableWithPrice();
         $reseauPrices   = array_map(fn($f) => (int) round($f->getPrix() * 1.2 * 1.7 * 700), $reseauFormulas);
         sort($reseauPrices);
 
