@@ -1591,10 +1591,18 @@ class TraitementsDS extends AbstractController
         ];
     }
 
-    public function execPurge($user): void
+    /**
+     * Purge complète d'un utilisateur.
+     *
+     * @param bool $deleteUser  true  → chemin admin   : trace DeletedDS + supprime l'user.
+     *                          false → chemin self-service : l'appelant a déjà créé le DeletedDS
+     *                                  (avec le vrai motif) et supprimera l'user après.
+     */
+    public function execPurge($user, bool $deleteUser = true): void
     {
         // Bulk DELETE via DQL — évite de charger toutes les entités en mémoire
         // et remplace N SELECT + N×DELETE individuels par une seule requête chacun.
+        // Note : DeletedDS n'a pas de champ FK vers user — pas de DQL ici.
         $dqlDeletes = [
             ['App\Entity\PromoReseau',  'user',      $user],
             ['App\Entity\Promotion',    'user',      $user],
@@ -1606,7 +1614,6 @@ class TraitementsDS extends AbstractController
             ['App\Entity\Signalement',  'signalant', $user],
             ['App\Entity\Message',      'emetteur',  $user],
             ['App\Entity\Message',      'recepteur', $user],
-            ['App\Entity\DeletedDS',    'user',      $user],
         ];
 
         foreach ($dqlDeletes as [$entity, $field, $value]) {
@@ -1624,13 +1631,16 @@ class TraitementsDS extends AbstractController
             // Table absente en dev — on ignore et on continue la purge
         }
 
-        $deletedDS = new DeletedDS();
-        $deletedDS->setMail($user->getMail())
-            ->setTel($user->getTel())
-            ->setMotif("GET OUT BY ADMIN")
-        ;
-        $this->em->persist($deletedDS);
-        $this->em->remove($user);
+        if ($deleteUser) {
+            // Chemin admin : tracer dans DeletedDS puis supprimer l'utilisateur
+            $deletedDS = new DeletedDS();
+            $deletedDS->setMail($user->getMail())
+                ->setTel($user->getTel())
+                ->setMotif('GET OUT BY ADMIN');
+            $this->em->persist($deletedDS);
+            $this->em->remove($user);
+        }
+
         $this->em->flush();
     }
 
