@@ -69,9 +69,11 @@ class CrudPromotionController extends AbstractController
     public function promo_en_attente(PromotionRepository $promotionRepository): Response
     {
         return $this->render('crud_promotion/index.html.twig', [
-            'theme' => $this->theme,
-            'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'promotions' => $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']),
+            'theme'        => $this->theme,
+            'user'         => $this->traitementsDS->getUserByUidInCookies(),
+            'promotions'   => $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']),
+            'sourceFilter' => '',
+            'sourceCounts' => $promotionRepository->getSourceCounts(),
         ]);
     }
 
