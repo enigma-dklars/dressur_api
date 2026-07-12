@@ -1,12 +1,15 @@
 {% extends 'baseAdmin.html.twig' %}
 
-{% block title %}Edit User{% endblock %}
+{% block title %}Edit User — {{ user_edit.pseudo }}{% endblock %}
 
 {% block body %}
-    <span class="h4 me-3">Edit User</span>
-    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_index') }}">back to list</a>
+<div class="d-flex align-items-center gap-2 mb-3">
+    <span class="h5 mb-0">Éditer l'utilisateur</span>
+    {% if user_edit %}
+        <span class="badge bg-secondary fs-6">{{ user_edit.pseudo }} (ID {{ user_edit.id }})</span>
+    {% endif %}
+    <a class="btn btn-sm btn-outline-secondary ms-auto" href="{{ path('app_crud_user_index') }}">← Retour à la liste</a>
+</div>
 
-    {# {{ include('crud_user/_delete_form.html.twig') }} #}
-
-    {{ include('crud_user/_form.html.twig', {'button_label': 'Update'}) }}
+{{ include('crud_user/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
 {% endblock %}

@@ -693,15 +693,22 @@ class CrudUserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion du mot de passe : ne modifier que si un nouveau est saisi
+            $newPassword = $form->get('password')->getData();
+            if (!empty($newPassword)) {
+                $user->setPassword(password_hash($newPassword, PASSWORD_BCRYPT));
+            }
+
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Utilisateur mis à jour avec succès.');
+            return $this->redirectToRoute('app_crud_user_edit', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('crud_user/edit.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            // 'user' => $user,
+            'user_edit' => $user,
             'form' => $form,
         ]);
     }

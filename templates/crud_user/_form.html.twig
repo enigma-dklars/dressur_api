@@ -1,4 +1,188 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn btn-sm btn-primary">{{ button_label|default('Save') }}</button>
+
+<div class="row g-3">
+
+    {# --- Identité --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Identité</h6></div>
+
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.pseudo) }}</label>
+        {{ form_widget(form.pseudo) }}
+        {{ form_errors(form.pseudo) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.nom) }}</label>
+        {{ form_widget(form.nom) }}
+        {{ form_errors(form.nom) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.mail) }}</label>
+        {{ form_widget(form.mail) }}
+        {{ form_errors(form.mail) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.tel) }}</label>
+        {{ form_widget(form.tel) }}
+        {{ form_errors(form.tel) }}
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">{{ form_label(form.pays) }}</label>
+        {{ form_widget(form.pays) }}
+        {{ form_errors(form.pays) }}
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">{{ form_label(form.lang) }}</label>
+        {{ form_widget(form.lang) }}
+        {{ form_errors(form.lang) }}
+    </div>
+    <div class="col-12">
+        <label class="form-label fw-semibold">{{ form_label(form.apropos) }}</label>
+        {{ form_widget(form.apropos) }}
+        {{ form_errors(form.apropos) }}
+    </div>
+
+    {# --- Réseaux sociaux --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Réseaux sociaux</h6></div>
+
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.tiktok) }}</label>
+        {{ form_widget(form.tiktok) }}
+        {{ form_errors(form.tiktok) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.instagram) }}</label>
+        {{ form_widget(form.instagram) }}
+        {{ form_errors(form.instagram) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.facebook) }}</label>
+        {{ form_widget(form.facebook) }}
+        {{ form_errors(form.facebook) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.youtube) }}</label>
+        {{ form_widget(form.youtube) }}
+        {{ form_errors(form.youtube) }}
+    </div>
+
+    {# --- Statuts & droits --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Statuts & Droits</h6></div>
+
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.mailIsVerified) }}
+            {{ form_label(form.mailIsVerified) }}
+        </div>
+        {{ form_errors(form.mailIsVerified) }}
+    </div>
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.telIsVerified) }}
+            {{ form_label(form.telIsVerified) }}
+        </div>
+        {{ form_errors(form.telIsVerified) }}
+    </div>
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.admin) }}
+            {{ form_label(form.admin) }}
+        </div>
+        {{ form_errors(form.admin) }}
+    </div>
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.blocked) }}
+            {{ form_label(form.blocked) }}
+        </div>
+        {{ form_errors(form.blocked) }}
+    </div>
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.vendeur) }}
+            {{ form_label(form.vendeur) }}
+        </div>
+        {{ form_errors(form.vendeur) }}
+    </div>
+
+    {# --- Programme de récompenses --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Programme de récompenses</h6></div>
+
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.isInscritProgrammeRecompense) }}
+            {{ form_label(form.isInscritProgrammeRecompense) }}
+        </div>
+        {{ form_errors(form.isInscritProgrammeRecompense) }}
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">{{ form_label(form.soldeProgrammeRecompense) }}</label>
+        {{ form_widget(form.soldeProgrammeRecompense) }}
+        {{ form_errors(form.soldeProgrammeRecompense) }}
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">{{ form_label(form.reseauRetrait) }}</label>
+        {{ form_widget(form.reseauRetrait) }}
+        {{ form_errors(form.reseauRetrait) }}
+    </div>
+    <div class="col-md-4">
+        <label class="form-label fw-semibold">{{ form_label(form.numeroRetrait) }}</label>
+        {{ form_widget(form.numeroRetrait) }}
+        {{ form_errors(form.numeroRetrait) }}
+    </div>
+
+    {# --- Identifiants techniques --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Identifiants techniques</h6></div>
+
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.uid) }}</label>
+        {{ form_widget(form.uid) }}
+        {{ form_errors(form.uid) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.lid) }}</label>
+        {{ form_widget(form.lid) }}
+        {{ form_errors(form.lid) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.registerSource) }}</label>
+        {{ form_widget(form.registerSource) }}
+        {{ form_errors(form.registerSource) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.lastLoginSource) }}</label>
+        {{ form_widget(form.lastLoginSource) }}
+        {{ form_errors(form.lastLoginSource) }}
+    </div>
+
+    {# --- Dates --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Dates</h6></div>
+
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.createdAt) }}</label>
+        {{ form_widget(form.createdAt) }}
+        {{ form_errors(form.createdAt) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.lastLoginTo) }}</label>
+        {{ form_widget(form.lastLoginTo) }}
+        {{ form_errors(form.lastLoginTo) }}
+    </div>
+
+    {# --- Sécurité --- #}
+    <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Sécurité</h6></div>
+
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.password) }}</label>
+        {{ form_widget(form.password) }}
+        <div class="form-text text-muted">Laisser vide pour conserver le mot de passe actuel.</div>
+        {{ form_errors(form.password) }}
+    </div>
+
+    {# --- Bouton --- #}
+    <div class="col-12 mt-3">
+        <button class="btn btn-primary">{{ button_label|default('Save') }}</button>
+    </div>
+
+</div>
+
 {{ form_end(form) }}
