@@ -391,7 +391,7 @@ function expandStoryDesc() {
             </div>
         {% endif %}
 
-        {% if user.nombreContactDispo <= 100 and user.boostEnCours == false %}
+        {% if user.addPageActu and user.nombreContactDispo <= 100 and user.boostEnCours == false %}
             <div class="col-12">
                 <a href="/newboostcontact" style="text-decoration:none;" class="text-white">
                     <div class="card radius-10 mb-0 h-100 bg-danger">
