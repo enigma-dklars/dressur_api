@@ -32,7 +32,7 @@ html.semi-dark .ds-hub-title{color:#fcfcfc}
         <i class="fas fa-briefcase text-primary"></i>Services
     </h5>
 
-    {# ── Boost Contact ─────────────────────────────────── #}
+    {% set boost_card %}
     <div class="ds-service-card">
         <div class="ds-svc-header">
             <div class="ds-svc-icon"><i class="fas fa-address-book"></i></div>
@@ -48,6 +48,11 @@ html.semi-dark .ds-hub-title{color:#fcfcfc}
             </a>
         </div>
     </div>
+    {% endset %}
+
+    {% if user.addPageActu %}
+        {{ boost_card }}
+    {% endif %}
 
     {# ── Promotion Affaire ──────────────────────────────── #}
     <div class="ds-service-card">
@@ -82,6 +87,10 @@ html.semi-dark .ds-hub-title{color:#fcfcfc}
             </a>
         </div>
     </div>
+
+    {% if not user.addPageActu %}
+        {{ boost_card }}
+    {% endif %}
 
     {% include 'private/_includes/_sociaux.html.twig' %}
 
