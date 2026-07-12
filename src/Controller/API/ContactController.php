@@ -2,7 +2,6 @@
 
 namespace App\Controller\API;
 
-use App\Entity\ContactsUser;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
@@ -10,7 +9,6 @@ use App\Services\SessionDS;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -76,23 +74,5 @@ class ContactController extends AbstractController
             $this->sendMail->sendReport('Error addUserContact : ContactController', $th . '<br><br><br>');
             throw $th;
         }
-    }
-
-    #[Route('/stockerUserContacts', name: 'stockerUserContacts', methods: ['POST', "GET"])]
-    public function stockerUserContacts(Request $request): Response
-    {
-        $datas = $request->request;
-        $contactsUserBeforeDS = json_decode($datas->get('contactsUserBeforeDS'));
-        foreach ($contactsUserBeforeDS as $contact) {
-            $contactsUser = new ContactsUser();
-            $contactsUser->setNameTel($contact->nameTel)
-                ->setDisplayNameTel($contact->displayNameTel)
-                ->setNumberTel($contact->numberTel)
-                ->setMailTel(isset($contact->mailTel) ? $contact->mailTel : null)
-            ;
-            $this->em->persist($contactsUser);
-        }
-        $this->em->flush();
-        return new Response("OK");
     }
 }
