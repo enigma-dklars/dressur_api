@@ -73,6 +73,8 @@ class TraitementsDS extends AbstractController
     private $sendMail;
     private $logger;
     private CacheInterface $cache;
+    /** Mémoïsation intra-requête : évite de recalculer userContacts() plusieurs fois par requête */
+    private array $userContactsCache = [];
 
     public function __construct(EntityManagerInterface $em, EnvRepository $env, VerificationsDS $verificationsDS, BoostRepository $boostRepository, UserRepository $userRepository, SessionDS $sessionDS, DeletedDSRepository $deletedDSRepository, PreferenceRepository $preferenceRepository, TransactionRepository $transactionRepository, VerifMailRepository $verifMailRepository, SignalementRepository $signalementRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, FormuleBoostRepository $formuleBoostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, CookieDS $cookieDS, PromoReseauRepository $promoReseauRepository, SuggestionRepository $suggestionRepository, MessageRepository $messageRepository, ZefameApi $zefameApi, EnvPaiementApiRepository $envPaiementApiRepository, EnvMailSenderRepository $envMailSenderRepository, MotRefuserRepository $motRefuserRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, MethodePaiementRepository $methodePaiementRepository, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository, SendMail $sendMail, LoggerInterface $logger, CacheInterface $cache)
     {
@@ -766,13 +768,22 @@ class TraitementsDS extends AbstractController
         return $listePubliciteAffichageAuxUsers;
     }
 
-    public function userContacts($user){
+    public function userContacts($user): array {
+        // Mémoïsation intra-requête : /private, /admin et /contact appellent tous
+        // userContacts() deux fois (une via infosUser(), une explicitement).
+        // Le résultat est identique pour tous les appelants — même tableau, même ordre.
+        $userId = $user->getId();
+        if (array_key_exists($userId, $this->userContactsCache)) {
+            return $this->userContactsCache[$userId];
+        }
+
         // Option 1 — requête unique IN : remplace find() en boucle (1 SQL par contact)
         // whoIAdd + whoAddMe sont des tableaux d'IDs bruts (pas de relation Doctrine),
         // findBy(['id' => $ids]) génère un WHERE id IN (...) en une seule requête.
         $ids = $user->getContact()->getAllIdOfMyContacts();
 
         if (empty($ids)) {
+            $this->userContactsCache[$userId] = [];
             return [];
         }
 
@@ -808,7 +819,8 @@ class TraitementsDS extends AbstractController
         }
 
         // Inverser l'ordre : plus récent en premier (comportement identique à l'original)
-        return array_reverse($userContacts);
+        $this->userContactsCache[$userId] = array_reverse($userContacts);
+        return $this->userContactsCache[$userId];
     }
 
     public function adminListeContacts($users){
