@@ -1004,6 +1004,7 @@ class TraitementsDS extends AbstractController
             'addPageActu' => $user->getPreference()->getAddPageActu(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
             'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
+            'vendeur' => $user->isVendeur() ? true : false,
         ];
     }
 

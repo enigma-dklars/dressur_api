@@ -197,6 +197,26 @@ class WebhookController extends AbstractController
                 ->setSignature($formuleDressurBot->getSignature())
             ;
         }
+
+        if ($myTransaction->getTransactionFor() == "adhesion_vendeur") {
+            $user = $myTransaction->getUser();
+            $user->setVendeur(true);
+            $this->traitementsDS->addNotification(
+                "Paiement confirmé. Vous êtes maintenant vendeur sur Dressur !",
+                $user
+            );
+        }
+
+        if ($myTransaction->getTransactionFor() == "recharge_vendeur") {
+            $user = $myTransaction->getUser();
+            $montant = (int)($myTransaction->getAnnotherInfo()['montant'] ?? 0);
+            $nouveauSolde = ($user->getSoldeProgrammeRecompense() ?? 0) + $montant;
+            $user->setSoldeProgrammeRecompense($nouveauSolde);
+            $this->traitementsDS->addNotification(
+                "Solde rechargé de {$montant} FCFA. Nouveau solde : {$nouveauSolde} FCFA.",
+                $user
+            );
+        }
     }
 
     #[Route('/whd/{routeWebhook}', name: 'webhookFedaPay')]
