@@ -95,6 +95,25 @@ class PromotionType extends AbstractType
                     'class' => 'ms-2 mb-2'
                 ],
             ])
+            ->add('typePromotionAffaire', \Symfony\Component\Form\Extension\Core\Type\ChoiceType::class, [
+                'label'    => 'Type de promotion',
+                'required' => false,
+                'choices'  => [
+                    'Produit / Service' => 'produit_service',
+                    'Demande d\'emploi'  => 'dmd_emploi',
+                    'Offre d\'emploi'    => 'offre_emploi',
+                ],
+                'attr' => ['class' => 'form-select mb-2'],
+            ])
+            ->add('source', null, [
+                'required' => false,
+                'attr'     => ['class' => 'form-control mb-2'],
+            ])
+            ->add('createdAt', null, [
+                'widget'   => 'single_text',
+                'required' => false,
+                'attr'     => ['class' => 'form-control mb-2'],
+            ])
         ;
     }
 
