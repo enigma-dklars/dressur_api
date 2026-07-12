@@ -70,6 +70,19 @@ class PromoReseauType extends AbstractType
                     'class' => 'form-control mb-2'
                 ],
             ])
+            ->add('prixZefame', null, [
+                'label'    => 'Prix Zefame',
+                'required' => false,
+                'attr'     => [
+                    'class'       => 'form-control mb-2',
+                    'step'        => '0.00001',
+                    'placeholder' => 'Ex : 0.0085',
+                ],
+            ])
+            ->add('source', null, [
+                'required' => false,
+                'attr'     => ['class' => 'form-control mb-2'],
+            ])
         ;
     }
 
