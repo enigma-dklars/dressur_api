@@ -141,9 +141,13 @@ class PublicController extends AbstractController
         FormulePromoAffaireRepository $formulePromoAffaireRepository,
         FormulePromoReseauRepository  $formulePromoReseauRepository
     ): Response {
+        // Chargé une seule fois — réutilisé pour le groupement ET pour formule_promo_reseaus
+        $formulePromoReseaus = $formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']);
+
         $promoReseauGroups = [];
-        foreach ($formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']) as $f) {
-            if ($f->getPrix() > 0 && $f->isAvailable() == true) {
+        foreach ($formulePromoReseaus as $f) {
+            // isAvailable() déjà garanti par findBy(['available' => true]) — seul getPrix() > 0 est nouveau
+            if ($f->getPrix() > 0) {
                 $nomReseau = $f->getParent() ? $f->getParent()->getTitre() : $f->getTitre();
                 if (!isset($promoReseauGroups[$nomReseau])) {
                     $promoReseauGroups[$nomReseau] = [];
@@ -159,7 +163,7 @@ class PublicController extends AbstractController
             'formule_boosts'         => $formuleBoostRepository->findBy(['activated' => true]),
             'formule_dressur_bots'   => $formuleDressurBotRepository->findBy(['activated' => true]),
             'formule_promo_affaires' => $formulePromoAffaireRepository->findBy(['activated' => true]),
-            'formule_promo_reseaus'  => $formulePromoReseauRepository->findBy(['available' => true], ['parent' => 'ASC']),
+            'formule_promo_reseaus'  => $formulePromoReseaus,
             'promo_reseau_groups'    => $promoReseauGroups,
         ]);
     }
