@@ -46,17 +46,6 @@ class ConfirmTelController extends AbstractController
             ]);
         }
 
-        $missingNom = trim((string) $user->getNom()) === '';
-
-        if ($missingNom) {
-            return $this->render('confirm_tel/index.html.twig', [
-                'status'       => 'prerequisites',
-                'missing_nom'  => $missingNom,
-                'missing_mail' => false,
-                'confirm_url'  => $this->generateUrl('app_confirm_tel', ['uid' => $uid, 'token' => $token]),
-            ]);
-        }
-
         $user->setTelIsVerified(true);
         $traitementsDS->addNotification("Votre numéro WhatsApp a bien été confirmé !", $user);
         $em->flush();

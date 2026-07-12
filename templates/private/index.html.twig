@@ -338,7 +338,7 @@ function expandStoryDesc() {
 
         {% endif %}
 
-        {% if user.telIsVerified == false and user.nom is not null and user.nom|trim != '' %}
+        {% if user.telIsVerified == false %}
             <div class="col-12">
                 <div class="card radius-10 mb-0" style="border:2px solid #198754;">
                     <div class="card-body">
