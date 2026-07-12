@@ -135,8 +135,8 @@ class UserType extends AbstractType
             // --- Identifiants techniques ---
             ->add('uid', TextType::class, [
                 'label' => 'UID',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
+                'disabled' => true,
+                'attr' => ['class' => 'form-control', 'readonly' => true],
             ])
             ->add('lid', TextType::class, [
                 'label' => 'LID (WhatsApp)',
@@ -157,7 +157,7 @@ class UserType extends AbstractType
             // --- Dates ---
             ->add('createdAt', DateTimeType::class, [
                 'label' => 'Date de création',
-                'required' => false,
+                'required' => true,
                 'widget' => 'single_text',
                 'attr' => ['class' => 'form-control'],
             ])

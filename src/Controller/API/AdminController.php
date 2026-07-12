@@ -219,8 +219,8 @@ class AdminController extends AbstractController
 
                 // URL : lien WhatsApp de l'utilisateur (tel en format international → wa.me)
                 $telUser = $user ? $user->getTel() : '';
-                $telNettoyé = ltrim((string)$telUser, '+');
-                $urlWhatsApp = $telNettoyé ? 'https://wa.me/' . $telNettoyé : null;
+                $telClean = ltrim((string)$telUser, '+');
+                $urlWhatsApp = $telClean ? 'https://wa.me/' . $telClean : null;
 
                 $story = new Story();
                 $story->setUser($user);

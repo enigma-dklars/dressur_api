@@ -107,15 +107,14 @@ html.dark-theme .va-total-box,html.semi-dark .va-total-box{background:rgba(13,11
     const errEl        = document.getElementById('va_montantError');
     const btn          = document.getElementById('va_btn');
     const spinner      = document.getElementById('va_spinner');
-    const btnText      = document.getElementById('va_btnText');
 
     function fmt(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
 
     function updateTotal(){
         const recharge = Math.max(0, parseInt(montantInput.value,10)||0);
         const total = 2000 + recharge;
-        totalEl.textContent   = fmt(total) + ' FCFA';
-        btnText.innerHTML     = 'Payer <span id="va_btnTotal">' + fmt(total) + '</span> FCFA<span id="va_spinner" class="spinner-border spinner-border-sm ms-2" style="display:none"></span>';
+        totalEl.textContent  = fmt(total) + ' FCFA';
+        btnTotalEl.textContent = fmt(total);
     }
     montantInput.addEventListener('input', updateTotal);
     updateTotal();
@@ -137,7 +136,7 @@ html.dark-theme .va-total-box,html.semi-dark .va-total-box{background:rgba(13,11
 
         // Envoi
         btn.disabled = true;
-        document.querySelector('#va_btn .spinner-border').style.display = 'inline-block';
+        spinner.style.display = 'inline-block';
 
         try{
             const fd = new FormData();
@@ -161,7 +160,7 @@ html.dark-theme .va-total-box,html.semi-dark .va-total-box{background:rgba(13,11
             showAlert('Erreur','Une erreur réseau s\'est produite. Veuillez réessayer.','danger');
         } finally{
             btn.disabled = false;
-            document.querySelector('#va_btn .spinner-border').style.display = 'none';
+            spinner.style.display = 'none';
         }
     });
 })();
