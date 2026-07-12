@@ -139,6 +139,11 @@ class PromotionReseauController extends AbstractController
             ]);
         }
 
+        // ── Réduction vendeur 10% ─────────────────────────────────────────────
+        if ($user->isVendeur()) {
+            $prixQteDemander = (int)round((int)$prixQteDemander * 0.9);
+        }
+
         // ── Paiement via solde ────────────────────────────────────────────────
         if ($user->getSoldeProgrammeRecompense() >= (int)$prixQteDemander) {
             $myTransaction = (new EntityTransaction())
