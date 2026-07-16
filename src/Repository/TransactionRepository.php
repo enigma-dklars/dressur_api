@@ -74,5 +74,23 @@ class TransactionRepository extends ServiceEntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * Compte les transactions payées (status = 'approved') pour les services
+     * boost_contact, boost_affaire, re_boost_affaire et boost_reseau_sociaux.
+     */
+    public function countPaidServicesTransactions(\App\Entity\User $user): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->select('COUNT(t.id)')
+            ->where('t.user = :user')
+            ->andWhere('t.status = :status')
+            ->andWhere('t.transactionFor IN (:types)')
+            ->setParameter('user', $user)
+            ->setParameter('status', 'approved')
+            ->setParameter('types', ['boost_contact', 'boost_affaire', 're_boost_affaire', 'boost_reseau_sociaux'])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
 
 }

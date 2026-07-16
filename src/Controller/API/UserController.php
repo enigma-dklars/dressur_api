@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
 use App\Repository\PromotionRepository;
+use App\Repository\TransactionRepository;
 use App\Services\CookieDS;
 use App\Utilities\UuidGenerator;
 use App\Services\TraitementsDS;
@@ -1020,20 +1021,86 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/addToRecompenseProgramme', name: 'addToRecompenseProgramme')]
-    public function addToRecompenseProgramme(Request $request,UserRepository $userRepository): Response
+    #[Route('/getConditionsProgrammeRecompense', name: 'getConditionsProgrammeRecompense')]
+    public function getConditionsProgrammeRecompense(Request $request, UserRepository $userRepository, TransactionRepository $transactionRepository): Response
     {
         try {
-            $datas = $request->request;
-        
-                        
-
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
-            
             $user = $userRepository->findOneBy(['uid' => $uid]);
-            $user->setIsInscritProgrammeRecompense(true);        
+
+            $inscritDepuis7Jours = $user->getCreatedAt() <= (new \DateTime('-7 days'));
+            $mailConfirme        = $user->getMailIsVerified() === true;
+            $whatsappConfirme    = $user->getTelIsVerified() === true;
+            $nbrCommandes        = $transactionRepository->countPaidServicesTransactions($user);
+            $cinqCommandes       = $nbrCommandes >= 5;
+
+            return new JsonResponse([
+                'error' => false,
+                'conditions' => [
+                    'inscritDepuis7Jours' => $inscritDepuis7Jours,
+                    'mailConfirme'        => $mailConfirme,
+                    'whatsappConfirme'    => $whatsappConfirme,
+                    'cinqCommandes'       => $cinqCommandes,
+                    'nbrCommandes'        => $nbrCommandes,
+                ],
+                'toutesConditionsRemplies' => $inscritDepuis7Jours && $mailConfirme && $whatsappConfirme && $cinqCommandes,
+            ]);
+        } catch (\Throwable $th) {
+            $this->sendMail->sendReport('Error getConditionsProgrammeRecompense : UserController', $th . '<br><br><br>');
+            return new JsonResponse([
+                'error' => true,
+                'titre' => "Oups !!!",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l'assistance Dressur sur WhatsApp.",
+            ]);
+        }
+    }
+
+    #[Route('/addToRecompenseProgramme', name: 'addToRecompenseProgramme')]
+    public function addToRecompenseProgramme(Request $request, UserRepository $userRepository, TransactionRepository $transactionRepository): Response
+    {
+        try {
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            // --- Vérification des 4 conditions ---
+            $inscritDepuis7Jours = $user->getCreatedAt() <= (new \DateTime('-7 days'));
+            $mailConfirme        = $user->getMailIsVerified() === true;
+            $whatsappConfirme    = $user->getTelIsVerified() === true;
+            $nbrCommandes        = $transactionRepository->countPaidServicesTransactions($user);
+            $cinqCommandes       = $nbrCommandes >= 5;
+
+            if (!$inscritDepuis7Jours) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => "Condition non remplie",
+                    'message' => "Votre compte doit être inscrit depuis au moins 7 jours pour rejoindre le programme.",
+                ]);
+            }
+            if (!$mailConfirme) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => "Condition non remplie",
+                    'message' => "Veuillez confirmer votre adresse e-mail avant de rejoindre le programme.",
+                ]);
+            }
+            if (!$whatsappConfirme) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => "Condition non remplie",
+                    'message' => "Veuillez confirmer votre numéro WhatsApp avant de rejoindre le programme.",
+                ]);
+            }
+            if (!$cinqCommandes) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => "Condition non remplie",
+                    'message' => "Vous devez avoir effectué au moins 5 commandes payantes (Boost Contact, Promotion Affaire ou Promotion Réseaux Sociaux) pour rejoindre le programme. Commandes actuelles : $nbrCommandes/5.",
+                ]);
+            }
+
+            $user->setIsInscritProgrammeRecompense(true);
             $this->em->flush();
-            
+
             return new JsonResponse([
                 'error' => false,
             ]);
@@ -1042,7 +1109,7 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => "Oups !!!",
-                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
+                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l'assistance Dressur sur WhatsApp.",
             ]);
         }
     }
