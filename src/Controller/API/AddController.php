@@ -58,7 +58,8 @@ class AddController extends AbstractController
             // Si c'est un boost quota avec un plafond défini, on calcule le nombre d'ajouts
             // encore autorisés afin de stopper la boucle dès que le quota est atteint.
             $userBoostActif = $boostRepository->findBoostActif($user);
-            $resteQuota = null; // null = pas de bridage quota en cours de boucle
+            $resteQuota   = null;  // null = pas de bridage quota en cours de boucle
+            $quotaAtteint = false; // passe à true si le break quota est déclenché
             if ($userBoostActif && $userBoostActif->getTypeBoost() === 'quota') {
                 $nbContactsMax = $userBoostActif->getFormuleBoost()->getNbContactsMax();
                 if ($nbContactsMax !== null) {
@@ -95,6 +96,7 @@ class AddController extends AbstractController
                         if ($resteQuota !== null) {
                             $resteQuota--;
                             if ($resteQuota <= 0) {
+                                $quotaAtteint = true;
                                 break;
                             }
                         }
@@ -125,6 +127,17 @@ class AddController extends AbstractController
 
             $traitementsDS->addNotification("Vous avez enregistrer ".count($contactsAdd)." contact(s).", $user);
             $this->em->flush();
+
+            // Quota atteint en cours de boucle : on informe le user des contacts
+            // enregistrés ET on lui indique qu'un nouveau boost est nécessaire.
+            if ($quotaAtteint) {
+                return new JsonResponse([
+                    'error'                      => true,
+                    'contactsAdd'                => $contactsAdd,
+                    'permissionAdd'              => false,
+                    'messageErreurPermissionAdd' => 'Vous avez atteint votre quota de contacts. Lancez un nouveau boost contact pour continuer.',
+                ]);
+            }
         }
         return new JsonResponse([
             'error' => false,
