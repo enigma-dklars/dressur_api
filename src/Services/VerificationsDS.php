@@ -75,9 +75,10 @@ class VerificationsDS extends AbstractController
 
         // Nouvel inscrit : aucun boost et au plus 1 contact ajouté
         // → on l'invite à lancer un boost contact gratuit avant tout
-        $contact = $user->getContact();
-        $whoIAdd = $contact ? count($contact->getWhoIAdd()) : 0;
-        if (count($boosts) === 0 && $whoIAdd <= 1) {
+        $contact  = $user->getContact();
+        $whoIAdd  = $contact ? count($contact->getWhoIAdd())  : 0;
+        $whoAddMe = $contact ? count($contact->getWhoAddMe()) : 0;
+        if (count($boosts) === 0 && ($whoIAdd + $whoAddMe) <= 1) {
             return [
                 "permissionAdd" => false,
                 "messageErreurPermissionAdd" => "Bienvenue ! Pour commencer à enregistrer vos contacts, lancez d'abord un boost contact gratuit (durée ou quota).",
@@ -102,8 +103,6 @@ class VerificationsDS extends AbstractController
                 $nbBoostGratuit++;
             }
         }
-
-        $whoAddMe      = $contact ? count($contact->getWhoAddMe()) : 0;
 
         $maxAjouts     = ($nbBoostPayant * 25) + ($nbBoostGratuit * 3) + $whoAddMe;
         $resteAjouter  = $maxAjouts - $whoIAdd;
