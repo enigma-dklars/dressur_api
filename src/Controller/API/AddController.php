@@ -53,6 +53,19 @@ class AddController extends AbstractController
         if ($user->getTelIsVerified() == true) {
             // Calculé une seule fois : la permission ne change pas pendant la requête
             $permission = $verificationsDS->permissionAdd($user);
+
+            // Pré-chargement du boost actif du user pour éviter un double appel plus bas.
+            // Si c'est un boost quota avec un plafond défini, on calcule le nombre d'ajouts
+            // encore autorisés afin de stopper la boucle dès que le quota est atteint.
+            $userBoostActif = $boostRepository->findBoostActif($user);
+            $resteQuota = null; // null = pas de bridage quota en cours de boucle
+            if ($userBoostActif && $userBoostActif->getTypeBoost() === 'quota') {
+                $nbContactsMax = $userBoostActif->getFormuleBoost()->getNbContactsMax();
+                if ($nbContactsMax !== null) {
+                    $resteQuota = $nbContactsMax - (int)($userBoostActif->getNbContactsObtenus() ?? 0);
+                }
+            }
+
             foreach ($traitementsDS->getAddDisponible($user) as $add) {
                 $userAdd = $userRepository->findOneBy(['tel' => $add['tel']]);
                 if($userAdd){
@@ -78,6 +91,13 @@ class AddController extends AbstractController
                             "nom" => (string)$userAdd,
                             "tel" => $userAdd->getTel(),
                         ]);
+                        // Bridage quota : on stoppe dès que le plafond est atteint
+                        if ($resteQuota !== null) {
+                            $resteQuota--;
+                            if ($resteQuota <= 0) {
+                                break;
+                            }
+                        }
                     } else {
                         return new JsonResponse([
                             'error' => true,
@@ -90,8 +110,7 @@ class AddController extends AbstractController
             }
 
             if(count($contactsAdd) > 0) {
-                // Incrémenter le boost actif de $userAdd s'il en a un (quota ou date)
-                $userBoostActif = $boostRepository->findBoostActif($user);
+                // Incrémenter le boost actif du user (variable déjà chargée avant la boucle)
                 if($userBoostActif) {
                     $userBoostActif->setNbContactsObtenus((int)($userBoostActif->getNbContactsObtenus() ?? 0) + count($contactsAdd));
                     if ($userBoostActif->getTypeBoost() === 'quota') {
