@@ -39,7 +39,7 @@
     <hr>
 
     {# ── Actions ───────────────────────────────────────────────── #}
-    <div class="mb-3">{% include "crud_user/_delete_form.html.twig" %}</div>
+    <div class="mb-3">{% include "crud_user/_delete_form.html.twig" with {'user': u} only %}</div>
 
     {# ── Identité ──────────────────────────────────────────────── #}
     <div class="card mb-3">
