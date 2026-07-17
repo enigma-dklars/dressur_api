@@ -284,10 +284,6 @@ class PrivateController extends AbstractController
                     $p = $promotionRepository->getAdminPromoStats();
                     return [
                         'nbr_user'               => (int) $u['nbr_user'],
-                        'nbr_tel_mail_no_conf'   => (int) $u['nbr_tel_mail_no_conf'],
-                        'nbr_tel_mail_yes_conf'  => (int) $u['nbr_tel_mail_yes_conf'],
-                        'nbr_tel_no_conf'        => (int) $u['nbr_tel_no_conf'],
-                        'nbr_mail_no_conf'       => (int) $u['nbr_mail_no_conf'],
                         'users_prog_recomp'      => (int) $u['users_prog_recomp'],
                         'users_vendeur'          => (int) $u['users_vendeur'],
                         'valid_promo_affaire'    => (int) $p['valid_promo_affaire'],
@@ -305,10 +301,6 @@ class PrivateController extends AbstractController
                     'theme' => $this->theme,
                     'user' => $traitementsDS->infosUser($user),
                     'contacts_user' => $traitementsDS->formatNumber(count($traitementsDS->userContacts($user))),
-                    'nbr_tel_mail_no_conf'       => $s['nbr_tel_mail_no_conf'],
-                    'nbr_tel_mail_yes_conf'      => $s['nbr_tel_mail_yes_conf'],
-                    'nbr_tel_no_conf'            => $s['nbr_tel_no_conf'],
-                    'nbr_mail_no_conf'           => $s['nbr_mail_no_conf'],
                     'affaire_valider_sans_payer' => $s['affaire_valider_sans_payer'],
                     'valid_promo_affaire'        => $s['valid_promo_affaire'],
                     'valid_promo_reseau'         => $s['valid_promo_reseau'],

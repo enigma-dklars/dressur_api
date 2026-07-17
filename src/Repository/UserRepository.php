@@ -314,9 +314,7 @@ class UserRepository extends ServiceEntityRepository
      * Remplace 6 count(findAll/findBy) séparés qui chargeaient des entités complètes.
      * Avant : 6 requêtes × hydratation ORM. Après : 1 seule requête SELECT COUNT/SUM.
      *
-     * @return array{nbr_user:int, nbr_tel_mail_no_conf:int, nbr_tel_mail_yes_conf:int,
-     *               nbr_tel_no_conf:int, nbr_mail_no_conf:int, users_prog_recomp:int,
-     *               users_vendeur:int}
+     * @return array{nbr_user:int, users_prog_recomp:int, users_vendeur:int}
      */
     public function getAdminUserStats(): array
     {
@@ -324,10 +322,6 @@ class UserRepository extends ServiceEntityRepository
         $sql  = '
             SELECT
                 COUNT(*)                                            AS nbr_user,
-                SUM(tel_is_verified  = 0 AND mail_is_verified = 0) AS nbr_tel_mail_no_conf,
-                SUM(tel_is_verified  = 1 AND mail_is_verified = 1) AS nbr_tel_mail_yes_conf,
-                SUM(tel_is_verified  = 0)                          AS nbr_tel_no_conf,
-                SUM(mail_is_verified = 0)                          AS nbr_mail_no_conf,
                 SUM(is_inscrit_programme_recompense = 1)           AS users_prog_recomp,
                 SUM(is_vendeur = 1)                                AS users_vendeur
             FROM `user`

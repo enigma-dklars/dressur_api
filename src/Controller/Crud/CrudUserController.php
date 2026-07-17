@@ -102,68 +102,6 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/not-verif-tel', name: 'app_crud_user_not_verif_tel', methods: ['GET'])]
-    public function not_verif_tel(UserRepository $userRepository): Response
-    {
-        $users = $userRepository->findBy(['telIsVerified' => false], ['id' => 'DESC']);
-        $allUserIds = $userRepository->findAllIds();
-        $contactCounts = $this->buildContactCounts($users, $allUserIds);
-        return $this->render('crud_user/index.html.twig', [
-            'theme' => $this->theme,
-            'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $users,
-            'contactCounts' => $contactCounts,
-            'collectionCounts' => $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts)),
-            'option' => "Tel Not Verified",
-            'currentPage' => "",
-            'totalPages' => "",
-            'totalItems' => "",
-            'search' => "",
-            'limit' => ""
-        ]);
-    }
-
-    #[Route('/not-verif-mail', name: 'app_crud_user_not_verif_mail', methods: ['GET'])]
-    public function not_verif_mail(UserRepository $userRepository): Response
-    {
-        $users = $userRepository->findBy(['mailIsVerified' => false], ['id' => 'DESC']);
-        $allUserIds = $userRepository->findAllIds();
-        $contactCounts = $this->buildContactCounts($users, $allUserIds);
-        return $this->render('crud_user/index.html.twig', [
-            'theme' => $this->theme,
-            'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $users,
-            'contactCounts' => $contactCounts,
-            'collectionCounts' => $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts)),
-            'option' => "Mail Not Verified",
-            'currentPage' => "",
-            'totalPages' => "",
-            'totalItems' => "",
-            'search' => "",
-            'limit' => ""
-        ]);
-    }
-
-    #[Route('/not-verif-tel-mail', name: 'app_crud_user_not_verif_tel_mail', methods: ['GET'])]
-    public function not_verif_tel_mail(UserRepository $userRepository): Response
-    {
-        $users = $userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], ['id' => 'DESC']);
-        $allUserIds = $userRepository->findAllIds();
-        $contactCounts = $this->buildContactCounts($users, $allUserIds);
-        return $this->render('crud_user/index.html.twig', [
-            'theme' => $this->theme,
-            'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'users' => $users,
-            'contactCounts' => $contactCounts,
-            'collectionCounts' => $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts)),
-            'option' => "Tel Mail Not Verified",
-            'currentPage' => "",
-            'totalPages' => "",
-            'totalItems' => "",
-            'search' => "",
-            'limit' => ""
-        ]);
-    }
 
     #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile', methods: ['POST'])]
     public function supprimer_user_inutile(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
