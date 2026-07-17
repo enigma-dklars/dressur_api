@@ -101,12 +101,6 @@ class User
     private ?int $soldeProgrammeRecompense = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $reseauRetrait = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $numeroRetrait = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
     private ?string $lid = null;
 
     #[ORM\Column(length: 20, nullable: true)]
@@ -566,30 +560,6 @@ class User
         }
 
         $this->soldeProgrammeRecompense += $montant;
-
-        return $this;
-    }
-
-    public function getReseauRetrait(): ?string
-    {
-        return $this->reseauRetrait;
-    }
-
-    public function setReseauRetrait(?string $reseauRetrait): static
-    {
-        $this->reseauRetrait = $reseauRetrait;
-
-        return $this;
-    }
-
-    public function getNumeroRetrait(): ?string
-    {
-        return $this->numeroRetrait;
-    }
-
-    public function setNumeroRetrait(?string $numeroRetrait): static
-    {
-        $this->numeroRetrait = $numeroRetrait;
 
         return $this;
     }

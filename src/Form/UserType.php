@@ -121,17 +121,6 @@ class UserType extends AbstractType
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
             ])
-            ->add('reseauRetrait', TextType::class, [
-                'label' => 'Réseau de retrait',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('numeroRetrait', TextType::class, [
-                'label' => 'Numéro de retrait',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-
             // --- Identifiants techniques ---
             ->add('uid', TextType::class, [
                 'label' => 'UID',

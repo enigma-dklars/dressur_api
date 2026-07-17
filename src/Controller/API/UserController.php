@@ -1340,67 +1340,6 @@ class UserController extends AbstractController
         }
     }
 
-    #[Route('/saveRetraitConfiguration', name: 'saveRetraitConfiguration')]
-    public function saveRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
-    {
-
-        try {
-            $datas = $request->request;
-        
-                        
-
-            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
-            $user = $userRepository->findOneBy(['uid' => $uid]);
-
-            $reseauRetrait = $datas->get('reseauRetrait') ?? "";
-            $numeroRetrait = $datas->get('numeroRetrait') ?? "";
-            
-            $user->setReseauRetrait($reseauRetrait)->setNumeroRetrait($numeroRetrait);
-
-            $em->flush();
-                        
-            return new JsonResponse([
-                'error' => false,
-                'titre' => "OK ...",
-                'message' => "Configuration enregistrer.",
-            ]);
-        } catch (\Throwable $th) {
-            $this->sendMail->sendReport('Error saveRetraitConfiguration : UserController', $th . '<br><br><br>');
-            return new JsonResponse([
-                'error' => true,
-                'titre' => "Oups !!!",
-                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
-            ]);
-        }
-    }
-
-    #[Route('/getRetraitConfiguration', name: 'getRetraitConfiguration')]
-    public function getRetraitConfiguration(Request $request, UserRepository $userRepository, EntityManagerInterface $em, HistoriqueProgrammeRecompenseRepository $historiqueProgrammeRecompenseRepository): Response
-    {
-
-        try {
-            $datas = $request->request;
-        
-                        
-
-            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
-            $user = $userRepository->findOneBy(['uid' => $uid]);
-
-            return new JsonResponse([
-                'error' => false,
-                'reseauRetrait' => $user->getReseauRetrait(),
-                'numeroRetrait' => $user->getNumeroRetrait(),
-            ]);
-        } catch (\Throwable $th) {
-            $this->sendMail->sendReport('Error getRetraitConfiguration : UserController', $th . '<br><br><br>');
-            return new JsonResponse([
-                'error' => true,
-                'titre' => "Oups !!!",
-                'message' => "Nous avons rencontré une erreur. Veuillez réessayer ou contacter l’assistance Dressur sur WhatsApp.",
-            ]);
-        }
-    }
-
     #[Route('/updateUserLang', name: 'updateUserLang', methods: ['POST'])]
     public function updateUserLang(Request $request, VerificationsDS $verificationsDS): Response
     {

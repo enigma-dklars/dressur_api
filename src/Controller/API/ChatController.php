@@ -331,8 +331,8 @@ Fonctionnement :
 Inscription :
 1. Ouvre "Récompenses" dans la Boîte de Réception.
 2. Lis les règles et clique "Participer au programme".
-3. Configure ton retrait : choix du réseau Mobile Money (MTN, etc.) et saisie de ton numéro.
-Retrait : disponible depuis le tableau de bord des récompenses une fois le palier atteint.
+3. Tes gains s'accumulent dans ton solde Dressur et sont utilisés automatiquement pour payer tes services (Boost Contact, Promotion Affaire, Promotion Réseaux Sociaux).
+Solde : visible depuis le tableau de bord des récompenses.
 
 === INSCRIPTION & CONNEXION ===
 - Inscription : email, nom, pseudo, téléphone + pays.
