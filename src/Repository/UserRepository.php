@@ -323,7 +323,7 @@ class UserRepository extends ServiceEntityRepository
             SELECT
                 COUNT(*)                                            AS nbr_user,
                 SUM(is_inscrit_programme_recompense = 1)           AS users_prog_recomp,
-                SUM(is_vendeur = 1)                                AS users_vendeur
+                SUM(vendeur = 1)                                   AS users_vendeur
             FROM `user`
         ';
         return $conn->prepare($sql)->executeQuery()->fetchAssociative();
