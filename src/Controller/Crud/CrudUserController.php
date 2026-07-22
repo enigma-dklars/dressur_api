@@ -301,22 +301,9 @@ class CrudUserController extends AbstractController
             $user->setTelIsVerified(true);
             $em->flush();
             return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\n"
-                . "Vous pouvez désormais profiter pleinement de toutes les fonctionnalités de Dressur :\n\n"
-                . "✔️ Boost Contact (ADD)\n"
-                . "✔️ Promotion Affaire\n"
-                . "✔️ Promotion Réseaux Sociaux\n"
-                . "✔️ Programme de récompenses\n\n"
-                . "📚 Pour mieux comprendre le fonctionnement de la plateforme et utiliser efficacement chaque fonctionnalité, nous vous invitons à consulter les tutoriels Dressur. "
-                . "Ils vous guideront pas à pas et vous aideront à maîtriser l’ensemble des outils disponibles.\n\n"
-                . "📖 Tutoriel 1 :\nhttps://drive.google.com/file/d/1KNSISt6CzyV9r7Rj6qRO1Y-1m2d3CBpZ/view?usp=drive_link\n\n"
-                . "🎥 Tutoriel 2 :\nhttps://www.youtube.com/watch?v=BSwKlix-3dM\n"
-                . "🎥 Tutoriel 3 :\nhttps://www.youtube.com/watch?v=Y3MDBHFcyyQ\n"
-                . "🎥 Tutoriel 4 :\nhttps://www.youtube.com/watch?v=jq6QG1Vz6mY\n"
-                . "🎥 Tutoriel 5 :\nhttps://www.youtube.com/watch?v=dX8NmhEX5KY\n\n"
-                . "👉 Nous vous recommandons de suivre les tutoriels dans l’ordre et de les appliquer étape par étape afin de tirer le meilleur parti de Dressur.\n\n"
-                . "📢 Rejoignez notre chaîne WhatsApp pour suivre les nouveautés, mises à jour et opportunités :\n"
-                . "https://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t\n\n"
-                . "Nous restons disponibles pour toute assistance et vous souhaitons une excellente expérience sur Dressur."
+                . "Vous pouvez désormais profiter pleinement de toutes les fonctionnalités de Dressur.\n\n"
+                . "📚 Consultez les tutoriels disponibles dans *Paramètres > Tutoriels* pour bien démarrer.\n\n"
+                . "Nous vous souhaitons une excellente expérience sur Dressur."
             );
         }
 
