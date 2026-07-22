@@ -286,7 +286,10 @@ class CrudUserController extends AbstractController
         }
 
         if (count($matches) === 0) {
-            return new Response("Pour confirmer votre numéro WhatsApp, utilisez le même numéro que celui enregistré sur votre compte Dressur.");
+            return new Response("⚠️ Faites la demande de confirmation avec le numéro WhatsApp enregistré sur votre compte Dressur.\n\n"
+                . "Il n'est pas nécessaire de nous envoyer votre numéro.\n\n"
+                . "Si le numéro enregistré est incorrect, modifiez-le dans *Paramètres > Profil*, puis faites à nouveau la demande de confirmation."
+            );
         }
 
         $user = $matches[0];
