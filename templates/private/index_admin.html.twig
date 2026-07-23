@@ -36,7 +36,7 @@
                             </h4>
                             <p class="mb-0 font-13 text-secondary">Solde API PRS</p>
                         </div>
-                        <div class="widget-icon-large {% if soldeZefame <= 5 %}bg-gradient-danger{% elseif soldeZefame <= 10 %}bg-gradient-warning{% else %}bg-gradient-success{% endif %} text-white ms-auto">
+                        <div class="widget-icon-large {% if soldeZefame <= 5 %}bg-danger{% elseif soldeZefame <= 10 %}bg-warning{% else %}bg-success{% endif %} text-white ms-auto">
                             <i class="fas fa-euro-sign"></i>
                         </div>
                     </div>
@@ -54,7 +54,7 @@
                             <h4 class="my-1">{{nbr_user}} <span class="text-secondary" style="font-size:.85rem">|</span> {{nbr_user_bot}}</h4>
                             <p class="mb-0 font-13 text-secondary">Réels&nbsp;|&nbsp;Bots</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-primary text-white ms-auto">
+                        <div class="widget-icon-large bg-primary text-white ms-auto">
                             <i class="fas fa-users"></i>
                         </div>
                     </div>
@@ -67,7 +67,7 @@
             <div class="card radius-10 mb-0 h-100">
                 <div class="card-body">
                     <div class="d-flex align-items-center mb-2">
-                        <div class="widget-icon-large bg-gradient-info text-white me-2" style="width:38px;height:38px;font-size:18px;flex-shrink:0;">
+                        <div class="widget-icon-large bg-info text-white me-2" style="width:38px;height:38px;font-size:18px;flex-shrink:0;">
                             <i class="fas fa-globe"></i>
                         </div>
                         <div>
@@ -77,7 +77,7 @@
                     </div>
                     <div class="d-flex flex-wrap gap-1">
                         {% for row in topPays %}
-                            {% set colors = ['bg-gradient-primary', 'bg-gradient-success', 'bg-gradient-warning', 'bg-gradient-info', 'bg-gradient-secondary'] %}
+                            {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
                             <span class="badge {{ colors[loop.index0] }} text-white me-1" style="font-size:.75rem;font-weight:500;">
                                 +{{ row.pays }} &middot; {{ row.nbr }}
                             </span>
@@ -99,7 +99,7 @@
                             <h4 class="my-1 {% if valid_promo_affaire > 0 %}text-warning{% endif %}">{{valid_promo_affaire}}</h4>
                             <p class="mb-0 font-13 text-secondary">Validation P. Affaire</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <div class="widget-icon-large bg-warning text-white ms-auto">
                             <a href="{{path('app_crud_promotion_promo_en_attente')}}" class="text-white"><i class="fas fa-hourglass-half"></i></a>
                         </div>
                     </div>
@@ -117,7 +117,7 @@
                             <h4 class="my-1 {% if valid_promo_reseau > 0 %}text-warning{% endif %}">{{valid_promo_reseau}}</h4>
                             <p class="mb-0 font-13 text-secondary">Validation P. Réseau</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <div class="widget-icon-large bg-warning text-white ms-auto">
                             <a href="{{path('app_crud_promo_reseau_promo_reseau_en_attente')}}" class="text-white"><i class="fas fa-hourglass-half"></i></a>
                         </div>
                     </div>
@@ -135,7 +135,7 @@
                             <h4 class="my-1 text-primary">{{encour_boost}}</h4>
                             <p class="mb-0 font-13 text-secondary">Boost Contact</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-primary text-white ms-auto">
+                        <div class="widget-icon-large bg-primary text-white ms-auto">
                             <i class="fas fa-bolt"></i>
                         </div>
                     </div>
@@ -153,7 +153,7 @@
                             <h4 class="my-1 text-info">{{programmer_boost}}</h4>
                             <p class="mb-0 font-13 text-secondary">Boost Contact</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-info text-white ms-auto">
+                        <div class="widget-icon-large bg-info text-white ms-auto">
                             <i class="fas fa-calendar-check"></i>
                         </div>
                     </div>
@@ -171,7 +171,7 @@
                             <h4 class="my-1 text-info">{{encour_affaire}}</h4>
                             <p class="mb-0 font-13 text-secondary">Promo Affaire</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-info text-white ms-auto">
+                        <div class="widget-icon-large bg-info text-white ms-auto">
                             <i class="fas fa-briefcase"></i>
                         </div>
                     </div>
@@ -189,7 +189,7 @@
                             <h4 class="my-1 text-success">{{users_prog_recomp}}</h4>
                             <p class="mb-0 font-13 text-secondary">Récompenses</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-success text-white ms-auto">
+                        <div class="widget-icon-large bg-success text-white ms-auto">
                             <i class="fas fa-trophy"></i>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
                             <h4 class="my-1">{{users_vendeur}}</h4>
                             <p class="mb-0 font-13 text-secondary">Compte vendeur</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-secondary text-white ms-auto">
+                        <div class="widget-icon-large bg-secondary text-white ms-auto">
                             <i class="fas fa-store"></i>
                         </div>
                     </div>
@@ -225,7 +225,7 @@
                             <h4 class="my-1 text-success">{{p_aff_recomp}}</h4>
                             <p class="mb-0 font-13 text-secondary">Prog. Récompenses</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-success text-white ms-auto">
+                        <div class="widget-icon-large bg-success text-white ms-auto">
                             <i class="fas fa-trophy"></i>
                         </div>
                     </div>
@@ -243,7 +243,7 @@
                             <h4 class="my-1 text-success">{{p_aff_ds_statut}}</h4>
                             <p class="mb-0 font-13 text-secondary">DS Statut</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-success text-white ms-auto">
+                        <div class="widget-icon-large bg-success text-white ms-auto">
                             <i class="fas fa-circle-check"></i>
                         </div>
                     </div>
@@ -261,7 +261,7 @@
                             <h4 class="my-1 text-danger">{{deleted_users}}</h4>
                             <p class="mb-0 font-13 text-secondary">Comptes</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-danger text-white ms-auto">
+                        <div class="widget-icon-large bg-danger text-white ms-auto">
                             <i class="fas fa-user-minus"></i>
                         </div>
                     </div>
@@ -279,7 +279,7 @@
                             <h4 class="my-1 text-danger">{{banned_users}}</h4>
                             <p class="mb-0 font-13 text-secondary">Comptes</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-danger text-white ms-auto">
+                        <div class="widget-icon-large bg-danger text-white ms-auto">
                             <i class="fas fa-ban"></i>
                         </div>
                     </div>
@@ -297,7 +297,7 @@
                             <h4 class="my-1 text-warning">{{users_inactifs}}</h4>
                             <p class="mb-0 font-13 text-secondary">Aucune utilisation</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <div class="widget-icon-large bg-warning text-white ms-auto">
                             <i class="fas fa-user-clock"></i>
                         </div>
                     </div>
@@ -449,7 +449,7 @@
                             <h4 class="my-1" style="color:#0d6efd;">{{ revenueByService['boost_contact'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['boost_contact'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(310deg,#0d6efd,#6610f2);color:#fff;">
+                        <div class="widget-icon-large bg-primary text-white ms-auto">
                             <i class="fas fa-bolt"></i>
                         </div>
                     </div>
@@ -466,7 +466,7 @@
                             <h4 class="my-1" style="color:#17ad37;">{{ revenueByService['boost_affaire'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['boost_affaire'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(310deg,#17ad37,#98ec2d);color:#fff;">
+                        <div class="widget-icon-large bg-success text-white ms-auto">
                             <i class="fas fa-briefcase"></i>
                         </div>
                     </div>
@@ -483,7 +483,7 @@
                             <h4 class="my-1" style="color:#f7971e;">{{ revenueByService['re_boost_affaire'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['re_boost_affaire'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(to right,#f7971e,#ffd200);color:#fff;">
+                        <div class="widget-icon-large bg-warning text-white ms-auto">
                             <i class="fas fa-redo"></i>
                         </div>
                     </div>
@@ -500,7 +500,7 @@
                             <h4 class="my-1" style="color:#00c6fb;">{{ revenueByService['boost_reseau_sociaux'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['boost_reseau_sociaux'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(to top,#00c6fb,#005bea);color:#fff;">
+                        <div class="widget-icon-large bg-info text-white ms-auto">
                             <i class="fas fa-share-alt"></i>
                         </div>
                     </div>
