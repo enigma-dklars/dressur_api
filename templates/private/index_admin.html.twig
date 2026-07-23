@@ -66,20 +66,16 @@
         <div class="col">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div>
-                            <p class="mb-0">
-                                {% for row in topPays %}
-                                    {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary', 'bg-danger', 'bg-dark'] %}
-                                    <span class="badge {{ colors[loop.index0] }} text-white me-1 mb-2" style="font-size:.80rem;font-weight:500;">
-                                        +{{ row.pays }} &middot; {{ row.nbr }}
-                                    </span>
-                                {% else %}
-                                    <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
-                                {% endfor %}
-                            </p>
-                        </div>
-                    </div>
+                    <p class="mb-0">
+                        {% for row in topPays %}
+                            {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary', 'bg-danger', 'bg-dark'] %}
+                            <span class="badge {{ colors[loop.index0] }} text-white me-1 mb-2" style="font-size:.75rem;font-weight:500;">
+                                +{{ row.pays }} &middot; {{ row.nbr }}
+                            </span>
+                        {% else %}
+                            <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
+                        {% endfor %}
+                    </p>
                 </div>
             </div>
         </div>
