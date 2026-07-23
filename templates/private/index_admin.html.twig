@@ -75,14 +75,14 @@
                             <p class="mb-0 font-13 text-secondary" style="font-size:.72rem;">par indicatif</p>
                         </div>
                     </div>
-                    <div>
+                    <div class="d-flex flex-wrap gap-1">
                         {% for row in topPays %}
-                        <div class="d-flex align-items-center justify-content-between {% if not loop.last %}mb-1{% endif %}">
-                            <span class="text-secondary" style="font-size:.8rem;">+{{ row.pays }}</span>
-                            <span class="badge bg-gradient-info text-white" style="font-size:.75rem;">{{ row.nbr }}</span>
-                        </div>
+                            {% set colors = ['bg-gradient-primary', 'bg-gradient-success', 'bg-gradient-warning', 'bg-gradient-info', 'bg-gradient-secondary'] %}
+                            <span class="badge {{ colors[loop.index0] }} text-white me-1" style="font-size:.75rem;font-weight:500;">
+                                +{{ row.pays }} &middot; {{ row.nbr }}
+                            </span>
                         {% else %}
-                        <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
+                            <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
                         {% endfor %}
                     </div>
                 </div>
