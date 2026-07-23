@@ -441,15 +441,15 @@
     <div class="row g-2 mb-4 row-cols-1 row-cols-sm-2 row-cols-xl-4">
 
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid #0d6efd;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Boost Contact</p>
-                            <h4 class="my-1 text-primary">{{ revenueByService['boost_contact'].total | number_format(0, ',', ' ') }}</h4>
+                            <h4 class="my-1" style="color:#0d6efd;">{{ revenueByService['boost_contact'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['boost_contact'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-primary text-white ms-auto">
+                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(310deg,#0d6efd,#6610f2);color:#fff;">
                             <i class="fas fa-bolt"></i>
                         </div>
                     </div>
@@ -458,15 +458,15 @@
         </div>
 
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid #17ad37;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Promo Affaire</p>
-                            <h4 class="my-1 text-success">{{ revenueByService['boost_affaire'].total | number_format(0, ',', ' ') }}</h4>
+                            <h4 class="my-1" style="color:#17ad37;">{{ revenueByService['boost_affaire'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['boost_affaire'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-success text-white ms-auto">
+                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(310deg,#17ad37,#98ec2d);color:#fff;">
                             <i class="fas fa-briefcase"></i>
                         </div>
                     </div>
@@ -475,15 +475,15 @@
         </div>
 
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid #f7971e;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Re-Boost Affaire</p>
-                            <h4 class="my-1 text-warning">{{ revenueByService['re_boost_affaire'].total | number_format(0, ',', ' ') }}</h4>
+                            <h4 class="my-1" style="color:#f7971e;">{{ revenueByService['re_boost_affaire'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['re_boost_affaire'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-warning text-white ms-auto">
+                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(to right,#f7971e,#ffd200);color:#fff;">
                             <i class="fas fa-redo"></i>
                         </div>
                     </div>
@@ -492,15 +492,15 @@
         </div>
 
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid #00c6fb;">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
                             <p class="mb-0 text-secondary">Réseaux Sociaux</p>
-                            <h4 class="my-1 text-info">{{ revenueByService['boost_reseau_sociaux'].total | number_format(0, ',', ' ') }}</h4>
+                            <h4 class="my-1" style="color:#00c6fb;">{{ revenueByService['boost_reseau_sociaux'].total | number_format(0, ',', ' ') }}</h4>
                             <p class="mb-0 font-13 text-secondary">{{ revenueByService['boost_reseau_sociaux'].nbr }} transactions</p>
                         </div>
-                        <div class="widget-icon-large bg-gradient-info text-white ms-auto">
+                        <div class="widget-icon-large ms-auto" style="background:linear-gradient(to top,#00c6fb,#005bea);color:#fff;">
                             <i class="fas fa-share-alt"></i>
                         </div>
                     </div>
