@@ -313,7 +313,7 @@ class BoostRepository extends ServiceEntityRepository
         $sql = 'SELECT DATE(date_debut) AS day, COUNT(id) AS cnt
                 FROM boost
                 WHERE DATE(date_debut) >= :from AND DATE(date_debut) <= :to
-                  AND mode = :mode
+                  AND `mode` = :mode
                 GROUP BY day
                 ORDER BY day ASC';
 
