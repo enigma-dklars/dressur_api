@@ -68,20 +68,17 @@
                 <div class="card-body">
                     <div class="d-flex align-items-center">
                         <div>
-                            <p class="mb-0 text-secondary">Top 5 Pays</p>
+                            <p class="mb-1 text-secondary">Top 5 Pays</p>
                             <p class="mb-0 font-13">
                                 {% for row in topPays %}
                                     {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
-                                    <span class="badge {{ colors[loop.index0] }} text-white me-1" style="font-size:.75rem;font-weight:500;">
+                                    <span class="badge {{ colors[loop.index0] }} text-white me-1 mb-1" style="font-size:.75rem;font-weight:500;">
                                         +{{ row.pays }} &middot; {{ row.nbr }}
                                     </span>
                                 {% else %}
                                     <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
                                 {% endfor %}
                             </p>
-                        </div>
-                        <div class="widget-icon-large bg-info text-white ms-auto">
-                            <i class="fas fa-globe"></i>
                         </div>
                     </div>
                 </div>
