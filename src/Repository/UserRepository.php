@@ -334,5 +334,22 @@ class UserRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery()->fetchAssociative();
     }
 
+    /**
+     * Retourne le top 5 des pays (indicatif téléphonique) avec le plus d'utilisateurs.
+     */
+    public function getTopPaysByUserCount(int $limit = 5): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql  = '
+            SELECT pays, COUNT(*) AS nbr
+            FROM `user`
+            WHERE pays IS NOT NULL
+            GROUP BY pays
+            ORDER BY nbr DESC
+            LIMIT :limit
+        ';
+        return $conn->prepare($sql)->executeQuery(['limit' => $limit])->fetchAllAssociative();
+    }
+
 
 }

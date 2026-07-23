@@ -329,6 +329,7 @@ class PrivateController extends AbstractController
                     'chartPromoAff' => $chartPromoAff,
                     'chartPromoRes' => $chartPromoRes,
                     'chartSummary'  => $chartSummary,
+                    'topPays'       => $userRepository->getTopPaysByUserCount(5),
                 ]);
             }
         }
