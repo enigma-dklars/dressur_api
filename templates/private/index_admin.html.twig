@@ -13,7 +13,7 @@
 
     {# ═══════════════════════════════════════════════════
         GRILLE DES STATISTIQUES
-        Ordre : Solde · Users totaux · Top 5 Pays
+        Ordre : Solde · Users totaux · Top 7 Pays
                 Validation PA · Validation PR
                 En cours boost · Programmé boost · En cours affaire
                 Prog Recomp users · Vendeurs
@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        {# ── Top 5 Pays ───────────────────────────────────────  #}
+        {# ── Top 7 Pays ───────────────────────────────────────  #}
         <div class="col">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
@@ -70,7 +70,7 @@
                         <div>
                             <p class="mb-0">
                                 {% for row in topPays %}
-                                    {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
+                                    {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary', 'bg-danger', 'bg-dark'] %}
                                     <span class="badge {{ colors[loop.index0] }} text-white me-1 mb-2" style="font-size:.80rem;font-weight:500;">
                                         +{{ row.pays }} &middot; {{ row.nbr }}
                                     </span>
