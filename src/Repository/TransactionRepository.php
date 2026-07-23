@@ -75,6 +75,38 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne le nombre de transactions et la somme des montants (status = 'approved')
+     * groupés par transactionFor pour les 4 services principaux.
+     */
+    public function getRevenueByService(): array
+    {
+        $services = ['boost_contact', 'boost_affaire', 're_boost_affaire', 'boost_reseau_sociaux'];
+
+        $rows = $this->createQueryBuilder('t')
+            ->select('t.transactionFor as service, COUNT(t.id) as nbr, SUM(t.amount) as total')
+            ->where('t.status = :status')
+            ->andWhere('t.transactionFor IN (:services)')
+            ->setParameter('status', 'approved')
+            ->setParameter('services', $services)
+            ->groupBy('t.transactionFor')
+            ->getQuery()
+            ->getScalarResult();
+
+        // Indexer par service pour accès facile dans le template
+        $result = [];
+        foreach ($services as $svc) {
+            $result[$svc] = ['nbr' => 0, 'total' => 0];
+        }
+        foreach ($rows as $row) {
+            $result[$row['service']] = [
+                'nbr'   => (int) $row['nbr'],
+                'total' => (int) $row['total'],
+            ];
+        }
+        return $result;
+    }
+
+    /**
      * Compte les transactions payées (status = 'approved') pour les services
      * boost_contact, boost_affaire, re_boost_affaire et boost_reseau_sociaux.
      */

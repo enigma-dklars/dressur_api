@@ -335,6 +335,7 @@ class PrivateController extends AbstractController
                     'chartPromoRes' => $chartPromoRes,
                     'chartSummary'  => $chartSummary,
                     'topPays'       => $userRepository->getTopPaysByUserCount(5),
+                    'revenueByService' => $transactionRepository->getRevenueByService(),
                 ]);
             }
         }
