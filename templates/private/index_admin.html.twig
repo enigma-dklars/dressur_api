@@ -64,26 +64,25 @@
 
         {# ── Top 5 Pays ───────────────────────────────────────  #}
         <div class="col">
-            <div class="card radius-10 mb-0 h-100">
+            <div class="card radius-10 mb-0">
                 <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="widget-icon-large bg-info text-white me-2" style="width:38px;height:38px;font-size:18px;flex-shrink:0;">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary">Top 5 Pays</p>
+                            <p class="mb-0 font-13">
+                                {% for row in topPays %}
+                                    {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
+                                    <span class="badge {{ colors[loop.index0] }} text-white me-1" style="font-size:.75rem;font-weight:500;">
+                                        +{{ row.pays }} &middot; {{ row.nbr }}
+                                    </span>
+                                {% else %}
+                                    <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
+                                {% endfor %}
+                            </p>
+                        </div>
+                        <div class="widget-icon-large bg-info text-white ms-auto">
                             <i class="fas fa-globe"></i>
                         </div>
-                        <div>
-                            <p class="mb-0 text-secondary" style="font-size:.78rem;line-height:1.1;">Top 5 Pays</p>
-                            <p class="mb-0 font-13 text-secondary" style="font-size:.72rem;">par indicatif</p>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-wrap gap-1">
-                        {% for row in topPays %}
-                            {% set colors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
-                            <span class="badge {{ colors[loop.index0] }} text-white me-1" style="font-size:.75rem;font-weight:500;">
-                                +{{ row.pays }} &middot; {{ row.nbr }}
-                            </span>
-                        {% else %}
-                            <p class="mb-0 text-secondary" style="font-size:.8rem;">Aucune donnée</p>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
