@@ -300,4 +300,34 @@ class BoostRepository extends ServiceEntityRepository
         }
         return $result;
     }
+
+    /**
+     * Retourne les stats journalières sur 30 jours pour un mode donné (Gratuit / Payant).
+     */
+    public function getDailyStats30DaysByMode(string $mode): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $from = (new \DateTime('-29 days'))->format('Y-m-d');
+        $to   = (new \DateTime())->format('Y-m-d');
+
+        $sql = 'SELECT DATE(date_debut) AS day, COUNT(id) AS cnt
+                FROM boost
+                WHERE DATE(date_debut) >= :from AND DATE(date_debut) <= :to
+                  AND mode = :mode
+                GROUP BY day
+                ORDER BY day ASC';
+
+        $rows = $conn->prepare($sql)->executeQuery(['from' => $from, 'to' => $to, 'mode' => $mode])->fetchAllAssociative();
+
+        $result = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $result[(new \DateTime("-{$i} days"))->format('Y-m-d')] = 0;
+        }
+        foreach ($rows as $row) {
+            if (isset($result[$row['day']])) {
+                $result[$row['day']] = (int) $row['cnt'];
+            }
+        }
+        return $result;
+    }
 }

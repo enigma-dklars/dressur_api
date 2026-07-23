@@ -228,13 +228,16 @@ class PrivateController extends AbstractController
                 $this->em->flush();
 
                 $usersStats      = $userRepository->getDailyStats30Days();
-                $boostsStats     = $boostRepository->getDailyStats30Days();
+                $boostsGratuitStats = $boostRepository->getDailyStats30DaysByMode('Gratuit');
+                $boostsPayantStats  = $boostRepository->getDailyStats30DaysByMode('Payant');
                 $promoAffStats   = $promotionRepository->getDailyStats30Days();
                 $promoResStats   = $promoReseauRepository->getDailyStats30Days();
 
-                $chartLabels     = array_keys($usersStats);
-                $chartUsers      = array_values($usersStats);
-                $chartBoosts     = array_values($boostsStats);
+                $chartLabels        = array_keys($usersStats);
+                $chartUsers         = array_values($usersStats);
+                $chartBoostsGratuit = array_values($boostsGratuitStats);
+                $chartBoostsPayant  = array_values($boostsPayantStats);
+                $chartBoosts        = array_map(fn($g, $p) => $g + $p, $chartBoostsGratuit, $chartBoostsPayant);
                 $chartPromoAff   = array_values($promoAffStats);
                 $chartPromoRes   = array_values($promoResStats);
 
@@ -323,9 +326,11 @@ class PrivateController extends AbstractController
                     'promoReseauSourceCounts' => $promoReseauRepository->getSourceCounts(),
                     'boostSourceCounts' => $boostRepository->getSourceCounts(),
                     'transactionSourceCounts' => $transactionRepository->getSourceCounts(),
-                    'chartLabels'   => $chartLabels,
-                    'chartUsers'    => $chartUsers,
-                    'chartBoosts'   => $chartBoosts,
+                    'chartLabels'        => $chartLabels,
+                    'chartUsers'         => $chartUsers,
+                    'chartBoosts'        => $chartBoosts,
+                    'chartBoostsGratuit' => $chartBoostsGratuit,
+                    'chartBoostsPayant'  => $chartBoostsPayant,
                     'chartPromoAff' => $chartPromoAff,
                     'chartPromoRes' => $chartPromoRes,
                     'chartSummary'  => $chartSummary,

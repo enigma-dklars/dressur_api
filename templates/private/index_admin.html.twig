@@ -441,11 +441,12 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
 (function () {
-    var labels   = {{ chartLabels | json_encode | raw }};
-    var users    = {{ chartUsers | json_encode | raw }};
-    var boosts   = {{ chartBoosts | json_encode | raw }};
-    var promoAff = {{ chartPromoAff | json_encode | raw }};
-    var promoRes = {{ chartPromoRes | json_encode | raw }};
+    var labels        = {{ chartLabels | json_encode | raw }};
+    var users         = {{ chartUsers | json_encode | raw }};
+    var boostsGratuit = {{ chartBoostsGratuit | json_encode | raw }};
+    var boostsPayant  = {{ chartBoostsPayant | json_encode | raw }};
+    var promoAff      = {{ chartPromoAff | json_encode | raw }};
+    var promoRes      = {{ chartPromoRes | json_encode | raw }};
 
     var shortLabels = labels.map(function(d) {
         var parts = d.split('-');
@@ -470,10 +471,21 @@
                     fill: true,
                 },
                 {
-                    label: 'Boost Contact',
-                    data: boosts,
+                    label: 'Boost Contact Gratuit',
+                    data: boostsGratuit,
                     borderColor: '#f6a21e',
                     backgroundColor: 'rgba(246,162,30,0.08)',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    tension: 0.35,
+                    fill: true,
+                },
+                {
+                    label: 'Boost Contact Payant',
+                    data: boostsPayant,
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231,76,60,0.08)',
                     borderWidth: 2,
                     pointRadius: 3,
                     pointHoverRadius: 5,
