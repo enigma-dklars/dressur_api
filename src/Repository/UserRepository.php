@@ -340,15 +340,16 @@ class UserRepository extends ServiceEntityRepository
     public function getTopPaysByUserCount(int $limit = 5): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql  = '
-            SELECT pays, COUNT(*) AS nbr
-            FROM `user`
-            WHERE pays IS NOT NULL
-            GROUP BY pays
-            ORDER BY nbr DESC
-            LIMIT :limit
-        ';
-        return $conn->prepare($sql)->executeQuery(['limit' => $limit])->fetchAllAssociative();
+        $sql  = sprintf(
+            'SELECT pays, COUNT(*) AS nbr
+             FROM `user`
+             WHERE pays IS NOT NULL
+             GROUP BY pays
+             ORDER BY nbr DESC
+             LIMIT %d',
+            $limit
+        );
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 
 
