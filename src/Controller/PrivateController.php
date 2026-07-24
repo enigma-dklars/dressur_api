@@ -335,7 +335,10 @@ class PrivateController extends AbstractController
                     'chartPromoRes' => $chartPromoRes,
                     'chartSummary'  => $chartSummary,
                     'topPays'       => $userRepository->getTopPaysByUserCount(7),
-                    'revenueByService' => $transactionRepository->getRevenueByService(),
+                    'revenueByService'        => $transactionRepository->getRevenueByService(),
+                    'topUsersBoostContact'    => $transactionRepository->getTopUsersByService(['boost_contact']),
+                    'topUsersPromoAffaire'    => $transactionRepository->getTopUsersByService(['boost_affaire', 're_boost_affaire']),
+                    'topUsersReseauxSociaux'  => $transactionRepository->getTopUsersByService(['boost_reseau_sociaux']),
                 ]);
             }
         }

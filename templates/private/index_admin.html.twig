@@ -500,6 +500,93 @@
         </div>
 
     </div>
+
+    {# ── Top utilisateurs par service ─────────────────────────  #}
+    {% set servicesTables = [
+        { id: 'tbl-boost-contact',  title: 'Boost Contact',   color: '#0d6efd', rows: topUsersBoostContact },
+        { id: 'tbl-promo-affaire',  title: 'Promo Affaire (Boost + Re-Boost)', color: '#17ad37', rows: topUsersPromoAffaire },
+        { id: 'tbl-reseau-sociaux', title: 'Réseaux Sociaux', color: '#00c6fb', rows: topUsersReseauxSociaux }
+    ] %}
+
+    {% for svc in servicesTables %}
+    <div class="card radius-10 mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="mb-0 fw-semibold" style="color:{{ svc.color }};">
+                    <i class="fas fa-trophy me-1"></i> Top utilisateurs — {{ svc.title }}
+                </h6>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="mb-0 text-secondary small">Afficher</label>
+                    <input type="number"
+                           class="form-control form-control-sm top-limit-input"
+                           data-table="{{ svc.id }}"
+                           value="10" min="1" max="{{ svc.rows|length }}"
+                           style="width:70px;">
+                    <span class="text-secondary small">/ {{ svc.rows|length }} chargés</span>
+                </div>
+            </div>
+
+            {% if svc.rows is empty %}
+                <p class="text-secondary small mb-0">Aucune donnée.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle mb-0" id="{{ svc.id }}">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Pseudo</th>
+                            <th>Nom</th>
+                            <th>Téléphone</th>
+                            <th>Mail</th>
+                            <th class="text-end">Montant dépensé</th>
+                            <th class="text-center">Transactions</th>
+                            <th>Création compte</th>
+                            <th>Dernière connexion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in svc.rows %}
+                        <tr class="top-row">
+                            <td>
+                                {% if loop.index == 1 %}
+                                    <span class="badge bg-warning text-dark">🥇 1</span>
+                                {% elseif loop.index == 2 %}
+                                    <span class="badge bg-secondary">🥈 2</span>
+                                {% elseif loop.index == 3 %}
+                                    <span class="badge bg-danger">🥉 3</span>
+                                {% else %}
+                                    <span class="text-secondary">{{ loop.index }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-semibold">{{ row.pseudo ?? '—' }}</td>
+                            <td>{{ row.nom ?? '—' }}</td>
+                            <td class="text-nowrap">
+                                {% if row.pays %}+{{ row.pays }}{% endif %}
+                                {{ row.tel ?? '—' }}
+                            </td>
+                            <td>{{ row.mail ?? '—' }}</td>
+                            <td class="text-end fw-bold" style="color:{{ svc.color }};">
+                                {{ row.total | number_format(0, ',', ' ') }}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">{{ row.nbr_tx }}</span>
+                            </td>
+                            <td class="text-nowrap small text-secondary">
+                                {{ row.created_at ? row.created_at|date('d/m/Y') : '—' }}
+                            </td>
+                            <td class="text-nowrap small text-secondary">
+                                {{ row.last_login ? row.last_login|date('d/m/Y H:i') : '—' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
 {% endblock %}
 
 {% block script %}
@@ -614,5 +701,19 @@
         }
     });
 })();
+
+// ── Top utilisateurs : affichage dynamique ───────────────────
+document.querySelectorAll('.top-limit-input').forEach(function(input) {
+    function applyLimit() {
+        var tableId = input.getAttribute('data-table');
+        var limit   = Math.max(1, parseInt(input.value) || 10);
+        var rows    = document.querySelectorAll('#' + tableId + ' tbody .top-row');
+        rows.forEach(function(row, i) {
+            row.style.display = i < limit ? '' : 'none';
+        });
+    }
+    applyLimit();
+    input.addEventListener('input', applyLimit);
+});
 </script>
 {% endblock %}

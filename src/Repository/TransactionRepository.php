@@ -107,6 +107,37 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Top utilisateurs par montant dépensé (approved) pour un ou plusieurs services.
+     * Charge jusqu'à $limit résultats côté serveur, le filtrage affiché est fait en JS.
+     */
+    public function getTopUsersByService(array $services, int $limit = 50): array
+    {
+        return $this->createQueryBuilder('t')
+            ->select(
+                'u.id         as user_id',
+                'u.pseudo     as pseudo',
+                'u.nom        as nom',
+                'u.mail       as mail',
+                'u.pays       as pays',
+                'u.tel        as tel',
+                'u.createdAt  as created_at',
+                'u.lastLoginTo as last_login',
+                'SUM(t.amount) as total',
+                'COUNT(t.id)   as nbr_tx'
+            )
+            ->join('t.user', 'u')
+            ->where('t.status = :status')
+            ->andWhere('t.transactionFor IN (:services)')
+            ->setParameter('status', 'approved')
+            ->setParameter('services', $services)
+            ->groupBy('u.id')
+            ->orderBy('total', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getScalarResult();
+    }
+
+    /**
      * Compte les transactions payées (status = 'approved') pour les services
      * boost_contact, boost_affaire, re_boost_affaire et boost_reseau_sociaux.
      */
