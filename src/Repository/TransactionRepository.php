@@ -130,8 +130,8 @@ class TransactionRepository extends ServiceEntityRepository
             ->andWhere('t.transactionFor IN (:services)')
             ->setParameter('status', 'approved')
             ->setParameter('services', $services)
-            ->groupBy('u.id')
-            ->orderBy('total', 'DESC')
+            ->groupBy('u.id, u.pseudo, u.nom, u.mail, u.pays, u.tel, u.createdAt, u.lastLoginTo')
+            ->orderBy('SUM(t.amount)', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getScalarResult();
