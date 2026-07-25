@@ -569,7 +569,7 @@
                                 {{ row.total | number_format(0, ',', ' ') }}
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-light text-dark border">{{ row.nbr_tx }}</span>
+                                <span class="badge bg-warning border">{{ row.nbr_tx }}</span>
                             </td>
                             <td class="text-nowrap small text-secondary">
                                 {{ row.created_at ? row.created_at|date('d/m/Y') : '—' }}
