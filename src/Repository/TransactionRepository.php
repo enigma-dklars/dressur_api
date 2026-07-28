@@ -155,5 +155,124 @@ class TransactionRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
     }
 
+    /**
+     * Statistiques des transactions approuvées pour les 4 dernières semaines calendaires.
+     * Index 0 = semaine en cours (lundi → aujourd'hui)
+     * Index 1 = semaine précédente complète, etc.
+     */
+    public function getWeeklyTransactionStats(): array
+    {
+        $now    = new \DateTime();
+        $result = [];
+
+        for ($i = 0; $i < 4; $i++) {
+            $weekDate  = clone $now;
+            if ($i > 0) {
+                $weekDate->modify("-{$i} week");
+            }
+
+            // Lundi de la semaine (N : 1 = lundi … 7 = dimanche)
+            $dayOfWeek = (int) $weekDate->format('N');
+            $weekStart = clone $weekDate;
+            $weekStart->modify('-' . ($dayOfWeek - 1) . ' days');
+            $weekStart->setTime(0, 0, 0);
+
+            if ($i === 0) {
+                $weekEnd = clone $now;
+                $weekEnd->setTime(23, 59, 59);
+                $label = 'Semaine en cours';
+            } else {
+                $weekEnd = clone $weekStart;
+                $weekEnd->modify('+6 days');
+                $weekEnd->setTime(23, 59, 59);
+                $label = 'Semaine -' . $i;
+            }
+
+            $row = $this->createQueryBuilder('t')
+                ->select('COUNT(t.id) as nbr, SUM(t.amount) as total')
+                ->where('t.status = :status')
+                ->andWhere('t.createdAt >= :start')
+                ->andWhere('t.createdAt <= :end')
+                ->setParameter('status', 'approved')
+                ->setParameter('start', $weekStart)
+                ->setParameter('end', $weekEnd)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            $result[] = [
+                'label'     => $label,
+                'dateStart' => $weekStart->format('d/m'),
+                'dateEnd'   => $weekEnd->format('d/m'),
+                'nbr'       => (int)   ($row['nbr']   ?? 0),
+                'total'     => (float) ($row['total'] ?? 0),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Comparaison des transactions approuvées : mois en cours vs mois précédent.
+     */
+    public function getMonthlyTransactionComparison(): array
+    {
+        $now = new \DateTime();
+
+        // Mois en cours : du 1er jusqu'à aujourd'hui
+        $curStart = new \DateTime($now->format('Y-m-01 00:00:00'));
+        $curEnd   = clone $now;
+        $curEnd->setTime(23, 59, 59);
+
+        // Mois précédent : du 1er au dernier jour
+        $prevStart = (clone $curStart)->modify('-1 month');
+        $prevEnd   = new \DateTime($prevStart->format('Y-m-t 23:59:59'));
+
+        $fetch = function (\DateTime $start, \DateTime $end): array {
+            $row = $this->createQueryBuilder('t')
+                ->select('COUNT(t.id) as nbr, SUM(t.amount) as total')
+                ->where('t.status = :status')
+                ->andWhere('t.createdAt >= :start')
+                ->andWhere('t.createdAt <= :end')
+                ->setParameter('status', 'approved')
+                ->setParameter('start', $start)
+                ->setParameter('end', $end)
+                ->getQuery()
+                ->getOneOrNullResult();
+
+            return [
+                'nbr'   => (int)   ($row['nbr']   ?? 0),
+                'total' => (float) ($row['total'] ?? 0),
+            ];
+        };
+
+        $cur  = $fetch($curStart, $curEnd);
+        $prev = $fetch($prevStart, $prevEnd);
+
+        $variation = null;
+        if ($prev['total'] > 0) {
+            $variation = round(($cur['total'] - $prev['total']) / $prev['total'] * 100, 1);
+        } elseif ($cur['total'] > 0) {
+            $variation = 100.0;
+        }
+
+        $moisFr = ['janvier','février','mars','avril','mai','juin',
+                   'juillet','août','septembre','octobre','novembre','décembre'];
+
+        return [
+            'current' => [
+                'label' => ucfirst($moisFr[(int) $now->format('n') - 1]) . ' ' . $now->format('Y'),
+                'nbr'   => $cur['nbr'],
+                'total' => $cur['total'],
+            ],
+            'previous' => [
+                'label' => ucfirst($moisFr[(int) $prevStart->format('n') - 1]) . ' ' . $prevStart->format('Y'),
+                'nbr'   => $prev['nbr'],
+                'total' => $prev['total'],
+            ],
+            'variation' => $variation,
+            'isBetter'  => $cur['total'] >= $prev['total'],
+        ];
+    }
+
 
 }

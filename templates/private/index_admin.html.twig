@@ -501,6 +501,148 @@
 
     </div>
 
+    {# ── Transactions approuvées – 4 dernières semaines ─────────  #}
+    <div class="row g-2 mb-2">
+        <div class="col-12">
+            <p class="mb-1 text-secondary fw-semibold" style="font-size:.85rem;letter-spacing:.04em;">
+                <i class="fas fa-calendar-week me-1"></i> TRANSACTIONS APPROUVÉES — 4 DERNIÈRES SEMAINES
+            </p>
+        </div>
+    </div>
+    <div class="row g-2 mb-4 row-cols-2 row-cols-md-4">
+        {% set weekColors = ['#4e73df', '#1cc88a', '#f6a21e', '#9b59b6'] %}
+        {% set weekBgs    = ['bg-primary', 'bg-success', 'bg-warning', 'bg-secondary'] %}
+        {% for week in weeklyTransactions %}
+        <div class="col">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid {{ weekColors[loop.index0] }};">
+                <div class="card-body">
+                    <div class="d-flex align-items-start justify-content-between">
+                        <div>
+                            <p class="mb-0 fw-semibold" style="font-size:.8rem;color:{{ weekColors[loop.index0] }};">
+                                {{ week.label }}
+                            </p>
+                            <p class="mb-1 text-secondary" style="font-size:.72rem;">
+                                {{ week.dateStart }} → {{ week.dateEnd }}
+                            </p>
+                            <h4 class="my-1 fw-bold" style="color:{{ weekColors[loop.index0] }};">
+                                {{ week.total | number_format(0, ',', ' ') }}
+                                <span class="text-secondary" style="font-size:.7rem;font-weight:400;">FCFA</span>
+                            </h4>
+                            <p class="mb-0 font-13 text-secondary">
+                                <i class="fas fa-check-circle text-success me-1" style="font-size:.75rem;"></i>
+                                {{ week.nbr }} transaction{{ week.nbr > 1 ? 's' : '' }}
+                            </p>
+                        </div>
+                        <div class="widget-icon {{ weekBgs[loop.index0] }} text-white ms-2" style="width:38px;height:38px;min-width:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-calendar-check" style="font-size:.9rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# ── Comparaison mensuelle ─────────────────────────────────  #}
+    <div class="row g-2 mb-2">
+        <div class="col-12">
+            <p class="mb-1 text-secondary fw-semibold" style="font-size:.85rem;letter-spacing:.04em;">
+                <i class="fas fa-chart-bar me-1"></i> TRANSACTIONS APPROUVÉES — COMPARAISON MENSUELLE
+            </p>
+        </div>
+    </div>
+    <div class="row g-2 mb-4 row-cols-1 row-cols-md-3">
+
+        {# Mois en cours #}
+        <div class="col">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid #1cc88a;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary" style="font-size:.8rem;">Mois en cours</p>
+                            <p class="mb-1 fw-semibold" style="font-size:.75rem;color:#1cc88a;">
+                                {{ monthlyTransactions.current.label }}
+                            </p>
+                            <h4 class="my-1 fw-bold" style="color:#1cc88a;">
+                                {{ monthlyTransactions.current.total | number_format(0, ',', ' ') }}
+                                <span class="text-secondary" style="font-size:.7rem;font-weight:400;">FCFA</span>
+                            </h4>
+                            <p class="mb-0 font-13 text-secondary">
+                                <i class="fas fa-check-circle text-success me-1" style="font-size:.75rem;"></i>
+                                {{ monthlyTransactions.current.nbr }} transaction{{ monthlyTransactions.current.nbr > 1 ? 's' : '' }}
+                            </p>
+                        </div>
+                        <div class="widget-icon-large bg-success text-white ms-auto">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Mois précédent #}
+        <div class="col">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid #858796;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <p class="mb-0 text-secondary" style="font-size:.8rem;">Mois précédent</p>
+                            <p class="mb-1 fw-semibold" style="font-size:.75rem;color:#858796;">
+                                {{ monthlyTransactions.previous.label }}
+                            </p>
+                            <h4 class="my-1 fw-bold text-secondary">
+                                {{ monthlyTransactions.previous.total | number_format(0, ',', ' ') }}
+                                <span class="text-secondary" style="font-size:.7rem;font-weight:400;">FCFA</span>
+                            </h4>
+                            <p class="mb-0 font-13 text-secondary">
+                                <i class="fas fa-check-circle text-success me-1" style="font-size:.75rem;"></i>
+                                {{ monthlyTransactions.previous.nbr }} transaction{{ monthlyTransactions.previous.nbr > 1 ? 's' : '' }}
+                            </p>
+                        </div>
+                        <div class="widget-icon-large bg-secondary text-white ms-auto">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Comparaison #}
+        <div class="col">
+            <div class="card radius-10 mb-0 h-100"
+                 style="border-left:4px solid {% if monthlyTransactions.isBetter %}#1cc88a{% else %}#e74a3b{% endif %};">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <p class="mb-1 text-secondary" style="font-size:.8rem;">Comparaison</p>
+                    {% if monthlyTransactions.variation is not null %}
+                        {% if monthlyTransactions.isBetter %}
+                            <h3 class="fw-bold mb-1" style="color:#1cc88a;">
+                                <i class="fas fa-arrow-up me-1"></i>+{{ monthlyTransactions.variation }}%
+                            </h3>
+                            <p class="mb-0 font-13 text-success fw-semibold">
+                                Ce mois est meilleur que le précédent
+                            </p>
+                        {% else %}
+                            <h3 class="fw-bold mb-1" style="color:#e74a3b;">
+                                <i class="fas fa-arrow-down me-1"></i>{{ monthlyTransactions.variation }}%
+                            </h3>
+                            <p class="mb-0 font-13 text-danger fw-semibold">
+                                Ce mois est en dessous du précédent
+                            </p>
+                        {% endif %}
+                        <p class="mb-0 font-13 text-secondary mt-1">
+                            Écart :
+                            {{ (monthlyTransactions.current.total - monthlyTransactions.previous.total) | abs | number_format(0, ',', ' ') }} FCFA
+                        </p>
+                    {% else %}
+                        <h3 class="fw-bold mb-1 text-secondary">—</h3>
+                        <p class="mb-0 font-13 text-secondary">Pas encore de données comparatives</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     {# ── Top utilisateurs par service ─────────────────────────  #}
     {% set servicesTables = [
         { id: 'tbl-boost-contact',  title: 'Boost Contact',   color: '#0d6efd', rows: topUsersBoostContact },
