@@ -42,14 +42,7 @@ class CrudBoostController extends AbstractController
     public function index(BoostRepository $boostRepository, Request $request): Response
     {
         $sourceFilter = $request->query->get('source', '');
-
-        if ($sourceFilter === 'none') {
-            $boosts = $boostRepository->findBy(['source' => null], ['id' => 'DESC']);
-        } elseif (in_array($sourceFilter, ['web', 'mobile'])) {
-            $boosts = $boostRepository->findBy(['source' => $sourceFilter], ['id' => 'DESC']);
-        } else {
-            $boosts = $boostRepository->findBy([], ['id' => 'DESC']);
-        }
+        $boosts = $boostRepository->findAllOrderedByStatus($sourceFilter);
 
         return $this->render('crud_boost/index.html.twig', [
             'theme' => $this->theme,

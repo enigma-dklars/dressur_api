@@ -229,6 +229,38 @@ class BoostRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Retourne tous les boosts triés par statut :
+     *   1. En cours – Quota   (typeBoost = 'quota', dateExp IS NULL, déjà démarré)
+     *   2. En cours – Durée   (typeBoost = 'date',  dateExp > now,   déjà démarré)
+     *   3. Programmé          (dateDebut > now)
+     *   4. Terminé            (tout le reste)
+     * À statut égal, tri par id DESC (le plus récent en premier).
+     */
+    public function findAllOrderedByStatus(string $sourceFilter = ''): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->addSelect('
+                CASE
+                    WHEN b.dateDebut > CURRENT_TIMESTAMP() THEN 3
+                    WHEN b.typeBoost = \'quota\' AND b.dateExp IS NULL THEN 1
+                    WHEN b.typeBoost <> \'quota\' AND b.dateExp IS NOT NULL AND b.dateExp > CURRENT_TIMESTAMP() THEN 2
+                    ELSE 4
+                END AS HIDDEN statusOrder
+            ')
+            ->orderBy('statusOrder', 'ASC')
+            ->addOrderBy('b.id', 'DESC');
+
+        if ($sourceFilter === 'none') {
+            $qb->where('b.source IS NULL');
+        } elseif (in_array($sourceFilter, ['web', 'mobile', 'admin'], true)) {
+            $qb->where('b.source = :source')
+               ->setParameter('source', $sourceFilter);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
     public function getSourceCounts(): array
     {
         $rows = $this->createQueryBuilder('b')
