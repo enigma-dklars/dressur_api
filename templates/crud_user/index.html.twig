@@ -58,11 +58,6 @@
                     {# <th>Invt</th> #}
                     {# <th>Parr</th> #}
                     {# <th>Bonus</th> #}
-                    <th>N.C</th>
-                    <th>B.C</th>
-                    <th>P.A</th>
-                    <th>P.R</th>
-                    <th>C.M</th>
                     <th>Lock</th>
                     <th>LastLoginTo</th>
                     <th>CreatedAt</th>
@@ -132,12 +127,6 @@
                         {% endif %}
                     </td>
                     <td class="text-end">{{user.soldeBonus}}</td> #}
-                    <td class="text-end">{{ contactCounts[user.id] ?? 0 }}</td>
-                    {% set uc = collectionCounts[user.id] ?? {} %}
-                    <td class="text-end">{{ uc.boosts ?? 0 }}</td>
-                    <td class="text-end">{{ uc.promotions ?? 0 }}</td>
-                    <td class="text-end">{{ uc.promoReseaus ?? 0 }}</td>
-                    <td class="text-end">{{ uc.campagneMails ?? 0 }}</td>
                     <td class="text-center">
                         {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}
                     </td>
@@ -148,7 +137,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="27">no records found</td>
+                    <td colspan="22">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>

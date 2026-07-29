@@ -43,20 +43,6 @@ class CrudUserController extends AbstractController
         }
     }
 
-    private function buildContactCounts(iterable $users, array $allUserIds): array
-    {
-        $allUserIdsFlip = array_flip($allUserIds);
-        $counts = [];
-        foreach ($users as $user) {
-            $contact = $user->getContact();
-            $whoIAdd = $contact ? $contact->getWhoIAdd() : [];
-            $whoAddMe = $contact ? $contact->getWhoAddMe() : [];
-            $merged = array_unique(array_merge($whoIAdd, $whoAddMe));
-            $counts[$user->getId()] = count(array_intersect_key(array_flip($merged), $allUserIdsFlip));
-        }
-        return $counts;
-    }
-
     #[Route('/', name: 'app_crud_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository, Request $request): Response
     {
@@ -70,16 +56,10 @@ class CrudUserController extends AbstractController
         $totalItems = $usersPaginator->count();
         $totalPages = ceil($totalItems / $limit);
 
-        $allUserIds = $userRepository->findAllIds();
-        $contactCounts = $this->buildContactCounts($usersPaginator, $allUserIds);
-        $collectionCounts = $userRepository->findCollectionCountsByUserIds(array_keys($contactCounts));
-        
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $usersPaginator,
-            'contactCounts' => $contactCounts,
-            'collectionCounts' => $collectionCounts,
             'option' => "All",
             'currentPage' => $page,
             'totalPages' => $totalPages,
