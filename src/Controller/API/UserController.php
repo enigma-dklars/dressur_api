@@ -847,6 +847,12 @@ class UserController extends AbstractController
             ->setRegisterSource($registerSource)
             ->setLastLoginSource($registerSource)
         ;
+        // Génération du code partenaire unique (8 caractères, alphabet sans ambiguïtés)
+        do {
+            $codePartenaire = User::generateCodePartenaire();
+            $existingCode = $userRepository->findOneBy(['codePartenaire' => $codePartenaire]);
+        } while ($existingCode !== null);
+        $user->setCodePartenaire($codePartenaire);
         if(!in_array($tel, $this->env->getUsersTel())) {
             $this->env->addUsersTel($tel);
         }

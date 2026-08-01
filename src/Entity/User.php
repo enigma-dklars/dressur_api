@@ -112,6 +112,16 @@ class User
     #[ORM\Column(type: 'boolean')]
     private bool $vendeur = false;
 
+    #[ORM\Column(length: 8, nullable: true, unique: true)]
+    private ?string $codePartenaire = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'accompagnes')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $partenaire = null;
+
+    #[ORM\OneToMany(mappedBy: 'partenaire', targetEntity: self::class)]
+    private Collection $accompagnes;
+
     public function __construct()
     {
         $this->admin = false;
@@ -130,6 +140,7 @@ class User
         $this->promotions = new ArrayCollection();
         $this->promoReseaus = new ArrayCollection();
         $this->suggestions = new ArrayCollection();
+        $this->accompagnes = new ArrayCollection();
     }
 
     public function __toString()
@@ -610,5 +621,70 @@ class User
         $this->vendeur = $vendeur;
 
         return $this;
+    }
+
+    public function getCodePartenaire(): ?string
+    {
+        return $this->codePartenaire;
+    }
+
+    public function setCodePartenaire(?string $codePartenaire): static
+    {
+        $this->codePartenaire = $codePartenaire;
+
+        return $this;
+    }
+
+    public function getPartenaire(): ?self
+    {
+        return $this->partenaire;
+    }
+
+    public function setPartenaire(?self $partenaire): static
+    {
+        $this->partenaire = $partenaire;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getAccompagnes(): Collection
+    {
+        return $this->accompagnes;
+    }
+
+    public function addAccompagne(self $accompagne): static
+    {
+        if (!$this->accompagnes->contains($accompagne)) {
+            $this->accompagnes->add($accompagne);
+            $accompagne->setPartenaire($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccompagne(self $accompagne): static
+    {
+        if ($this->accompagnes->removeElement($accompagne)) {
+            // set the owning side to null (unless already changed)
+            if ($accompagne->getPartenaire() === $this) {
+                $accompagne->setPartenaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public static function generateCodePartenaire(): string
+    {
+        $alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ123456789';
+        $length = 8;
+        $code = '';
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+        }
+        return $code;
     }
 }
