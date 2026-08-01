@@ -1068,6 +1068,8 @@ class TraitementsDS extends AbstractController
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
             'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
             'vendeur' => $user->isVendeur() ? true : false,
+            'aUnPartenaire' => $user->getPartenaire() !== null,
+            'codePartenaire' => $user->getCodePartenaire(),
         ];
     }
 
