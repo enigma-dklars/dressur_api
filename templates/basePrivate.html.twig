@@ -312,7 +312,7 @@
      */
     function calculateDressurStatusAmount() {
         const $publishStatus = $('#publishDressurStatus');
-        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.prix === 0) {
+        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.prix < 1000) {
             return 0;
         }
         
@@ -449,7 +449,16 @@
         
         // Activer le bouton d'upload d'image
         $('#imageUploadBtn').prop('disabled', false);
-        
+
+        // Afficher le bloc Statut WhatsApp seulement si formule >= 1000 FCFA
+        if (prix >= 1000) {
+            $('#dressurStatusBlock').show();
+        } else {
+            $('#dressurStatusBlock').hide();
+            $('#publishDressurStatus').prop('checked', false);
+            $('#statusSection').hide();
+        }
+
         updatePricingSummary();
         updateSubmitButtonsState();
     });
