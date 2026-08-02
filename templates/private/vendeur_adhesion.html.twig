@@ -51,7 +51,7 @@ html.dark-theme .va-divider,html.semi-dark .va-divider{border-color:rgba(255,255
 
     {# ── Back button ── #}
     <div class="d-flex align-items-center gap-2 mb-0 px-2 pt-2">
-        <a href="/reception" class="btn btn-sm btn-outline-secondary">
+        <a href="/parametres" class="btn btn-sm btn-outline-secondary">
             <i class="fas fa-chevron-left"></i>
         </a>
         <h5 class="mb-0 fw-bold">Devenir Vendeur</h5>
@@ -228,7 +228,7 @@ html.dark-theme .va-divider,html.semi-dark .va-divider{border-color:rgba(255,255
                 window.location.href = data.url;
             } else if(data.direct){
                 showAlert('Succès 🎉','Paiement confirmé. Vous êtes maintenant vendeur ! Actualisation en cours…','success');
-                setTimeout(()=>{ window.location.href = '/reception'; }, 2500);
+                setTimeout(()=>{ window.location.href = '/parametres'; }, 2500);
             }
         } catch(e){
             showAlert('Erreur','Une erreur réseau s\'est produite. Veuillez réessayer.','danger');

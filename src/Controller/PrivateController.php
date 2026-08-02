@@ -446,16 +446,6 @@ class PrivateController extends AbstractController
     }
 
 
-    #[Route('/reception', name: 'app_hub_reception')]
-    public function hubReception(): Response
-    {
-        $user = $this->traitementsDS->getUserByUidInCookies();
-        return $this->render('private/hub_reception.html.twig', [
-            'user' => $this->traitementsDS->infosUser($user),
-            'theme' => $this->theme,
-        ]);
-    }
-
     #[Route('/services', name: 'app_hub_services')]
     public function hubServices(): Response
     {

@@ -111,11 +111,9 @@
 
 <body>
 {% set r = app.request.attributes.get('_route') %}
-{% set _reception_routes = ['app_contact','app_hub_reception','app_guide_import_contacts','app_export_vcf','app_export_csv'] %}
 {% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
-{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences'] %}
+{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences','app_contact','app_guide_import_contacts','app_export_vcf','app_export_csv','app_notifications'] %}
 {% set _actu_active      = r in ['app_actu','app_actu_detail','app_private'] %}
-{% set _reception_active = r in _reception_routes %}
 {% set _services_active  = r in _services_routes %}
 {% set _params_active    = r in _params_routes %}
 
@@ -138,9 +136,6 @@
 
         {# ── Barre de navigation mobile en bas (visibles ≤ 1024px) ──── #}
         <nav class="ds-mobile-bottomnav">
-            <a href="/reception"     class="ds-nav-item {{ _reception_active ? 'active' : '' }}">
-                <i class="fas fa-inbox"></i><span>Réception</span>
-            </a>
             <a href="/services"      class="ds-nav-item {{ _services_active ? 'active' : '' }}">
                 <i class="fas fa-briefcase"></i><span>Services</span>
             </a>
