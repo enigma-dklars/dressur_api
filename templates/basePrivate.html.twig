@@ -205,7 +205,7 @@
     // ==========================================
     const API_BASE_URL = window.API_BASE_URL || "https://dressur.site/api";
     const LANG_USER = window.LANG_USER || 'fr';
-    const DRESSUR_STATUS_PRICE_PER_7_DAYS = 5000;
+    const DRESSUR_STATUS_RATE = 0.25; // 25% du prix de la formule
     const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
 
     /**
@@ -312,11 +312,11 @@
      */
     function calculateDressurStatusAmount() {
         const $publishStatus = $('#publishDressurStatus');
-        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.jours === 0) {
+        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.prix === 0) {
             return 0;
         }
         
-        return (currentFormuleData.jours * DRESSUR_STATUS_PRICE_PER_7_DAYS) / 7;
+        return currentFormuleData.prix * DRESSUR_STATUS_RATE;
     }
 
     /**
