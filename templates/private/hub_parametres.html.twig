@@ -83,6 +83,7 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
     {# ── Mon Compte ──────────────────────────────────────────────── #}
     <p class="ds-section-sep">Mon Compte</p>
 
+    {{# -- Identité & sécurité -- #}}
     <a href="/editprofil" class="ds-nav-card">
         <div class="ds-nav-card-icon"><i class="fas fa-user"></i></div>
         <div class="ds-nav-card-body">
@@ -101,41 +102,7 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
     </a>
 
-    {% if not user.aUnPartenaire %}
-    <a href="{{ path('app_code_partenaire') }}" class="ds-nav-card">
-        <div class="ds-nav-card-icon" style="background:rgba(25,135,84,.10)">
-            <i class="fas fa-handshake" style="color:#198754"></i>
-        </div>
-        <div class="ds-nav-card-body">
-            <p class="ds-title">Code Partenaire</p>
-            <p class="ds-sub">Associez-vous à un partenaire Dressur</p>
-        </div>
-        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
-    </a>
-    {% endif %}
-
-    <a href="{{ path('app_espace_partenaire') }}" class="ds-nav-card">
-        <div class="ds-nav-card-icon" style="background:rgba(255,193,7,.10)">
-            <i class="fas fa-star" style="color:#ffc107"></i>
-        </div>
-        <div class="ds-nav-card-body">
-            <p class="ds-title">Espace Partenaire</p>
-            <p class="ds-sub">{% if user.estPartenaire %}Gérez votre espace partenaire{% else %}Devenez Partenaire Dressur{% endif %}</p>
-        </div>
-        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
-    </a>
-
-    <a href="/preferences" class="ds-nav-card">
-        <div class="ds-nav-card-icon" style="background:rgba(220,53,69,.10)">
-            <i class="fas fa-heart" style="color:#dc3545"></i>
-        </div>
-        <div class="ds-nav-card-body">
-            <p class="ds-title">Préférences</p>
-            <p class="ds-sub">Pays ciblés et options d'affichage</p>
-        </div>
-        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
-    </a>
-
+    {# -- Données principales -- #}
     <a href="/contact" class="ds-nav-card">
         <div class="ds-nav-card-icon"><i class="fas fa-address-book"></i></div>
         <div class="ds-nav-card-body">
@@ -145,10 +112,11 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
     </a>
 
+    {# -- Développer son compte -- #}
     <div class="ds-nav-card ds-soon">
         <div class="ds-nav-card-icon"><i class="fas fa-trophy"></i></div>
         <div class="ds-nav-card-body">
-            <p class="ds-title">Récompenses <span class="badge bg-secondary ms-1" style="font-size:10px;vertical-align:middle">Bientôt</span></p>
+            <p class="ds-title">Espace Récompense <span class="badge bg-secondary ms-1" style="font-size:10px;vertical-align:middle">Bientôt</span></p>
             <p class="ds-sub">Gagnez et suivez vos récompenses</p>
         </div>
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
@@ -164,6 +132,39 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
     </a>
     {% endif %}
+
+    {# -- Partenariat -- #}
+    {% if not user.aUnPartenaire %}
+    <a href="{{ path('app_code_partenaire') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-handshake"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Code Partenaire</p>
+            <p class="ds-sub">Associez-vous à un partenaire Dressur</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+    {% endif %}
+
+    <a href="{{ path('app_espace_partenaire') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-star"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Espace Partenaire</p>
+            <p class="ds-sub">{% if user.estPartenaire %}Gérez votre espace partenaire{% else %}Devenez Partenaire Dressur{% endif %}</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+
+    {# -- Personnalisation -- #}
+    <a href="/preferences" class="ds-nav-card">
+        <div class="ds-nav-card-icon" style="background:rgba(220,53,69,.10)">
+            <i class="fas fa-heart" style="color:#dc3545"></i>
+        </div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Préférences</p>
+            <p class="ds-sub">Pays ciblés et options d'affichage</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
 
     {# ── Assistance & Avis ──────────────────────────────────────── #}
     <p class="ds-section-sep">Assistance &amp; Avis</p>
