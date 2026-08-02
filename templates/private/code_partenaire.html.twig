@@ -28,6 +28,8 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
                 Un partenaire vous a transmis un code à 8 caractères. Renseignez-le ci-dessous pour être associé.
             </p>
             {# ── Conditions ───────────────────────────────── #}
+            {% set secondsDepuisInscription = "now"|date('U') - user.createdAt|date('U') %}
+            {% set inscritDepuis24h = secondsDepuisInscription < 86400 %}
             <p class="fw-semibold mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px">Conditions requises</p>
             <ul class="cp-cond-list">
                 <li>
@@ -54,12 +56,19 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
                     {% endif %}
                     <span>Adresse e-mail confirmée</span>
                 </li>
-
+                <li>
+                    {% if inscritDepuis24h %}
+                        <i class="fas fa-check-circle cp-ok"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle cp-nok"></i>
+                    {% endif %}
+                    <span>Inscrit depuis moins de 24h</span>
+                </li>
             </ul>
             {# ── Feedback ─────────────────────────────────── #}
             <div id="cpFeedback" class="alert" style="display:none"></div>
             {# ── Formulaire ───────────────────────────────── #}
-            {% set canSubmit = user.nom and user.telIsVerified and user.mailIsVerified %}
+            {% set canSubmit = user.nom and user.telIsVerified and user.mailIsVerified and inscritDepuis24h %}
             <div class="mb-3">
                 <label for="inputCode" class="form-label fw-semibold">Code Partenaire</label>
                 <input type="text"

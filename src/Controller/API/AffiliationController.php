@@ -80,7 +80,18 @@ class AffiliationController extends AbstractController
                     'message' => 'Votre adresse e-mail doit être confirmée avant d\'utiliser un Code Partenaire.',
                 ]);
             }
-            // --- 6. Vérification anti-fraude : téléphone pas dans AffiliationUsed ---
+            // --- 6. Vérification : inscrit depuis moins de 24h ---
+            $now = new \DateTime();
+            $diff = $now->diff($user->getCreatedAt());
+            $heuresDepuisInscription = ($diff->days * 24) + $diff->h;
+            if ($heuresDepuisInscription >= 24) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Délai dépassé',
+                    'message' => 'Le Code Partenaire ne peut être utilisé que dans les 24 heures suivant votre inscription.',
+                ]);
+            }
+            // --- 7. Vérification anti-fraude : téléphone pas dans AffiliationUsed ---
             $telBlacklisted = $affiliationUsedRepository->findOneBy(['tel' => $user->getTel()]);
             if ($telBlacklisted) {
                 return new JsonResponse([
