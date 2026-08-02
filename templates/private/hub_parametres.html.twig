@@ -64,6 +64,19 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
     </a>
 
+    {% if not user.aUnPartenaire %}
+    <a href="{{ path('app_code_partenaire') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon" style="background:rgba(25,135,84,.10)">
+            <i class="fas fa-handshake" style="color:#198754"></i>
+        </div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Code Partenaire</p>
+            <p class="ds-sub">Associez-vous à un partenaire Dressur</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+    {% endif %}
+
     {# ── Assistance & Avis ──────────────────────────────────────── #}
     <p class="ds-section-sep">Assistance &amp; Avis</p>
 
