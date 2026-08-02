@@ -113,12 +113,10 @@
 {% set r = app.request.attributes.get('_route') %}
 {% set _reception_routes = ['app_contact','app_hub_reception','app_guide_import_contacts','app_export_vcf','app_export_csv'] %}
 {% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
-{% set _pref_routes      = ['app_preferencePays','app_hub_preferences'] %}
-{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
+{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences'] %}
 {% set _actu_active      = r in ['app_actu','app_actu_detail','app_private'] %}
 {% set _reception_active = r in _reception_routes %}
 {% set _services_active  = r in _services_routes %}
-{% set _pref_active      = r in _pref_routes %}
 {% set _params_active    = r in _params_routes %}
 
     <!--start wrapper-->
@@ -148,9 +146,6 @@
             </a>
             <a href="/private"       class="ds-nav-item {{ _actu_active ? 'active' : '' }}">
                 <i class="fas fa-newspaper"></i><span>Actu</span>
-            </a>
-            <a href="/preferences"   class="ds-nav-item {{ _pref_active ? 'active' : '' }}">
-                <i class="fas fa-heart"></i><span>Préfér.</span>
             </a>
             <a href="/parametres"    class="ds-nav-item {{ _params_active ? 'active' : '' }}">
                 <i class="fas fa-gear"></i><span>Paramètres</span>

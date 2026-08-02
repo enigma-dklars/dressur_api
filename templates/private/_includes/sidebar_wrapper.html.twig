@@ -11,10 +11,7 @@
 
 {% set notifications_active = r in ['app_notifications'] %}
 
-{% set pref_routes       = ['app_preferencePays','app_hub_preferences'] %}
-{% set pref_active       = r in pref_routes %}
-
-{% set params_routes     = ['app_editprofil','app_editPassword','app_tutoriels','app_assistant','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres'] %}
+{% set params_routes     = ['app_editprofil','app_editPassword','app_tutoriels','app_assistant','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences'] %}
 {% set params_active     = r in params_routes %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
@@ -155,21 +152,6 @@
         </a>
       </li>
 
-      {# ── Préférences ───────────────────────────────────────────────── #}
-      <li class="{{ pref_active ? 'mm-active' : '' }}">
-        <a href="/preferences" class="{{ pref_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-heart"></i></div>
-          <div class="menu-title">Préférences</div>
-        </a>
-        <ul class="{{ pref_active ? 'mm-show' : '' }}">
-          <li class="{{ r == 'app_preferencePays' ? 'mm-active' : '' }}">
-            <a href="/preferencePays" class="small-fort {{ r == 'app_preferencePays' ? 'active' : '' }}">
-              <i class="fas fa-globe"></i>Pays ciblés
-            </a>
-          </li>
-        </ul>
-      </li>
-
       {# ── Paramètres ────────────────────────────────────────────────── #}
       <li class="{{ params_active ? 'mm-active' : '' }}">
         <a href="/parametres" class="{{ params_active ? 'active' : '' }}">
@@ -188,6 +170,11 @@
           <li class="{{ r == 'app_editPassword' ? 'mm-active' : '' }}">
             <a href="/editPassword" class="small-fort {{ r == 'app_editPassword' ? 'active' : '' }}">
               <i class="fas fa-lock"></i>Modifier le mot de passe
+            </a>
+          </li>
+          <li class="{{ r in ['app_preferencePays','app_hub_preferences'] ? 'mm-active' : '' }}">
+            <a href="/preferences" class="small-fort {{ r in ['app_preferencePays','app_hub_preferences'] ? 'active' : '' }}">
+              <i class="fas fa-heart"></i>Préférences
             </a>
           </li>
 
