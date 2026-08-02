@@ -320,30 +320,18 @@
     }
 
     /**
-     * Calcule la commission Fedapay
-     */
-    function calculateFedapayCommission(subTotal) {
-        if (subTotal === 0) return 0;
-        return (subTotal * 0.03) + 100;
-    }
-
-    /**
      * Met à jour le récapitulatif des prix
      */
     function updatePricingSummary() {
         const formulePrice = currentFormuleData.prix;
         const rewardAmount = calculateRewardAmount();
         const statusAmount = calculateDressurStatusAmount();
-        const subTotal = formulePrice + rewardAmount + statusAmount;
-        const fedapayCommission = calculateFedapayCommission(subTotal);
-        const total = subTotal + fedapayCommission;
+        const total = formulePrice + rewardAmount + statusAmount;
 
         // Mise à jour du DOM avec jQuery
         $('#summaryFormulePrice').text(formatNumber(formulePrice) + ' F');
         $('#summaryRewardPrice').text(formatNumber(rewardAmount) + ' F');
         $('#summaryStatusPrice').text(formatNumber(statusAmount) + ' F');
-        $('#summarySubTotal').text(formatNumber(subTotal) + ' F');
-        $('#summaryFedapayCommission').text(formatNumber(fedapayCommission) + ' F');
         $('#summaryTotal').text(formatNumber(total) + ' F');
         $('#rewardAmount').text(formatNumber(rewardAmount));
         $('#statusAmount').text(formatNumber(statusAmount));
