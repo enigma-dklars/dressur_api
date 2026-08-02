@@ -511,10 +511,13 @@
     
     $(document).on('change', '#participateReward', function() {
         $('#rewardSection').toggle(this.checked);
-        if (!this.checked) {
+        if (this.checked) {
+            $('#rewardBudget').val('500');
+            $('.budget-btn').removeClass('btn-primary btn-outline-primary active').addClass('btn-outline-primary');
+            $('.budget-btn[data-budget="500"]').removeClass('btn-outline-primary').addClass('btn-primary');
+        } else {
             $('#rewardBudget').val('0');
-            $('.budget-btn').removeClass('btn-primary').addClass('btn-outline-primary');
-            $('#rewardBreakdown').hide();
+            $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
         }
         updatePricingSummary();
     });
@@ -522,9 +525,8 @@
     $(document).on('click', '.budget-btn', function() {
         const budget = parseInt($(this).data('budget'));
         $('#rewardBudget').val(budget);
-        $('.budget-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+        $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
         $(this).removeClass('btn-outline-primary').addClass('btn-primary');
-        updateRewardBreakdown(budget);
         updatePricingSummary();
     });
 
@@ -775,9 +777,8 @@
 
         // Masquer les sections par défaut
         $('#rewardSection').hide();
-        $('#rewardBreakdown').hide();
         $('#rewardBudget').val('0');
-        $('.budget-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+        $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
         $('#statusSection').hide();
         $('#demandeEmploiSection').hide();
         $('#offreEmploiSection').hide();
