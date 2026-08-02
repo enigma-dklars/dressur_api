@@ -227,6 +227,12 @@ class WebhookController extends AbstractController
                 $user
             );
         }
+
+        // ── Commission partenaire (2% sur transaction approuvée) ──────────
+        $this->traitementsDS->crediterCommissionPartenaire(
+            $myTransaction->getUser(),
+            (int) ($myTransaction->getAmount() ?? 0)
+        );
     }
 
     #[Route('/whd/{routeWebhook}', name: 'webhookFedaPay')]

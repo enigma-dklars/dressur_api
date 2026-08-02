@@ -1776,6 +1776,35 @@ class TraitementsDS extends AbstractController
             }
             $this->addNotification("Solde débité de {$montant} FCFA. Promotion Réseau enregistrée et démarrée.", $user);
         }
+
+        // ── Commission partenaire (2% sur paiement via solde approuvé) ────
+        $this->crediterCommissionPartenaire($user, $montant);
+    }
+
+    /**
+     * Crédite 2% du montant d'une transaction approuvée sur le solde du partenaire,
+     * si et seulement si l'utilisateur a un parrain avec estPartenaire === true.
+     */
+    public function crediterCommissionPartenaire(User $user, int $montant): void
+    {
+        $partenaire = $user->getPartenaire();
+        if (!$partenaire) {
+            return;
+        }
+        if (!$partenaire->getEstPartenaire()) {
+            return;
+        }
+        $commission = (int) round($montant * 0.02);
+        if ($commission <= 0) {
+            return;
+        }
+        $partenaire->setSoldeProgrammeRecompense(
+            ($partenaire->getSoldeProgrammeRecompense() ?? 0) + $commission
+        );
+        $this->addNotification(
+            "💰 Commission partenaire : +" . $commission . " FCFA crédités sur votre solde (2% d'une transaction de " . number_format($montant, 0, ',', ' ') . " FCFA d'un de vos accompagnés).",
+            $partenaire
+        );
     }
 
     function addNotification(string $text, $user = null) {
