@@ -1027,6 +1027,18 @@ class TraitementsDS extends AbstractController
         if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
         if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
+        $cumulFcfa = 0;
+        foreach ($user->getBoosts() as $b) {
+            if ($b->getFormuleBoost()) $cumulFcfa += $b->getFormuleBoost()->getPrix();
+        }
+        foreach ($user->getPromotions() as $p) {
+            if (in_array($p->getStatus(), [3, 4]) && $p->getFormulePromoAffaire()) $cumulFcfa += $p->getFormulePromoAffaire()->getPrix();
+        }
+        foreach ($user->getPromoReseaus() as $r) {
+            if (in_array($r->getStatus(), [2, 3]) && $r->getFormulePromoReseau()) $cumulFcfa += $r->getFormulePromoReseau()->getPrix();
+        }
+        $joursInscrit = (int)(new \DateTime())->diff($user->getCreatedAt())->days;
+
         return [
             "totalVues" => 0,
             "totalVuesText" => "0",
@@ -1070,7 +1082,14 @@ class TraitementsDS extends AbstractController
             'vendeur' => $user->isVendeur() ? true : false,
             'aUnPartenaire' => $user->getPartenaire() !== null,
             'codePartenaire' => $user->getCodePartenaire(),
-            'estPartenaire' => $user->getEstPartenaire(),
+            'estPartenaire'  => $user->getEstPartenaire(),
+            'joursInscrit'   => $joursInscrit,
+            'condNom'        => ($user->getNom() !== null && trim($user->getNom()) !== ''),
+            'condTel'        => (bool)$user->getTelIsVerified(),
+            'condMail'       => (bool)$user->getMailIsVerified(),
+            'condAnciennete' => $joursInscrit >= 7,
+            'cumulFcfa'      => (int)$cumulFcfa,
+            'condCumul'      => $cumulFcfa >= 2000,
         ];
     }
 

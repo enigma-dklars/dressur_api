@@ -2,6 +2,7 @@
 
 namespace App\Controller\API;
 
+use App\Repository\AffiliationUsedRepository;
 use App\Repository\UserRepository;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +17,7 @@ class EspacePartenaireController extends AbstractController
         private TraitementsDS $traitementsDS,
         private EntityManagerInterface $em,
         private UserRepository $userRepository,
+        private AffiliationUsedRepository $affiliationUsedRepository,
     ) {}
 
     #[Route('/api/devenirPartenaire', name: 'api_devenir_partenaire', methods: ['POST'])]
@@ -84,6 +86,36 @@ class EspacePartenaireController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'message' => 'Félicitations ! Vous êtes maintenant Partenaire Dressur.',
+        ]);
+    }
+
+    #[Route('/api/accompagnesPartenaire', name: 'api_accompagnes_partenaire', methods: ['GET'])]
+    public function accompagnesPartenaire(): JsonResponse
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Non authentifié.'], 401);
+        }
+        $liste = [];
+        foreach ($user->getAccompagnes() as $acc) {
+            $affiliationUsed = $this->affiliationUsedRepository->findOneBy([
+                'tel'  => $acc->getTel(),
+                'mail' => $acc->getMail(),
+            ]);
+            $dateAffiliation = $affiliationUsed
+                ? $affiliationUsed->getCreatedAt()->format('d/m/Y')
+                : '—';
+            $liste[] = [
+                'nom'             => $acc->getNom() ?? '—',
+                'pseudo'          => $acc->getPseudo() ?? '—',
+                'tel'             => $acc->getTel() ?? '—',
+                'mail'            => $acc->getMail() ?? '—',
+                'dateAffiliation' => $dateAffiliation,
+            ];
+        }
+        return new JsonResponse([
+            'success'     => true,
+            'accompagnes' => $liste,
         ]);
     }
 }
