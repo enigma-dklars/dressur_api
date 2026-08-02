@@ -122,6 +122,9 @@ class User
     #[ORM\OneToMany(mappedBy: 'partenaire', targetEntity: self::class)]
     private Collection $accompagnes;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $estPartenaire = false;
+
     public function __construct()
     {
         $this->admin = false;
@@ -673,6 +676,18 @@ class User
                 $accompagne->setPartenaire(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEstPartenaire(): bool
+    {
+        return $this->estPartenaire;
+    }
+
+    public function setEstPartenaire(bool $estPartenaire): static
+    {
+        $this->estPartenaire = $estPartenaire;
 
         return $this;
     }

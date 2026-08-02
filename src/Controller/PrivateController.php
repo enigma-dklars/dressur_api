@@ -496,6 +496,48 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/espace-partenaire', name: 'app_espace_partenaire')]
+    public function espacePartenaire(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        // Générer le code partenaire silencieusement si absent (utilisateurs existants)
+        if (!$user->getCodePartenaire()) {
+            $code = \App\Entity\User::generateCodePartenaire();
+            while ($this->userRepository->findOneBy(['codePartenaire' => $code])) {
+                $code = \App\Entity\User::generateCodePartenaire();
+            }
+            $user->setCodePartenaire($code);
+            $this->em->flush();
+        }
+        // Calcul du cumul de transactions payantes
+        $cumul = 0;
+        foreach ($user->getBoosts() as $boost) {
+            if ($boost->getFormuleBoost()) {
+                $cumul += $boost->getFormuleBoost()->getPrix();
+            }
+        }
+        foreach ($user->getPromotions() as $promo) {
+            if (in_array($promo->getStatus(), [3, 4]) && $promo->getFormulePromoAffaire()) {
+                $cumul += $promo->getFormulePromoAffaire()->getPrix();
+            }
+        }
+        foreach ($user->getPromoReseaus() as $promoReseau) {
+            if (in_array($promoReseau->getStatus(), [2, 3]) && $promoReseau->getFormulePromoReseau()) {
+                $cumul += $promoReseau->getFormulePromoReseau()->getPrix();
+            }
+        }
+        // Calcul ancienneté
+        $now = new \DateTime();
+        $joursInscrit = (int) $now->diff($user->getCreatedAt())->days;
+        return $this->render('private/espace_partenaire.html.twig', [
+            'user'         => $this->traitementsDS->infosUser($user),
+            'accompagnes'  => $user->getAccompagnes(),
+            'cumulFcfa'    => $cumul,
+            'joursInscrit' => $joursInscrit,
+            'theme'        => $this->theme,
+        ]);
+    }
+
     #[Route('/notifications', name: 'app_notifications')]
     public function notifications(): Response
     {

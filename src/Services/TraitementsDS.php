@@ -1070,6 +1070,7 @@ class TraitementsDS extends AbstractController
             'vendeur' => $user->isVendeur() ? true : false,
             'aUnPartenaire' => $user->getPartenaire() !== null,
             'codePartenaire' => $user->getCodePartenaire(),
+            'estPartenaire' => $user->getEstPartenaire(),
         ];
     }
 
