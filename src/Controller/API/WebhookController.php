@@ -228,10 +228,11 @@ class WebhookController extends AbstractController
             );
         }
 
-        // ── Commission partenaire (2% sur transaction approuvée) ──────────
+        // ── Commission partenaire (2% sur transaction approuvée, types éligibles uniquement) ──────────
         $this->traitementsDS->crediterCommissionPartenaire(
             $myTransaction->getUser(),
-            (int) ($myTransaction->getAmount() ?? 0)
+            (int) ($myTransaction->getAmount() ?? 0),
+            (string) ($myTransaction->getTransactionFor() ?? '')
         );
     }
 

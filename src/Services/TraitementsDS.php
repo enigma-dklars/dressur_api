@@ -1796,16 +1796,21 @@ class TraitementsDS extends AbstractController
             $this->addNotification("Solde débité de {$montant} FCFA. Promotion Réseau enregistrée et démarrée.", $user);
         }
 
-        // ── Commission partenaire (2% sur paiement via solde approuvé) ────
-        $this->crediterCommissionPartenaire($user, $montant);
+        // ── Commission partenaire (2% sur paiement via solde approuvé, types éligibles uniquement) ────
+        $this->crediterCommissionPartenaire($user, $montant, $transactionFor);
     }
 
     /**
      * Crédite 2% du montant d'une transaction approuvée sur le solde du partenaire,
-     * si et seulement si l'utilisateur a un parrain avec estPartenaire === true.
+     * si et seulement si l'utilisateur a un parrain avec estPartenaire === true
+     * et que le type de transaction fait partie des transactions éligibles.
      */
-    public function crediterCommissionPartenaire(User $user, int $montant): void
+    public function crediterCommissionPartenaire(User $user, int $montant, string $transactionFor = ''): void
     {
+        $typesEligibles = ['boost_contact', 'boost_affaire', 're_boost_affaire', 'boost_reseau_sociaux'];
+        if (!in_array($transactionFor, $typesEligibles, true)) {
+            return;
+        }
         $partenaire = $user->getPartenaire();
         if (!$partenaire) {
             return;
