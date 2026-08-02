@@ -1,17 +1,14 @@
 {% set r = app.request.attributes.get('_route') %}
 
 {# ── Groupes actifs ──────────────────────────────────────────────────── #}
-{% set reception_routes  = ['app_contact','app_hub_reception','app_guide_import_contacts','app_export_vcf','app_export_csv'] %}
-{% set reception_active  = r in reception_routes %}
 
 {% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
 {% set services_active   = r in services_routes %}
 
 {% set actu_active       = r in ['app_actu','app_actu_detail'] %}
 
-{% set notifications_active = r in ['app_notifications'] %}
 
-{% set params_routes     = ['app_editprofil','app_editPassword','app_tutoriels','app_assistant','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences'] %}
+{% set params_routes     = ['app_editprofil','app_editPassword','app_tutoriels','app_assistant','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences','app_contact','app_hub_reception','app_guide_import_contacts','app_export_vcf','app_export_csv','app_notifications'] %}
 {% set params_active     = r in params_routes %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
@@ -53,42 +50,6 @@
           <div class="menu-title">Dashboard</div>
         </a>
       </li>
-
-      {# ── Réception ─────────────────────────────────────────────────── #}
-      <li class="{{ reception_active ? 'mm-active' : '' }}">
-        <a href="/reception" class="{{ reception_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-inbox"></i></div>
-          <div class="menu-title">Réception</div>
-        </a>
-        <ul class="{{ reception_active ? 'mm-show' : '' }}">
-          <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
-            <a href="/contact" class="small-fort {{ r == 'app_contact' ? 'active' : '' }}">
-              <i class="fas fa-address-book"></i>Contacts
-            </a>
-          </li>
-          <li>
-            <a href="#" class="small-fort sidebar-soon">
-              <i class="fas fa-trophy"></i>Récompenses
-            </a>
-          </li>
-          <li class="{{ r == 'app_guide_import_contacts' ? 'mm-active' : '' }}">
-            <a href="/contacts/guide-import" class="small-fort {{ r == 'app_guide_import_contacts' ? 'active' : '' }}">
-              <i class="fas fa-book-open"></i>Guide d'import
-            </a>
-          </li>
-          <li class="{{ r == 'app_export_vcf' ? 'mm-active' : '' }}">
-            <a href="/export_vcf" class="small-fort {{ r == 'app_export_vcf' ? 'active' : '' }}">
-              <i class="fas fa-address-card"></i>Export VCF
-            </a>
-          </li>
-          <li class="{{ r == 'app_export_csv' ? 'mm-active' : '' }}">
-            <a href="/export_csv" class="small-fort {{ r == 'app_export_csv' ? 'active' : '' }}">
-              <i class="fas fa-file-csv"></i>Export CSV
-            </a>
-          </li>
-        </ul>
-      </li>
-
       {# ── Services ──────────────────────────────────────────────────── #}
       <li class="{{ services_active ? 'mm-active' : '' }}">
         <a href="/services" class="{{ services_active ? 'active' : '' }}">
@@ -143,15 +104,6 @@
           <div class="menu-title">Actu</div>
         </a>
       </li>
-
-      {# ── Notifications ─────────────────────────────────────────────── #}
-      <li class="{{ notifications_active ? 'mm-active' : '' }}">
-        <a href="{{ path('app_notifications') }}" class="{{ notifications_active ? 'active' : '' }}">
-          <div class="parent-icon"><i class="fas fa-bell"></i></div>
-          <div class="menu-title">Notifications</div>
-        </a>
-      </li>
-
       {# ── Paramètres ────────────────────────────────────────────────── #}
       <li class="{{ params_active ? 'mm-active' : '' }}">
         <a href="/parametres" class="{{ params_active ? 'active' : '' }}">
@@ -159,6 +111,45 @@
           <div class="menu-title">Paramètres</div>
         </a>
         <ul class="{{ params_active ? 'mm-show' : '' }}">
+
+
+          {# — Mon Espace — #}
+          <li class="sidebar-section-label"><span>Mon Espace</span></li>
+          <li class="{{ r in ['app_notifications'] ? 'mm-active' : '' }}">
+            <a href="{{ path('app_notifications') }}" class="small-fort {{ r in ['app_notifications'] ? 'active' : '' }}">
+              <i class="fas fa-bell"></i>Notifications
+            </a>
+          </li>
+          <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
+            <a href="/contact" class="small-fort {{ r == 'app_contact' ? 'active' : '' }}">
+              <i class="fas fa-address-book"></i>Contacts
+            </a>
+          </li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-trophy"></i>Récompenses
+            </a>
+          </li>
+          <li class="{{ r == 'app_hub_reception' ? 'mm-active' : '' }}">
+            <a href="/reception" class="small-fort {{ r == 'app_hub_reception' ? 'active' : '' }}">
+              <i class="fas fa-wallet"></i>Solde Dressur
+            </a>
+          </li>
+          <li class="{{ r == 'app_guide_import_contacts' ? 'mm-active' : '' }}">
+            <a href="/contacts/guide-import" class="small-fort {{ r == 'app_guide_import_contacts' ? 'active' : '' }}">
+              <i class="fas fa-book-open"></i>Guide d'import
+            </a>
+          </li>
+          <li class="{{ r == 'app_export_vcf' ? 'mm-active' : '' }}">
+            <a href="/export_vcf" class="small-fort {{ r == 'app_export_vcf' ? 'active' : '' }}">
+              <i class="fas fa-address-card"></i>Export VCF
+            </a>
+          </li>
+          <li class="{{ r == 'app_export_csv' ? 'mm-active' : '' }}">
+            <a href="/export_csv" class="small-fort {{ r == 'app_export_csv' ? 'active' : '' }}">
+              <i class="fas fa-file-csv"></i>Export CSV
+            </a>
+          </li>
 
           {# — Mon Compte — #}
           <li class="sidebar-section-label"><span>Mon Compte</span></li>
