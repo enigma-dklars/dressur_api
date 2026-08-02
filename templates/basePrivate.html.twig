@@ -296,15 +296,19 @@
         if (!$participateReward.length || !$participateReward.is(':checked')) {
             return 0;
         }
+        return parseInt($('#rewardBudget').val()) || 0;
+    }
 
-        const $viewsGoal = $('#viewsGoal');
-        const viewsGoal = $viewsGoal.length ? parseInt($viewsGoal.val()) || 2500 : 2500;
-        const effectiveViews = viewsGoal < 2500 ? 2500 : viewsGoal;
-        
-        // Règle de 3 : 4000 vues = 2500 FCFA
-        const baseReward = (effectiveViews * 2500) / 4000;
-        // Ajout de 20% de commission plateforme
-        return baseReward * 1.2;
+    function updateRewardBreakdown(budget) {
+        if (budget > 0) {
+            const pool = Math.round(budget * 0.8);
+            const commission = budget - pool;
+            $('#rewardPoolAmount').text(formatNumber(pool));
+            $('#rewardCommissionAmount').text(formatNumber(commission));
+            $('#rewardBreakdown').show();
+        } else {
+            $('#rewardBreakdown').hide();
+        }
     }
 
     /**
@@ -507,10 +511,20 @@
     
     $(document).on('change', '#participateReward', function() {
         $('#rewardSection').toggle(this.checked);
+        if (!this.checked) {
+            $('#rewardBudget').val('0');
+            $('.budget-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+            $('#rewardBreakdown').hide();
+        }
         updatePricingSummary();
     });
 
-    $(document).on('input', '#viewsGoal', function() {
+    $(document).on('click', '.budget-btn', function() {
+        const budget = parseInt($(this).data('budget'));
+        $('#rewardBudget').val(budget);
+        $('.budget-btn').removeClass('btn-primary').addClass('btn-outline-primary');
+        $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        updateRewardBreakdown(budget);
         updatePricingSummary();
     });
 
@@ -605,7 +619,7 @@
             formData.append('paymentMethod', $('#paymentMethod').val());
             formData.append('tel', $('#paymentNumber').val());
             formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
-            formData.append('totalViewsGoal', $('#viewsGoal').val());
+            formData.append('rewardBudget', $('#rewardBudget').val());
             formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
             formData.append('source', 'web');
 
@@ -761,6 +775,9 @@
 
         // Masquer les sections par défaut
         $('#rewardSection').hide();
+        $('#rewardBreakdown').hide();
+        $('#rewardBudget').val('0');
+        $('.budget-btn').removeClass('btn-primary').addClass('btn-outline-primary');
         $('#statusSection').hide();
         $('#demandeEmploiSection').hide();
         $('#offreEmploiSection').hide();
