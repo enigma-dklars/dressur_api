@@ -234,7 +234,7 @@ class PublicController extends AbstractController
             "token"                => $token,
             "image"                => $promo->getImage(),
             "description"          => $descpPromo,
-            "whatsappNumber"       => $promo->getUser()->getTel(),
+            "whatsappNumber"       => $promo->getWhatsappContact() ?? $promo->getUser()->getTel(),
             "pseudoAnnonceur"      => $promo->getUser()->getPseudo(),
             "nombreDeVues"         => (string) $traitementsDS->formatNumber($promo->getNombreDeVue()),
             "nombreImpression"     => (string) $traitementsDS->formatNumber($promo->getNombreImpression()),

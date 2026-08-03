@@ -1154,7 +1154,7 @@ class PromotionController extends AbstractController
                 'image'       => $p->getImage(),
                 'description' => $p->getDescription(),
                 'pseudo'      => $user ? $user->getPseudo() : '',
-                'whatsapp'    => $user ? $user->getTel() : '',
+                'whatsapp'    => ($p->getWhatsappContact() ?? ($user ? $user->getTel() : '')),
                 'type'        => $p->getTypePromotionAffaire(),
                 'dateExp'     => $p->getDateExp()?->format('d/m/Y'),
             ];
