@@ -519,7 +519,7 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementKPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $formulBoost->getPrix(),
+                    $montantSolde,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
@@ -564,7 +564,7 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFeexPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $formulBoost->getPrix(),
+                    $montantSolde,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
@@ -1014,7 +1014,7 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementKPay(
                         $envPaiementApi, 
                         $methodePaiementEntity, 
-                        $formulBoost->getPrix(),
+                        $montantSolde,
                         $tel,
                         $user->getPseudo(),
                         $user->getMail(),
@@ -1059,7 +1059,7 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementFeexPay(
                         $envPaiementApi, 
                         $methodePaiementEntity, 
-                        $formulBoost->getPrix(),
+                        $montantSolde,
                         $tel,
                         $user->getPseudo(),
                         $user->getMail(),
