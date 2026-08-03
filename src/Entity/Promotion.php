@@ -84,6 +84,9 @@ class Promotion
     #[ORM\Column(nullable: true)]
     private ?int $montantBoostFacebook = null;
 
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $whatsappContact = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -453,6 +456,18 @@ class Promotion
     public function setMontantBoostFacebook(?int $montantBoostFacebook): static
     {
         $this->montantBoostFacebook = $montantBoostFacebook;
+
+        return $this;
+    }
+
+    public function getWhatsappContact(): ?string
+    {
+        return $this->whatsappContact;
+    }
+
+    public function setWhatsappContact(?string $whatsappContact): static
+    {
+        $this->whatsappContact = $whatsappContact;
 
         return $this;
     }

@@ -76,6 +76,18 @@
                     <textarea id="descriptionPromo" class="form-control" rows="5" placeholder="Entrez votre description..."></textarea>
                 </div>
 
+                <!-- WhatsApp Contact -->
+                <div class="col-12 mb-3">
+                    <label for="whatsappContact" class="form-label">
+                        <i class="fab fa-whatsapp text-success me-1"></i>Numéro WhatsApp de contact
+                    </label>
+                    <input type="tel" id="whatsappContact" class="form-control"
+                           value="{{ app.user.tel ?? '' }}"
+                           placeholder="+22890000000">
+                    <div class="invalid-feedback">Le numéro doit commencer par + suivi d'au moins 11 chiffres (ex : +22890000000).</div>
+                    <small class="text-muted">Les utilisateurs intéressés vous contacteront sur ce numéro WhatsApp.</small>
+                </div>
+
                 <!-- Reward Program Section -->
                 <div class="col-12 mb-4">
                     <div class="d-flex align-items-center mb-3">

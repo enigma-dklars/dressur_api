@@ -1713,6 +1713,7 @@ class TraitementsDS extends AbstractController
             $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
             $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
             $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+            $whatsappContact        = $myTransaction->getAnnotherInfo()['whatsappContact']        ?? null;
             $promotion = new Promotion();
             $promotion
                 ->setMode("Payant")
@@ -1722,6 +1723,7 @@ class TraitementsDS extends AbstractController
                 ->setDescription($myTransaction->getAnnotherInfo()['description'])
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
+                ->setWhatsappContact($whatsappContact)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
             $this->em->persist($promotion);
 

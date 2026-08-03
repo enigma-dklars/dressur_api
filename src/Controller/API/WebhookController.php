@@ -101,6 +101,7 @@ class WebhookController extends AbstractController
             $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
             $boostFacebook          = $myTransaction->getAnnotherInfo()['boostFacebook']          ?? false;
             $montantBoostFacebook   = $myTransaction->getAnnotherInfo()['montantBoostFacebook']   ?? 0;
+            $whatsappContact        = $myTransaction->getAnnotherInfo()['whatsappContact']        ?? null;
             $promotion = new Promotion();
             $promotion
                 ->setMode("Payant")
@@ -112,6 +113,7 @@ class WebhookController extends AbstractController
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setBoostFacebook($boostFacebook)
                 ->setMontantBoostFacebook($montantBoostFacebook)
+                ->setWhatsappContact($whatsappContact)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
             ;
             $this->em->persist($promotion);

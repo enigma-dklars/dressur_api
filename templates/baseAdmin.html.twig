@@ -458,7 +458,7 @@
     // SURVEILLANCE EN TEMPS RÉEL - PRODUITS/SERVICES
     // ==========================================
 
-    $(document).on('input change', '#descriptionPromo, #paymentNumber', function() {
+    $(document).on('input change', '#descriptionPromo, #paymentNumber, #whatsappContact', function() {
         updateSubmitButtonsState();
     });
 
@@ -502,6 +502,13 @@
         if (!selectedImage) {
             errors.push('Veuillez sélectionner une image.');
         }
+        const waVal = $('#whatsappContact').val().trim();
+        if (!waVal || !/^\+\d{11,}$/.test(waVal)) {
+            errors.push('Le numéro WhatsApp de contact doit commencer par + suivi d\'au moins 11 chiffres.');
+            $('#whatsappContact').addClass('is-invalid');
+        } else {
+            $('#whatsappContact').removeClass('is-invalid');
+        }
         if (!$('#paymentMethod').val()) {
             errors.push('Veuillez choisir un moyen de paiement.');
         }
@@ -538,6 +545,7 @@
             formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
             formData.append('totalViewsGoal', $('#viewsGoal').val());
             formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+            formData.append('whatsappContact', $('#whatsappContact').val().trim());
             formData.append('source', 'web');
 
             const response = await fetch(`${API_BASE_URL}/addProduitService`, {

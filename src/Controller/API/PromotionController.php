@@ -273,6 +273,7 @@ class PromotionController extends AbstractController
         $mode = $datas->get('mode');
         $paymentMethod = $datas->get('paymentMethod'); // mon_argent
         $tel = $datas->get('tel');
+        $whatsappContact = $datas->get('whatsappContact') ?: null;
 
         $image = $files->get('image');
 
@@ -397,6 +398,7 @@ class PromotionController extends AbstractController
                     'boostFacebook'         => $boostFacebook,
                     'montantBoostFacebook'  => $montantBoostFacebook,
                     'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                    'whatsappContact'       => $whatsappContact,
                 ]);
             $this->em->persist($myTransaction);
             $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
@@ -488,6 +490,7 @@ class PromotionController extends AbstractController
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                        'whatsappContact' => $whatsappContact,
                     ])
                 ;
                 $this->em->persist($myTransaction);
@@ -535,6 +538,7 @@ class PromotionController extends AbstractController
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                        'whatsappContact' => $whatsappContact,
                     ],
                     $user,
                     $request->getSchemeAndHttpHost()
@@ -580,6 +584,7 @@ class PromotionController extends AbstractController
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+                        'whatsappContact' => $whatsappContact,
                     ],
                     $user,
                     $request->getSchemeAndHttpHost()

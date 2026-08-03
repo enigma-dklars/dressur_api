@@ -38,6 +38,7 @@
                     <th>Récomp.</th>
                     <th>DS Statut</th>
                     <th>Boost FB</th>
+                    <th>WhatsApp</th>
                     <th>Limited</th>
                     <th>Fake</th>
                     <th>Ref.</th>
@@ -97,6 +98,13 @@
                     <td class="text-center">{{ promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td class="text-center">{{ promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td class="text-center">{{ promotion.boostFacebook ? '<span class="badge bg-primary">' ~ promotion.montantBoostFacebook ~ ' F</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">
+                        {% if promotion.whatsappContact %}
+                            <span class="badge bg-success">{{ promotion.whatsappContact }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary" title="Fallback : numéro utilisateur">{{ promotion.user.tel }}</span>
+                        {% endif %}
+                    </td>
                     <td class="text-center">{{ promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td class="text-center">{{ promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
                     <td class="text-center">{{ promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
