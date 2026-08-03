@@ -1,4 +1,4 @@
-{% extends 'baseAdmin.html.twig' %}
+{% extends user.lecteur == true ? 'basePrivate.html.twig' : 'baseAdmin.html.twig' %}
 
 {% block title %}Ckeck User And Confirm{% endblock %}
 
