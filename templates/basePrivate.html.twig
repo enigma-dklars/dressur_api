@@ -368,8 +368,9 @@
         const hasImage = selectedImage !== null;
         const hasPaymentMethod = $('#paymentMethod').length && $('#paymentMethod').val() !== '';
         const hasPaymentNumber = $('#paymentNumber').length && $('#paymentNumber').val().trim() !== '';
+        const hasWhatsapp = !$('#whatsappContact').length || /^\+\d{11,}$/.test(($('#whatsappContact').val() || '').trim());
 
-        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber;
+        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber && hasWhatsapp;
     }
 
     /**
@@ -623,7 +624,7 @@
         if (!selectedImage) {
             errors.push('Veuillez sélectionner une image.');
         }
-        const waVal = $('#whatsappContact').val().trim();
+        const waVal = ($('#whatsappContact').val() || '').trim();
         if (!waVal || !/^\+\d{11,}$/.test(waVal)) {
             errors.push('Le numéro WhatsApp de contact doit commencer par + suivi d\'au moins 11 chiffres.');
             $('#whatsappContact').addClass('is-invalid');
