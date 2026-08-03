@@ -110,6 +110,13 @@
         </div>
         {{ form_errors(form.vendeur) }}
     </div>
+    <div class="col-md-4">
+        <div class="form-check mt-2">
+            {{ form_widget(form.estPartenaire) }}
+            {{ form_label(form.estPartenaire) }}
+        </div>
+        {{ form_errors(form.estPartenaire) }}
+    </div>
 
     {# --- Programme de récompenses --- #}
     <div class="col-12"><h6 class="text-muted text-uppercase fw-bold border-bottom pb-1 mt-2">Programme de récompenses</h6></div>
@@ -139,6 +146,11 @@
         <label class="form-label fw-semibold">{{ form_label(form.lid) }}</label>
         {{ form_widget(form.lid) }}
         {{ form_errors(form.lid) }}
+    </div>
+    <div class="col-md-6">
+        <label class="form-label fw-semibold">{{ form_label(form.codePartenaire) }}</label>
+        {{ form_widget(form.codePartenaire) }}
+        {{ form_errors(form.codePartenaire) }}
     </div>
     <div class="col-md-6">
         <label class="form-label fw-semibold">{{ form_label(form.registerSource) }}</label>

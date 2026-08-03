@@ -69,6 +69,21 @@
                 </div>
                 <div class="col-6 col-md-3"><small class="text-muted d-block">Créé le</small>{{ u.createdAt ? u.createdAt|date('d/m/Y H:i') : '—' }}</div>
                 <div class="col-6 col-md-3"><small class="text-muted d-block">Dernière connexion</small>{{ u.lastLoginTo ? u.lastLoginTo|date('d/m/Y H:i') : '—' }}</div>
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">Lecteur</small>
+                    {{ u.lecteur ? '<span class="badge bg-info">Oui</span>' : '<span class="badge bg-secondary">Non</span>' }}
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">Est Partenaire</small>
+                    {{ u.estPartenaire ? '<span class="badge bg-success">Oui</span>' : '<span class="badge bg-secondary">Non</span>' }}
+                </div>
+                <div class="col-6 col-md-3"><small class="text-muted d-block">Code Partenaire</small><strong>{{ u.codePartenaire ?? '—' }}</strong></div>
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">Partenaire lié</small>
+                    {% if u.partenaire %}
+                        <a href="{{ path('app_crud_user_check') }}?identifier={{ u.partenaire.id }}" class="small">{{ u.partenaire.pseudo }} ({{ u.partenaire.id }})</a>
+                    {% else %}—{% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -158,6 +173,8 @@
                 <div class="col-6 col-md-3"><small class="text-muted d-block">Promo Affaire</small>{{ u.promotions|length }}</div>
                 <div class="col-6 col-md-3"><small class="text-muted d-block">Promo Réseau</small>{{ u.promoReseaus|length }}</div>
                 <div class="col-6 col-md-3"><small class="text-muted d-block">Transactions</small>{{ transactions|length }}</div>
+                <div class="col-6 col-md-3"><small class="text-muted d-block">Accompagnés</small>{{ u.accompagnes|length }}</div>
+                <div class="col-6 col-md-3"><small class="text-muted d-block">Suggestions</small>{{ u.suggestions|length }}</div>
             </div>
         </div>
     </div>

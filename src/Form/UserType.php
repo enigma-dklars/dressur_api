@@ -112,6 +112,12 @@ class UserType extends AbstractType
                 'attr' => ['class' => 'form-check-input ms-2'],
                 'label_attr' => ['class' => 'form-check-label ms-1'],
             ])
+            ->add('estPartenaire', CheckboxType::class, [
+                'label' => 'Est Partenaire',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input ms-2'],
+                'label_attr' => ['class' => 'form-check-label ms-1'],
+            ])
 
             // --- Programme de récompenses ---
             ->add('isInscritProgrammeRecompense', CheckboxType::class, [
@@ -135,6 +141,11 @@ class UserType extends AbstractType
                 'label' => 'LID (WhatsApp)',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
+            ])
+            ->add('codePartenaire', TextType::class, [
+                'label' => 'Code Partenaire',
+                'required' => false,
+                'attr' => ['class' => 'form-control', 'maxlength' => 8],
             ])
             ->add('registerSource', TextType::class, [
                 'label' => 'Source d\'inscription',
