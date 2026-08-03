@@ -241,6 +241,35 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
     </a>
 
+    {# ── Consultation (lecteurs uniquement) ──────────────────────── #}
+    {% if user.lecteur == true %}
+    <p class="ds-section-sep">Consultation</p>
+    <a href="{{ path('app_crud_user_sans_service') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-user-clock"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Utilisateurs sans service</p>
+            <p class="ds-sub">Liste des inscrits sans aucune activité</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+    <a href="{{ path('app_crud_user_check') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-magnifying-glass"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Rechercher un utilisateur</p>
+            <p class="ds-sub">Consulter le profil et les transactions</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+    <a href="{{ path('app_crud_user_check_and_confirme') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-circle-check"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Vérifier & Confirmer</p>
+            <p class="ds-sub">Consulter le statut de vérification d'un utilisateur</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
+    {% endif %}
+
     {# ── Application ─────────────────────────────────────────────── #}
     <p class="ds-section-sep">Application</p>
 
