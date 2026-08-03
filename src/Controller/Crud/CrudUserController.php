@@ -147,10 +147,6 @@ class CrudUserController extends AbstractController
         // Process the form submission
         if ($request->isMethod('POST')) {
             $currentUser = $this->traitementsDS->getUserByUidInCookies();
-            if ($currentUser && $currentUser->getLecteur()) {
-                $this->addFlash('danger', 'Accès refusé : lecture seule.');
-                return $this->redirectToRoute('app_crud_user_check');
-            }
 
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
@@ -217,10 +213,6 @@ class CrudUserController extends AbstractController
         // Process the form submission
         if ($request->isMethod('POST')) {
             $currentUser = $this->traitementsDS->getUserByUidInCookies();
-            if ($currentUser && $currentUser->getLecteur()) {
-                $this->addFlash('danger', 'Accès refusé : lecture seule.');
-                return $this->redirectToRoute('app_crud_user_check_and_confirme');
-            }
 
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
@@ -256,9 +248,13 @@ class CrudUserController extends AbstractController
                 }
 
                 if(!$user->getTelIsVerified()) {
-                    $user->setTelIsVerified(true);
-                    $entityManager->flush();
-                    $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
+                    if (!$currentUser || !$currentUser->getLecteur()) {
+                        $user->setTelIsVerified(true);
+                        $entityManager->flush();
+                        $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
+                    } else {
+                        $message[] = "Le numéro WhatsApp (".$user->getTel().") n'est pas encore confirmé.";
+                    }
                 } else {
                     $message[] = "Le numéro WhatsApp (".$user->getTel().") avais déja été confirmé.";
                 }
