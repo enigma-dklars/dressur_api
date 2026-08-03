@@ -39,7 +39,7 @@
     <hr>
 
     {# ── Actions ───────────────────────────────────────────────── #}
-    <div class="mb-3">{% include "crud_user/_delete_form.html.twig" with {'user': u} only %}</div>
+    {% if user.lecteur != true %}<div class="mb-3">{% include "crud_user/_delete_form.html.twig" with {'user': u} only %}</div>{% endif %}
 
     {# ── Identité ──────────────────────────────────────────────── #}
     <div class="card mb-3">
@@ -86,10 +86,12 @@
                             <span class="badge bg-success">Vérifié</span>
                         {% else %}
                             <span class="badge bg-danger me-2">Non vérifié</span>
+                            {% if user.lecteur != true %}
                             <form action="{{ path('app_crud_user_activerTel', {'id': u.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation du numéro WhatsApp ?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('activer_tel' ~ u.id) }}">
                                 <button type="submit" class="btn btn-sm btn-warning">Activer</button>
                             </form>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
@@ -101,10 +103,12 @@
                             <span class="badge bg-success">Vérifié</span>
                         {% else %}
                             <span class="badge bg-danger me-2">Non vérifié</span>
+                            {% if user.lecteur != true %}
                             <form action="{{ path('app_crud_user_activerMail', {'id': u.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation de l\'adresse mail ?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('activer_mail' ~ u.id) }}">
                                 <button type="submit" class="btn btn-sm btn-warning">Activer</button>
                             </form>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

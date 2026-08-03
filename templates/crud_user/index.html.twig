@@ -66,9 +66,10 @@
                 </tr>
             </thead>
             <tbody>
+            {% set adminUser = user %}
             {% for user in users %}
                 <tr>
-                    <td>{% include "crud_user/_delete_form.html.twig" %}</td>
+                    <td>{% if adminUser.lecteur != true %}{% include "crud_user/_delete_form.html.twig" %}{% endif %}</td>
                     <td class="text-center">
                         {% if user.registerSource == 'web' %}
                             <span class="badge bg-primary">web</span>
@@ -86,10 +87,12 @@
                         {% if user.telIsVerified == true %}
                             <span class="badge bg-success">Yes</span>
                         {% else %}
+                            {% if adminUser.lecteur != true %}
                             <form action="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation du numéro WhatsApp ?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('activer_tel' ~ user.id) }}">
                                 <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
                             </form>
+                            {% endif %}
                         {% endif %}
                     </td>
                     <td class="small">{{ user.mail }}</td>
@@ -97,10 +100,12 @@
                         {% if user.mailIsVerified == true %}
                             <span class="badge bg-success">Yes</span>
                         {% else %}
+                            {% if adminUser.lecteur != true %}
                             <form action="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation de l\'adresse mail ?')">
                                 <input type="hidden" name="_token" value="{{ csrf_token('activer_mail' ~ user.id) }}">
                                 <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
                             </form>
+                            {% endif %}
                         {% endif %}
                     </td>
                     <td class="text-center">
