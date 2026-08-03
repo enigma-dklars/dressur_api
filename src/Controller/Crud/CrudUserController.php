@@ -83,6 +83,24 @@ class CrudUserController extends AbstractController
     }
 
 
+    #[Route('/sans-service', name: 'app_crud_user_sans_service', methods: ['GET'])]
+    public function sansService(UserRepository $userRepository): Response
+    {
+        return $this->render('crud_user/index.html.twig', [
+            'theme'        => $this->theme,
+            'user'         => $this->traitementsDS->getUserByUidInCookies(),
+            'users'        => $userRepository->findUsersWithoutService(),
+            'option'       => "Sans service",
+            'currentPage'  => 1,
+            'totalPages'   => 1,
+            'totalItems'   => count($userRepository->findUsersWithoutService()),
+            'search'       => '',
+            'limit'        => 9999,
+            'sourceFilter' => '',
+            'sourceCounts' => $userRepository->getRegisterSourceCounts(),
+        ]);
+    }
+
     #[Route('/supprimer-user-inutile', name: 'app_crud_user_supprimer_user_inutile', methods: ['POST'])]
     public function supprimer_user_inutile(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS): Response
     {

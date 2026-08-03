@@ -335,6 +335,34 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * Retourne la liste des utilisateurs sans aucun service (boost, promotion, promo_reseau),
+     * triés par id DESC.
+     *
+     * @return array
+     */
+    public function findUsersWithoutService(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql  = '
+            SELECT u.*
+            FROM `user` u
+            WHERE
+                NOT EXISTS (SELECT 1 FROM boost        WHERE boost.user_id        = u.id)
+            AND NOT EXISTS (SELECT 1 FROM promotion    WHERE promotion.user_id    = u.id)
+            AND NOT EXISTS (SELECT 1 FROM promo_reseau WHERE promo_reseau.user_id = u.id)
+            ORDER BY u.id DESC
+        ';
+        $rows = $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+
+        // Ré-hydrater en entités User via l'ORM
+        if (empty($rows)) {
+            return [];
+        }
+        $ids = array_column($rows, 'id');
+        return $this->findBy(['id' => $ids], ['id' => 'DESC']);
+    }
+
+    /**
      * Retourne le top 5 des pays (indicatif téléphonique) avec le plus d'utilisateurs.
      */
     public function getTopPaysByUserCount(int $limit = 5): array
