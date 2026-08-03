@@ -248,13 +248,9 @@ class CrudUserController extends AbstractController
                 }
 
                 if(!$user->getTelIsVerified()) {
-                    if (!$currentUser || !$currentUser->getLecteur()) {
-                        $user->setTelIsVerified(true);
-                        $entityManager->flush();
-                        $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
-                    } else {
-                        $message[] = "Le numéro WhatsApp (".$user->getTel().") n'est pas encore confirmé.";
-                    }
+                    $user->setTelIsVerified(true);
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
                 } else {
                     $message[] = "Le numéro WhatsApp (".$user->getTel().") avais déja été confirmé.";
                 }
