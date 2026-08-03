@@ -1072,6 +1072,7 @@ class TraitementsDS extends AbstractController
             "lesPublicites" => $lesPublicites,
             "havePublicites" => (count($lesPublicitesArray) >= 1) ? true : false,
             "admin" => $user->getAdmin() ? true : false,
+            "lecteur" => $user->getLecteur() ? true : false,
             // Appel unique — les deux clés lues depuis la même variable
             "permissionAdd" => ($permission = $this->verificationsDS->permissionAdd($user))["permissionAdd"],
             "messageErreurPermissionAdd" => $permission["messageErreurPermissionAdd"],
