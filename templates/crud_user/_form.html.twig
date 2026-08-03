@@ -90,6 +90,13 @@
         {{ form_errors(form.admin) }}
     </div>
     <div class="col-md-4">
+        <div class="mb-3">
+            {{ form_errors(form.lecteur) }}
+            {{ form_widget(form.lecteur) }}
+            {{ form_label(form.lecteur) }}
+        </div>
+    </div>
+    <div class="col-md-4">
         <div class="form-check mt-2">
             {{ form_widget(form.blocked) }}
             {{ form_label(form.blocked) }}

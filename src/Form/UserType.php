@@ -96,6 +96,10 @@ class UserType extends AbstractType
                 'attr' => ['class' => 'form-check-input ms-2'],
                 'label_attr' => ['class' => 'form-check-label ms-1'],
             ])
+            ->add('lecteur', null, [
+                'attr' => ['class' => 'ms-2 mb-2'],
+                'required' => false,
+            ])
             ->add('blocked', CheckboxType::class, [
                 'label' => 'Bloqué',
                 'required' => false,
