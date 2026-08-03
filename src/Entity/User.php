@@ -125,6 +125,9 @@ class User
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $estPartenaire = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $lecteur = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -688,6 +691,18 @@ class User
     public function setEstPartenaire(bool $estPartenaire): static
     {
         $this->estPartenaire = $estPartenaire;
+
+        return $this;
+    }
+
+    public function getLecteur(): ?bool
+    {
+        return $this->lecteur;
+    }
+
+    public function setLecteur(?bool $lecteur): static
+    {
+        $this->lecteur = $lecteur;
 
         return $this;
     }
