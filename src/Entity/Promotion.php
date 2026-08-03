@@ -78,6 +78,12 @@ class Promotion
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $boostFacebook = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $montantBoostFacebook = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -92,6 +98,8 @@ class Promotion
         $this->typePromotionAffaire = "produit_service";
         $this->inProgrammeRecompense = false;
         $this->publishOnDressurStatus = false;
+        $this->boostFacebook = false;
+        $this->montantBoostFacebook = 0;
         /**
          * status values description
          * 0 : rejeter
@@ -421,6 +429,30 @@ class Promotion
     public function setCreatedAt(?\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function isBoostFacebook(): ?bool
+    {
+        return $this->boostFacebook ?? false;
+    }
+
+    public function setBoostFacebook(bool $boostFacebook): static
+    {
+        $this->boostFacebook = $boostFacebook;
+
+        return $this;
+    }
+
+    public function getMontantBoostFacebook(): ?int
+    {
+        return $this->montantBoostFacebook;
+    }
+
+    public function setMontantBoostFacebook(?int $montantBoostFacebook): static
+    {
+        $this->montantBoostFacebook = $montantBoostFacebook;
 
         return $this;
     }

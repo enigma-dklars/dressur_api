@@ -245,6 +245,8 @@ class PromotionController extends AbstractController
 
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
+        $boostFacebook = false;
+        $montantBoostFacebook = 0;
 
         if ($datas->get('inProgrammeRecompense') !== null) {
             $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
@@ -252,6 +254,17 @@ class PromotionController extends AbstractController
         }
         if ($datas->get('publishOnDressurStatus') !== null) {
             $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
+        }
+        if ($datas->get('boostFacebook') !== null) {
+            $boostFacebook = ((int)$datas->get('boostFacebook') == 1);
+            $montantBoostFacebook = max(0, (int)$datas->get('montantBoostFacebook'));
+            if ($boostFacebook && $montantBoostFacebook < 700) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'Le montant minimum pour le boost Facebook est de 700 FCFA.',
+                ]);
+            }
         }
 
         $idFormulePromoAffaire = $datas->get('idFormulePromoAffaire');
@@ -365,6 +378,9 @@ class PromotionController extends AbstractController
         if ($publishOnDressurStatus) {
             $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
         }
+        if ($boostFacebook) {
+            $montantSolde += $montantBoostFacebook;
+        }
         if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
@@ -378,6 +394,8 @@ class PromotionController extends AbstractController
                     'description'           => $text,
                     'inProgrammeRecompense' => $inProgrammeRecompense,
                     'publishOnDressurStatus'=> $publishOnDressurStatus,
+                    'boostFacebook'         => $boostFacebook,
+                    'montantBoostFacebook'  => $montantBoostFacebook,
                     'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                 ]);
             $this->em->persist($myTransaction);
@@ -426,6 +444,11 @@ class PromotionController extends AbstractController
                 $montantTotal += $montantForPublishOnDressurStatus;
             }
 
+            if ($boostFacebook) {
+                $factureLignes[] = "Boost Page Facebook";
+                $montantTotal += $montantBoostFacebook;
+            }
+
             $array_create_transaction = [
                 "description" => implode(" + ", $factureLignes),
                 "amount" => $montantTotal,
@@ -462,6 +485,8 @@ class PromotionController extends AbstractController
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
+                        'boostFacebook' => $boostFacebook,
+                        'montantBoostFacebook' => $montantBoostFacebook,
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ])
                 ;
@@ -507,6 +532,8 @@ class PromotionController extends AbstractController
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
+                        'boostFacebook' => $boostFacebook,
+                        'montantBoostFacebook' => $montantBoostFacebook,
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ],
                     $user,
@@ -550,6 +577,8 @@ class PromotionController extends AbstractController
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
+                        'boostFacebook' => $boostFacebook,
+                        'montantBoostFacebook' => $montantBoostFacebook,
                         'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ],
                     $user,
@@ -746,6 +775,8 @@ class PromotionController extends AbstractController
 
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
+        $boostFacebook = false;
+        $montantBoostFacebook = 0;
 
         if ($datas->get('inProgrammeRecompense') !== null) {
             $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
@@ -753,6 +784,17 @@ class PromotionController extends AbstractController
         }
         if ($datas->get('publishOnDressurStatus') !== null) {
             $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
+        }
+        if ($datas->get('boostFacebook') !== null) {
+            $boostFacebook = ((int)$datas->get('boostFacebook') == 1);
+            $montantBoostFacebook = max(0, (int)$datas->get('montantBoostFacebook'));
+            if ($boostFacebook && $montantBoostFacebook < 700) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'Le montant minimum pour le boost Facebook est de 700 FCFA.',
+                ]);
+            }
         }
 
         $idPromotion = $datas->get('idPromotion');
@@ -833,6 +875,9 @@ class PromotionController extends AbstractController
             if ($publishOnDressurStatus) {
                 $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
             }
+            if ($boostFacebook) {
+                $montantSolde += $montantBoostFacebook;
+            }
             if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
                 $myTransaction = (new EntityTransaction())
                     ->setUser($user)
@@ -845,6 +890,8 @@ class PromotionController extends AbstractController
                         'promotionId'           => $promotion->getId(),
                         'inProgrammeRecompense' => $inProgrammeRecompense,
                         'publishOnDressurStatus'=> $publishOnDressurStatus,
+                        'boostFacebook'         => $boostFacebook,
+                        'montantBoostFacebook'  => $montantBoostFacebook,
                         'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ]);
                 $this->em->persist($myTransaction);
@@ -893,6 +940,11 @@ class PromotionController extends AbstractController
                     $montantTotal += $montantForPublishOnDressurStatus;
                 }
 
+                if ($boostFacebook) {
+                    $factureLignes[] = "Boost Page Facebook";
+                    $montantTotal += $montantBoostFacebook;
+                }
+
                 $array_create_transaction = [
                     "description" => implode(" + ", $factureLignes),
                     "amount" => $montantTotal,
@@ -926,6 +978,8 @@ class PromotionController extends AbstractController
                             'userUid' => $user->getUid(),
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
+                            'boostFacebook' => $boostFacebook,
+                            'montantBoostFacebook' => $montantBoostFacebook,
                             'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                         ])
                     ;
@@ -972,6 +1026,8 @@ class PromotionController extends AbstractController
                             'promotionId' => $promotion->getId(),
                             'inProgrammeRecompense' => $inProgrammeRecompense,
                             'publishOnDressurStatus' => $publishOnDressurStatus,
+                            'boostFacebook' => $boostFacebook,
+                            'montantBoostFacebook' => $montantBoostFacebook,
                             'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                         ],
                         $user,
@@ -1015,6 +1071,8 @@ class PromotionController extends AbstractController
                             'promotionId' => $promotion->getId(),
                             'inProgrammeRecompense' => $inProgrammeRecompense,
                             'publishOnDressurStatus' => $publishOnDressurStatus,
+                            'boostFacebook' => $boostFacebook,
+                            'montantBoostFacebook' => $montantBoostFacebook,
                             'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                         ],
                         $user,

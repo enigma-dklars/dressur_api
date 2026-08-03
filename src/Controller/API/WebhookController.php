@@ -99,6 +99,8 @@ class WebhookController extends AbstractController
             $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
             $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
             $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+            $boostFacebook          = $myTransaction->getAnnotherInfo()['boostFacebook']          ?? false;
+            $montantBoostFacebook   = $myTransaction->getAnnotherInfo()['montantBoostFacebook']   ?? 0;
             $promotion = new Promotion();
             $promotion
                 ->setMode("Payant")
@@ -108,6 +110,8 @@ class WebhookController extends AbstractController
                 ->setDescription($myTransaction->getAnnotherInfo()['description'])
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
+                ->setBoostFacebook($boostFacebook)
+                ->setMontantBoostFacebook($montantBoostFacebook)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
             ;
             $this->em->persist($promotion);
@@ -136,6 +140,8 @@ class WebhookController extends AbstractController
             $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
             $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
             $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
+            $boostFacebook          = $myTransaction->getAnnotherInfo()['boostFacebook']          ?? false;
+            $montantBoostFacebook   = $myTransaction->getAnnotherInfo()['montantBoostFacebook']   ?? 0;
             $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
             $promotion->setMode("Payant")
                 ->setDateDebut(new DateTime())
@@ -144,6 +150,8 @@ class WebhookController extends AbstractController
                 ->setStatus(3)
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
+                ->setBoostFacebook($boostFacebook)
+                ->setMontantBoostFacebook($montantBoostFacebook)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
             ;
             $this->traitementsDS->addNotification("Paiement confirmer. Promotion Affaire enregistrer et démarrer.", $myTransaction->getUser());

@@ -324,18 +324,32 @@
     }
 
     /**
+     * Calcule le montant du boost Facebook
+     */
+    function calculateBoostFacebookAmount() {
+        const $boostFb = $('#boostFacebook');
+        if (!$boostFb.length || !$boostFb.is(':checked')) {
+            return 0;
+        }
+        const amount = parseInt($('#boostFacebookAmount').val()) || 0;
+        return amount >= 700 ? amount : 0;
+    }
+
+    /**
      * Met à jour le récapitulatif des prix
      */
     function updatePricingSummary() {
         const formulePrice = currentFormuleData.prix;
         const rewardAmount = calculateRewardAmount();
         const statusAmount = calculateDressurStatusAmount();
-        const total = formulePrice + rewardAmount + statusAmount;
+        const boostFbAmount = calculateBoostFacebookAmount();
+        const total = formulePrice + rewardAmount + statusAmount + boostFbAmount;
 
         // Mise à jour du DOM avec jQuery
         $('#summaryFormulePrice').text(formatNumber(formulePrice) + ' F');
         $('#summaryRewardPrice').text(formatNumber(rewardAmount) + ' F');
         $('#summaryStatusPrice').text(formatNumber(statusAmount) + ' F');
+        $('#summaryBoostFacebookPrice').text(formatNumber(boostFbAmount) + ' F');
         $('#summaryTotal').text(formatNumber(total) + ' F');
         $('#rewardAmount').text(formatNumber(rewardAmount));
         $('#statusAmount').text(formatNumber(statusAmount));
@@ -509,6 +523,28 @@
     // PROGRAMME DE RÉCOMPENSE
     // ==========================================
     
+    // ==========================================
+    // BOOST PAGE FACEBOOK
+    // ==========================================
+
+    $(document).on('change', '#boostFacebook', function() {
+        $('#boostFacebookSection').toggle(this.checked);
+        if (!this.checked) {
+            $('#boostFacebookAmount').val('700');
+        }
+        updatePricingSummary();
+    });
+
+    $(document).on('input', '#boostFacebookAmount', function() {
+        const val = parseInt($(this).val()) || 0;
+        if (val < 700) {
+            $(this).addClass('is-invalid');
+        } else {
+            $(this).removeClass('is-invalid');
+        }
+        updatePricingSummary();
+    });
+
     $(document).on('change', '#participateReward', function() {
         $('#rewardSection').toggle(this.checked);
         if (this.checked) {
@@ -593,6 +629,12 @@
         if (!$('#paymentNumber').val().trim()) {
             errors.push('Veuillez entrer un numéro de paiement.');
         }
+        if ($('#boostFacebook').is(':checked')) {
+            const boostFbAmount = parseInt($('#boostFacebookAmount').val()) || 0;
+            if (boostFbAmount < 700) {
+                errors.push('Le montant minimum pour le boost Facebook est de 700 FCFA.');
+            }
+        }
 
         return errors;
     }
@@ -623,6 +665,8 @@
             formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
             formData.append('rewardBudget', $('#rewardBudget').val());
             formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+            formData.append('boostFacebook', $('#boostFacebook').is(':checked') ? '1' : '0');
+            formData.append('montantBoostFacebook', $('#boostFacebookAmount').val() || '0');
             formData.append('source', 'web');
 
             const response = await fetch(`${API_BASE_URL}/addProduitService`, {
@@ -780,6 +824,8 @@
         $('#rewardBudget').val('0');
         $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
         $('#statusSection').hide();
+        $('#boostFacebookSection').hide();
+        $('#boostFacebookAmount').val('700');
         $('#demandeEmploiSection').hide();
         $('#offreEmploiSection').hide();
 

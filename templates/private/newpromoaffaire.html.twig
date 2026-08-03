@@ -106,6 +106,32 @@
                     </div>
                 </div>
 
+                <!-- Boost Page Facebook Section -->
+                <div class="col-12 mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fab fa-facebook text-primary me-2"></i>
+                        <h5 class="mb-0">Boost Page Facebook Dressur</h5>
+                    </div>
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="boostFacebook">
+                        <label class="form-check-label" for="boostFacebook">
+                            Publier et booster sur la page Facebook de Dressur
+                        </label>
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        Votre promotion sera publiée sur la page Facebook officielle de Dressur et boostée auprès d'une audience ciblée.
+                        Budget minimum : 700 FCFA.
+                    </small>
+
+                    <div id="boostFacebookSection" class="mt-3" style="display: none;">
+                        <label class="form-label fw-semibold">Budget boost Facebook (FCFA)</label>
+                        <input type="number" id="boostFacebookAmount" class="form-control" value="700" min="700"
+                               placeholder="Montant minimum 700 FCFA">
+                        <div class="invalid-feedback">Le montant minimum est de 700 FCFA.</div>
+                    </div>
+                </div>
+
                 <!-- Dressur WhatsApp Status & Story Section -->
                 <div class="col-12 mb-4" id="dressurStatusBlock" style="display:none;">
                     <div class="d-flex align-items-center mb-3">
@@ -147,6 +173,10 @@
                             <div class="mb-2">
                                 <span>Frais Statut WhatsApp &amp; Story Dressur :</span>
                                 <strong id="summaryStatusPrice" class="float-end">0 F</strong>
+                            </div>
+                            <div class="mb-2">
+                                <span>Boost Page Facebook :</span>
+                                <strong id="summaryBoostFacebookPrice" class="float-end">0 F</strong>
                             </div>
                             <hr>
                             <div class="mb-2 text-success">
