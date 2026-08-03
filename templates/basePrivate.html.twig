@@ -1,6 +1,6 @@
 {% if app.request.requestUri starts with '/crud' %}
     {% if user %}
-        {% if user.admin == false %}
+        {% if user.admin == false and user.lecteur != true %}
             <script>
                 window.location.href = "{{ path('app_private') }}";
             </script>
