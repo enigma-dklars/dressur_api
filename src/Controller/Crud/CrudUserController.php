@@ -146,6 +146,12 @@ class CrudUserController extends AbstractController
 
         // Process the form submission
         if ($request->isMethod('POST')) {
+            $currentUser = $this->traitementsDS->getUserByUidInCookies();
+            if ($currentUser && $currentUser->getLecteur()) {
+                $this->addFlash('danger', 'Accès refusé : lecture seule.');
+                return $this->redirectToRoute('app_crud_user_check');
+            }
+
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
@@ -210,6 +216,12 @@ class CrudUserController extends AbstractController
 
         // Process the form submission
         if ($request->isMethod('POST')) {
+            $currentUser = $this->traitementsDS->getUserByUidInCookies();
+            if ($currentUser && $currentUser->getLecteur()) {
+                $this->addFlash('danger', 'Accès refusé : lecture seule.');
+                return $this->redirectToRoute('app_crud_user_check_and_confirme');
+            }
+
             $input = $request->request->get('identifier');
             $input = str_replace(" ", "", $input);
             $input = str_replace("      ", "", $input);
