@@ -1061,5 +1061,166 @@
         .catch(function () { /* silencieux */ });
     })();
     </script>
+
+    {# ── Modal interrupt contacts disponibles ──────────────────────────── #}
+    <style>
+    @keyframes dsInterruptFadeIn {
+        from { opacity: 0; transform: translateY(24px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    #ds-interrupt-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(0,0,0,0.75);
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+    }
+    #ds-interrupt-backdrop.ds-interrupt-visible {
+        display: flex;
+    }
+    #ds-interrupt-box {
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px 28px 24px;
+        max-width: 480px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.28);
+        animation: dsInterruptFadeIn .35s cubic-bezier(.22,.68,0,1.2) both;
+    }
+    #ds-interrupt-box .ds-int-icon {
+        font-size: 3rem;
+        line-height: 1;
+        margin-bottom: 12px;
+    }
+    #ds-interrupt-box .ds-int-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 12px;
+        line-height: 1.3;
+    }
+    #ds-interrupt-box .ds-int-body {
+        font-size: .95rem;
+        color: #444;
+        margin: 0 0 24px;
+        line-height: 1.55;
+    }
+    #ds-interrupt-box .ds-int-btn-main {
+        display: block;
+        width: 100%;
+        padding: 14px 20px;
+        background: #4CAF50;
+        color: #fff;
+        font-size: 1rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-bottom: 14px;
+        transition: background .2s;
+    }
+    #ds-interrupt-box .ds-int-btn-main:hover { background: #43a047; }
+    #ds-interrupt-box .ds-int-btn-later {
+        display: block;
+        width: 100%;
+        background: none;
+        border: none;
+        color: #888;
+        font-size: .9rem;
+        cursor: pointer;
+        padding: 4px 0 10px;
+        text-decoration: underline;
+        transition: color .2s;
+    }
+    #ds-interrupt-box .ds-int-btn-later:hover { color: #555; }
+    #ds-interrupt-box .ds-int-footer {
+        font-size: .75rem;
+        color: #aaa;
+        margin-top: 10px;
+    }
+    </style>
+
+    <div id="ds-interrupt-backdrop" role="dialog" aria-modal="true" aria-labelledby="ds-int-title-text">
+        <div id="ds-interrupt-box">
+            <div class="ds-int-icon">
+                <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <circle cx="26" cy="26" r="26" fill="#E8F5E9"/>
+                    <ellipse cx="26" cy="22" rx="7" ry="7.5" fill="#4CAF50"/>
+                    <ellipse cx="17" cy="24" rx="5" ry="5.5" fill="#81C784"/>
+                    <ellipse cx="35" cy="24" rx="5" ry="5.5" fill="#81C784"/>
+                    <path d="M12 40c0-6.627 6.268-12 14-12s14 5.373 14 12" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                    <path d="M7 40c0-4.418 4.477-8 10-8" stroke="#81C784" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    <path d="M45 40c0-4.418-4.477-8-10-8" stroke="#81C784" stroke-width="2" stroke-linecap="round" fill="none"/>
+                </svg>
+            </div>
+            <p class="ds-int-title" id="ds-int-title-text">Vous avez <span id="ds-int-nb">0</span> contact(s) Dressur disponibles&nbsp;!</p>
+            <p class="ds-int-body">Ces contacts ont été obtenus grâce à votre Boost Contact. Téléchargez votre fichier VCF maintenant et importez-le dans votre téléphone pour les enregistrer.</p>
+            <button class="ds-int-btn-main" id="ds-int-btn-vcf">📥 Télécharger mes contacts (VCF)</button>
+            <button class="ds-int-btn-later" id="ds-int-btn-later">Plus tard — je le ferai depuis la page Contacts</button>
+            <p class="ds-int-footer">Ce message s'affiche au maximum toutes les 4 heures tant que vous avez des contacts non importés.</p>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        'use strict';
+
+        // Ne pas déclencher sur /contact ni /export_vcf
+        var path = window.location.pathname;
+        if (path.indexOf('/contact') !== -1 || path.indexOf('/export_vcf') !== -1) return;
+
+        var DS_UID_INT = '{{ user.uid|e('js') }}';
+        if (!DS_UID_INT || DS_UID_INT === '') return;
+
+        var LS_KEY   = 'dressur_contacts_interrupt_ts';
+        var DELAY_MS = 4 * 60 * 60 * 1000; // 4 heures
+
+        var backdrop = document.getElementById('ds-interrupt-backdrop');
+        var nbSpan   = document.getElementById('ds-int-nb');
+        var btnVcf   = document.getElementById('ds-int-btn-vcf');
+        var btnLater = document.getElementById('ds-int-btn-later');
+
+        function closeModal() {
+            backdrop.classList.remove('ds-interrupt-visible');
+        }
+
+        btnVcf.addEventListener('click', function () {
+            window.location.href = '/export_vcf';
+            setTimeout(closeModal, 800);
+        });
+
+        btnLater.addEventListener('click', function () {
+            closeModal();
+            window.location.href = '/contact';
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Vérifier le throttle (4 h)
+            var lastTs = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+            var now    = Date.now();
+            if (lastTs && (now - lastTs) < DELAY_MS) return;
+
+            fetch('/api/getUserInfo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'uid=' + encodeURIComponent(DS_UID_INT)
+            })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (!data || data.error) return;
+                var nb = parseInt(data.nombreContactDispo) || 0;
+                if (nb < 1) return;
+                nbSpan.textContent = nb;
+                backdrop.classList.add('ds-interrupt-visible');
+                localStorage.setItem(LS_KEY, String(Date.now()));
+            })
+            .catch(function () { /* silencieux */ });
+        });
+    })();
+    </script>
 </body>
 </html>
