@@ -2256,16 +2256,20 @@ $(document).ready(function () {
                     `);
                     $("#msgErrorBoostGratuit").toggle(800);
                 } else {
-                    $("#msgErrorBoostGratuit").html(`
-                        <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
-                        <div class="ms-3"><div class="text-success">Votre boost a été enregistré. Consultez la liste de vos boosts.</div></div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $("#msgErrorBoostGratuit").toggle(800);
+                    if (typeof window.showBoostSuccessModal === 'function') {
+                        window.showBoostSuccessModal(typeBoost);
+                    } else {
+                        $("#msgErrorBoostGratuit").html(`
+                            <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                            <div class="d-flex align-items-center">
+                            <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                            <div class="ms-3"><div class="text-success">Votre boost a été enregistré. Consultez la liste de vos boosts.</div></div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `);
+                        $("#msgErrorBoostGratuit").toggle(800);
+                    }
                 }
                 traitementContact("newBoostGratuit", "fin", "Demander un Boost Gratuit");
             }
@@ -2338,17 +2342,21 @@ $(document).ready(function () {
                     if (response.direct == false) {
                         window.open(response.url, '_blank');
                     }
-                    $("#msgErrorBoostPayant").html(`
-                        <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
-                        <div class="ms-3"><div class="text-success">Votre boost a été enregistré. Après confirmation du paiement, consultez la liste de vos boosts.</div></div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
                     $(".getInfoPayant").val("");
-                    $("#msgErrorBoostPayant").toggle(800);
+                    if (typeof window.showBoostSuccessModal === 'function') {
+                        window.showBoostSuccessModal(typeBoost);
+                    } else {
+                        $("#msgErrorBoostPayant").html(`
+                            <div class="alert mt-3 border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
+                            <div class="d-flex align-items-center">
+                            <div class="fs-3 text-success"><i class="bi bi-check-circle-fill"></i></div>
+                            <div class="ms-3"><div class="text-success">Votre boost a été enregistré. Après confirmation du paiement, consultez la liste de vos boosts.</div></div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `);
+                        $("#msgErrorBoostPayant").toggle(800);
+                    }
                 }
                 traitementContact("newBoostPayant", "fin", "PAYER & BOOSTER");
             }

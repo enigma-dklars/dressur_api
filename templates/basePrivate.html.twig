@@ -106,6 +106,50 @@
     @media screen and (min-width: 1025px) {
         .ds-mobile-bottomnav { display: none !important; }
     }
+
+    /* ── Bandeau statut boost global ─────────────────────────────────── */
+    #ds-status-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1055;
+        display: none;
+        padding: 10px 16px;
+        color: #fff;
+        font-size: .9rem;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,.18);
+        transition: top .3s;
+    }
+    #ds-status-banner.ds-banner-visible { display: flex; }
+    #ds-status-banner .ds-banner-text { flex: 1; min-width: 0; line-height: 1.4; }
+    #ds-status-banner .ds-banner-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    #ds-status-banner .ds-banner-btn-main {
+        padding: 5px 14px; border-radius: 6px; border: none;
+        font-size: .85rem; font-weight: 600; cursor: pointer;
+        background: #fff; transition: opacity .2s;
+    }
+    #ds-status-banner .ds-banner-btn-main:hover { opacity: .88; }
+    #ds-status-banner .ds-banner-btn-sec {
+        padding: 4px 12px; border-radius: 6px; border: 2px solid rgba(255,255,255,.7);
+        font-size: .82rem; font-weight: 500; cursor: pointer;
+        background: transparent; color: #fff; transition: opacity .2s;
+    }
+    #ds-status-banner .ds-banner-btn-sec:hover { opacity: .8; }
+    #ds-status-banner .ds-banner-close {
+        background: none; border: none; color: rgba(255,255,255,.8);
+        font-size: 1.2rem; cursor: pointer; padding: 0 2px; line-height: 1; flex-shrink: 0;
+    }
+    #ds-status-banner.ds-banner-green  { background: #16a34a; }
+    #ds-status-banner.ds-banner-blue   { background: #2563eb; }
+    #ds-status-banner.ds-banner-orange { background: #ea580c; }
+    #ds-status-banner.ds-banner-green  .ds-banner-btn-main { color: #16a34a; }
+    #ds-status-banner.ds-banner-blue   .ds-banner-btn-main { color: #2563eb; }
+    #ds-status-banner.ds-banner-orange .ds-banner-btn-main { color: #ea580c; }
     </style>
 </head>
 
@@ -120,7 +164,14 @@
     <!--start wrapper-->
     <div class="wrapper">
         {% include "private/_includes/top_header.html.twig" %}
-        
+
+        {# ── Bandeau statut boost global ──────────────────────────────── #}
+        <div id="ds-status-banner" role="alert" aria-live="polite">
+            <span class="ds-banner-text" id="ds-banner-text"></span>
+            <div class="ds-banner-actions" id="ds-banner-actions"></div>
+            <button class="ds-banner-close" id="ds-banner-close" aria-label="Fermer">×</button>
+        </div>
+
         {% include "private/_includes/sidebar_wrapper.html.twig" %}
 
 
@@ -888,6 +939,127 @@
 })(jQuery);
 
 
+    </script>
+
+    {# ── Bandeau statut : JS ────────────────────────────────────────────── #}
+    <script>
+    (function () {
+        'use strict';
+
+        var DS_UID      = '{{ user.uid|e('js') }}';
+        var SESSION_KEY = 'dsStatusBannerClosed';
+        var banner      = document.getElementById('ds-status-banner');
+        var bannerText  = document.getElementById('ds-banner-text');
+        var bannerAct   = document.getElementById('ds-banner-actions');
+        var bannerClose = document.getElementById('ds-banner-close');
+
+        if (!banner || !DS_UID || DS_UID === '') return;
+
+        function buildActions(html) {
+            bannerAct.innerHTML = html;
+        }
+
+        function showBanner(type, text, actionsHtml) {
+            var stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+            if (stored[type]) return;
+
+            banner.className = 'ds-banner-visible ds-banner-' + type;
+            bannerText.textContent = text;
+            buildActions(actionsHtml);
+
+            // Décaler le contenu de la page pour éviter qu'il passe sous le bandeau
+            var h = banner.offsetHeight;
+            document.querySelector('.wrapper') && (document.querySelector('.wrapper').style.marginTop = h + 'px');
+        }
+
+        bannerClose.addEventListener('click', function () {
+            // Détecter le type actif et le stocker en session
+            var type = banner.dataset.bannerType || 'generic';
+            var stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+            stored[type] = true;
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(stored));
+            banner.className = '';
+            banner.style.display = 'none';
+            document.querySelector('.wrapper') && (document.querySelector('.wrapper').style.marginTop = '');
+        });
+
+        // Délégation pour les boutons du bandeau
+        bannerAct.addEventListener('click', function (e) {
+            var t = e.target.closest('[data-ds-action]');
+            if (!t) return;
+            var action = t.dataset.dsAction;
+            if (action === 'vcf') {
+                window.location.href = '/export_vcf';
+            } else if (action === 'contacts') {
+                window.location.href = '/contact';
+            } else if (action === 'boost-list') {
+                window.location.href = '/listeboostcontact';
+            } else if (action === 'new-boost') {
+                window.location.href = '/newboostcontact';
+            }
+        });
+
+        // Fetch des données utilisateur au chargement
+        fetch('/api/getUserInfo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'uid=' + encodeURIComponent(DS_UID)
+        })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+            if (!data || data.error) return;
+
+            var nbContacts  = parseInt(data.nombreContactDispo) || 0;
+            var boostActif  = data.boostActif || null;
+
+            // Priorité 1 : contacts disponibles
+            if (nbContacts > 0) {
+                banner.dataset.bannerType = 'contacts';
+                var stored = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+                // Si nouvelle valeur par rapport à la session, effacer le flag pour réafficher
+                var prevN = parseInt(sessionStorage.getItem('dsContactsDispo') || '0');
+                if (prevN !== nbContacts) {
+                    stored['contacts'] = false;
+                    sessionStorage.setItem(SESSION_KEY, JSON.stringify(stored));
+                }
+                sessionStorage.setItem('dsContactsDispo', nbContacts);
+                showBanner('green',
+                    '📥 Vous avez ' + nbContacts + ' contact(s) Dressur disponibles à importer',
+                    '<button class="ds-banner-btn-main" data-ds-action="vcf">Télécharger VCF</button>' +
+                    '<button class="ds-banner-btn-sec" data-ds-action="contacts">Voir la liste</button>'
+                );
+                return;
+            }
+
+            if (!boostActif) return;
+
+            var typeBoost      = boostActif.typeBoost || '';
+            var nbObtenus      = parseInt(boostActif.nbContactsObtenus) || 0;
+            var nbMax          = parseInt(boostActif.nbContactsMax) || 0;
+            var estExpire      = boostActif.estExpire === true || boostActif.estExpire === 1;
+
+            // Priorité 3 : boost expiré (durée ou quota atteint)
+            if (estExpire) {
+                banner.dataset.bannerType = 'expire';
+                showBanner('orange',
+                    '🔴 Votre boost est terminé — Relancez pour continuer à recevoir des contacts',
+                    '<button class="ds-banner-btn-main" data-ds-action="new-boost">Faire un nouveau boost</button>'
+                );
+                return;
+            }
+
+            // Priorité 2 : boost quota actif non atteint
+            if (typeBoost === 'quota' && !estExpire) {
+                banner.dataset.bannerType = 'quota';
+                showBanner('blue',
+                    '🔵 Boost actif — ' + nbObtenus + '/' + nbMax + ' contacts reçus',
+                    '<button class="ds-banner-btn-main" data-ds-action="boost-list">Voir mon boost</button>'
+                );
+                return;
+            }
+        })
+        .catch(function () { /* silencieux */ });
+    })();
     </script>
 </body>
 </html>
