@@ -146,17 +146,16 @@ class WebhookController extends AbstractController
             $montantBoostFacebook   = $myTransaction->getAnnotherInfo()['montantBoostFacebook']   ?? 0;
             $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
             $promotion->setMode("Payant")
-                ->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
+                // dateDebut et dateExp seront fixées par l'admin lors de la validation
                 ->setReferencement($formulePromoAffaire->getReferencement())
-                ->setStatus(3)
+                ->setStatus(1)
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setBoostFacebook($boostFacebook)
                 ->setMontantBoostFacebook($montantBoostFacebook)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
             ;
-            $this->traitementsDS->addNotification("Paiement confirmer. Promotion Affaire enregistrer et démarrer.", $myTransaction->getUser());
+            $this->traitementsDS->addNotification("Paiement confirmé. Votre Promotion Affaire est en attente de validation par notre équipe.", $myTransaction->getUser());
         }
 
         if ($myTransaction->getTransactionFor() == "boost_reseau_sociaux") {
