@@ -46,27 +46,51 @@
             <div class="card mb-3">
                 <div class="card-header fw-semibold">Formule &amp; Type</div>
                 <div class="card-body">
-                    <label class="form-label">Formule <span class="text-danger">*</span></label>
-                    <select name="formule_id" id="formule_select" class="form-select mb-2" required>
-                        <option value="">-- Choisir une formule --</option>
-                        {% for f in formules %}
-                            <option value="{{ f.id }}" data-jours="{{ f.nbrJour }}">
-                                {{ f.titre }} — {{ f.prix }} FCFA — {{ f.nbrJour }} jour(s)
-                            </option>
-                        {% endfor %}
-                    </select>
-
-                    <div id="expiration_info" class="alert alert-info py-2 mb-2" style="display:none;">
-                        <i class="fas fa-calendar-check me-1"></i>
-                        Date d'expiration calculée : <strong id="expiration_date"></strong>
-                    </div>
-
                     <label class="form-label mt-1">Type de promotion <span class="text-danger">*</span></label>
-                    <select name="type_promotion_affaire" class="form-select mb-2" required>
+                    <select name="type_promotion_affaire" id="type_select" class="form-select mb-3" required>
                         <option value="produit_service">Produit / Service</option>
+                        <option value="sites_applications">Sites &amp; Applications</option>
                         <option value="offre_emploi">Offre d'emploi</option>
                         <option value="dmd_emploi">Demande d'emploi</option>
                     </select>
+
+                    <div id="formule_section">
+                        <label class="form-label">Formule <span class="text-danger">*</span></label>
+                        <select name="formule_id" id="formule_select" class="form-select mb-2">
+                            <option value="">-- Choisir une formule --</option>
+                            {% for f in formules %}
+                                <option value="{{ f.id }}" data-jours="{{ f.nbrJour }}">
+                                    {{ f.titre }} — {{ f.prix }} FCFA — {{ f.nbrJour }} jour(s)
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <div id="expiration_info" class="alert alert-info py-2 mb-2" style="display:none;">
+                            <i class="fas fa-calendar-check me-1"></i>
+                            Date d'expiration calculée : <strong id="expiration_date"></strong>
+                        </div>
+                    </div>
+
+                    <div id="sites_applications_section" style="display:none;">
+                        <div class="alert alert-info py-2 mb-3">
+                            <i class="fas fa-calendar-check me-1"></i>
+                            Durée fixe : <strong>365 jours</strong> — Prix : <strong>7 750 FCFA</strong>
+                        </div>
+
+                        <label class="form-label">Sous-type <span class="text-danger">*</span></label>
+                        <select name="sous_type_site_app" id="sous_type_select" class="form-select mb-3">
+                            <option value="site_web">Site web</option>
+                            <option value="app_mobile">Application mobile</option>
+                            <option value="logiciel_desktop">Logiciel / Application desktop</option>
+                        </select>
+
+                        <label class="form-label">Nom du site / de l'application <span class="text-danger">*</span></label>
+                        <input type="text" name="nom_site_app" id="nom_site_app" class="form-control mb-3" maxlength="150" placeholder="Ex : MonApplication">
+
+                        <label class="form-label">URL <span class="text-danger">*</span></label>
+                        <input type="url" name="url_site_app" id="url_site_app" class="form-control mb-1" placeholder="https://monsite.com">
+                        <small class="text-muted d-block mb-2" id="url_site_app_help">Entrez l'URL de votre site ou application.</small>
+                    </div>
                 </div>
             </div>
 
@@ -109,6 +133,8 @@
                         <tr><td>Source</td><td><span class="badge bg-dark">admin</span></td></tr>
                         <tr><td>Date début</td><td>Maintenant</td></tr>
                         <tr><td>Date expiration</td><td id="recap_exp" class="text-muted">— choisir une formule —</td></tr>
+                        <tr id="recap_soustype_row" style="display:none;"><td>Sous-type</td><td id="recap_soustype" class="text-muted">—</td></tr>
+                        <tr id="recap_nom_row" style="display:none;"><td>Nom</td><td id="recap_nom" class="text-muted">—</td></tr>
                     </table>
                 </div>
             </div>
@@ -138,7 +164,6 @@
     input.addEventListener('change', function () {
         var file = this.files[0];
         if (!file) { wrapper.style.display = 'none'; return; }
-
         var reader = new FileReader();
         reader.onload = function (e) {
             preview.src = e.target.result;
@@ -148,25 +173,93 @@
         reader.readAsDataURL(file);
     });
 
-    // ── Date d'expiration calculée ──────────────────────────────────
-    var select     = document.getElementById('formule_select');
-    var infoBox    = document.getElementById('expiration_info');
-    var expDate    = document.getElementById('expiration_date');
-    var recapExp   = document.getElementById('recap_exp');
+    // ── Placeholders URL selon sous-type ───────────────────────────
+    var urlPlaceholders = {
+        'site_web':         'https://monsite.com',
+        'app_mobile':       'https://play.google.com/... ou https://apps.apple.com/...',
+        'logiciel_desktop': 'https://monlogiciel.com/telecharger'
+    };
+    var sousTypeLabels = {
+        'site_web':         'Site web',
+        'app_mobile':       'Application mobile',
+        'logiciel_desktop': 'Logiciel / Desktop'
+    };
 
-    select.addEventListener('change', function () {
-        var opt = this.options[this.selectedIndex];
-        var jours = parseInt(opt.getAttribute('data-jours'));
-        if (!jours) { infoBox.style.display = 'none'; recapExp.textContent = '— choisir une formule —'; return; }
+    var sousTypeSelect  = document.getElementById('sous_type_select');
+    var urlInput        = document.getElementById('url_site_app');
+    var recapSoustypeRow = document.getElementById('recap_soustype_row');
+    var recapSoustype    = document.getElementById('recap_soustype');
 
-        var d = new Date();
-        d.setDate(d.getDate() + jours);
-        var label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    if (sousTypeSelect) {
+        sousTypeSelect.addEventListener('change', function () {
+            if (urlInput) urlInput.placeholder = urlPlaceholders[this.value] || '';
+            if (recapSoustype) recapSoustype.textContent = sousTypeLabels[this.value] || this.value;
+        });
+    }
 
-        expDate.textContent   = label + ' (' + jours + ' jour' + (jours > 1 ? 's' : '') + ')';
-        recapExp.textContent  = label;
-        infoBox.style.display = 'block';
-    });
+    var nomInput    = document.getElementById('nom_site_app');
+    var recapNomRow = document.getElementById('recap_nom_row');
+    var recapNom    = document.getElementById('recap_nom');
+    if (nomInput) {
+        nomInput.addEventListener('input', function () {
+            if (recapNom) recapNom.textContent = this.value || '—';
+        });
+    }
+
+    // ── Basculement sections selon type ────────────────────────────
+    var typeSelect        = document.getElementById('type_select');
+    var formuleSection    = document.getElementById('formule_section');
+    var siteAppSection    = document.getElementById('sites_applications_section');
+    var formuleSelectEl   = document.getElementById('formule_select');
+    var recapExp          = document.getElementById('recap_exp');
+
+    function toggleSections() {
+        var isSiteApp = (typeSelect.value === 'sites_applications');
+
+        formuleSection.style.display  = isSiteApp ? 'none' : 'block';
+        siteAppSection.style.display  = isSiteApp ? 'block' : 'none';
+
+        // formule non requise pour sites_applications
+        if (formuleSelectEl) formuleSelectEl.required = !isSiteApp;
+
+        if (isSiteApp) {
+            var d = new Date();
+            d.setDate(d.getDate() + 365);
+            recapExp.textContent = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' }) + ' (365 jours)';
+            if (recapSoustypeRow) recapSoustypeRow.style.display = '';
+            if (recapNomRow)      recapNomRow.style.display      = '';
+            // Initialiser les valeurs recap
+            if (recapSoustype) recapSoustype.textContent = sousTypeLabels[sousTypeSelect.value] || '—';
+            if (recapNom)      recapNom.textContent      = (nomInput && nomInput.value) ? nomInput.value : '—';
+        } else {
+            recapExp.textContent = '— choisir une formule —';
+            if (recapSoustypeRow) recapSoustypeRow.style.display = 'none';
+            if (recapNomRow)      recapNomRow.style.display      = 'none';
+        }
+    }
+
+    typeSelect.addEventListener('change', toggleSections);
+    toggleSections(); // init
+
+    // ── Date d'expiration calculée (formule) ───────────────────────
+    var infoBox  = document.getElementById('expiration_info');
+    var expDate  = document.getElementById('expiration_date');
+
+    if (formuleSelectEl) {
+        formuleSelectEl.addEventListener('change', function () {
+            var opt   = this.options[this.selectedIndex];
+            var jours = parseInt(opt.getAttribute('data-jours'));
+            if (!jours) { infoBox.style.display = 'none'; recapExp.textContent = '— choisir une formule —'; return; }
+
+            var d = new Date();
+            d.setDate(d.getDate() + jours);
+            var label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            expDate.textContent  = label + ' (' + jours + ' jour' + (jours > 1 ? 's' : '') + ')';
+            recapExp.textContent = label;
+            infoBox.style.display = 'block';
+        });
+    }
 
 })();
 </script>

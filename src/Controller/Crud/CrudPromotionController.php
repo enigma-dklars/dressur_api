@@ -122,18 +122,32 @@ class CrudPromotionController extends AbstractController
         $errors  = [];
 
         if ($request->isMethod('POST')) {
-            $userId              = $request->request->get('user_id');
-            $formuleId           = $request->request->get('formule_id');
-            $description         = trim((string) $request->request->get('description', ''));
+            $userId               = $request->request->get('user_id');
+            $formuleId            = $request->request->get('formule_id');
+            $description          = trim((string) $request->request->get('description', ''));
             $typePromotionAffaire = $request->request->get('type_promotion_affaire', 'produit_service');
-            $imageFile           = $request->files->get('image');
+            $imageFile            = $request->files->get('image');
 
-            $user    = $userId    ? $userRepository->find($userId)                          : null;
-            $formule = $formuleId ? $formulePromoAffaireRepository->find($formuleId)        : null;
+            // Champs spécifiques sites_applications
+            $isSiteApp    = ($typePromotionAffaire === 'sites_applications');
+            $nomSiteApp   = $isSiteApp ? trim((string) $request->request->get('nom_site_app', ''))   : null;
+            $urlSiteApp   = $isSiteApp ? trim((string) $request->request->get('url_site_app', ''))   : null;
+            $sousTypeSiteApp = $isSiteApp ? $request->request->get('sous_type_site_app', 'site_web') : null;
 
-            if (!$user)    { $errors[] = "Utilisateur invalide."; }
-            if (!$formule) { $errors[] = "Formule invalide."; }
+            $user    = $userId    ? $userRepository->find($userId)                   : null;
+            $formule = (!$isSiteApp && $formuleId) ? $formulePromoAffaireRepository->find($formuleId) : null;
+
+            if (!$user) { $errors[] = "Utilisateur invalide."; }
+            if (!$isSiteApp && !$formule) { $errors[] = "Formule invalide."; }
             if (empty($description)) { $errors[] = "La description est obligatoire."; }
+
+            if ($isSiteApp) {
+                if (empty($nomSiteApp))  { $errors[] = "Le nom du site / de l'application est obligatoire."; }
+                if (empty($urlSiteApp))  { $errors[] = "L'URL est obligatoire."; }
+                elseif (!str_starts_with($urlSiteApp, 'http://') && !str_starts_with($urlSiteApp, 'https://')) {
+                    $errors[] = "L'URL doit commencer par http:// ou https://";
+                }
+            }
 
             if ($imageFile) {
                 if ($imageFile->getSize() > 1 * 1024 * 1024) {
@@ -154,16 +168,28 @@ class CrudPromotionController extends AbstractController
                 $promotion = new Promotion();
                 $promotion
                     ->setUser($user)
-                    ->setFormulePromoAffaire($formule)
                     ->setDescription($description)
                     ->setImage($fileName)
                     ->setTypePromotionAffaire($typePromotionAffaire)
                     ->setStatus(3)
                     ->setDateDebut(new DateTime())
-                    ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
-                    ->setMode('Gratuit')
-                    ->setSource('web')
+                    ->setMode('Admin')
+                    ->setSource('admin')
                 ;
+
+                if ($isSiteApp) {
+                    $promotion
+                        ->setNomSiteApp($nomSiteApp)
+                        ->setUrlSiteApp($urlSiteApp)
+                        ->setSousTypeSiteApp($sousTypeSiteApp)
+                        ->setDateExp(new DateTime('+365 days'))
+                    ;
+                } else {
+                    $promotion
+                        ->setFormulePromoAffaire($formule)
+                        ->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'))
+                    ;
+                }
 
                 $entityManager->persist($promotion);
                 $entityManager->flush();
