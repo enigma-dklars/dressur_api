@@ -89,6 +89,15 @@ class Promotion
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $whatsappContact = null;
 
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $nomSiteApp = null;
+
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $urlSiteApp = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $sousTypeSiteApp = null;
+
     #[ORM\OneToMany(mappedBy: 'promotion', targetEntity: PromotionMotifRefus::class, cascade: ['persist'], orphanRemoval: false)]
     private Collection $motifsRefus;
 
@@ -474,6 +483,42 @@ class Promotion
     public function setWhatsappContact(?string $whatsappContact): static
     {
         $this->whatsappContact = $whatsappContact;
+
+        return $this;
+    }
+
+    public function getNomSiteApp(): ?string
+    {
+        return $this->nomSiteApp;
+    }
+
+    public function setNomSiteApp(?string $nomSiteApp): static
+    {
+        $this->nomSiteApp = $nomSiteApp;
+
+        return $this;
+    }
+
+    public function getUrlSiteApp(): ?string
+    {
+        return $this->urlSiteApp;
+    }
+
+    public function setUrlSiteApp(?string $urlSiteApp): static
+    {
+        $this->urlSiteApp = $urlSiteApp;
+
+        return $this;
+    }
+
+    public function getSousTypeSiteApp(): ?string
+    {
+        return $this->sousTypeSiteApp;
+    }
+
+    public function setSousTypeSiteApp(?string $sousTypeSiteApp): static
+    {
+        $this->sousTypeSiteApp = $sousTypeSiteApp;
 
         return $this;
     }
