@@ -183,7 +183,7 @@ class WebhookController extends AbstractController
                 . "<p>Description : " . ($myTransaction->getAnnotherInfo()['description'] ?? '—') . "</p>"
                 . "<p>Montant : 7750 FCFA — Durée : 365 jours (fixée par l'admin)</p>"
             );
-            $this->traitementsDS->addNotification("Paiement confirmé. Promotion Sites & Applications enregistrée. En attente d'approbation.", $user);
+            $this->traitementsDS->addNotification("Paiement confirmé. Votre promotion Sites & Applications est en attente de validation par notre équipe.", $user);
         }
 
         if ($myTransaction->getTransactionFor() == "boost_reseau_sociaux") {

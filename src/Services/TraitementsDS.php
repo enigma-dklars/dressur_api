@@ -1790,7 +1790,7 @@ class TraitementsDS extends AbstractController
                 . "<p>Description : " . ($myTransaction->getAnnotherInfo()['description'] ?? '—') . "</p>"
                 . "<p>Montant : 7750 FCFA — Durée : 365 jours (fixée par l'admin)</p>"
             );
-            $this->addNotification("Solde débité de {$montant} FCFA. Promotion Sites & Applications enregistrée. En attente d'approbation.", $user);
+            $this->addNotification("Solde débité. Votre promotion Sites & Applications est en attente de validation.", $user);
         }
 
         if ($transactionFor === 'boost_reseau_sociaux') {
