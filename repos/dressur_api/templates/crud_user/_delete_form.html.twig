@@ -1,6 +1,0 @@
-<form method="post" action="{{ path('app_crud_user_delete', {'id': user.id}) }}" onsubmit="return confirm('Attention!!! Purger ce user ???');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-    <a href="{{ path('app_crud_user_show', {'id': user.id}) }}" class="btn btn-sm btn-info">Show</a>
-    <a href="{{ path('app_crud_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-success">Edit</a>
-    <button class="btn btn-sm btn-danger">Purge</button>
-</form>

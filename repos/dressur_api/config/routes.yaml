@@ -1,8 +1,0 @@
-controllers:
-    resource: ../src/Controller/
-    type: attribute
-
-# config/routes.yaml
-export_database:
-    path: /export/database
-    controller: App\Controller\ExportDatabase::exportDatabase

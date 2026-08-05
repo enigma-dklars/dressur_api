@@ -1,7 +1,0 @@
-<form method="post" action="{{ path('app_methode_paiement_delete', {'id': methode_paiement.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ methode_paiement.id) }}">
-    
-    <a href="{{ path('app_methode_paiement_show', {'id': methode_paiement.id}) }}"class="btn btn-sm btn-info">Show</a>
-    <a href="{{ path('app_methode_paiement_edit', {'id': methode_paiement.id}) }}"class="btn btn-sm btn-success">Edit</a>
-    <button class="btn btn-sm btn-danger">Delete</button>
-</form>
