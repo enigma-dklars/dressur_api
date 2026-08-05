@@ -1,0 +1,76 @@
+PROMPT B — Historique des refus côté Mobile (dressur_mobile, branche dklars_pro)
+Contexte :
+Tu travailles sur le dépôt dressur_mobile (Flutter) cloné dans repos/dressur_mobile, branche dklars_pro.
+C'est l'application mobile Dressur.
+Le service "Promotion Affaire" permet de publier des annonces. Quand une promotion est refusée
+par un admin, un motif est affiché à l'utilisateur. Actuellement un seul motif est affiché,
+sans historique.
+Une évolution vient d'être faite côté API : la réponse de l'API liste des promotions inclut
+maintenant un champ motifsRefus (tableau d'objets avec motif:string et dateRefus:string).
+Avant de toucher au code, lis ces fichiers :
+- repos/dressur_mobile/lib/2_promo/liste_promo_affaire.dart (fichier complet)
+- repos/dressur_mobile/lib/2_promo/edit_promo_affaire_produit_service.dart (fichier complet)
+---
+ÉTAPE 1 — Mettre à jour le modèle de données Promotion
+Dans le fichier qui définit le modèle/classe Promotion utilisé par liste_promo_affaire.dart
+(cherche une classe Promotion ou un fromJson dans liste_promo_affaire.dart ou dans un fichier
+modèle séparé — lis le fichier pour trouver où la classe est définie) :
+Ajoute un champ :
+  List<MotifRefus> motifsRefus (initialisé à [] par défaut)
+Crée une classe MotifRefus dans le même fichier (ou dans un nouveau fichier modèle si le projet
+a une convention de fichiers modèles séparés) :
+  class MotifRefus {
+    final String motif;
+    final String dateRefus;
+    MotifRefus({required this.motif, required this.dateRefus});
+    factory MotifRefus.fromJson(Map<String, dynamic> json) => MotifRefus(
+      motif: json['motif'] ?? '',
+      dateRefus: json['dateRefus'] ?? '',
+    );
+  }
+Dans le fromJson de la classe Promotion, parse le champ motifsRefus :
+  motifsRefus: (json['motifsRefus'] as List<dynamic>? ?? [])
+      .map((e) => MotifRefus.fromJson(e as Map<String, dynamic>))
+      .toList()
+---
+ÉTAPE 2 — Affichage de l'historique sur la carte de promotion
+Dans repos/dressur_mobile/lib/2_promo/liste_promo_affaire.dart,
+dans le widget _buildRejectedContent (ou l'équivalent qui affiche le motif de refus) :
+Après l'affichage du motif actuel (le dernier, promotion.motif), ajoute :
+Si promotion.motifsRefus.length > 1 :
+- Affiche un TextButton discret :
+  FR : "Voir les refus précédents (${promotion.motifsRefus.length - 1})"
+  EN : "See previous rejections (${promotion.motifsRefus.length - 1})"
+- Au tap, ouvre un showModalBottomSheet (ou showDialog) qui liste tous les motifs
+  SAUF le premier (le plus récent, déjà affiché), du plus récent au plus ancien.
+  Chaque entrée affiche :
+  - La date en gras (promotion.motifsRefus[i].dateRefus)
+  - Le motif en dessous
+  Utilise un ListView.builder pour la liste.
+  Titre du modal : FR "Historique des refus" / EN "Rejection history"
+Si la promotion n'est plus en statut rejeté mais que motifsRefus.length > 0 :
+- Ajoute un petit TextButton discret sur la carte :
+  FR : "Historique des refus" / EN : "Rejection history"
+  Même comportement (ouvre le modal avec toute la liste cette fois)
+---
+ÉTAPE 3 — Activer l'édition du numéro WhatsApp dans le formulaire de modification
+Dans repos/dressur_mobile/lib/2_promo/edit_promo_affaire_produit_service.dart :
+Actuellement il y a un champ de numéro WhatsApp dans l'UI mais il est masqué
+ou non fonctionnel (conditionné par une variable `load` qui reste false).
+1. Ajoute un TextEditingController pour whatsappContact, initialisé avec
+   widget.promotion.whatsappContact (ou le champ équivalent dans le modèle)
+2. Affiche ce champ inconditionnellement (retire la condition `load` sur ce champ)
+3. Label : FR "Numéro WhatsApp de contact" / EN "WhatsApp contact number"
+4. Placeholder : "+22900000000"
+5. Sous le champ, texte d'aide :
+   FR : "Format international requis, ex : +22900000000"
+   EN : "International format required, e.g. +22900000000"
+6. Dans _sendData (la méthode qui envoie la requête à /api/editProduitService),
+   ajoute le champ whatsappContact à la requête multipart :
+   request.fields['whatsappContact'] = _whatsappController.text.trim();
+7. Pense à dispose() le controller dans dispose()
+---
+Après toutes les étapes :
+1. Lance flutter analyze pour vérifier qu'il n'y a pas d'erreur
+2. Commit avec le message : "feat: historique motifs de refus + edit whatsapp promo affaire"
+3. Push sur la branche dklars_pro du remote origin

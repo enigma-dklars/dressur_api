@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "7474516834",
+    "project_id": "dressur-73b0a",
+    "storage_bucket": "dressur-73b0a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:7474516834:android:876c89fb30f09f27ee523b",
+        "android_client_info": {
+          "package_name": "com.dressur.ds"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "7474516834-42hmcf18cnautj6dia4rtjrk0mb5csdd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dressur.ds",
+            "certificate_hash": "bab0f82b8f004d7ba52dbb8a4d85c7f385bb415f"
+          }
+        },
+        {
+          "client_id": "7474516834-vq1se3sjkmg3e1gjblqrcgm556mdttma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQT7KJB6zLkipqWa321v2tSXowSv-bBa4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "7474516834-vq1se3sjkmg3e1gjblqrcgm556mdttma.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
