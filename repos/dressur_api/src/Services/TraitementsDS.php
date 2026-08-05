@@ -1757,14 +1757,13 @@ class TraitementsDS extends AbstractController
             $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
             $promotion              = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
             $promotion->setMode("Payant")
-                ->setDateDebut(new DateTime())
-                ->setDateExp(new DateTime("+ ".$formulePromoAffaire->getNbrJour()."days"))
+                // dateDebut et dateExp seront fixées par l'admin lors de la validation
                 ->setReferencement($formulePromoAffaire->getReferencement())
-                ->setStatus(3)
+                ->setStatus(1)
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
-            $this->addNotification("Solde débité de {$montant} FCFA. Promotion Affaire enregistrée et démarrée.", $user);
+            $this->addNotification("Solde débité. Votre Promotion Affaire est en attente de validation par notre équipe.", $user);
         }
 
         if ($transactionFor === 'boost_reseau_sociaux') {
