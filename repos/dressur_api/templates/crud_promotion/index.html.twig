@@ -95,9 +95,9 @@
                             <span class="badge bg-success">{{promotion.mode}}</span>
                         {% endif %}
                     </td>
-                    <td class="text-center">{{ promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td class="text-center">{{ promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td class="text-center">{{ promotion.boostFacebook ? '<span class="badge bg-primary">' ~ promotion.montantBoostFacebook ~ ' F</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ (promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{{ (promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{{ (promotion.boostFacebook ? '<span class="badge bg-primary">' ~ promotion.montantBoostFacebook ~ ' F</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
                     <td class="text-center">
                         {% if promotion.whatsappContact %}
                             <span class="badge bg-success">{{ promotion.whatsappContact }}</span>
@@ -105,9 +105,9 @@
                             <span class="badge bg-secondary" title="Fallback : numéro utilisateur">{{ promotion.user.tel }}</span>
                         {% endif %}
                     </td>
-                    <td class="text-center">{{ promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td class="text-center">{{ promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
-                    <td class="text-center">{{ promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ (promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{{ (promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{{ (promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
                     <td>{{ promotion.formulePromoAffaire }}</td>
                     <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
