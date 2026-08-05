@@ -257,6 +257,12 @@ class CrudPromotionController extends AbstractController
                     ->setDateExp(new DateTime("+ ".$formulePromoAffaireRepository->find(4)->getNbrJour()."days"))
                 ;
             }
+
+            if($promotion->getTypePromotionAffaire() == "sites_applications") {
+                $promotion
+                    ->setDateExp(new DateTime("+ 365 days"))
+                ;
+            }
     
             $promotion->setStatus(3)->setDateDebut(new DateTime());
             $entityManager->flush();

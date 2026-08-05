@@ -59,6 +59,46 @@
                 <th>IsFakeVue</th>
                 <td>{{ promotion.isFakeVue ? 'Yes' : 'No' }}</td>
             </tr>
+            {% if promotion.typePromotionAffaire == "sites_applications" %}
+            <tr>
+                <th colspan="2" class="table-info text-center fw-bold">Sites &amp; Applications</th>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ promotion.nomSiteApp ?? '—' }}</td>
+            </tr>
+            <tr>
+                <th>Sous-type</th>
+                <td>
+                    {% if promotion.sousTypeSiteApp == "site_web" %}
+                        <span class="badge bg-info">Site web</span>
+                    {% elseif promotion.sousTypeSiteApp == "app_mobile" %}
+                        <span class="badge bg-info">App mobile</span>
+                    {% elseif promotion.sousTypeSiteApp == "logiciel_desktop" %}
+                        <span class="badge bg-info">Logiciel / Desktop</span>
+                    {% else %}
+                        {{ promotion.sousTypeSiteApp ?? '—' }}
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>URL</th>
+                <td>
+                    {% if promotion.urlSiteApp %}
+                        <a href="{{ promotion.urlSiteApp }}" target="_blank" rel="noopener noreferrer">
+                            {{ promotion.urlSiteApp }}
+                            <i class="fas fa-external-link-alt ms-1 small"></i>
+                        </a>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Prix</th>
+                <td><strong>7 750 FCFA / an</strong></td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 

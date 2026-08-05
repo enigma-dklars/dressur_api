@@ -77,16 +77,34 @@
                         {% if promotion.typePromotionAffaire == "produit_service" %}
                             {% set bg_badge = "bg-success" %}
                             {% set tpa = "Produit Service" %}
+                        {% elseif promotion.typePromotionAffaire == "sites_applications" %}
+                            {% set bg_badge = "bg-info" %}
+                            {% set tpa = "Sites & Apps" %}
+                        {% elseif promotion.typePromotionAffaire == "offre_emploi" %}
+                            {% set bg_badge = "bg-warning" %}
+                            {% set tpa = "Offre Emploi" %}
                         {% else %}
-                            {% if promotion.typePromotionAffaire == "offre_emploi" %}
-                                {% set bg_badge = "bg-warning" %}
-                                {% set tpa = "Offre Emploi" %}
-                            {% else %}
-                                {% set bg_badge = "bg-danger" %}
-                                {% set tpa = "Demande Emploi" %}
-                            {% endif %}
+                            {% set bg_badge = "bg-danger" %}
+                            {% set tpa = "Demande Emploi" %}
                         {% endif %}
                         <span class="badge {{bg_badge}} text-white mb-1">{{ tpa }}</span>
+                        {% if promotion.typePromotionAffaire == "sites_applications" %}
+                            <div class="small mt-1 text-start">
+                                {% if promotion.nomSiteApp %}<strong>{{ promotion.nomSiteApp }}</strong><br>{% endif %}
+                                {% if promotion.sousTypeSiteApp %}
+                                    <span class="badge bg-secondary">
+                                        {% if promotion.sousTypeSiteApp == "site_web" %}Site web
+                                        {% elseif promotion.sousTypeSiteApp == "app_mobile" %}App mobile
+                                        {% else %}Logiciel{% endif %}
+                                    </span>
+                                {% endif %}
+                                {% if promotion.urlSiteApp %}
+                                    <a href="{{ promotion.urlSiteApp }}" target="_blank" rel="noopener noreferrer" class="ms-1 small">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </td>
                     <td class="text-center">
                         {% if promotion.mode == "Gratuit" %}
