@@ -30,8 +30,9 @@
                 <label for="typePromoAffaire" class="form-label">Type Promotion Affaire</label>
                 <select id="typePromoAffaire" class="form-select">
                     <option value="produit_service" selected>Produit ou Service</option>
-                    <option value="dmd_emploi">Demande d'emploi</option>
+                    <option value="sites_applications">Sites &amp; Applications</option>
                     <option value="offre_emploi">Offre d'emploi</option>
+                    <option value="dmd_emploi">Demande d'emploi</option>
                 </select>
             </div>
         </div>
@@ -227,7 +228,96 @@
         </form>
     </div>
 
-    <!-- SECTION 2: DEMANDES D'EMPLOI -->
+    <!-- SECTION 2: SITES & APPLICATIONS -->
+    <div id="siteApplicationSection" class="form-section" style="display: none;">
+        <form id="siteApplicationForm" enctype="multipart/form-data">
+            <div class="row">
+
+                <!-- Sous-type -->
+                <div class="col-12 mb-3">
+                    <label class="form-label fw-semibold">Type de promotion</label>
+                    <div class="d-flex gap-4 flex-wrap mt-1">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sousTypeSiteApp" id="sousType_site_web" value="site_web" checked>
+                            <label class="form-check-label" for="sousType_site_web">Site web</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sousTypeSiteApp" id="sousType_app_mobile" value="app_mobile">
+                            <label class="form-check-label" for="sousType_app_mobile">Application mobile</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="sousTypeSiteApp" id="sousType_logiciel" value="logiciel_desktop">
+                            <label class="form-check-label" for="sousType_logiciel">Logiciel / Application desktop</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nom -->
+                <div class="col-12 mb-3">
+                    <label for="nomSiteApp" class="form-label">Nom du site / de l'application <span class="text-danger">*</span></label>
+                    <input type="text" id="nomSiteApp" class="form-control" maxlength="150" placeholder="Ex : MonApplication">
+                </div>
+
+                <!-- URL -->
+                <div class="col-12 mb-3">
+                    <label for="urlSiteApp" class="form-label">URL <span class="text-danger">*</span></label>
+                    <input type="url" id="urlSiteApp" class="form-control" placeholder="https://monsite.com">
+                    <small class="text-muted" id="urlSiteAppHelp">Entrez l'URL de votre site ou application.</small>
+                </div>
+
+                <!-- Description -->
+                <div class="col-12 mb-3">
+                    <label for="descriptionSiteApp" class="form-label">Description courte <span class="text-muted">(max 120 caractères)</span></label>
+                    <textarea id="descriptionSiteApp" class="form-control" rows="3" maxlength="120" placeholder="Décrivez brièvement votre site ou application..."></textarea>
+                    <small class="text-muted"><span id="descSiteAppCounter">120</span> caractères restants</small>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="col-12 mb-3">
+                    <label for="imageSiteApp" class="form-label">Icône ou logo <span class="text-danger">*</span></label>
+                    <input type="file" id="imageSiteApp" class="form-control" accept="image/*">
+                    <small class="text-muted">Icône ou logo de votre application (image carrée recommandée)</small>
+                    <div id="imageSiteAppPreview" class="mt-2"></div>
+                </div>
+
+                <!-- Prix fixe -->
+                <div class="col-12 mb-3">
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-tag me-2"></i><strong>Prix : 7 750 FCFA / an</strong>
+                        <span class="text-muted small d-block">Durée fixée à 365 jours par l'admin à la validation — non modifiable.</span>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="col-md-6 mb-3">
+                    <label for="paymentMethodSiteApp" class="form-label">Moyen de paiement mobile ou par carte</label>
+                    <select id="paymentMethodSiteApp" class="form-select">
+                        <option value="" disabled selected>Choisissez le Moyen de paiement mobile ou par carte</option>
+                        {% for uneMethodePaiement in listeMethodePaiements %}
+                            <option value="{{ uneMethodePaiement.value }}">{{ uneMethodePaiement.titre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Payment Number -->
+                <div class="col-md-6 mb-3">
+                    <label for="paymentNumberSiteApp" class="form-label">Numéro du paiement</label>
+                    <input type="tel" id="paymentNumberSiteApp" class="form-control" placeholder="Entrez votre numéro de paiement">
+                </div>
+
+                <!-- Submit -->
+                <div class="col-12 mb-3">
+                    <button type="submit" id="submitSiteApp" class="btn btn-primary w-100 btn-lg">
+                        <span id="submitSiteAppText">VALIDER ET PAYER</span>
+                        <span id="submitSiteAppSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- SECTION 3: DEMANDES D'EMPLOI -->
     <div id="demandeEmploiSection" class="form-section" style="display: none;">
         <form id="demandeEmploiForm">
             <div class="row">
@@ -424,5 +514,133 @@
     }
 </style>
 
+<script>
+// ── Section switching ──────────────────────────────────────────────────────
+const typeSelect = document.getElementById('typePromoAffaire');
+const allSections = {
+    'produit_service':    document.getElementById('produitServiceSection'),
+    'sites_applications': document.getElementById('siteApplicationSection'),
+    'dmd_emploi':         document.getElementById('demandeEmploiSection'),
+    'offre_emploi':       document.getElementById('offreEmploiSection'),
+};
+
+typeSelect.addEventListener('change', function () {
+    Object.values(allSections).forEach(s => { if (s) s.style.display = 'none'; });
+    const target = allSections[this.value];
+    if (target) target.style.display = '';
+});
+
+// ── URL placeholder selon le sous-type ────────────────────────────────────
+const urlPlaceholders = {
+    'site_web':         'https://monsite.com',
+    'app_mobile':       'https://play.google.com/... ou https://apps.apple.com/...',
+    'logiciel_desktop': 'https://monlogiciel.com/telecharger',
+};
+document.querySelectorAll('input[name="sousTypeSiteApp"]').forEach(radio => {
+    radio.addEventListener('change', function () {
+        const input = document.getElementById('urlSiteApp');
+        if (input) input.placeholder = urlPlaceholders[this.value] || '';
+    });
+});
+
+// ── Compteur de caractères description ────────────────────────────────────
+const descTextarea = document.getElementById('descriptionSiteApp');
+const descCounter  = document.getElementById('descSiteAppCounter');
+if (descTextarea && descCounter) {
+    descTextarea.addEventListener('input', function () {
+        descCounter.textContent = 120 - this.value.length;
+    });
+}
+
+// ── Prévisualisation image ─────────────────────────────────────────────────
+const imageSiteAppInput = document.getElementById('imageSiteApp');
+if (imageSiteAppInput) {
+    imageSiteAppInput.addEventListener('change', function () {
+        const file    = this.files[0];
+        const preview = document.getElementById('imageSiteAppPreview');
+        if (!file || !preview) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+            preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;border-radius:8px;margin-top:8px;">`;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// ── Soumission formulaire Sites & Applications ────────────────────────────
+const siteAppForm = document.getElementById('siteApplicationForm');
+if (siteAppForm) {
+    siteAppForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const btn     = document.getElementById('submitSiteApp');
+        const btnText = document.getElementById('submitSiteAppText');
+        const spinner = document.getElementById('submitSiteAppSpinner');
+
+        const sousType        = document.querySelector('input[name="sousTypeSiteApp"]:checked')?.value;
+        const nom             = document.getElementById('nomSiteApp').value.trim();
+        const url             = document.getElementById('urlSiteApp').value.trim();
+        const description     = document.getElementById('descriptionSiteApp').value.trim();
+        const image           = document.getElementById('imageSiteApp').files[0];
+        const methodePaiement = document.getElementById('paymentMethodSiteApp').value;
+        const tel             = document.getElementById('paymentNumberSiteApp').value.trim();
+
+        if (!nom) { showAlert('danger', 'Veuillez renseigner le nom du site / de l\'application.'); return; }
+        if (!url) { showAlert('danger', 'Veuillez renseigner l\'URL.'); return; }
+        if (!image) { showAlert('danger', 'Veuillez sélectionner une image (icône ou logo).'); return; }
+        if (!methodePaiement) { showAlert('danger', 'Veuillez choisir un moyen de paiement.'); return; }
+        if (!tel) { showAlert('danger', 'Veuillez renseigner le numéro de paiement.'); return; }
+
+        btn.disabled = true;
+        btnText.textContent = 'Envoi en cours...';
+        spinner.style.display = 'inline-block';
+
+        const formData = new FormData();
+        formData.append('sousType',        sousType);
+        formData.append('nom',             nom);
+        formData.append('url',             url);
+        formData.append('description',     description);
+        formData.append('image',           image);
+        formData.append('methodePaiement', methodePaiement);
+        formData.append('tel',             tel);
+
+        try {
+            const response = await fetch('/api/addSiteApplication', { method: 'POST', body: formData });
+            const data     = await response.json();
+
+            if (data.error) {
+                showAlert('danger', (data.titre ? data.titre + ' : ' : '') + data.message);
+            } else if (data.solde_used) {
+                showAlert('success', data.message || 'Promotion Sites & Applications enregistrée avec succès !');
+                siteAppForm.reset();
+                document.getElementById('imageSiteAppPreview').innerHTML = '';
+                if (descCounter) descCounter.textContent = '120';
+            } else if (data.url) {
+                showAlert('success', 'Redirection vers le paiement...');
+                window.location.href = data.url;
+            } else {
+                showAlert('success', 'Demande de paiement envoyée. Vérifiez votre téléphone.');
+            }
+        } catch (err) {
+            showAlert('danger', 'Une erreur est survenue. Veuillez réessayer.');
+        } finally {
+            btn.disabled = false;
+            btnText.textContent = 'VALIDER ET PAYER';
+            spinner.style.display = 'none';
+        }
+    });
+}
+
+function showAlert(type, message) {
+    const container = document.getElementById('alertContainer');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = `alert alert-${type} alert-dismissible fade show shadow`;
+    div.role = 'alert';
+    div.innerHTML = `${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
+    container.appendChild(div);
+    setTimeout(() => div.remove(), 6000);
+}
+</script>
 
 {% endblock %}

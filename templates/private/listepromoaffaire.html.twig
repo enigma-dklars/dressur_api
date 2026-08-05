@@ -11,14 +11,15 @@
                     {% if promoaffaire.typePromotionAffaire == "produit_service" %}
                         {% set bg_badge = "bg-success" %}
                         {% set tpa = "Produit Service" %}
+                    {% elseif promoaffaire.typePromotionAffaire == "sites_applications" %}
+                        {% set bg_badge = "bg-info" %}
+                        {% set tpa = "Sites & Applications" %}
+                    {% elseif promoaffaire.typePromotionAffaire == "offre_emploi" %}
+                        {% set bg_badge = "bg-warning" %}
+                        {% set tpa = "Offre Emploi" %}
                     {% else %}
-                        {% if promoaffaire.typePromotionAffaire == "offre_emploi" %}
-                            {% set bg_badge = "bg-warning" %}
-                            {% set tpa = "Offre Emploi" %}
-                        {% else %}
-                            {% set bg_badge = "bg-danger" %}
-                            {% set tpa = "Demande Emploi" %}
-                        {% endif %}
+                        {% set bg_badge = "bg-danger" %}
+                        {% set tpa = "Demande Emploi" %}
                     {% endif %}
                     <span class="badge {{bg_badge}} text-white mb-1">{{ tpa }}</span>
                     
@@ -41,6 +42,7 @@
                         {% if promoaffaire.typePromotionAffaire == "produit_service" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour modifier votre promotion. Merci...</span> </div> {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "offre_emploi" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour soumettre une nouvelle promotion. Merci...</span> </div> {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "dmd_emploi" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour soumettre une nouvelle promotion. Merci...</span> </div> {% endif %}
+                        {% if promoaffaire.typePromotionAffaire == "sites_applications" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour soumettre une nouvelle promotion. Merci...</span> </div> {% endif %}
                     {% else %}
                         {% if promoaffaire.motifsRefus|length > 0 %}
                             <button class="btn btn-sm btn-outline-secondary mb-1" data-bs-toggle="modal" data-bs-target="#modal_historique_refus_{{promoaffaire.id}}">
@@ -58,6 +60,34 @@
                         {% if promoaffaire.typePromotionAffaire == "produit_service" %} <div class="actu-small-description mb-1"> {{promoaffaire.description}} </div> {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "offre_emploi" %} <div class="actu-small-description mb-1"> {{promoaffaire.annotherInfo.description_poste}} </div> {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "dmd_emploi" %} <div class="actu-small-description mb-1"> {{promoaffaire.annotherInfo.description_profil_demandeur}} </div> {% endif %}
+                        {% if promoaffaire.typePromotionAffaire == "sites_applications" %}
+                            <div class="mb-1">
+                                {% if promoaffaire.sousTypeSiteApp == "site_web" %}
+                                    <span class="badge bg-info text-white">Site web</span>
+                                {% elseif promoaffaire.sousTypeSiteApp == "app_mobile" %}
+                                    <span class="badge bg-info text-white">App mobile</span>
+                                {% else %}
+                                    <span class="badge bg-info text-white">Logiciel</span>
+                                {% endif %}
+                            </div>
+                            {% if promoaffaire.nomSiteApp %}
+                                <div class="fw-semibold mb-1">{{ promoaffaire.nomSiteApp }}</div>
+                            {% endif %}
+                            <div class="actu-small-description mb-1">{{ promoaffaire.description }}</div>
+                            {% if promoaffaire.urlSiteApp %}
+                                <div class="mb-1">
+                                    <a href="{{ promoaffaire.urlSiteApp }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary rounded-pill">
+                                        {% if promoaffaire.sousTypeSiteApp == "site_web" %}
+                                            <i class="fas fa-globe me-1"></i> Visiter
+                                        {% elseif promoaffaire.sousTypeSiteApp == "app_mobile" %}
+                                            <i class="fas fa-mobile-alt me-1"></i> Installer
+                                        {% else %}
+                                            <i class="fas fa-download me-1"></i> Télécharger
+                                        {% endif %}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endif %}
                     {% endif %}
                     
                     <div class="{% if promoaffaire.statusNumber == 2 or promoaffaire.statusNumber == 4 %}d-flex justify-content-between{% else %}text-end{% endif %} mt-2">
