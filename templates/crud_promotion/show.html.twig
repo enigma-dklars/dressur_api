@@ -52,7 +52,7 @@
                 <td>{{ promotion.whoSaw ? promotion.whoSaw|length : '' }}</td>
             </tr>
             <tr>
-                <th>Motif</th>
+                <th>Motif (dernier)</th>
                 <td>{{ promotion.motif }}</td>
             </tr>
             <tr>
@@ -61,6 +61,20 @@
             </tr>
         </tbody>
     </table>
+
+    <h2 class="mt-4">Historique des refus</h2>
+    {% if promotion.motifsRefus|length == 0 %}
+        <p class="text-muted">Aucun refus enregistré.</p>
+    {% else %}
+        <ol>
+            {% for motifEntry in promotion.motifsRefus|sort((a, b) => b.dateRefus <=> a.dateRefus) %}
+                <li class="mb-2">
+                    <strong>{{ motifEntry.dateRefus|date('d/m/Y à H:i') }}</strong><br>
+                    {{ motifEntry.motif }}
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
 
     {# <a href="{{ path('app_crud_promotion_index') }}">back to list</a>
 

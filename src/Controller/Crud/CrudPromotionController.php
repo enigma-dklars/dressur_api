@@ -3,6 +3,7 @@
 namespace App\Controller\Crud;
 
 use App\Entity\Promotion;
+use App\Entity\PromotionMotifRefus;
 use App\Form\PromotionType;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\HistoriqueProgrammeRecompenseRepository;
@@ -257,7 +258,7 @@ class CrudPromotionController extends AbstractController
                 ;
             }
     
-            $promotion->setMotif("")->setStatus(3)->setDateDebut(new DateTime());
+            $promotion->setStatus(3)->setDateDebut(new DateTime());
             $entityManager->flush();
 
             $user = $promotion->getUser();
@@ -288,7 +289,11 @@ class CrudPromotionController extends AbstractController
     {
         try {
             $motif = $request->request->get('motif', '');
+            $motifRefus = new PromotionMotifRefus();
+            $motifRefus->setMotif($motif);
+            $promotion->addMotifRefus($motifRefus);
             $promotion->setMotif($motif)->setStatus(0);
+            $entityManager->persist($motifRefus);
             $entityManager->flush();
 
             $user = $promotion->getUser();

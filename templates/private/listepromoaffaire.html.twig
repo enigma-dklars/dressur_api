@@ -33,11 +33,20 @@
                         <p>
                             Motif : {{promoaffaire.motif}}
                         </p>
-                        
+                        {% if promoaffaire.motifsRefus|length > 1 %}
+                            <button class="btn btn-sm btn-outline-secondary mb-1" data-bs-toggle="modal" data-bs-target="#modal_historique_refus_{{promoaffaire.id}}">
+                                Voir les refus précédents ({{ promoaffaire.motifsRefus|length - 1 }})
+                            </button>
+                        {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "produit_service" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour modifier votre promotion. Merci...</span> </div> {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "offre_emploi" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour soumettre une nouvelle promotion. Merci...</span> </div> {% endif %}
                         {% if promoaffaire.typePromotionAffaire == "dmd_emploi" %} <div class="actu-small-description mb-1"> <span class="text-success small">Tenez compte du motif de refus pour soumettre une nouvelle promotion. Merci...</span> </div> {% endif %}
                     {% else %}
+                        {% if promoaffaire.motifsRefus|length > 0 %}
+                            <button class="btn btn-sm btn-outline-secondary mb-1" data-bs-toggle="modal" data-bs-target="#modal_historique_refus_{{promoaffaire.id}}">
+                                <i class="fas fa-history me-1"></i> Historique des refus
+                            </button>
+                        {% endif %}
                         <div class="d-flex justify-content-between mb-1">
                             <div>
                                 Impressions : <strong>{{promoaffaire.nombreImpression}}</strong>
@@ -89,6 +98,11 @@
                                         <label for="description" class="form-label">Description de la promotion</label>
                                         <textarea class="form-control getInfo" id="description_{{promoaffaire.id}}" rows="15">{{promoaffaire.description}}</textarea>
                                     </div>
+                                    <div class="col-md-12 mt-3">
+                                        <label class="form-label">Numéro WhatsApp de contact</label>
+                                        <input type="text" class="form-control" id="whatsappContact_{{promoaffaire.id}}" name="whatsappContact" value="{{promoaffaire.whatsappContact}}" placeholder="+22900000000">
+                                        <div class="form-text">Format international requis, ex : +22900000000</div>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -99,6 +113,33 @@
                     </div>
                 </div>
             </div>
+
+            {# Modal historique des refus #}
+            {% if promoaffaire.motifsRefus|length > 0 %}
+            <div class="modal fade" id="modal_historique_refus_{{promoaffaire.id}}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-history me-2"></i>Historique des refus</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <ol>
+                                {% for motifEntry in promoaffaire.motifsRefus|sort((a, b) => b.dateRefus <=> a.dateRefus) %}
+                                    <li class="mb-3">
+                                        <strong>{{ motifEntry.dateRefus|date('d/m/Y à H:i') }}</strong>
+                                        <div>{{ motifEntry.motif }}</div>
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <div class="modal fade" id="modal_payerpromoaffaire_{{promoaffaire.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-scrollable">

@@ -653,6 +653,11 @@ class PromotionController extends AbstractController
             ]);
         }
 
+        $whatsappContact = $datas->get('whatsappContact');
+        if ($whatsappContact) {
+            $promotionAffaire->setWhatsappContact($whatsappContact);
+        }
+
         if ($text) {
             $promotionAffaire->setDescription($text)->setStatus(1)->setMotif("");
         }

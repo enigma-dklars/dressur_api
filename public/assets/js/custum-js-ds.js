@@ -1311,11 +1311,16 @@ $(document).ready(function () {
             return;
         }
 
+        const whatsappContact = ($('#whatsappContact_' + id_promo_affaire).val() || '').trim();
+
         const formData = new FormData();
         formData.append('idPromoAffaire', id_promo_affaire);
         formData.append('text', description);
         formData.append('uid', uid);
         formData.append('image', imageInput);
+        if (whatsappContact) {
+            formData.append('whatsappContact', whatsappContact);
+        }
 
         $.ajax({
             url: '/api/editProduitService',

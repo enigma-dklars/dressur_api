@@ -325,6 +325,14 @@ class TraitementsDS extends AbstractController
                 "dateExp" => $promo->getDateExp() ? ($promo->getDateExp())->format('d-m-Y à H:i') : "",
                 "formulePromotion" => $promo->getFormulePromoAffaire() ? $promo->getFormulePromoAffaire()->getTitre() : "",
                 "motif" => $promo->getMotif() ? $promo->getMotif() : "",
+                "motifsRefus" => (function() use ($promo) {
+                    $motifs = $promo->getMotifsRefus()->toArray();
+                    usort($motifs, fn($a, $b) => $b->getDateRefus() <=> $a->getDateRefus());
+                    return array_map(fn($m) => [
+                        'motif'     => $m->getMotif(),
+                        'dateRefus' => $m->getDateRefus()->format('Y-m-d H:i:s'),
+                    ], $motifs);
+                })(),
                 "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
                 "annotherInfo" => $promo->getAnnotherInfo(),
                 "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PromotionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -87,8 +89,12 @@ class Promotion
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $whatsappContact = null;
 
+    #[ORM\OneToMany(mappedBy: 'promotion', targetEntity: PromotionMotifRefus::class, cascade: ['persist'], orphanRemoval: false)]
+    private Collection $motifsRefus;
+
     public function __construct()
     {
+        $this->motifsRefus = new ArrayCollection();
         $this->status = 1;
         $this->referencement = false;
         $this->isFakeVue = false;
@@ -468,6 +474,35 @@ class Promotion
     public function setWhatsappContact(?string $whatsappContact): static
     {
         $this->whatsappContact = $whatsappContact;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PromotionMotifRefus>
+     */
+    public function getMotifsRefus(): Collection
+    {
+        return $this->motifsRefus;
+    }
+
+    public function addMotifRefus(PromotionMotifRefus $motifRefus): static
+    {
+        if (!$this->motifsRefus->contains($motifRefus)) {
+            $this->motifsRefus->add($motifRefus);
+            $motifRefus->setPromotion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMotifRefus(PromotionMotifRefus $motifRefus): static
+    {
+        if ($this->motifsRefus->removeElement($motifRefus)) {
+            if ($motifRefus->getPromotion() === $this) {
+                $motifRefus->setPromotion(null);
+            }
+        }
 
         return $this;
     }
