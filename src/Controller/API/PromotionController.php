@@ -605,6 +605,253 @@ class PromotionController extends AbstractController
         ]);
     }
 
+    #[Route('/addSiteApplication', name: 'addSiteApplication', methods: ['POST'])]
+    public function addSiteApplication(Request $request, VerificationsDS $verificationsDS, TraitementsDS $traitementsDS, MethodePaiementRepository $methodePaiementRepository): Response
+    {
+        $filesystem = new Filesystem();
+        $uploadDir = $this->getParameter('promotion_directory');
+        if (!$filesystem->exists($uploadDir)) {
+            $filesystem->mkdir($uploadDir, 0775);
+        }
+
+        $datas = $request->request;
+        $files = $request->files;
+
+        $uid             = $this->cookieDS->getWithFallback('uid', $request) ?: null;
+        $sousType        = $datas->get('sousType');
+        $nom             = $datas->get('nom');
+        $description     = $datas->get('description');
+        $url             = $datas->get('url');
+        $methodePaiement = $datas->get('methodePaiement');
+        $tel             = $datas->get('tel');
+        $image           = $files->get('image');
+
+        // Prix fixe pour ce type de promotion
+        $montantSolde = 7750;
+
+        if ($image === null) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => "Erreur",
+                'message' => "Veuillez fournir une image (icône ou logo).",
+            ]);
+        }
+
+        if (!$image->isValid()) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => 'Erreur!',
+                'message' => "Erreur lors du traitement de l'image.",
+            ]);
+        }
+
+        $verificationUser = $verificationsDS->verifUSer($uid);
+        if ($verificationUser["error"] == true) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => $verificationUser["titre"],
+                'message' => $verificationUser["message"],
+                'deleted' => $verificationUser["deleted"],
+                'blocked' => $verificationUser["blocked"],
+            ]);
+        }
+        $user = $verificationUser["user"];
+
+        if (!$user->getTelIsVerified()) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => 'Erreur!',
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+            ]);
+        }
+
+        // Upload image
+        $fileName = "dressur_pro_" . UuidGenerator::v4() . '.' . $image->getClientOriginalExtension();
+        try {
+            $image->move($this->getParameter('promotion_directory'), $fileName);
+        } catch (FileException $e) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => 'Erreur!',
+                'message' => $e->getMessage(),
+            ]);
+        }
+
+        if (!$methodePaiement) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement...',
+            ]);
+        }
+        $methodePaiementEntity = $methodePaiementRepository->find($methodePaiement);
+        if (!$methodePaiementEntity) {
+            return new JsonResponse([
+                'error'   => true,
+                'titre'   => 'Attention!',
+                'message' => 'Veuillez choisir une Methode de Paiement valide...',
+            ]);
+        }
+
+        $source = ($datas->get('source') === 'web') ? 'web' : 'mobile';
+
+        $annotherInfo = [
+            'userId'      => $user->getId(),
+            'userUid'     => $user->getUid(),
+            'image'       => $fileName,
+            'description' => $description,
+            'nom'         => $nom,
+            'url'         => $url,
+            'sousType'    => $sousType,
+            'source'      => $source,
+        ];
+
+        // ── Paiement via solde ────────────────────────────────────────────────
+        if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+            $myTransaction = (new EntityTransaction())
+                ->setUser($user)
+                ->setTransactionFor("promo_site_app")
+                ->setAmount($montantSolde)
+                ->setAnnotherInfo($annotherInfo);
+            $this->em->persist($myTransaction);
+            $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+            $this->em->flush();
+            return new JsonResponse([
+                'error'      => false,
+                'direct'     => true,
+                'solde_used' => true,
+                'titre'      => 'Succès',
+                'message'    => 'Solde débité de ' . (int)$montantSolde . ' FCFA. Promotion Sites & Applications enregistrée.',
+            ]);
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
+        if ($methodePaiementEntity->getAggregator() == "FedaPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour FedaPay");
+                return new JsonResponse([
+                    'error'   => true,
+                    'titre'   => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+            FedaPay::setApiKey($envPaiementApi->getApiKey());
+            FedaPay::setEnvironment($envPaiementApi->getEnvironment());
+
+            $array_create_transaction = [
+                "description" => "Promotion Sites & Applications",
+                "amount"      => $montantSolde,
+                "currency"    => ["iso" => "XOF"],
+                "customer"    => [
+                    "firstname"    => "Dressur : " . $user->getPseudo(),
+                    "lastname"     => $user->getNom(),
+                    "email"        => $user->getMail(),
+                    "phone_number" => [
+                        "number"  => $tel,
+                        "country" => $methodePaiementEntity->getCodePays(),
+                    ],
+                ],
+            ];
+
+            try {
+                $transaction = Transaction::create($array_create_transaction);
+
+                $myTransaction = (new EntityTransaction())
+                    ->setUser($user)
+                    ->setTransactionFor("promo_site_app")
+                    ->setIdTransaction($transaction["id"])
+                    ->setReference($transaction["reference"])
+                    ->setAmount($transaction["amount"])
+                    ->setStatus($transaction["status"])
+                    ->setCustomerId($transaction["customer_id"])
+                    ->setCurrencyId($transaction["currency_id"])
+                    ->setAnnotherInfo($annotherInfo);
+                $this->em->persist($myTransaction);
+                $this->em->flush();
+
+                $resultat = $traitementsDS->startPaiementFedaPay($transaction, $methodePaiementEntity);
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error'   => true,
+                    'titre'   => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } elseif ($methodePaiementEntity->getAggregator() == "KPay") {
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiKPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour KPay");
+                return new JsonResponse([
+                    'error'   => true,
+                    'titre'   => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementKPay(
+                    $envPaiementApi,
+                    $methodePaiementEntity,
+                    $montantSolde,
+                    $tel,
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "promo_site_app",
+                    $annotherInfo,
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error'   => true,
+                    'titre'   => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        } else {
+            // FeexPay
+            $envPaiementApi = $traitementsDS->getEnvPaiementApiFeexPayDisponible();
+            if (!$envPaiementApi) {
+                $this->sendMail->sendReport("uUid : " . $uid, "Aucun Webhook Disponible pour FeexPay");
+                return new JsonResponse([
+                    'error'   => true,
+                    'titre'   => 'Erreur!',
+                    'message' => "Erreur de paiement. Veuillez contacter les administrateurs SVP.",
+                ]);
+            }
+
+            try {
+                $resultat = $traitementsDS->startPaiementFeexPay(
+                    $envPaiementApi,
+                    $methodePaiementEntity,
+                    $montantSolde,
+                    $tel,
+                    $user->getPseudo(),
+                    $user->getMail(),
+                    "promo_site_app",
+                    $annotherInfo,
+                    $user,
+                    $request->getSchemeAndHttpHost()
+                );
+                return new JsonResponse($resultat);
+            } catch (\Throwable $th) {
+                $this->sendMail->sendReport("uUid : " . $user->getUid() . " WhatsApp : " . $user->getTel(), $th);
+                return new JsonResponse([
+                    'error'   => true,
+                    'titre'   => 'Erreur!',
+                    'message' => "Nous avons rencontré une erreur. Vous serez contacté par un administrateur.",
+                ]);
+            }
+        }
+
+        return new JsonResponse(['error' => false]);
+    }
+
     #[Route('/editProduitService', name: 'editProduitService', methods: ['POST'])]
     public function editProduitService(Request $request, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS): Response
     {

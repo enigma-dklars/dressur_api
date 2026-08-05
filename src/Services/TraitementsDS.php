@@ -1766,6 +1766,33 @@ class TraitementsDS extends AbstractController
             $this->addNotification("Solde débité. Votre Promotion Affaire est en attente de validation par notre équipe.", $user);
         }
 
+        if ($transactionFor === 'promo_site_app') {
+            $promotion = new Promotion();
+            $promotion
+                ->setMode("Payant")
+                ->setUser($user)
+                ->setTypePromotionAffaire("sites_applications")
+                ->setNomSiteApp($myTransaction->getAnnotherInfo()['nom'] ?? null)
+                ->setDescription($myTransaction->getAnnotherInfo()['description'] ?? null)
+                ->setUrlSiteApp($myTransaction->getAnnotherInfo()['url'] ?? null)
+                ->setSousTypeSiteApp($myTransaction->getAnnotherInfo()['sousType'] ?? null)
+                ->setImage($myTransaction->getAnnotherInfo()['image'])
+                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+            $this->em->persist($promotion);
+
+            $this->sendMail->smtpMail(
+                $_ENV['ADMIN_EMAIL'],
+                "Nouvelle Promotion Sites & Applications en attente — " . $user->getNom(),
+                "<p>Utilisateur : <strong>{$user->getNom()}</strong> ({$user->getMail()})</p>"
+                . "<p>Nom : " . ($myTransaction->getAnnotherInfo()['nom'] ?? '—') . "</p>"
+                . "<p>URL : " . ($myTransaction->getAnnotherInfo()['url'] ?? '—') . "</p>"
+                . "<p>Sous-type : " . ($myTransaction->getAnnotherInfo()['sousType'] ?? '—') . "</p>"
+                . "<p>Description : " . ($myTransaction->getAnnotherInfo()['description'] ?? '—') . "</p>"
+                . "<p>Montant : 7750 FCFA — Durée : 365 jours (fixée par l'admin)</p>"
+            );
+            $this->addNotification("Solde débité de {$montant} FCFA. Promotion Sites & Applications enregistrée. En attente d'approbation.", $user);
+        }
+
         if ($transactionFor === 'boost_reseau_sociaux') {
             $formulePromoReseau = $this->formulePromoReseauRepository->find($myTransaction->getAnnotherInfo()['idFormulePromoReseau']);
             $boost = new PromoReseau();
