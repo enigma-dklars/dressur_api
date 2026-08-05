@@ -1,0 +1,383 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Communication Mail — Portail{% endblock %}
+
+{% block body %}
+
+<div class="d-flex align-items-center mb-4">
+    <h4 class="mb-0"><i class="fas fa-envelope me-2 text-primary"></i>Communication par Mail</h4>
+</div>
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{# ── Statistiques rapides ── #}
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="display-6 fw-bold text-warning">{{ nb_attente }}</div>
+            <div class="text-muted small">En attente d'envoi</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="display-6 fw-bold text-success">{{ nb_envoye }}</div>
+            <div class="text-muted small">Envoyés (file)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm text-center py-3">
+            <div class="display-6 fw-bold text-primary">{{ nb_prospects }}</div>
+            <div class="text-muted small">Adresses en base</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ path('app_communication_mail_log') }}" class="card border-0 shadow-sm text-center py-3 text-decoration-none">
+            <div class="display-6 fw-bold text-info">{{ nb_logs }}</div>
+            <div class="text-muted small">Mails loggués <i class="fas fa-external-link-alt ms-1" style="font-size:0.6rem;"></i></div>
+        </a>
+    </div>
+</div>
+
+{# ── Campagnes & outils ── #}
+<h5 class="mb-3 fw-semibold">Campagnes</h5>
+<div class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">🚀</span></div>
+                <h5 class="card-title fw-semibold">Attirer de nouveaux utilisateurs</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Envoyez un mail engageant à des adresses externes pour les inviter à rejoindre Dressur via le web ou l'application mobile.
+                </p>
+                <a href="{{ path('app_communication_mail_campagne_prospect') }}" class="btn btn-primary mt-2">
+                    <i class="fas fa-paper-plane me-1"></i>Lancer la campagne
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">📋</span></div>
+                <h5 class="card-title fw-semibold">File d'attente mail</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Consultez et gérez les mails en attente d'envoi, envoyés ou en erreur.
+                    {% if nb_attente > 0 %}
+                        <br><span class="badge bg-warning text-dark mt-1">{{ nb_attente }} en attente</span>
+                    {% endif %}
+                </p>
+                <a href="{{ path('app_communication_mail_file_attente') }}" class="btn btn-outline-secondary mt-2">
+                    <i class="fas fa-list me-1"></i>Voir la file d'attente
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-success">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">💬</span></div>
+                <h5 class="card-title fw-semibold">File d'attente WhatsApp</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Consultez et gérez les messages WhatsApp en attente d'envoi.
+                    {% if nb_whatsapp_attente is defined and nb_whatsapp_attente > 0 %}
+                        <br><span class="badge bg-success mt-1">{{ nb_whatsapp_attente }} en attente</span>
+                    {% endif %}
+                </p>
+                <a href="{{ path('app_communication_mail_file_attente_whatsapp') }}" class="btn btn-outline-success mt-2">
+                    <i class="fab fa-whatsapp me-1"></i>Voir la file WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# ── Message WhatsApp personnalisé ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fab fa-whatsapp me-1 text-success"></i>Message WhatsApp Personnalisé
+</h5>
+<div class="row g-3 mb-4">
+    <div class="col-md-12">
+        <div class="card border-0 shadow-sm border-top border-3 border-success">
+            <div class="card-body d-flex align-items-center gap-4">
+                <div class="fs-1 flex-shrink-0">✍️</div>
+                <div class="flex-grow-1">
+                    <h5 class="card-title fw-semibold mb-1">Envoyer un message libre à vos utilisateurs</h5>
+                    <p class="card-text text-muted small mb-0">
+                        Rédigez un message personnalisé et envoyez-le à tous les utilisateurs d'un service (Boost Contact, Promotion Affaire ou Promotion Réseaux Sociaux).
+                        Le message est personnalisé avec les variables <code>{nom}</code>, <code>{pseudo}</code>, <code>{mail}</code>, <code>{tel}</code>, <code>{uid}</code> pour chaque utilisateur.
+                    </p>
+                </div>
+                <a href="{{ path('app_communication_mail_message_personnalise_whatsapp') }}" class="btn btn-success flex-shrink-0">
+                    <i class="fab fa-whatsapp me-1"></i>Rédiger un message
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Réactivation des utilisateurs inactifs ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fas fa-redo me-1 text-warning"></i>Réactivation des utilisateurs inactifs
+</h5>
+<div class="row g-3 mb-4">
+    {% for r in reactivation %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ r.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ r.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ r.label }}</div>
+                        <div class="small text-muted">{{ r.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ r.color }}">{{ r.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: r.key}) }}"
+                   class="btn btn-{{ r.color }} mt-auto {% if r.nb == 0 %}disabled{% endif %}">
+                    <i class="fas fa-bolt me-1"></i>
+                    {% if r.nb > 0 %}
+                        Voir & lancer ({{ r.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Relance par service ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fas fa-sync-alt me-1 text-primary"></i>Relance par service
+</h5>
+<div class="row g-3 mb-4">
+    {% for s in services %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ s.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ s.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ s.label }}</div>
+                        <div class="small text-muted">{{ s.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ s.color }}">{{ s.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: s.key}) }}"
+                   class="btn btn-{{ s.color }} mt-auto {% if s.nb == 0 %}disabled{% endif %}">
+                    <i class="fas fa-bolt me-1"></i>
+                    {% if s.nb > 0 %}
+                        Voir & lancer ({{ s.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Relance WhatsApp par service ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fab fa-whatsapp me-1 text-success"></i>Relance WhatsApp par service
+</h5>
+<div class="row g-3 mb-4">
+    {% for sw in services_wa %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ sw.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ sw.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ sw.label }}</div>
+                        <div class="small text-muted">{{ sw.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ sw.color }}">{{ sw.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: sw.key}) }}"
+                   class="btn btn-{{ sw.color }} mt-auto {% if sw.nb == 0 %}disabled{% endif %}">
+                    <i class="fab fa-whatsapp me-1"></i>
+                    {% if sw.nb > 0 %}
+                        Voir & préparer ({{ sw.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Confirmation d'adresse mail ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fas fa-envelope-open-text me-1 text-warning"></i>Confirmation d'adresse mail
+</h5>
+<div class="row g-3 mb-4">
+    {% for c in confirm %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ c.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ c.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ c.label }}</div>
+                        <div class="small text-muted">{{ c.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ c.color }}">{{ c.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: c.key}) }}"
+                   class="btn btn-{{ c.color }} mt-auto {% if c.nb == 0 %}disabled{% endif %}">
+                    <i class="fas fa-bolt me-1"></i>
+                    {% if c.nb > 0 %}
+                        Voir & lancer ({{ c.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Confirmation numéro WhatsApp ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fab fa-whatsapp me-1 text-success"></i>Confirmation numéro WhatsApp
+    {% if nb_whatsapp_attente is defined and nb_whatsapp_attente > 0 %}
+        <span class="badge bg-success ms-2">{{ nb_whatsapp_attente }} en attente d'envoi</span>
+    {% endif %}
+</h5>
+<div class="row g-3 mb-4">
+    {% for w in confirm_wa %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ w.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ w.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ w.label }}</div>
+                        <div class="small text-muted">{{ w.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ w.color }}">{{ w.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: w.key}) }}"
+                   class="btn btn-{{ w.color }} mt-auto {% if w.nb == 0 %}disabled{% endif %}">
+                    <i class="fab fa-whatsapp me-1"></i>
+                    {% if w.nb > 0 %}
+                        Voir & préparer ({{ w.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{# ── Feedback WhatsApp par service ── #}
+<h5 class="mb-3 fw-semibold">
+    <i class="fas fa-star me-1 text-warning"></i>Feedback WhatsApp par service
+</h5>
+<div class="row g-3 mb-4">
+    {% for f in feedback_wa %}
+    <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ f.color }}">
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="fs-2 me-2">{{ f.emoji }}</span>
+                    <div>
+                        <div class="fw-semibold">{{ f.label }}</div>
+                        <div class="small text-muted">{{ f.desc }}</div>
+                    </div>
+                </div>
+                <div class="my-2">
+                    <span class="display-6 fw-bold text-{{ f.color }}">{{ f.nb }}</span>
+                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
+                </div>
+                <div class="small text-muted mb-2">
+                    <i class="fas fa-clock me-1"></i>Cooldown : 365 jours (envoi unique/an)
+                </div>
+                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: f.key}) }}"
+                   class="btn btn-{{ f.color }} mt-auto {% if f.nb == 0 %}disabled{% endif %}">
+                    <i class="fab fa-whatsapp me-1"></i>
+                    {% if f.nb > 0 %}
+                        Voir & préparer ({{ f.nb }})
+                    {% else %}
+                        Aucun utilisateur ciblé
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h5 class="mb-3 fw-semibold">Base de données & historique</h5>
+<div class="row g-3">
+
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">🗂️</span></div>
+                <h5 class="card-title fw-semibold">Adresses en base</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Consultez toutes les adresses mail collectées lors des campagnes. Ces adresses sont conservées pour des réutilisations futures.
+                    <br><span class="badge bg-primary mt-1">{{ nb_prospects }} adresse(s)</span>
+                </p>
+                <a href="{{ path('app_communication_mail_prospects') }}" class="btn btn-outline-primary mt-2">
+                    <i class="fas fa-database me-1"></i>Voir la liste
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body d-flex flex-column">
+                <div class="mb-3"><span class="fs-1">📊</span></div>
+                <h5 class="card-title fw-semibold">Historique des envois</h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    Consultez l'historique complet de tous les mails envoyés par le système. Filtrez par raison, compte sender ou période.
+                    Permet de visualiser la répartition round-robin entre les comptes SMTP.
+                    <br><span class="badge bg-info text-dark mt-1">{{ nb_logs }} log(s)</span>
+                </p>
+                <a href="{{ path('app_communication_mail_log') }}" class="btn btn-outline-info mt-2">
+                    <i class="fas fa-history me-1"></i>Voir l'historique
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

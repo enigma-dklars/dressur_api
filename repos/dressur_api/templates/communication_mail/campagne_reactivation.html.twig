@@ -1,0 +1,185 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Campagne Réactivation — {{ config.label }}{% endblock %}
+
+{% block body %}
+
+<div class="d-flex align-items-center mb-3">
+    <h4 class="mb-0">
+        {{ config.emoji }} Réactivation — {{ config.label }}
+    </h4>
+    <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary ms-auto">
+        <i class="fas fa-arrow-left me-1"></i>Retour au portail
+    </a>
+</div>
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endfor %}
+{% endfor %}
+
+<div class="row g-4">
+
+    {# ── Colonne gauche : résumé + action ── #}
+    <div class="col-md-5">
+
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header fw-semibold">
+                <i class="fas fa-info-circle me-1 text-primary"></i>Résumé de la campagne
+            </div>
+            <div class="card-body">
+
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-5">Segment</dt>
+                    <dd class="col-sm-7">{{ config.label }}</dd>
+
+                    <dt class="col-sm-5">Sujet</dt>
+                    <dd class="col-sm-7 fw-semibold">{{ sujet }}</dd>
+
+                    <dt class="col-sm-5">Reply-to</dt>
+                    <dd class="col-sm-7 font-monospace">{{ replyto }}</dd>
+
+                    {% if config.group == 'service' %}
+                    <dt class="col-sm-5">Fenêtre analysée</dt>
+                    <dd class="col-sm-7">{{ config.maxDaysAgo }} derniers jours</dd>
+                    {% elseif config.group == 'confirm' %}
+                    <dt class="col-sm-5">Critère</dt>
+                    <dd class="col-sm-7">Mail non confirmé</dd>
+                    {% else %}
+                    <dt class="col-sm-5">Inactivité ciblée</dt>
+                    <dd class="col-sm-7">
+                        {{ config.minDays }}j
+                        {% if config.maxDays %}→ {{ config.maxDays }}j{% else %}+{% endif %}
+                    </dd>
+                    {% endif %}
+                </dl>
+
+            </div>
+        </div>
+
+        {# ── Compteurs ── #}
+        <div class="row g-2 mb-3">
+            <div class="col-6">
+                <div class="card border-0 shadow-sm text-center py-3">
+                    <div class="display-5 fw-bold text-{{ nb_to_send > 0 ? config.color : 'secondary' }}">
+                        {{ nb_to_send }}
+                    </div>
+                    <div class="small text-muted">à envoyer</div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card border-0 shadow-sm text-center py-3">
+                    <div class="display-5 fw-bold text-secondary">
+                        {{ nb_excluded }}
+                    </div>
+                    <div class="small text-muted">
+                        ignorés
+                        <span class="d-block" style="font-size:11px;">(contactés &lt; {{ cooldown_days }}j)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ── Lancement ── #}
+        <div class="card border-0 shadow-sm border-top border-3 border-{{ config.color }}">
+            <div class="card-body">
+
+                {% if nb_to_send > 0 %}
+                    {% if nb_excluded > 0 %}
+                    <p class="small mb-2" style="color:#6c757d;">
+                        <i class="fas fa-info-circle me-1 text-info"></i>
+                        <strong>{{ nb_excluded }}</strong> utilisateur(s) déjà contacté(s) dans les
+                        <strong>{{ cooldown_days }} derniers jours</strong> seront automatiquement ignorés.
+                    </p>
+                    {% endif %}
+
+                    <p class="small mb-3 text-muted">
+                        <i class="fas fa-exclamation-triangle me-1 text-{{ config.color }}"></i>
+                        {% if is_whatsapp is defined and is_whatsapp %}
+                            <strong>{{ nb_to_send }} message(s) WhatsApp</strong> vont être ajoutés à la file.
+                            Chaque message est personnalisé avec le pseudo et un lien de confirmation unique.
+                        {% else %}
+                            <strong>{{ nb_to_send }} mail(s)</strong> vont être ajoutés à la file.
+                            Chaque mail est personnalisé avec le pseudo de l'utilisateur.
+                        {% endif %}
+                    </p>
+
+                    <form method="post"
+                          action="{{ path('app_communication_mail_campagne_reactivation_lancer', {type: type}) }}"
+                          onsubmit="return confirm('Confirmer l\'envoi de {{ nb_to_send }} {% if is_whatsapp is defined and is_whatsapp %}message(s) WhatsApp{% else %}mail(s){% endif %} ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('reactivation_' ~ type) }}">
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-{{ config.color }} btn-lg">
+                                {% if is_whatsapp is defined and is_whatsapp %}
+                                    <i class="fab fa-whatsapp me-2"></i>
+                                    Lancer — {{ nb_to_send }} message(s) WhatsApp
+                                {% else %}
+                                    <i class="fas fa-bolt me-2"></i>
+                                    Lancer — {{ nb_to_send }} mail(s)
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+
+                {% elseif nb_excluded > 0 %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-clock fa-2x text-warning mb-2 d-block"></i>
+                        Tous les utilisateurs de cette tranche ont déjà été contactés dans les
+                        <strong>{{ cooldown_days }} derniers jours</strong>.<br>
+                        <span class="small">Revenez dans quelques jours.</span>
+                    </div>
+
+                {% else %}
+                    <div class="text-center text-muted py-3">
+                        <i class="fas fa-check-circle fa-2x text-success mb-2 d-block"></i>
+                        {% if config.group == 'confirm' %}
+                            Tous les utilisateurs ont confirmé leur adresse mail.
+                        {% elseif config.group == 'service' %}
+                            Aucun utilisateur ciblé pour ce service actuellement.
+                        {% else %}
+                            Aucun utilisateur inactif dans cette tranche actuellement.
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+
+    {# ── Colonne droite : aperçu du message ── #}
+    <div class="col-md-7">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-header fw-semibold">
+                {% if is_whatsapp is defined and is_whatsapp %}
+                    <i class="fab fa-whatsapp me-1 text-success"></i>Aperçu du message WhatsApp
+                {% else %}
+                    <i class="fas fa-eye me-1"></i>Aperçu du mail
+                {% endif %}
+                <span class="badge bg-secondary ms-2 small fw-normal">
+                    personnalisé avec le pseudo de chaque utilisateur
+                </span>
+            </div>
+            <div class="card-body p-0" style="background:#f8f9fa;">
+                {% if is_whatsapp is defined and is_whatsapp %}
+                    {# ── Bulle WhatsApp ── #}
+                    <div class="p-4">
+                        <div style="background:#e9fbe5;border-radius:16px 16px 4px 16px;padding:16px 20px;max-width:420px;margin-left:auto;font-family:'Helvetica Neue',Arial,sans-serif;font-size:14px;line-height:1.6;color:#111;white-space:pre-wrap;word-break:break-word;box-shadow:0 1px 3px rgba(0,0,0,.12);">{{ contentmail }}</div>
+                        <div class="text-end small text-muted mt-2" style="font-size:11px;">✓✓ Envoyé</div>
+                    </div>
+                {% else %}
+                    <div class="p-3">
+                        {{ contentmail|raw }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

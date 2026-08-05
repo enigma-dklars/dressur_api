@@ -1,0 +1,134 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Story #{{ story.id }}{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-3">
+        <div class="col">
+            <h4>Story #{{ story.id }}</h4>
+        </div>
+        <div class="col-auto">
+            <a href="{{ path('app_crud_story_edit', {'id': story.id}) }}" class="btn btn-sm btn-success me-2">
+                <i class="fas fa-pencil me-1"></i> Modifier
+            </a>
+            <a href="{{ path('app_crud_story_index') }}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3">
+
+        {% if story.images|length > 0 %}
+        <div class="col-12">
+            <div class="card radius-10">
+                <div class="card-header bg-transparent">
+                    <h6 class="mb-0"><i class="fas fa-images me-1"></i> Images ({{ story.images|length }})</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-3">
+                        {% for image in story.images %}
+                        <div class="text-center flex-shrink-0">
+                            <div class="rounded shadow overflow-hidden" style="width:120px; height:213px;">
+                                <img src="/story/{{ image }}" alt="{{ image }}"
+                                    style="width:100%; height:100%; object-fit:cover; object-position:center; display:block;">
+                            </div>
+                            <p class="text-muted small mt-1 text-truncate" style="max-width:120px;">{{ image }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if story.videos|length > 0 %}
+        <div class="col-12">
+            <div class="card radius-10">
+                <div class="card-header bg-transparent">
+                    <h6 class="mb-0"><i class="fas fa-circle-play me-1"></i> Vidéos ({{ story.videos|length }})</h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for video in story.videos %}
+                        <li class="list-group-item">
+                            <a href="{{ video }}" target="_blank" class="text-break">{{ video }}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-6">
+            <div class="card radius-10 h-100">
+                <div class="card-header bg-transparent">
+                    <h6 class="mb-0"><i class="fas fa-circle-info me-1"></i> Informations</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <tr>
+                            <th class="text-muted" style="width:140px">Utilisateur</th>
+                            <td>{{ story.user ? story.user.pseudo ~ ' (#' ~ story.user.id ~ ')' : '<span class="text-muted">—</span>'|raw }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">URL</th>
+                            <td>
+                                {% if story.url %}
+                                    <a href="{{ story.url }}" target="_blank">{{ story.url }}</a>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Créé le</th>
+                            <td>{{ story.createdAt ? story.createdAt|date('d/m/Y à H:i:s') : '—' }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Modifié le</th>
+                            <td>
+                                {% if story.updatedAt %}
+                                    {{ story.updatedAt|date('d/m/Y à H:i:s') }}
+                                {% else %}
+                                    <span class="text-muted">Jamais modifié</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Expire le</th>
+                            <td>
+                                {% if story.expiredAt %}
+                                    {% if story.expiredAt < date() %}
+                                        <span class="badge bg-danger">Expiré — {{ story.expiredAt|date('d/m/Y à H:i') }}</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">{{ story.expiredAt|date('d/m/Y à H:i') }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">Pas d'expiration</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card radius-10 h-100">
+                <div class="card-header bg-transparent">
+                    <h6 class="mb-0"><i class="fas fa-paragraph me-1"></i> Description</h6>
+                </div>
+                <div class="card-body">
+                    {% if story.description %}
+                        {{ story.description|nl2br }}
+                    {% else %}
+                        <span class="text-muted">Aucune description</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

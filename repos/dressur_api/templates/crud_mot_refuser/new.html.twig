@@ -1,0 +1,11 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}New MotRefuser{% endblock %}
+
+{% block body %}
+    <h1>Create new MotRefuser</h1>
+
+    {{ include('crud_mot_refuser/_form.html.twig') }}
+
+    <a href="{{ path('app_crud_mot_refuser_index') }}">back to list</a>
+{% endblock %}

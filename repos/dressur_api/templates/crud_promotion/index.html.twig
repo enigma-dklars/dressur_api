@@ -1,0 +1,152 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Promotion index{% endblock %}
+
+{% block body %}
+    <div class="row g-2">
+        <div class="col-8">
+            <span class="h4 me-3">Promotion index</span>
+        </div>
+        <div class="col-4 text-end fs-5 d-flex gap-2 justify-content-end align-items-center">
+            <a class="btn btn-sm btn-success h4" href="{{ path('app_crud_promotion_admin_new') }}">
+                <i class="fas fa-plus-circle me-1"></i>Nouvelle Promotion
+            </a>
+            <a class="btn btn-sm btn-danger h4 js-confirm-orphan" href="{{ path('app_crud_promotion_delete_images_no_use') }}">Delete Images No Used</a>
+        </div>
+    </div>
+
+    <!-- Filtre Source -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <span class="fw-semibold me-1">Source :</span>
+        <a href="{{ path('app_crud_promotion_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Source</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Type P.A</th>
+                    <th>Mode</th>
+                    <th>Récomp.</th>
+                    <th>DS Statut</th>
+                    <th>Boost FB</th>
+                    <th>WhatsApp</th>
+                    <th>Limited</th>
+                    <th>Fake</th>
+                    <th>Ref.</th>
+                    <th>Formule</th>
+                    <th>DateDebut</th>
+                    <th>DateExp</th>
+                    <th>Nbr.Vue</th>
+                    <th>Nbr.Imprs</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for promotion in promotions %}
+                <tr>
+                    <td></td>
+                    <td>{% include "crud_promotion/_delete_form.html.twig" %}</td>
+                    <td class="text-center">
+                        {% if promotion.source == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif promotion.source == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ promotion.user.pseudo }}</td>
+                    <td class="text-center">
+                        {% if promotion.status == 0 %}{% set bg_badge = "bg-danger" %} {% set status_name = "Rejeter" %}{% endif %}
+                        {% if promotion.status == 1 %}{% set bg_badge = "bg-warning" %} {% set status_name = "Attente" %}{% endif %}
+                        {% if promotion.status == 2 %}{% set bg_badge = "bg-warning" %} {% set status_name = "Att. Pay" %}{% endif %}
+                        {% if promotion.status == 3 %}{% set bg_badge = "bg-success" %} {% set status_name = "En cours" %}{% endif %}
+                        {% if promotion.status == 4 %}{% set bg_badge = "bg-success" %} {% set status_name = "Terminer" %}{% endif %}
+                        <span class="badge {{bg_badge}} text-white mb-1">{{status_name}}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if promotion.typePromotionAffaire == "produit_service" %}
+                            {% set bg_badge = "bg-success" %}
+                            {% set tpa = "Produit Service" %}
+                        {% else %}
+                            {% if promotion.typePromotionAffaire == "offre_emploi" %}
+                                {% set bg_badge = "bg-warning" %}
+                                {% set tpa = "Offre Emploi" %}
+                            {% else %}
+                                {% set bg_badge = "bg-danger" %}
+                                {% set tpa = "Demande Emploi" %}
+                            {% endif %}
+                        {% endif %}
+                        <span class="badge {{bg_badge}} text-white mb-1">{{ tpa }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if promotion.mode == "Gratuit" %}
+                            <span class="badge bg-danger">{{promotion.mode}}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{promotion.mode}}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.boostFacebook ? '<span class="badge bg-primary">' ~ promotion.montantBoostFacebook ~ ' F</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">
+                        {% if promotion.whatsappContact %}
+                            <span class="badge bg-success">{{ promotion.whatsappContact }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary" title="Fallback : numéro utilisateur">{{ promotion.user.tel }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">{{ promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td>{{ promotion.formulePromoAffaire }}</td>
+                    <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.nombreDeVue }}</td>
+                    <td>{{ promotion.nombreImpression }}</td>
+                    <td>{{ promotion.id }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="14">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+document.querySelectorAll('.js-confirm-orphan').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var href = this.href;
+        Swal.fire({
+            title: 'Supprimer les images non utilisées ?',
+            text: 'Toutes les images non liées à une promotion seront définitivement supprimées.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

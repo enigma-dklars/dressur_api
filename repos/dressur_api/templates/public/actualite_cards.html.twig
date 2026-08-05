@@ -1,0 +1,37 @@
+{% for actu in actus %}
+    {% set waText %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
+    {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ waText|url_encode %}
+    {% set altText %}{% if actu.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.lieu_travail is defined and actu.annotherInfo.lieu_travail %} à {{ actu.annotherInfo.lieu_travail }}{% endif %} — {{ actu.pseudoAnnonceur }}{% elseif actu.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.localisation_souhaite is defined and actu.annotherInfo.localisation_souhaite %} à {{ actu.annotherInfo.localisation_souhaite }}{% endif %} — {{ actu.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ actu.pseudoAnnonceur }}{% endif %}{% endset %}
+    <div class="col-md-4">
+        <div class="card mb-0 shadow h-100">
+            <a href="/actualite/{{ actu.token }}">
+                <img src="/promotion/{{ actu.image }}" class="card-img-top image-actu" alt="{{ altText|trim }}" width="400" height="300">
+            </a>
+            <div class="card-body">
+                <p class="card-text actu-small-description">
+                    {% if actu.typePromotionAffaire == "produit_service" %} {{actu.description}} {% endif %}
+                    {% if actu.typePromotionAffaire == "offre_emploi" %} {{actu.annotherInfo.description_poste}} {% endif %}
+                    {% if actu.typePromotionAffaire == "dmd_emploi" %} {{actu.annotherInfo.description_profil_demandeur}} {% endif %}
+                </p>
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <div class="row g-2">
+                            <div class="col-auto"><i class="fas fa-eye me-1"></i> {{actu.nombreImpression}}</div>
+                            <div class="col-auto"><i class="fas fa-hand-pointer me-1"></i> {{actu.nombreDeVues}}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 text-end d-flex gap-1 justify-content-end">
+                        <a href="{{ waUrl }}" target="_blank" class="btn btn-success btn-sm rounded-2 py-0"><i class="fab fa-whatsapp"></i></a>
+                        <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
+                            data-share-url="https://dressur.site/actualite/{{ actu.token }}"
+                            data-share-title="{{ actu.pseudoAnnonceur }} — Dressur"
+                            data-share-text="{{ actu.description[:100] }}">
+                            <i class="fas fa-share-nodes"></i>
+                        </button>
+                        <a href="/actualite/{{ actu.token }}" class="btn btn-info btn-sm rounded-2 py-0">Voir</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

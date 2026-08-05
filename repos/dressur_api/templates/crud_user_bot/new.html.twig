@@ -1,0 +1,11 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}New UserBot{% endblock %}
+
+{% block body %}
+    <h1>Create new UserBot</h1>
+
+    {{ include('crud_user_bot/_form.html.twig') }}
+
+    <a href="{{ path('app_crud_user_bot_index') }}">back to list</a>
+{% endblock %}

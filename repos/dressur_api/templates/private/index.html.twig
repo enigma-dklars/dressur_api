@@ -1,0 +1,571 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}DASHBOARD{% endblock %}
+
+{% block body %}
+
+{% if stories is not empty %}
+<div class="mb-3">
+    {# Wrapper avec dégradés et flèches de navigation #}
+    <div style="position:relative;">
+        {# Flèche gauche #}
+        <button id="storyScrollLeft" onclick="scrollStrip(-1)" style="display:none;position:absolute;left:-4px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(13,110,253,0.85);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3);">&#8249;</button>
+        {# Flèche droite #}
+        <button id="storyScrollRight" onclick="scrollStrip(1)" style="position:absolute;right:-4px;top:50%;transform:translateY(-50%);z-index:10;background:rgba(13,110,253,0.85);border:none;color:#fff;border-radius:50%;width:30px;height:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.3);">&#8250;</button>
+        {# Dégradé droit pour indiquer qu'il y a du contenu #}
+        <div id="storyFadeRight" style="pointer-events:none;position:absolute;right:0;top:0;bottom:8px;width:40px;background:linear-gradient(to right,transparent,rgba(0,0,0,0.35));z-index:5;border-radius:0 12px 12px 0;"></div>
+        {# Dégradé gauche #}
+        <div id="storyFadeLeft" style="pointer-events:none;position:absolute;left:0;top:0;bottom:8px;width:40px;background:linear-gradient(to left,transparent,rgba(0,0,0,0.35));z-index:5;border-radius:12px 0 0 12px;display:none;"></div>
+
+    <div class="story-strip pb-1" id="storyStrip" style="display:flex;flex-wrap:nowrap;overflow-x:scroll;overflow-y:hidden;gap:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;">
+        {% for story in stories %}
+        {% set hasMedia = (story.images is not empty) or (story.videos is not empty) %}
+        {% if hasMedia %}
+        <div class="story-card flex-shrink-0" onclick="openStory({{ loop.index0 }})"
+             style="cursor:pointer;width:105px;height:175px;border-radius:12px;overflow:hidden;position:relative;border:2px solid #0d6efd;background:#111;">
+            {% if story.images is not empty %}
+                <img src="/story/{{ story.images[0] }}" alt="story"
+                     style="width:100%;height:100%;object-fit:cover;display:block;">
+            {% else %}
+                <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#1a1a2e;">
+                    <i class="fas fa-play text-primary fs-2"></i>
+                </div>
+            {% endif %}
+            <div style="position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,0.75) 100%);"></div>
+            <div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;color:#fff;font-size:11px;font-weight:600;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                {{ story.user ? story.user.pseudo|slice(0,12) : 'Story' }}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+    </div>{# fin wrapper position:relative #}
+</div>
+<script>
+(function() {
+    const strip = document.getElementById('storyStrip');
+    const btnLeft = document.getElementById('storyScrollLeft');
+    const btnRight = document.getElementById('storyScrollRight');
+    const fadeLeft = document.getElementById('storyFadeLeft');
+    const fadeRight = document.getElementById('storyFadeRight');
+
+    function updateIndicators() {
+        const atStart = strip.scrollLeft <= 4;
+        const atEnd = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
+
+        btnLeft.style.display = atStart ? 'none' : 'flex';
+        fadeLeft.style.display = atStart ? 'none' : 'block';
+        btnRight.style.display = atEnd ? 'none' : 'flex';
+        fadeRight.style.display = atEnd ? 'none' : 'block';
+    }
+
+    strip.addEventListener('scroll', updateIndicators, { passive: true });
+    window.addEventListener('resize', updateIndicators);
+    updateIndicators();
+})();
+
+function scrollStrip(dir) {
+    const strip = document.getElementById('storyStrip');
+    strip.scrollBy({ left: dir * 230, behavior: 'smooth' });
+}
+</script>
+
+{# Données JSON pour le viewer JS #}
+<script>
+const storiesData = [
+    {% for story in stories %}
+    {% set hasMedia = (story.images is not empty) or (story.videos is not empty) %}
+    {% if hasMedia %}
+    {
+        id: {{ story.id }},
+        user: "{{ story.user ? story.user.pseudo|e('js') : 'Story' }}",
+        description: "{{ story.description ? story.description|e('js') : '' }}",
+        url: "{{ story.url ? story.url|e('js') : '' }}",
+        images: [{% for img in story.images %}"{{ img|e('js') }}"{% if not loop.last %},{% endif %}{% endfor %}],
+        videos: [{% for vid in story.videos %}"{{ vid|e('js') }}"{% if not loop.last %},{% endif %}{% endfor %}]
+    }{% if not loop.last %},{% endif %}
+    {% endif %}
+    {% endfor %}
+].filter(s => s.images.length > 0 || s.videos.length > 0);
+</script>
+
+{# Modal viewer de story #}
+<div id="storyModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;">
+    {# Barre de progression #}
+    <div id="storyProgressBar" style="position:absolute;top:0;left:0;right:0;display:flex;gap:3px;padding:8px 10px;">
+    </div>
+
+    {# Header #}
+    <div style="position:absolute;top:28px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 12px;">
+        <span id="storyUserName" style="color:#fff;font-weight:600;font-size:14px;"></span>
+        <button onclick="closeStory()" style="background:none;border:none;color:#fff;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+
+    {# Contenu media #}
+    <div id="storyContent" style="width:100%;max-width:420px;max-height:80vh;display:flex;align-items:center;justify-content:center;position:relative;">
+    </div>
+
+    {# Description style WhatsApp — ancrée en bas, "Voir plus" si long #}
+    <div id="storyDescBox" style="display:none;position:absolute;bottom:0;left:0;right:0;padding:10px 14px 20px;background:linear-gradient(to bottom,transparent,rgba(0,0,0,0.82));pointer-events:auto;">
+        {# Bouton lien de la story #}
+        <a id="storyLinkBtn" href="#" target="_blank" rel="noopener noreferrer"
+           onclick="event.stopPropagation()"
+           style="display:none;margin-bottom:10px;width:100%;text-align:center;padding:8px 16px;background:#25a244;border:none;border-radius:24px;color:#fff;font-size:13px;font-weight:600;text-decoration:none;letter-spacing:0.3px;">
+            🔗 Voir le lien
+        </a>
+        <p id="storyDescText" style="margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;"></p>
+        <button id="storyVoirPlus" onclick="expandStoryDesc()" style="display:none;background:none;border:none;color:#90caf9;font-size:12px;padding:2px 0 0;cursor:pointer;font-weight:600;">Lire la suite</button>
+    </div>
+
+    {# Navigation prev/next #}
+    <button onclick="prevStoryItem()" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
+    <button onclick="nextStoryItem()" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8250;</button>
+</div>
+
+<script>
+let currentStoryIndex = 0;
+let currentMediaIndex = 0;
+let storyTimer = null;
+const STORY_DURATION = 60000;
+
+function getStoryMedia(story) {
+    const media = [];
+    story.images.forEach(img => media.push({ type: 'image', src: '/story/' + img }));
+    story.videos.forEach(url => media.push({ type: 'video', src: url }));
+    return media;
+}
+
+function openStory(index) {
+    currentStoryIndex = index;
+    currentMediaIndex = 0;
+    document.getElementById('storyModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    renderStory();
+}
+
+function closeStory() {
+    clearTimeout(storyTimer);
+    document.getElementById('storyModal').style.display = 'none';
+    document.body.style.overflow = '';
+    document.getElementById('storyContent').innerHTML = '';
+}
+
+function renderStory() {
+    clearTimeout(storyTimer);
+    const story = storiesData[currentStoryIndex];
+    const media = getStoryMedia(story);
+
+    // Nom
+    document.getElementById('storyUserName').textContent = story.user;
+
+    // Bouton lien
+    const linkBtn = document.getElementById('storyLinkBtn');
+    if (story.url && story.url.trim() !== '') {
+        linkBtn.href = story.url;
+        linkBtn.style.display = 'block';
+    } else {
+        linkBtn.style.display = 'none';
+        linkBtn.href = '#';
+    }
+
+    // Description style WhatsApp
+    const descBox = document.getElementById('storyDescBox');
+    const descText = document.getElementById('storyDescText');
+    const voirPlus = document.getElementById('storyVoirPlus');
+    const hasDesc = story.description && story.description.trim() !== '';
+    const hasUrl  = story.url && story.url.trim() !== '';
+    if (hasDesc) {
+        const full = story.description.trim();
+        descText.dataset.full = full;
+        // Afficher avec clamp 2 lignes
+        descText.innerHTML = linkify(full);
+        descText.style.cssText = 'margin:0 0 0;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+        voirPlus.style.display = 'none';
+        // Détecter si le texte dépasse 2 lignes après rendu
+        requestAnimationFrame(() => {
+            if (descText.scrollHeight > descText.clientHeight + 2) {
+                voirPlus.style.display = 'block';
+                descText.style.marginBottom = '2px';
+            }
+        });
+    } else {
+        descText.innerHTML = '';
+        descText.style.cssText = '';
+        voirPlus.style.display = 'none';
+    }
+    // Afficher le bloc si url OU description présente
+    descBox.style.display = (hasDesc || hasUrl) ? 'block' : 'none';
+
+    // Barre de progression
+    const bar = document.getElementById('storyProgressBar');
+    bar.innerHTML = '';
+    media.forEach((_, i) => {
+        const seg = document.createElement('div');
+        seg.style.cssText = 'flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.3);overflow:hidden;';
+        const fill = document.createElement('div');
+        fill.style.cssText = 'height:100%;background:#fff;width:' + (i < currentMediaIndex ? '100' : i === currentMediaIndex ? '0' : '0') + '%;transition:width linear;';
+        seg.appendChild(fill);
+        bar.appendChild(seg);
+    });
+
+    // Media
+    const content = document.getElementById('storyContent');
+    content.innerHTML = '';
+    const item = media[currentMediaIndex];
+
+    if (item.type === 'image') {
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.style.cssText = 'max-width:100%;max-height:80vh;object-fit:contain;border-radius:6px;';
+        content.appendChild(img);
+    } else {
+        const vid = document.createElement('video');
+        vid.src = item.src;
+        vid.controls = true;
+        vid.autoplay = true;
+        vid.style.cssText = 'max-width:100%;max-height:80vh;border-radius:6px;';
+        content.appendChild(vid);
+    }
+
+    // Animer la barre du segment actif
+    setTimeout(() => {
+        const fills = bar.querySelectorAll('div > div');
+        if (fills[currentMediaIndex]) {
+            fills[currentMediaIndex].style.transition = 'width ' + (STORY_DURATION / 1000) + 's linear';
+            fills[currentMediaIndex].style.width = '100%';
+        }
+    }, 30);
+
+    storyTimer = setTimeout(() => nextStoryItem(), STORY_DURATION);
+}
+
+function nextStoryItem() {
+    const story = storiesData[currentStoryIndex];
+    const media = getStoryMedia(story);
+    if (currentMediaIndex < media.length - 1) {
+        currentMediaIndex++;
+        renderStory();
+    } else if (currentStoryIndex < storiesData.length - 1) {
+        currentStoryIndex++;
+        currentMediaIndex = 0;
+        renderStory();
+    } else {
+        closeStory();
+    }
+}
+
+function prevStoryItem() {
+    if (currentMediaIndex > 0) {
+        currentMediaIndex--;
+        renderStory();
+    } else if (currentStoryIndex > 0) {
+        currentStoryIndex--;
+        currentMediaIndex = 0;
+        renderStory();
+    }
+}
+
+document.addEventListener('keydown', e => {
+    if (document.getElementById('storyModal').style.display !== 'none') {
+        if (e.key === 'ArrowRight') nextStoryItem();
+        if (e.key === 'ArrowLeft') prevStoryItem();
+        if (e.key === 'Escape') closeStory();
+    }
+});
+
+// Swipe tactile gauche/droite sur le viewer
+(function() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    const modal = document.getElementById('storyModal');
+
+    modal.addEventListener('touchstart', e => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    modal.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        // Ignorer si le mouvement est surtout vertical (scroll texte)
+        if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx)) return;
+        if (dx < 0) nextStoryItem();
+        else prevStoryItem();
+    }, { passive: true });
+})();
+
+function linkify(text) {
+    const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return escaped.replace(
+        /(https?:\/\/[^\s<>"']+)/gi,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:#90caf9;text-decoration:underline;" onclick="event.stopPropagation()">$1</a>'
+    );
+}
+
+function expandStoryDesc() {
+    // Pause le défilement automatique tant que le texte est ouvert
+    clearTimeout(storyTimer);
+    storyTimer = null;
+    // Figer la barre de progression sur sa position actuelle
+    const bar = document.getElementById('storyProgressBar');
+    if (bar) {
+        const fills = bar.querySelectorAll('div > div');
+        fills.forEach(f => {
+            const current = getComputedStyle(f).width;
+            f.style.transition = 'none';
+            f.style.width = current;
+        });
+    }
+
+    const descText = document.getElementById('storyDescText');
+    const voirPlus = document.getElementById('storyVoirPlus');
+    const full = descText.dataset.full || '';
+    descText.innerHTML = linkify(full);
+    // Retirer le clamp — texte complet visible, scrollable si très long
+    descText.style.cssText = 'margin:0 0 4px;color:#fff;font-size:13px;line-height:1.5;word-break:break-word;max-height:55vh;overflow-y:auto;display:block;';
+    voirPlus.style.display = 'none';
+}
+</script>
+{% endif %}
+
+    <div class="row g-3 mb-3">
+        
+        {% if (user.nombreContactDispo <= 0 and user.boostEnCours == false) or
+            user.telIsVerified == false or
+            user.nom|replace({' ': ''}) == '' or
+            user.nom is null %}
+
+        {% endif %}
+
+        {% if user.telIsVerified == false %}
+            <div class="col-12">
+                <div class="card radius-10 mb-0" style="border:2px solid #198754;">
+                    <div class="card-body">
+
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success flex-shrink-0" style="width:46px;height:46px;">
+                                <i class="fab fa-whatsapp text-white fs-4"></i>
+                            </span>
+                            <p class="mb-0 fw-semibold text-success fs-6">Confirmation du numéro WhatsApp</p>
+                        </div>
+
+                        <p class="text-muted small mb-2">Pour confirmer votre numéro, suivez ces étapes&nbsp;:</p>
+
+                        <ol class="small text-muted mb-3 ps-3" style="line-height:1.9;">
+                            <li>Ouvrez <strong>WhatsApp</strong> depuis le numéro utilisé pour votre inscription.</li>
+                            <li>Envoyez-nous <strong>exactement</strong> ce message, sans faute ni modification&nbsp;:
+                                <div class="mt-2 mb-1 px-3 py-2 rounded text-center fw-bold text-success" style="background:rgba(25,135,84,.1);font-size:1.05rem;font-family:monospace;letter-spacing:.5px;">
+                                    WhatsApp Confirmation
+                                </div>
+                            </li>
+                            <li>Votre numéro sera confirmé dès que possible.</li>
+                        </ol>
+
+                        <a href="https://wa.me/22964044294?text=WhatsApp%20Confirmation" target="_blank" class="btn btn-success w-100">
+                            <i class="fab fa-whatsapp me-2"></i> Envoyer la demande sur WhatsApp
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if user.mailIsVerified == false %}
+            <div class="col-12">
+                <a href="/confirmer-votre-mail" style="text-decoration:none;">
+                    <div class="card radius-10 mb-0 h-100 border-primary" style="border:2px solid;">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary flex-shrink-0" style="width:46px;height:46px;">
+                                <i class="fas fa-envelope-open-text text-white fs-5"></i>
+                            </span>
+                            <div class="flex-grow-1 min-w-0">
+                                <p class="mb-0 fw-semibold text-primary">Confirmer votre adresse mail</p>
+                                <p class="mb-0 text-muted small text-truncate">{{ user.mail }}</p>
+                            </div>
+                            <i class="fas fa-chevron-right text-primary flex-shrink-0"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if user.nom|replace({' ': ''}) == '' or user.nom is null %}
+            <div class="col-12">
+                <a href="/editprofil" class="dropdown-item">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="setting-icon"></div>
+                                <div class="setting-text ms-3 fs-6"><span>Compléter votre Profil</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if user.addPageActu and user.nombreContactDispo <= 100 and user.boostEnCours == false %}
+            <div class="col-12">
+                <a href="/newboostcontact" style="text-decoration:none;" class="text-white">
+                    <div class="card radius-10 mb-0 h-100 bg-danger">
+                        <div class="card-body">
+                            <i class="fas fa-user fs-6"></i>
+                            <span class="ms-1 fs-6">Faire un Boost Contact pour avoir plus de contact</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+
+        {% if user.addPageActu and user.nombreContactDispo > 0 %}
+            <div class="col-md-12">
+                <div class="card radius-10 mb-0 h-100">
+                    <div class="card-body">
+                        <p class="mb-2 text-primary fw-normal fs-4">
+                            <i class="fas fa-users-rectangle me-1"></i> Contacts Disponibles
+                        </p>
+                        <p class="mb-2 fs-6 mb-1">
+                            {{user.nombreContactDispo}} contact(s) disponible(s) selon vos préférences pays.
+                        </p>
+                        <p class="px-3 py-2 mb-2 small bg-warning rounded text-dark">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Cliquez sur le bouton ci-dessous pour récupérer vos contacts. Vous serez ensuite redirigé vers votre liste de contacts, depuis laquelle vous pourrez les exporter au format <strong>VCF</strong> ou <strong>CSV</strong> et suivre le <strong>guide d'import</strong> pour les enregistrer dans votre téléphone.
+                        </p>
+                        <div class="mt-2 mb-1">
+                            {% if user.telIsVerified == true %}
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" url="/api/addTousUserContact/{{user.uid}}/fr" id="ajouter_tous_les_contacts" data-boost-en-cours="{{ user.boostEnCours ? '1' : '0' }}">
+                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
+                                </button>
+                            {% else %}
+                                <button class="btn btn-md btn-info me-2 mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#doit_confirmer_le_numéro_whatsapp">
+                                    Ajouter Tous les {{user.nombreContactDispo}} Contact(s)
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="modal fade" id="doit_faire_boost_contact" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <p class="mb-0 text-secondary"><i class="fas fa-rocket me-1"></i> Boost Contact requis</p>
+                            <p class="mt-1 mb-2">
+                                Vous n'avez pas de Boost Contact en cours. Veuillez faire un Boost Contact pour avoir l'autorisation d'ajouter les contacts disponibles.
+                            </p>
+                            <a href="/newboostcontact" class="btn btn-primary btn-sm">
+                                <i class="fas fa-rocket me-1"></i> Faire un Boost Contact
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="doit_confirmer_le_numéro_whatsapp" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-body p-0">
+                    <div class="card radius-10 mb-0 h-100">
+                        <div class="card-body">
+                            <p class="mb-0 text-secondary"><i class="fab fa-whatsapp me-1"></i> Configuration et Confirmation du Compte</p>
+                            <p class="mt-1 mb-2">
+                                Vous n’avez pas encore terminé la configuration et la confirmation de votre compte. 
+                                Veuillez fermer cette fenêtre, lire attentivement les instructions affichées sur la page actuelle afin de savoir quoi faire pour finaliser la configuration et la confirmation de votre compte. 
+                                Une fois cette étape terminée, vous pourrez revenir et utiliser cette fonctionnalité sans problème.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mb-3">
+        {{actu|raw}}
+        <div class="text-end mt-2">
+            <a href="/actu" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                <i class="fas fa-newspaper me-1"></i>Voir plus
+            </a>
+        </div>
+    </div>
+
+{% if not user.admin %}
+    <div class="modal fade" id="warningModal" tabindex="-1"
+     aria-labelledby="warningModalLabel"
+     aria-hidden="true"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false">
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title text-center w-100" id="warningModalLabel">
+          ⚠️ Avertissement important
+        </h5>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Dressur ne peut garantir la fiabilité ou la moralité des utilisateurs de la plateforme.<br><br>
+          Il est fortement conseillé de ne jamais envoyer d’argent pour un service sans être certain
+          de pouvoir entrer en possession de ce pour quoi vous payez.<br><br>
+          <strong>
+            Dressur ne saurait être tenu responsable en cas d’arnaque ou de perte financière
+            causée par un autre utilisateur.
+          </strong>
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button"
+                id="closeWarningBtn"
+                class="btn btn-sm btn-danger"
+                data-bs-dismiss="modal"
+                disabled>
+          Fermer (5)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const modalEl = document.getElementById('warningModal');
+    const closeBtn = document.getElementById('closeWarningBtn');
+
+    // Ouvre le modal automatiquement
+    const warningModal = new bootstrap.Modal(modalEl);
+    warningModal.show();
+
+    let countdown = 5;
+    closeBtn.textContent = `Fermer (${countdown}s)`;
+
+    const timer = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+            closeBtn.textContent = `Fermer (${countdown}s)`;
+        } else {
+            clearInterval(timer);
+            closeBtn.textContent = "Fermer";
+            closeBtn.disabled = false;
+        }
+    }, 1000);
+});
+</script>
+{% endif %}
+
+{% endblock %}

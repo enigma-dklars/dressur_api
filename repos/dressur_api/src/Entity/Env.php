@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\EnvRepository;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+
+#[ORM\Entity(repositoryClass: EnvRepository::class)]
+class Env
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private $id;
+
+    #[ORM\Column(type: 'string', length: 255)]
+    private $versionApp;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private $importantUpdate;
+
+    #[ORM\Column(nullable: true)]
+    private array $usersTel = [];
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $versionDressurBot = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?array $userBanned = null;
+
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
+    private bool $iaActive = true;
+
+    public function addUsersTel($tel_or_mail): self
+    {
+        if (!in_array($tel_or_mail, $this->usersTel)) {
+            array_push($this->usersTel, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function addUserBanned($tel_or_mail): self
+    {
+        if($this->userBanned == Null) {
+            $this->userBanned = [];
+        }
+        if (!in_array($tel_or_mail, $this->userBanned)) {
+            array_push($this->userBanned, $tel_or_mail);
+        }
+        return $this;
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getVersionApp(): ?string
+    {
+        return $this->versionApp;
+    }
+
+    public function setVersionApp(string $versionApp): self
+    {
+        $this->versionApp = $versionApp;
+
+        return $this;
+    }
+
+    public function getImportantUpdate(): ?bool
+    {
+        return $this->importantUpdate;
+    }
+
+    public function setImportantUpdate(?bool $importantUpdate): self
+    {
+        $this->importantUpdate = $importantUpdate;
+
+        return $this;
+    }
+
+    public function getUsersTel(): array
+    {
+        return $this->usersTel;
+    }
+
+    public function setUsersTel(?array $usersTel): self
+    {
+        $this->usersTel = $usersTel;
+
+        return $this;
+    }
+
+    public function getVersionDressurBot(): ?string
+    {
+        return $this->versionDressurBot;
+    }
+
+    public function setVersionDressurBot(?string $versionDressurBot): static
+    {
+        $this->versionDressurBot = $versionDressurBot;
+
+        return $this;
+    }
+
+    public function getUserBanned(): ?array
+    {
+        return $this->userBanned;
+    }
+
+    public function setUserBanned(?array $userBanned): static
+    {
+        $this->userBanned = $userBanned;
+
+        return $this;
+    }
+
+    public function isIaActive(): bool
+    {
+        return $this->iaActive;
+    }
+
+    public function setIaActive(bool $iaActive): static
+    {
+        $this->iaActive = $iaActive;
+
+        return $this;
+    }
+}

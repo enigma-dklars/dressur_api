@@ -1,0 +1,38 @@
+<form method="post" action="{{ path('app_crud_transaction_delete', {'id': transaction.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ transaction.id) }}">
+    <a href="{{ path('app_crud_transaction_show', {'id': transaction.id}) }}" class="btn btn-sm btn-info">Show</a>
+    <a href="{{ path('app_crud_transaction_edit', {'id': transaction.id}) }}" class="btn btn-sm btn-success">Edit</a>
+    <span data-bs-toggle="modal" data-bs-target="#modal_transaction_{{transaction.id}}" class="btn btn-sm btn-primary">More</span>
+    <button
+        type="button"
+        class="btn btn-sm btn-danger btn-force-process"
+        data-id="{{ transaction.id }}"
+        data-for="{{ transaction.transactionFor }}"
+        data-status="{{ transaction.status }}"
+        title="Vérifier et forcer le traitement du paiement">
+        {# <i class="bi bi-arrow-repeat"></i>  #}
+        Pay Check
+    </button>
+    {# <button class="btn btn-sm btn-danger">Delete</button> #}
+</form>
+<div class="modal fade" id="modal_transaction_{{transaction.id}}" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        {% for key, value in transaction.annotherInfo %}
+                            <tr>
+                                <td>{{ key }}</td>
+                                <td style="word-wrap: break-word; white-space: normal;">{{ value }}</td>
+                            </tr>
+                        {% endfor %}                    
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

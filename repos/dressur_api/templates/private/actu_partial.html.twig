@@ -1,0 +1,68 @@
+<div class="row g-3">
+    {% for actu in actus %}
+        <div class="col-md-4">
+            <div class="card mb-0 shadow h-100">
+                <a href="/actu/{{ actu.token }}">
+                    <img src="/promotion/{{ actu.image }}" class="card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}">
+                </a>
+                <div class="card-body">
+                    <p class="card-text actu-small-description mb-2">
+                        {% if actu.typePromotionAffaire == "produit_service" %}<div class="actu-small-description mb-1">{{ actu.description }}</div>{% endif %}
+                        {% if actu.typePromotionAffaire == "offre_emploi" %}<div class="actu-small-description mb-1">{{ actu.annotherInfo.description_poste }}</div>{% endif %}
+                        {% if actu.typePromotionAffaire == "dmd_emploi" %}<div class="actu-small-description mb-1">{{ actu.annotherInfo.description_profil_demandeur }}</div>{% endif %}
+                    </p>
+                    <div class="row align-items-center">
+                        <div class="col-5">
+                            <div class="row g-2">
+                                <div class="col-auto text-muted small"><i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}</div>
+                                <div class="col-auto text-muted small"><i class="fas fa-hand-pointer me-1"></i>{{ actu.nombreDeVues }}</div>
+                            </div>
+                        </div>
+                        <div class="col-7 text-end d-flex gap-1 justify-content-end">
+                            <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
+                                data-share-url="https://dressur.site/actualite/{{ actu.token }}"
+                                data-share-title="{{ actu.pseudoAnnonceur }} — Dressur"
+                                data-share-text="{{ actu.description[:100] }}">
+                                <i class="fas fa-share-nodes"></i>
+                            </button>
+                            <a href="/actu/{{ actu.token }}" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                Voir <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Aucune actualité disponible selon vos préférences.
+        </div>
+    {% endfor %}
+</div>
+<script>
+(function() {
+    if (window._dsShareReady) return;
+    window._dsShareReady = true;
+    document.addEventListener('click', async function(e) {
+        var btn = e.target.closest('.ds-share-btn');
+        if (!btn) return;
+        var shareData = {
+            title: btn.dataset.shareTitle,
+            text: btn.dataset.shareText,
+            url: btn.dataset.shareUrl
+        };
+        if (navigator.share) {
+            try { await navigator.share(shareData); } catch(err) {}
+        } else {
+            try {
+                await navigator.clipboard.writeText(btn.dataset.shareUrl);
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2000);
+            } catch(err) {
+                window.open(btn.dataset.shareUrl, '_blank');
+            }
+        }
+    });
+})();
+</script>

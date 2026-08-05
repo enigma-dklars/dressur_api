@@ -1,0 +1,408 @@
+{% extends 'base.html.twig' %}
+
+{% set title = promo.pseudoAnnonceur ~ ' — Actualité' %}
+{% set description %}{% if promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail %} à {{ promo.annotherInfo.lieu_travail }}{% endif %} par {{ promo.pseudoAnnonceur }}{% if promo.annotherInfo.description_poste is defined and promo.annotherInfo.description_poste %} · {{ promo.annotherInfo.description_poste[:80] }}{% endif %}{% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.localisation_souhaite is defined and promo.annotherInfo.localisation_souhaite %} à {{ promo.annotherInfo.localisation_souhaite }}{% endif %} par {{ promo.pseudoAnnonceur }}{% if promo.annotherInfo.description_profil_demandeur is defined and promo.annotherInfo.description_profil_demandeur %} · {{ promo.annotherInfo.description_profil_demandeur[:80] }}{% endif %}{% else %}{{ promo.description[:160] }}{% endif %}{% endset %}
+{% set description = description|trim|slice(0, 155) %}
+
+{% block robots_meta %}
+{% if promo.isFakeVue or promo.status not in [3, 4] %}
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+{% else %}
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
+{% endif %}
+{% endblock %}
+
+{% block jsonld %}
+{% if not promo.isFakeVue and promo.status in [3, 4] %}
+<script type="application/ld+json">
+{% if promo.typePromotionAffaire == 'produit_service' %}
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ promo.pseudoAnnonceur|e('js') }} — Dressur",
+  "description": "{{ promo.description[:500]|e('js') }}",
+  "image": "https://dressur.site/promotion/{{ promo.image }}",
+  "url": "https://dressur.site/actualite/{{ promo.token }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ promo.pseudoAnnonceur|e('js') }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "availability": "https://schema.org/InStock",
+    "url": "https://dressur.site/actualite/{{ promo.token }}",
+    "priceSpecification": {
+      "@type": "PriceSpecification",
+      "priceCurrency": "XOF",
+      "price": 0,
+      "minPrice": 0
+    },
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "BJ",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"},
+      "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"},
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"},
+        "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}
+      }
+    },
+    "seller": {
+      "@type": "Person",
+      "name": "{{ promo.pseudoAnnonceur|e('js') }}"
+    }
+  }
+}
+{% elseif promo.typePromotionAffaire == 'offre_emploi' %}
+{
+  "@context": "https://schema.org",
+  "@type": "JobPosting",
+  "title": "{{ (promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher ? promo.annotherInfo.titre_demande_poste_rechercher : promo.pseudoAnnonceur)|e('js') }}",
+  "description": "{{ (promo.annotherInfo.description_poste is defined and promo.annotherInfo.description_poste ? promo.annotherInfo.description_poste : promo.description)[:1000]|e('js') }}",
+  "image": "https://dressur.site/promotion/{{ promo.image }}",
+  "url": "https://dressur.site/actualite/{{ promo.token }}",
+  "datePosted": "{{ "now"|date("Y-m-d") }}",
+  "employmentType": "{{ (promo.annotherInfo.type_contrat is defined and promo.annotherInfo.type_contrat) ? promo.annotherInfo.type_contrat|e('js') : 'FULL_TIME' }}",
+  "hiringOrganization": {
+    "@type": "Organization",
+    "name": "{{ promo.pseudoAnnonceur|e('js') }}",
+    "sameAs": "https://dressur.site"
+  },
+  "jobLocation": {
+    "@type": "Place",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "{{ (promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail) ? promo.annotherInfo.lieu_travail|e('js') : '' }}"
+    }
+  }
+}
+{% else %}
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "{{ promo.pseudoAnnonceur|e('js') }} — Dressur",
+  "description": "{{ promo.description[:500]|e('js') }}",
+  "image": "https://dressur.site/promotion/{{ promo.image }}",
+  "url": "https://dressur.site/actualite/{{ promo.token }}",
+  "provider": {
+    "@type": "Person",
+    "name": "{{ promo.pseudoAnnonceur|e('js') }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "availability": "https://schema.org/InStock",
+    "url": "https://dressur.site/actualite/{{ promo.token }}",
+    "priceSpecification": {
+      "@type": "PriceSpecification",
+      "priceCurrency": "XOF",
+      "price": 0,
+      "minPrice": 0
+    },
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "BJ",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"
+    },
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"},
+      "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"},
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"},
+        "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}
+      }
+    }
+  }
+}
+{% endif %}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},{"@type":"ListItem","position":2,"name":"Actualités","item":"https://dressur.site/actualite"},{"@type":"ListItem","position":3,"name":"{{ promo.pseudoAnnonceur|e('js') }}","item":"https://dressur.site/actualite/{{ promo.token }}"}]}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ title|e('js') }}",
+  "description": "{{ description|e('js') }}",
+  "image": {
+    "@type": "ImageObject",
+    "url": "https://dressur.site/promotion/{{ promo.image }}"
+  },
+  "url": "https://dressur.site/actualite/{{ promo.token }}",
+  "datePublished": "{{ promo.datePublished }}",
+  "dateModified": "{{ promo.datePublished }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ promo.pseudoAnnonceur|e('js') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Dressur",
+    "url": "https://dressur.site",
+    "@id": "https://dressur.site/#organization",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://dressur.site/assets/images/dressur_logo_blanc.png",
+      "width": 200,
+      "height": 60
+    }
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://dressur.site/actualite/{{ promo.token }}"
+  }
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block referencement %}
+    <meta property="og:title" content="{{ title }} | Dressur Web" />
+    <meta property="og:description" content="{{ description }}" />
+    <meta property="og:image" content="https://dressur.site/promotion/{{ promo.image }}" />
+    <meta property="og:url" content="https://dressur.site/actualite/{{ promo.token }}" />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ title }} | Dressur Web" />
+    <meta name="twitter:description" content="{{ description }}" />
+    <meta name="twitter:image" content="https://dressur.site/promotion/{{ promo.image }}" />
+    <meta name="description" content="{{ description }}" />
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="container my-3">
+
+    <div class="mb-3 h6">
+        <span class="fw-bolder">Dressur</span> /
+        <a href="/actualite" class="text-decoration-none">Actualités</a> /
+        <span class="text-primary">{{ promo.pseudoAnnonceur }}</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8 mx-auto">
+            {% set altPromo %}{% if promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail %} à {{ promo.annotherInfo.lieu_travail }}{% endif %} — {{ promo.pseudoAnnonceur }}{% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.localisation_souhaite is defined and promo.annotherInfo.localisation_souhaite %} à {{ promo.annotherInfo.localisation_souhaite }}{% endif %} — {{ promo.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ promo.pseudoAnnonceur }}{% endif %}{% endset %}
+            <div class="card shadow">
+                <img src="/promotion/{{ promo.image }}" class="card-img-top w-100" alt="{{ altPromo|trim }}" style="height:auto; display:block;">
+                <div class="card-body p-4">
+
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1 fw-bold">{{ promo.pseudoAnnonceur }}</h5>
+                            <span class="badge bg-info">
+                                {% if promo.typePromotionAffaire == "produit_service" %}Produit / Service
+                                {% elseif promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi
+                                {% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi
+                                {% else %}{{ promo.typePromotionAffaire }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end text-muted small ms-3">
+                            <div><i class="fas fa-eye me-1"></i>{{ promo.nombreImpression }} vues</div>
+                            <div><i class="fas fa-hand-pointer me-1"></i>{{ promo.nombreDeVues }} clics</div>
+                        </div>
+                    </div>
+
+                    <p class="fs-6 mb-3">{{ promo.description|nl2br }}</p>
+
+                    {% if promo.annotherInfo %}
+                        <hr>
+                        <div class="row g-2">
+                        {% for key, value in promo.annotherInfo %}
+                            {% if value is not empty %}
+                            <div class="col-12 mb-1">
+                                <span class="fw-bold text-primary">{{ key | replace({'_': ' '}) | capitalize }} :</span>
+                                <span>{{ value|nl2br }}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                        <hr>
+                    {% endif %}
+
+                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                        {% set waText %}Bonjour/Bonsoir *{{ promo.pseudoAnnonceur }}*, j'ai une question concernant votre promotion sur Dressur.{% endset %}
+                        {% set waUrl = 'https://wa.me/' ~ promo.whatsappNumber ~ '?text=' ~ waText|url_encode %}
+                        <button type="button" class="btn btn-success ds-contact-btn"
+                            data-wa-url="{{ waUrl }}">
+                            <i class="fab fa-whatsapp me-2"></i>Contacter l'annonceur
+                        </button>
+                        <button class="btn btn-outline-secondary ds-share-btn"
+                            data-share-url="https://dressur.site/actualite/{{ promo.token }}"
+                            data-share-title="{{ promo.pseudoAnnonceur }} — Dressur"
+                            data-share-text="{{ promo.description[:100] }}">
+                            <i class="fas fa-share-nodes me-1"></i> Partager
+                        </button>
+                        <button class="btn btn-outline-dark ds-copy-btn"
+                            data-copy-url="https://dressur.site/actualite/{{ promo.token }}">
+                            <i class="fas fa-link me-1"></i> Copier le lien
+                        </button>
+                        {% if is_connect == "non" %}
+                        <a href="/connexion" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-1"></i>Rejoindre Dressur
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if autresPromos|length > 0 %}
+        <div class="col-12">
+            <h5 class="mb-3 fw-semibold"><i class="fas fa-rectangle-ad me-2 text-info"></i>Autres actualités</h5>
+            <div class="row g-3">
+                {% for autre in autresPromos %}
+                {% set altAutre %}{% if autre.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if autre.annotherInfo.titre_demande_poste_rechercher is defined and autre.annotherInfo.titre_demande_poste_rechercher %} — {{ autre.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if autre.annotherInfo.lieu_travail is defined and autre.annotherInfo.lieu_travail %} à {{ autre.annotherInfo.lieu_travail }}{% endif %} — {{ autre.pseudoAnnonceur }}{% elseif autre.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if autre.annotherInfo.titre_demande_poste_rechercher is defined and autre.annotherInfo.titre_demande_poste_rechercher %} — {{ autre.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if autre.annotherInfo.localisation_souhaite is defined and autre.annotherInfo.localisation_souhaite %} à {{ autre.annotherInfo.localisation_souhaite }}{% endif %} — {{ autre.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ autre.pseudoAnnonceur }}{% endif %}{% endset %}
+                <div class="col-md-4">
+                    <div class="card mb-0 shadow h-100">
+                        <a href="/actualite/{{ autre.token }}">
+                            <img src="/promotion/{{ autre.image }}" class="card-img-top image-actu" alt="{{ altAutre|trim }}">
+                        </a>
+                        <div class="card-body">
+                            <p class="card-text actu-small-description mb-2">{{ autre.description }}</p>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="text-muted small">
+                                    <span class="me-2"><i class="fas fa-eye me-1"></i>{{ autre.nombreImpression }}</span>
+                                    <span><i class="fas fa-hand-pointer me-1"></i>{{ autre.nombreDeVues }}</span>
+                                </div>
+                                <div class="d-flex gap-1">
+                                    <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
+                                        data-share-url="https://dressur.site/actualite/{{ autre.token }}"
+                                        data-share-title="{{ autre.pseudoAnnonceur }} — Dressur"
+                                        data-share-text="{{ autre.description[:100] }}">
+                                        <i class="fas fa-share-nodes"></i>
+                                    </button>
+                                    <a href="/actualite/{{ autre.token }}" class="btn btn-info btn-sm py-0 px-2">
+                                        Voir <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<!-- Modal sécurité paiement -->
+<div class="modal fade" id="modalContactAnnonceur" tabindex="-1" aria-labelledby="modalContactAnnonceurLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-warning text-dark border-0">
+        <h5 class="modal-title fw-bold" id="modalContactAnnonceurLabel">
+          <i class="fas fa-shield-halved me-2"></i>Avertissement important
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body py-4">
+        <p class="mb-3">Avant de contacter cet annonceur, veuillez prendre connaissance de cet avertissement :</p>
+        <div class="alert alert-danger mb-3">
+          <i class="fas fa-triangle-exclamation me-2"></i>
+          <strong>Payez uniquement via un moyen sécurisé</strong> permettant d'engager un recours en cas de litige
+          (carte bancaire, PayPal, etc.).
+        </div>
+        <p class="mb-2 text-muted small">
+          Si vous effectuez un paiement direct (virement bancaire, Mobile Money, envoi d'argent via une tierce personne, etc.)
+          et que vous êtes victime d'une arnaque, <strong>Dressur ne pourra en aucun cas être tenu responsable</strong>.
+        </p>
+        <p class="mb-0 text-muted small">
+          En cas de doute, n'envoyez aucune somme d'argent avant d'avoir vérifié l'identité et la fiabilité de l'annonceur.
+          Votre sécurité est votre priorité.
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-0 d-flex gap-2">
+        <button type="button" class="btn btn-secondary flex-fill" data-bs-dismiss="modal">
+          <i class="fas fa-arrow-left me-1"></i> Annuler
+        </button>
+        <a href="#" id="btnConfirmerContact" target="_blank" class="btn btn-success flex-fill" data-bs-dismiss="modal">
+          <i class="fab fa-whatsapp me-2"></i>Je comprends, continuer
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+    // Partage vers les applications
+    if (!window._dsShareReady) {
+        window._dsShareReady = true;
+        document.addEventListener('click', async function(e) {
+            var btn = e.target.closest('.ds-share-btn');
+            if (!btn) return;
+            var shareData = {
+                title: btn.dataset.shareTitle,
+                text: btn.dataset.shareText,
+                url: btn.dataset.shareUrl
+            };
+            var copyToClipboard = async function(url, el) {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    var orig = el.innerHTML;
+                    el.innerHTML = '<i class="fas fa-check me-1"></i> Copié !';
+                    setTimeout(function() { el.innerHTML = orig; }, 2000);
+                } catch(err) {
+                    window.open(url, '_blank');
+                }
+            };
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch(err) {
+                    if (err.name !== 'AbortError') {
+                        await copyToClipboard(btn.dataset.shareUrl, btn);
+                    }
+                }
+            } else {
+                await copyToClipboard(btn.dataset.shareUrl, btn);
+            }
+        });
+    }
+
+    // Copier le lien
+    document.addEventListener('click', async function(e) {
+        var btn = e.target.closest('.ds-copy-btn');
+        if (!btn) return;
+        try {
+            await navigator.clipboard.writeText(btn.dataset.copyUrl);
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i> Lien copié !';
+            setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        } catch(err) {
+            var tmp = document.createElement('input');
+            tmp.value = btn.dataset.copyUrl;
+            document.body.appendChild(tmp);
+            tmp.select();
+            document.execCommand('copy');
+            document.body.removeChild(tmp);
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check me-1"></i> Lien copié !';
+            setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        }
+    });
+
+    // Modal contacter l'annonceur
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.ds-contact-btn');
+        if (!btn) return;
+        document.getElementById('btnConfirmerContact').href = btn.dataset.waUrl;
+        var modal = new bootstrap.Modal(document.getElementById('modalContactAnnonceur'));
+        modal.show();
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Liste Boost Contact{% endblock %}
+
+{% block body %}
+
+{# ── En-tête ───────────────────────────────────────────────────────────── #}
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+    <div>
+        <h5 class="mb-0 fw-bold">Liste Boost Contact</h5>
+        <small class="text-muted">{{ lesBoostContact|length }} boost{{ lesBoostContact|length != 1 ? 's' : '' }} au total</small>
+    </div>
+    <a href="/newboostcontact" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-circle me-1"></i> Nouveau Boost
+    </a>
+</div>
+
+{# ── Légende des statuts ──────────────────────────────────────────────── #}
+{% if lesBoostContact|length > 0 %}
+<div class="d-flex flex-wrap gap-2 mb-3 small">
+    <span class="badge bg-success">Gratuit</span>
+    <span class="badge bg-danger">Payant</span>
+    <span class="badge" style="background:#455a64;">Par Durée</span>
+    <span class="badge" style="background:#512da8;">Par Contacts</span>
+    <span class="badge bg-warning text-dark">En cours</span>
+    <span class="badge bg-primary">Programmé</span>
+    <span class="badge bg-success">Terminé</span>
+</div>
+{% endif %}
+
+{# ── Liste des boosts ──────────────────────────────────────────────────── #}
+<div class="row g-3">
+    {% for b in lesBoostContact %}
+
+        {# Calcul barre de progression quota #}
+        {% if b.typeBoost == 'quota' and b.nbContactsMax is not null and b.nbContactsMax > 0 %}
+            {% set pct = ((b.nbContactsObtenus / b.nbContactsMax) * 100)|round %}
+            {% set pct = pct > 100 ? 100 : pct %}
+        {% else %}
+            {% set pct = 0 %}
+        {% endif %}
+
+        <div class="col-md-4 col-sm-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body pb-2">
+
+                    {# ── Ligne badges ──────────────────────────────── #}
+                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-1">
+                        <div class="d-flex gap-1 flex-wrap">
+                            {# Mode : Gratuit / Payant #}
+                            {% if b.modeNumber == 1 %}
+                                <span class="badge bg-success">{{ b.modeBoostFormule }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ b.modeBoostFormule }}</span>
+                            {% endif %}
+
+                            {# Type : Par Durée / Par Contacts #}
+                            {% if b.typeBoost == 'quota' %}
+                                <span class="badge" style="background:#512da8;">
+                                    <i class="bi bi-people me-1"></i>Par Contacts
+                                </span>
+                            {% else %}
+                                <span class="badge" style="background:#455a64;">
+                                    <i class="bi bi-clock me-1"></i>Par Durée
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        {# Statut #}
+                        {% if b.statusNumber == 1 %}
+                            <span class="badge bg-warning text-dark">{{ b.statutFormule }}</span>
+                        {% elseif b.statusNumber == 2 %}
+                            <span class="badge bg-primary">{{ b.statutFormule }}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{ b.statutFormule }}</span>
+                        {% endif %}
+                    </div>
+
+                    {# ── Nom + Prix ─────────────────────────────────── #}
+                    <p class="fw-semibold mb-2" style="font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="{{ b.nomFormule }} ({{ b.prixFormule }})">
+                        {{ b.nomFormule }} <span class="text-muted fw-normal">({{ b.prixFormule }})</span>
+                    </p>
+
+                    {# ── Contenu selon le type ──────────────────────── #}
+                    {% if b.typeBoost == 'quota' %}
+
+                        {# Contacts reçus / max #}
+                        <div class="d-flex justify-content-between align-items-center mb-1 small">
+                            <span class="text-muted">Contacts reçus</span>
+                            <strong class="text-primary">
+                                {{ b.nbContactsObtenus }} / {{ b.nbContactsMax ?? '?' }}
+                            </strong>
+                        </div>
+
+                        {# Barre de progression #}
+                        <div class="progress mb-2" style="height:8px; border-radius:4px;">
+                            <div class="progress-bar {{ pct >= 100 ? 'bg-success' : 'bg-primary' }}"
+                                 role="progressbar"
+                                 style="width: {{ pct }}%;"
+                                 aria-valuenow="{{ pct }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+
+                        <p class="text-muted mb-0" style="font-size:.78rem;">{{ b.dateDebutFormule }}</p>
+
+                    {% else %}
+
+                        <p class="text-muted mb-0 small">{{ b.dateDebutFormule }}</p>
+
+                    {% endif %}
+
+                </div>
+
+                {# ── Pied de carte : bouton Détails ─────────────────── #}
+                <div class="card-footer bg-transparent border-0 pt-0 text-end">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary rounded-pill"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modal-boost-{{ b.id }}">
+                        <i class="bi bi-info-circle me-1"></i>Détails
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {# ── Modal Détails ──────────────────────────────────────────────── #}
+        <div class="modal fade" id="modal-boost-{{ b.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title fw-bold">Détails du Boost</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        {# Badges dans la modal #}
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% if b.modeNumber == 1 %}
+                                <span class="badge bg-success fs-6">{{ b.modeBoostFormule }}</span>
+                            {% else %}
+                                <span class="badge bg-danger fs-6">{{ b.modeBoostFormule }}</span>
+                            {% endif %}
+                            {% if b.typeBoost == 'quota' %}
+                                <span class="badge fs-6" style="background:#512da8;">
+                                    <i class="bi bi-people me-1"></i>Par Contacts
+                                </span>
+                            {% else %}
+                                <span class="badge fs-6" style="background:#455a64;">
+                                    <i class="bi bi-clock me-1"></i>Par Durée
+                                </span>
+                            {% endif %}
+                            {% if b.statusNumber == 1 %}
+                                <span class="badge bg-warning text-dark fs-6">{{ b.statutFormule }}</span>
+                            {% elseif b.statusNumber == 2 %}
+                                <span class="badge bg-primary fs-6">{{ b.statutFormule }}</span>
+                            {% else %}
+                                <span class="badge bg-success fs-6">{{ b.statutFormule }}</span>
+                            {% endif %}
+                        </div>
+
+                        <table class="table table-sm table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <th class="text-muted fw-normal ps-0" style="width:40%">Formule</th>
+                                    <td class="fw-semibold">{{ b.nomFormule }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted fw-normal ps-0">Prix</th>
+                                    <td class="fw-semibold">{{ b.prixFormule }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted fw-normal ps-0">Date de début</th>
+                                    <td>{{ b.dateDebut }}</td>
+                                </tr>
+                                {% if b.typeBoost == 'quota' %}
+                                    <tr>
+                                        <th class="text-muted fw-normal ps-0">Contacts reçus</th>
+                                        <td>
+                                            <strong class="text-primary">{{ b.nbContactsObtenus }}</strong>
+                                            / {{ b.nbContactsMax ?? '—' }}
+                                        </td>
+                                    </tr>
+                                    {% if b.dateExp is not null %}
+                                        <tr>
+                                            <th class="text-muted fw-normal ps-0">Date fin</th>
+                                            <td>{{ b.dateExp }}</td>
+                                        </tr>
+                                    {% endif %}
+                                    <tr>
+                                        <th class="text-muted fw-normal ps-0">Progression</th>
+                                        <td>
+                                            <div class="progress mt-1" style="height:10px; border-radius:5px;">
+                                                <div class="progress-bar {{ pct >= 100 ? 'bg-success' : 'bg-primary' }}"
+                                                     style="width: {{ pct }}%;"></div>
+                                            </div>
+                                            <small class="text-muted">{{ pct }} %</small>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <th class="text-muted fw-normal ps-0">Date d'expiration</th>
+                                        <td>{{ b.dateExp ?? '—' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted fw-normal ps-0">Période</th>
+                                        <td class="small">{{ b.dateDebutFormule }}</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="col-12">
+            <div class="card border-0 bg-light text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-rocket-takeoff text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-1 fw-semibold text-muted">Aucun Boost Contact trouvé.</p>
+                    <p class="small text-muted mb-3">Créez votre premier boost pour apparaître dans les listes de contacts.</p>
+                    <a href="/newboostcontact" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus-circle me-1"></i> Créer un Boost
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

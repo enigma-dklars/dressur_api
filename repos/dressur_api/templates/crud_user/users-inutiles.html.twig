@@ -1,0 +1,109 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}User : {{option}}{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="h4 me-3">User : {{option}}</p></div>
+    </div>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_new') }}">Create new</a> #}
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Pseudo</th>
+                    <th>Tel</th>
+                    <th>Tel V.</th>
+                    <th>Mail</th>
+                    <th>Mail V.</th>
+                    <th>N.C</th>
+                    <th>B.C</th>
+                    <th>P.A</th>
+                    <th>P.R</th>
+                    <th>C.M</th>
+                    <th>Lock</th>
+                    <th>LastLoginTo</th>
+                    <th>CreatedAt</th>
+                    <th>Uid</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% set id_users = [] %}
+            
+            {% for user in users %}
+                {% set id_users = id_users | merge([user.id]) %}
+            {% endfor %}
+
+            {% for user in users %}
+                {% set lesContactsDuUser = [] %}
+                {% for item in user.contact.whoIAdd %}
+                    {% if item in id_users %}
+                        {% if item not in lesContactsDuUser %}
+                            {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% for item in user.contact.whoAddMe %}
+                    {% if item in id_users %}
+                        {% if item not in lesContactsDuUser %}
+                            {% set lesContactsDuUser = lesContactsDuUser | merge([item]) %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                {% if user.boosts|length == 0 and user.promotions|length == 0 and user.promoReseaus|length == 0 and user.campagneMails|length == 0 and user.mailIsVerified == false and lesContactsDuUser|length < 2 %}
+                    <tr>
+                        <td>{% include "crud_user/_delete_form.html.twig" %}</td>
+                        <td>
+                            {{ user.pseudo }}
+                        </td>
+                        <td>{{ user.tel }}</td>
+                        <td class="text-center">
+                            {% if user.telIsVerified == true %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <form action="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation du numéro WhatsApp ?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('activer_tel' ~ user.id) }}">
+                                    <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                        <td class="small">{{ user.mail }}</td>
+                        <td class="text-center">
+                            {% if user.mailIsVerified == true %}
+                                <span class="badge bg-success">Yes</span>
+                            {% else %}
+                                <form action="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation de l\'adresse mail ?')">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('activer_mail' ~ user.id) }}">
+                                    <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            {{lesContactsDuUser|length}}
+                        </td>
+                        <td class="text-end">{{user.boosts|length}}</td>
+                        <td class="text-end">{{user.promotions|length}}</td>
+                        <td class="text-end">{{user.promoReseaus|length}}</td>
+                        <td class="text-end">{{user.campagneMails|length}}</td>
+                        <td class="text-center">
+                            {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}
+                        </td>
+                        <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                        <td>{{ user.uid }}</td>
+                        <td>{{ user.id }}</td>
+                    </tr>
+                {% endif %}
+            {% else %}
+                <tr>
+                    <td colspan="27">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,184 @@
+<style>
+/* ── Footer public ──────────────────────────────────── */
+#ds-footer {
+    background: linear-gradient(160deg, #0f2650 0%, #1c3a6e 60%, #162f5a 100%);
+    color: #e8edf5;
+}
+#ds-footer a { transition: color .18s; }
+#ds-footer .ds-footer-link {
+    color: #8aacd4;
+    text-decoration: none;
+    font-size: .88rem;
+}
+#ds-footer .ds-footer-link:hover { color: #fff; }
+#ds-footer .ds-section-title {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: .9rem;
+}
+#ds-footer .ds-social-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.1);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    text-decoration: none;
+    font-size: .95rem;
+    transition: background .2s, transform .15s;
+}
+#ds-footer .ds-social-btn:hover { transform: translateY(-2px); }
+#ds-footer .ds-social-btn.fb:hover   { background: #1877f2; }
+#ds-footer .ds-social-btn.wa:hover   { background: #25d366; }
+#ds-footer .ds-social-btn.gp:hover   { background: #01875f; }
+
+#ds-footer .ds-play-btn {
+    display: inline-flex; align-items: center; gap: .6rem;
+    padding: .55rem 1rem;
+    border-radius: 10px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.18);
+    color: #fff;
+    text-decoration: none;
+    font-size: .85rem;
+    transition: background .2s;
+}
+#ds-footer .ds-play-btn:hover { background: rgba(255,255,255,.17); color: #fff; }
+
+#ds-footer .ds-divider { border-color: rgba(255,255,255,.1); }
+#ds-footer .ds-bottom { font-size: .8rem; color: #5f83ab; }
+#ds-footer .ds-top-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    text-decoration: none;
+    transition: background .2s;
+}
+#ds-footer .ds-top-btn:hover { background: rgba(255,255,255,.22); color: #fff; }
+</style>
+
+<footer id="ds-footer">
+    <div class="container py-5">
+        <div class="row g-4">
+
+            {# ── Colonne marque ── #}
+            <div class="col-lg-4 col-md-12">
+                <a href="{{ path('app_public') }}" class="d-inline-block mb-3">
+                    <img src="/assets/images/brand-logo-2.png" height="34" alt="Dressur"
+                         style="filter: brightness(0) invert(1);">
+                </a>
+                <p class="mb-4" style="color:#8aacd4; font-size:.88rem; line-height:1.75; max-width:340px;">
+                    Plateforme africaine de marketing digital — boostez vos contacts,
+                    promouvez votre affaire et développez votre présence en ligne en Afrique de l'Ouest.
+                </p>
+                <div class="d-flex gap-2">
+                    <a href="https://www.facebook.com/dressurds" target="_blank" rel="noopener"
+                       class="ds-social-btn fb" title="Facebook Dressur">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://wa.me/22964044294" target="_blank" rel="noopener"
+                       class="ds-social-btn wa" title="WhatsApp Dressur">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.dressur.ds" target="_blank" rel="noopener"
+                       class="ds-social-btn gp" title="Dressur sur Google Play">
+                        <i class="fab fa-google-play"></i>
+                    </a>
+                </div>
+            </div>
+
+            {# ── Navigation ── #}
+            <div class="col-lg-2 col-md-4 col-6">
+                <div class="ds-section-title">Navigation</div>
+                <ul class="list-unstyled mb-0" style="line-height:2;">
+                    <li><a href="{{ path('app_public') }}" class="ds-footer-link">
+                        <i class="fas fa-house fa-xs me-2" style="width:14px;"></i>Accueil
+                    </a></li>
+                    <li><a href="{{ path('app_actualite') }}" class="ds-footer-link">
+                        <i class="fas fa-newspaper fa-xs me-2" style="width:14px;"></i>Actualités
+                    </a></li>
+                    <li><a href="{{ path('app_tarifs') }}" class="ds-footer-link">
+                        <i class="fas fa-tags fa-xs me-2" style="width:14px;"></i>Tarifs
+                    </a></li>
+                    <li><a href="{{ path('app_contactez_nous') }}" class="ds-footer-link">
+                        <i class="fas fa-envelope fa-xs me-2" style="width:14px;"></i>Contact
+                    </a></li>
+                    <li><a href="{{ path('app_connexion') }}" class="ds-footer-link">
+                        <i class="fas fa-arrow-right-to-bracket fa-xs me-2" style="width:14px;"></i>Connexion
+                    </a></li>
+                    <li><a href="{{ path('app_inscription') }}" class="ds-footer-link">
+                        <i class="fas fa-user-plus fa-xs me-2" style="width:14px;"></i>Inscription
+                    </a></li>
+                </ul>
+            </div>
+
+            {# ── Services ── #}
+            <div class="col-lg-3 col-md-4 col-6">
+                <div class="ds-section-title">Nos services</div>
+                <ul class="list-unstyled mb-0" style="line-height:2;">
+                    <li><a href="{{ path('app_services') }}" class="ds-footer-link fw-semibold">
+                        <i class="fas fa-th-large fa-xs me-2" style="width:14px;"></i>Tous les services
+                    </a></li>
+                    <li><a href="{{ path('app_dressur_bot') }}" class="ds-footer-link">
+                        <i class="fab fa-android fa-xs me-2" style="width:14px;"></i>Dressur Bot
+                    </a></li>
+                    <li><a href="{{ path('app_boost_contact') }}" class="ds-footer-link">
+                        <i class="fas fa-bolt fa-xs me-2" style="width:14px;"></i>Boost Contact
+                    </a></li>
+                    <li><a href="{{ path('app_promotion_affaire') }}" class="ds-footer-link">
+                        <i class="fas fa-briefcase fa-xs me-2" style="width:14px;"></i>Promotion Affaire
+                    </a></li>
+                    <li><a href="{{ path('app_promotion_reseaux_sociaux') }}" class="ds-footer-link">
+                        <i class="fas fa-share-nodes fa-xs me-2" style="width:14px;"></i>Promotions Réseaux Sociaux
+                    </a></li>
+                </ul>
+            </div>
+
+            {# ── App + Légal ── #}
+            <div class="col-lg-3 col-md-4 col-12">
+                <div class="ds-section-title">Application mobile</div>
+                <p style="color:#8aacd4; font-size:.85rem;" class="mb-3">
+                    Accédez à Dressur depuis votre smartphone Android.
+                </p>
+                <a href="https://play.google.com/store/apps/details?id=com.dressur.ds"
+                   target="_blank" rel="noopener" class="ds-play-btn mb-4">
+                    <i class="fab fa-google-play fa-lg"></i>
+                    <span>
+                        <small class="d-block" style="font-size:.68rem; opacity:.7;">Disponible sur</small>
+                        <strong style="font-size:.88rem;">Google Play</strong>
+                    </span>
+                </a>
+
+                <div class="ds-section-title mt-4">Légal</div>
+                <ul class="list-unstyled mb-0" style="line-height:2;">
+                    <li><a href="{{ path('app_conditions_utilisation') }}" class="ds-footer-link">
+                        Conditions d'utilisation
+                    </a></li>
+                    <li><a href="{{ path('politique_confidentialite') }}" class="ds-footer-link">
+                        Politique de confidentialité
+                    </a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <hr class="ds-divider my-0">
+
+    <div class="container py-3">
+        <div class="d-flex flex-column flex-sm-row align-items-center justify-content-between gap-2 ds-bottom">
+            <span>© 2021 – {{ "now"|date("Y") }} <strong class="text-white">Dressur</strong>. Tous droits réservés.</span>
+            <div class="d-flex align-items-center gap-3">
+                <span>Fait avec <span style="color:#e55;">♥</span> en Afrique de l'Ouest</span>
+                <a href="#" class="ds-top-btn" title="Retour en haut" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+                    <i class="fas fa-chevron-up fa-sm"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>

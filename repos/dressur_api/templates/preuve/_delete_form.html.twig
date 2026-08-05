@@ -1,0 +1,66 @@
+<div
+	class="d-flex gap-1">
+
+	{# Boutons Accepter / Refuser seulement si isTreated = false #}
+	{% if not preuve.isIsTreated %}
+
+		<!-- Bouton ouverture modal -->
+		<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#acceptModal{{ preuve.id }}">
+			Accepter
+		</button>
+
+		<!-- Modal -->
+		<div class="modal fade" id="acceptModal{{ preuve.id }}" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Validation des vues</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+					</div>
+
+					<form method="post" action="{{ path('app_preuve_accept', {'id': preuve.id}) }}">
+						<div class="modal-body">
+
+							<input type="hidden" name="_token" value="{{ csrf_token('accept' ~ preuve.id) }}">
+
+							<div class="mb-3">
+								<label class="form-label">Nombre de vues</label>
+								<input type="number" name="nbrVue" class="form-control" min="0" required>
+							</div>
+
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+							<button type="submit" class="btn btn-success">Confirmer</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- Bouton Refuser -->
+		<form method="post" action="{{ path('app_preuve_refuse', {'id': preuve.id}) }}" onsubmit="return confirm('Refuser cette preuve ?');">
+			<input type="hidden" name="_token" value="{{ csrf_token('refuse' ~ preuve.id) }}">
+			<button class="btn btn-danger btn-sm">Refuser</button>
+		</form>
+
+	{% endif %}
+
+
+	<!-- Bouton Voir -->
+	<a class="btn btn-sm btn-info" href="{{ path('app_preuve_show', {'id': preuve.id}) }}">
+		Show
+	</a>
+
+	<!-- Bouton Modifier -->
+	<a class="btn btn-sm btn-primary" href="{{ path('app_preuve_edit', {'id': preuve.id}) }}">
+		Update
+	</a>
+
+	<!-- Formulaire Supprimer -->
+	<form method="post" action="{{ path('app_preuve_delete', {'id': preuve.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet élément ?');">
+		<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ preuve.id) }}">
+		<button class="btn btn-sm btn-danger">Delete</button>
+	</form>
+</div>

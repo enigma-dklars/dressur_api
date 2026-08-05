@@ -1,0 +1,46 @@
+{% extends 'baseAdmin.html.twig' %}
+{% block title %}FormuleBoost index{% endblock %}
+{% block body %}
+    <span class="h4 me-3">FormuleBoost index</span>
+    <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_formule_boost_new') }}">Create new</a>
+    <table class="data-table table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Titre</th>
+                <th>Prix</th>
+                <th>Type</th>
+                <th>NbrJour</th>
+                <th>NbContactsMax</th>
+                <th>Activated</th>
+                <th>Alert</th>
+                <th width="1">Id</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for formule_boost in formule_boosts %}
+            <tr>
+                <td>{% include "crud_formule_boost/_delete_form.html.twig" %}</td>
+                <td>{{ formule_boost.titre }}</td>
+                <td>{{ formule_boost.prix }} FCFA</td>
+                <td class="text-center">
+                    {% if formule_boost.typeBoost == 'quota' %}
+                        <span class="badge bg-purple text-white" style="background:#6f42c1">Quota</span>
+                    {% else %}
+                        <span class="badge bg-info text-dark">Durée</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">{{ formule_boost.typeBoost == 'date' ? formule_boost.nbrJour ~ ' j' : '—' }}</td>
+                <td class="text-center">{{ formule_boost.typeBoost == 'quota' ? formule_boost.nbContactsMax : '—' }}</td>
+                <td class="text-center">{{ formule_boost.activated ? '<span class="badge bg-success">Yes</span>'|raw : '<span class="badge bg-danger">No</span>'|raw }}</td>
+                <td class="text-center">{{ formule_boost.alert ? '<span class="badge bg-success">Yes</span>'|raw : '<span class="badge bg-danger">No</span>'|raw }}</td>
+                <td>{{ formule_boost.id }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

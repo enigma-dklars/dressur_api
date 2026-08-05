@@ -1,0 +1,98 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}User{% endblock %}
+
+{% block body %}
+    <h1>User</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ user_show.id }}</td>
+            </tr>
+            <tr>
+                <th>Uid</th>
+                <td>{{ user_show.uid }}</td>
+            </tr>
+            <tr>
+                <th>Pseudo</th>
+                <td>{{ user_show.pseudo }}</td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>{{ user_show.nom }}</td>
+            </tr>
+            <tr>
+                <th>Mail</th>
+                <td>{{ user_show.mail }}</td>
+            </tr>
+            <tr>
+                <th>Pays</th>
+                <td>{{ user_show.pays }}</td>
+            </tr>
+            <tr>
+                <th>Tel</th>
+                <td>{{ user_show.tel }}</td>
+            </tr>
+            <tr>
+                <th>Password</th>
+                <td>{{ user_show.password }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ user_show.createdAt ? user_show.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>MailIsVerified</th>
+                <td>{{ user_show.mailIsVerified ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>TelIsVerified</th>
+                <td>{{ user_show.telIsVerified ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Admin</th>
+                <td>{{ user_show.admin ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Blocked</th>
+                <td>{{ user_show.blocked ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Tiktok</th>
+                <td>{{ user_show.tiktok }}</td>
+            </tr>
+            <tr>
+                <th>Instagram</th>
+                <td>{{ user_show.instagram }}</td>
+            </tr>
+            <tr>
+                <th>Facebook</th>
+                <td>{{ user_show.facebook }}</td>
+            </tr>
+            <tr>
+                <th>Youtube</th>
+                <td>{{ user_show.youtube }}</td>
+            </tr>
+            <tr>
+                <th>Lang</th>
+                <td>{{ user_show.lang }}</td>
+            </tr>
+            <tr>
+                <th>LastLoginTo</th>
+                <td>{{ user_show.lastLoginTo ? user_show.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Apropos</th>
+                <td>{{ user_show.apropos|nl2br }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {# <a href="{{ path('app_crud_user_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_user_edit', {'id': user_show.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_user/_delete_form.html.twig') }} #}
+{% endblock %}

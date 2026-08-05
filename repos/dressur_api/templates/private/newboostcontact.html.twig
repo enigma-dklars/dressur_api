@@ -1,0 +1,255 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Nouveau Boost Contact{% endblock %}
+
+{% block body %}
+
+{# ── Section Informations (repliable) ─────────────────────────────────── #}
+<div class="mb-3">
+    <button class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2"
+            type="button" data-bs-toggle="collapse" data-bs-target="#boostInfoCollapse" aria-expanded="false">
+        <i class="bi bi-info-circle"></i>
+        Voir les informations sur le service
+    </button>
+    <div class="collapse mt-2" id="boostInfoCollapse">
+        <div class="card border-0 bg-light">
+            <div class="card-body">
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-2"><i class="bi bi-clock text-primary me-2"></i><strong>Par Durée :</strong> votre numéro est visible X jours dans vos pays préférés.</li>
+                    <li class="mb-2"><i class="bi bi-people text-primary me-2"></i><strong>Par Quota :</strong> vous recevez un nombre précis de contacts ; le boost se termine automatiquement.</li>
+                    <li class="mb-2"><i class="bi bi-trophy text-warning me-2"></i>Les Boosts Payants sont beaucoup plus mis en avant !</li>
+                    <li class="mb-2"><i class="bi bi-calendar-check text-primary me-2"></i>Vous pouvez programmer plusieurs Boosts Payants.</li>
+                    <li class="mb-2"><i class="bi bi-clock-history text-danger me-2"></i>Votre Boost devient Inactif si votre dernière connexion remonte à plus de 48H.</li>
+                    <li class="mb-2"><i class="bi bi-arrow-repeat text-primary me-2"></i>Après un Boost Gratuit, faites au moins un Boost Payant avant d'en refaire un Gratuit.</li>
+                    <li class="mb-0"><i class="bi bi-box-arrow-in-right text-primary me-2"></i>Connectez-vous chaque jour pour récupérer les contacts obtenus.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <p class="h4 text-center mb-4">Nouveau Boost Contact</p>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+
+                {# ── Sélecteur Type ────────────────────────────────────── #}
+                <p class="fw-semibold text-muted small mb-1">Type de boost</p>
+                <div class="d-flex mb-3">
+                    <button type="button" class="btn btn-primary flex-fill py-3" id="typeBoostDate"
+                            style="border-radius: 10px 0 0 10px;">
+                        <i class="bi bi-clock d-block mb-1 mt-1"></i>
+                        <strong>Par Durée</strong>
+                        <small class="d-block opacity-75">Limité en jours</small>
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary flex-fill py-3" id="typeBoostQuota"
+                            style="border-radius: 0 10px 10px 0;">
+                        <i class="bi bi-people d-block mb-1 mt-1"></i>
+                        <strong>Par Quota</strong>
+                        <small class="d-block opacity-75">Nombre précis</small>
+                    </button>
+                </div>
+
+                {# ── Sélecteur Mode ────────────────────────────────────── #}
+                <p class="fw-semibold text-muted small mb-1">Mode de boost</p>
+                <div class="d-flex mb-3">
+                    <button type="button" class="btn btn-success flex-fill py-2" id="modeBoostGratuit"
+                            style="border-radius: 10px 0 0 10px;">
+                        <i class="bi bi-gift me-1"></i><strong>Gratuit</strong>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger flex-fill py-2" id="modeBoostPayant"
+                            style="border-radius: 0 10px 10px 0;">
+                        <i class="bi bi-credit-card me-1"></i><strong>Payant</strong>
+                    </button>
+                </div>
+
+                {# ── Description dynamique ─────────────────────────────── #}
+                <div class="p-3 rounded border bg-light text-center text-muted small mb-3" id="boostDescription">
+                    Chargement des informations...
+                </div>
+
+                {# ── Formulaire Gratuit ────────────────────────────────── #}
+                <div id="boostContactGratuit">
+                    <div class="mt-0" id="msgErrorBoostGratuit" style="display: none;"></div>
+                    <button class="btn btn-success w-100 py-2" id="newBoostGratuit">
+                        <i class="bi bi-gift me-1"></i> Demander un Boost Gratuit
+                    </button>
+                </div>
+
+                {# ── Formulaire Payant ─────────────────────────────────── #}
+                <div id="boostContactPayant" hidden>
+                    <div class="mt-0" id="msgErrorBoostPayant" style="display: none;"></div>
+
+                    <div class="mb-3">
+                        <label for="formule-boost-payant" class="form-label small fw-semibold">Formule de Boost Payant</label>
+                        <select id="formule-boost-payant" class="form-select getInfoPayant">
+                            <option value="" disabled selected>Chargement des formules...</option>
+                        </select>
+                    </div>
+
+                    <div class="py-2 text-center bg-info rounded px-2 text-white small mb-3" id="description-boost-payant">
+                        Veuillez choisir une formule payante...
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="paymentMethod" class="form-label small fw-semibold">Moyen de paiement mobile ou par carte</label>
+                        <select id="paymentMethod" class="form-select getInfoPayant">
+                            <option value="" disabled selected>Choisissez le moyen de paiement</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="telPaiement" class="form-label small fw-semibold">Indicatif + Numéro de paiement</label>
+                        <input type="tel" class="form-control getInfoPayant" id="telPaiement" placeholder="+229 XX XX XX XX">
+                    </div>
+
+                    <button class="btn btn-primary w-100 py-2" id="newBoostPayant">
+                        <i class="bi bi-credit-card me-1"></i> PAYER & BOOSTER
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Modal Post-Boost : Checklist obligatoire ─────────────────────────── #}
+<div id="boostChecklistOverlay" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.65); align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#fff; border-radius:18px; width:90vw; max-width:520px; max-height:90vh; overflow-y:auto; padding:32px 24px 24px; box-shadow:0 24px 64px rgba(0,0,0,.35);">
+        <h5 id="boostChecklistTitle" style="font-size:1.1rem; font-weight:700; color:#1a1a2e; margin:0 0 20px; text-align:center; line-height:1.5;">
+            ✅ Votre boost est activé ! Voici ce que vous devez faire
+        </h5>
+        <div id="boostChecklistItems" style="display:flex; flex-direction:column; gap:10px; margin-bottom:24px;"></div>
+        <button id="boostChecklistBtn" disabled
+                style="width:100%; padding:14px; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:not-allowed; background:#d1d5db; color:#9ca3af; transition:background .3s, color .3s, cursor .3s;">
+            J'ai tout compris, continuer
+        </button>
+    </div>
+</div>
+
+<style>
+.ds-checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    cursor: pointer;
+    transition: background .25s, border-color .25s;
+    user-select: none;
+}
+.ds-checklist-item.checked {
+    background: #f0fdf4;
+    border-color: #22c55e;
+}
+.ds-checklist-icon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: transform .3s;
+}
+.ds-checklist-item.checked .ds-checklist-icon {
+    transform: scale(1.2);
+}
+.ds-checklist-text {
+    font-size: .93rem;
+    line-height: 1.45;
+    color: #374151;
+}
+.ds-checklist-item.checked .ds-checklist-text {
+    color: #166534;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
+{% block script %}
+<script>
+(function () {
+    'use strict';
+
+    var CHECKLIST = {
+        quota: [
+            "Connectez-vous au moins 4 fois par jour pour ne manquer aucun contact disponible",
+            "Surveillez votre progression dans la page Liste des Boosts. Quand votre quota est atteint, votre boost s'arrête automatiquement",
+            "Dès que votre quota est atteint, revenez faire un nouveau boost pour continuer à recevoir des contacts",
+            "Allez sur la page Contacts et téléchargez le fichier VCF pour importer vos contacts dans votre téléphone"
+        ],
+        date: [
+            "Connectez-vous au moins 4 fois par jour pour ne manquer aucun contact disponible",
+            "Surveillez la date de fin de votre boost dans la page Liste des Boosts",
+            "Dès que votre boost expire, revenez immédiatement faire un nouveau boost pour ne pas perdre de contacts",
+            "Allez sur la page Contacts et téléchargez le fichier VCF pour importer vos contacts dans votre téléphone"
+        ]
+    };
+
+    window.showBoostSuccessModal = function (typeBoost) {
+        var type   = (typeBoost === 'quota') ? 'quota' : 'date';
+        var points = CHECKLIST[type];
+        var items  = document.getElementById('boostChecklistItems');
+        var btn    = document.getElementById('boostChecklistBtn');
+        var overlay = document.getElementById('boostChecklistOverlay');
+        var checked = 0;
+
+        // Construire la checklist
+        items.innerHTML = '';
+        points.forEach(function (text, i) {
+            var el = document.createElement('div');
+            el.className = 'ds-checklist-item';
+            el.dataset.index = i;
+            el.innerHTML =
+                '<span class="ds-checklist-icon">☐</span>' +
+                '<span class="ds-checklist-text">' + text + '</span>';
+            el.addEventListener('click', function () {
+                if (el.classList.contains('checked')) return;
+                el.classList.add('checked');
+                el.querySelector('.ds-checklist-icon').textContent = '✅';
+                checked++;
+                if (checked === points.length) {
+                    btn.disabled = false;
+                    btn.style.background   = '#16a34a';
+                    btn.style.color        = '#fff';
+                    btn.style.cursor       = 'pointer';
+                }
+            });
+            items.appendChild(el);
+        });
+
+        // Réinitialiser le bouton
+        btn.disabled = true;
+        btn.style.background = '#d1d5db';
+        btn.style.color      = '#9ca3af';
+        btn.style.cursor     = 'not-allowed';
+
+        // Afficher le modal (flex)
+        overlay.style.display = 'flex';
+
+        // Bloquer le scroll du body
+        document.body.style.overflow = 'hidden';
+
+        // Empêcher fermeture sur clic extérieur
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) { e.stopPropagation(); }
+        }, true);
+
+        // Empêcher fermeture sur touche Escape
+        var escHandler = function (e) {
+            if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); }
+        };
+        document.addEventListener('keydown', escHandler, true);
+
+        // Action du bouton Continuer
+        btn.onclick = function () {
+            overlay.style.display    = 'none';
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', escHandler, true);
+            window.location.href = '/contact';
+        };
+    };
+})();
+</script>
+{% endblock %}

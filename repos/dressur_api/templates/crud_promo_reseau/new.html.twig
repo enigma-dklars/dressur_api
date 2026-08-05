@@ -1,0 +1,11 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}New PromoReseau{% endblock %}
+
+{% block body %}
+    <h1>Create new PromoReseau</h1>
+
+    {{ include('crud_promo_reseau/_form.html.twig') }}
+
+    {# <a href="{{ path('app_crud_promo_reseau_index') }}">back to list</a> #}
+{% endblock %}

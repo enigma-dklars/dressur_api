@@ -1,0 +1,38 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}DeletedDS{% endblock %}
+
+{% block body %}
+    <h1>DeletedDS</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ deleted_d.id }}</td>
+            </tr>
+            <tr>
+                <th>Motif</th>
+                <td>{{ deleted_d.motif }}</td>
+            </tr>
+            <tr>
+                <th>CreatedAt</th>
+                <td>{{ deleted_d.createdAt ? deleted_d.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Tel</th>
+                <td>{{ deleted_d.tel }}</td>
+            </tr>
+            <tr>
+                <th>Mail</th>
+                <td>{{ deleted_d.mail }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_crud_deleted_d_s_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_deleted_d_s_edit', {'id': deleted_d.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_deleted_ds/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Promo. Réseau{% endblock %}
+
+{% block body %}
+<div class="row g-3">
+    {% for promotion in listepromoreseau %}
+        <div class="col-md-6">
+            <div class="card mb-0">
+                <div class="card-body">
+                    {% if promotion.statusNumber == 0 %}{% set bgStatus = "bg-danger" %}{% endif %}
+                    {% if promotion.statusNumber == 1 %}{% set bgStatus = "bg-warning" %}{% endif %}
+                    {% if promotion.statusNumber == 2 %}{% set bgStatus = "bg-success" %}{% endif %}
+                    {% if promotion.statusNumber == 3 %}{% set bgStatus = "bg-success" %}{% endif %}
+                    <div class="d-flex justify-content-between">
+                        <div><span class="badge {{bgStatus}}">{{ promotion.status }}</span></div>
+                        <h5 class="card-title">{{ promotion.titre }}</h5>
+                    </div>
+                    <div class="row g-1">
+                        <div class="col-md-6">
+                            <p><strong>Compteur Début:</strong> {{ promotion.compteurDebut }}</p>
+                            <p><strong>Quantité Demandée:</strong> {{ promotion.qteDemander }}</p>
+                            <p><strong>Référence:</strong> {{ promotion.reference }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Compteur Restant:</strong> {{ promotion.compteurRestant }}</p>
+                            <p><strong>Prix Fixé:</strong> {{ promotion.prixFixer }}</p>
+                            <p><strong>URL:</strong> <a href="{{ promotion.url }}" target="_blank">Cliquez ici URL</a></p>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <small>Créé : {{ promotion.createdAt }}</small>
+                        <small>Modifier : {{ promotion.updatedAt }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center fw-semibold fs-6">
+            Aucune Promotion Réseau Sociaux trouvé.
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

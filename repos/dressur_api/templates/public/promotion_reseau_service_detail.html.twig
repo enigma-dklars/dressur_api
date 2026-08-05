@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+
+{% set platformName = service.parent.titre %}
+{% set serviceName  = service.titre %}
+{% set prix_fcfa    = (service.prix * 1.2 * 1.7 * 700)|round(0, 'ceil') %}
+{% set prix_display = prix_fcfa >= 100 ? prix_fcfa : 100 %}
+{% set title        = serviceName ~ " " ~ platformName ~ " — À partir de " ~ prix_display ~ " F CFA" %}
+{% set description  = "Achetez des " ~ serviceName|lower ~ " sur " ~ platformName ~ " avec Dressur. Livraison rapide et fiable. À partir de " ~ prix_display ~ " F CFA. Paiement Mobile Money sécurisé." %}
+
+{% block referencement %}
+    <meta property="og:title" content="{{ title }} | Dressur Web" />
+    <meta property="og:description" content="{{ description }}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/og/og-promotion-reseaux-sociaux.jpg" />
+    <meta property="og:url" content="{{ url('app_promo_reseau_service_detail', {token: current_token}) }}" />
+    <meta property="og:type" content="product" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ title }} | Dressur Web" />
+    <meta name="twitter:description" content="{{ description }}" />
+    <meta name="description" content="{{ description }}" />
+    <meta name="keywords" content="Dressur, {{ serviceName }}, {{ platformName }}, acheter {{ serviceName|lower }} {{ platformName }}, {{ serviceName|lower }} pas cher Afrique, promotion réseaux sociaux Bénin">
+{% endblock %}
+
+{% block jsonld %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "@id": "{{ url('app_promo_reseau_service_detail', {token: current_token}) }}#product",
+  "name": "{{ serviceName }} {{ platformName }}",
+  "description": "{{ description }}",
+  "url": "{{ url('app_promo_reseau_service_detail', {token: current_token}) }}",
+  "brand": {"@type":"Brand","name":"Dressur","url":"https://dressur.site"},
+  "image": "https://dressur.site/assets/img/og/og-promotion-reseaux-sociaux.jpg",
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ prix_display }}",
+    "priceCurrency": "XOF",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ url('app_inscription') }}",
+    "seller": {"@type":"Organization","name":"Dressur","url":"https://dressur.site"},
+    "hasMerchantReturnPolicy": {"@type":"MerchantReturnPolicy","applicableCountry":"BJ","returnPolicyCategory":"https://schema.org/MerchantReturnNotPermitted"},
+    "shippingDetails": {
+      "@type":"OfferShippingDetails",
+      "shippingRate":{"@type":"MonetaryAmount","value":"0","currency":"XOF"},
+      "shippingDestination":{"@type":"DefinedRegion","addressCountry":"BJ"},
+      "deliveryTime":{"@type":"ShippingDeliveryTime","handlingTime":{"@type":"QuantitativeValue","minValue":0,"maxValue":0,"unitCode":"DAY"},"transitTime":{"@type":"QuantitativeValue","minValue":0,"maxValue":0,"unitCode":"DAY"}}
+    }
+  }
+}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+  {"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},
+  {"@type":"ListItem","position":2,"name":"Réseaux Sociaux","item":"{{ url('app_promotion_reseaux_sociaux') }}"},
+  {"@type":"ListItem","position":3,"name":"{{ platformName }}","item":"{{ url('app_promo_reseau_detail', {token: parent_token}) }}"},
+  {"@type":"ListItem","position":4,"name":"{{ serviceName }}","item":"{{ url('app_promo_reseau_service_detail', {token: current_token}) }}"}
+]}
+</script>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-3">
+
+    {# Breadcrumb #}
+    <div class="mb-3 h6">
+        <span class="fw-bolder">Dressur</span> /
+        <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="text-decoration-none">Réseaux Sociaux</a> /
+        <a href="{{ path('app_promo_reseau_detail', {token: parent_token}) }}" class="text-decoration-none">{{ platformName }}</a> /
+        <span class="text-primary">{{ serviceName }}</span>
+    </div>
+
+    {# Hero #}
+    <header class="text-white text-center py-5 rounded mb-4" style="background-color: #2a4b9a !important;">
+        <div class="container">
+            <h1 class="display-5 fw-bold">{{ serviceName }} {{ platformName }}</h1>
+            <p class="lead mb-2">{{ description }}</p>
+            <p class="fs-3 fw-bold mb-4">{{ prix_display|number_format(0, ',', ' ') }} F CFA</p>
+            <a href="{{ path('app_inscription') }}" class="btn btn-light btn-lg me-2">
+                <i class="fas fa-shopping-cart me-1"></i> Commander maintenant
+            </a>
+            <a href="{{ path('app_tarifs') }}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-tags me-1"></i> Voir tous les tarifs
+            </a>
+        </div>
+    </header>
+
+    {# Détail du service #}
+    <section class="mb-5">
+        <div class="row g-4">
+            <div class="col-md-7 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <h2 class="fw-semibold mb-4" style="color:#2a4b9a;">
+                            <i class="fas fa-info-circle me-2"></i>Détails du service
+                        </h2>
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="text-muted fw-semibold" style="width:40%;">Service</td>
+                                    <td class="fw-bold">{{ serviceName }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Plateforme</td>
+                                    <td class="fw-bold">{{ platformName }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Prix</td>
+                                    <td class="fw-bold" style="color:#2a4b9a;">{{ prix_display|number_format(0, ',', ' ') }} F CFA</td>
+                                </tr>
+                                {% if service.qteMin and service.qteMax %}
+                                <tr>
+                                    <td class="text-muted fw-semibold">Quantité</td>
+                                    <td>{{ service.qteMin|number_format(0, ',', ' ') }} – {{ service.qteMax|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                                {% elseif service.qte %}
+                                <tr>
+                                    <td class="text-muted fw-semibold">Quantité</td>
+                                    <td>{{ service.qte|number_format(0, ',', ' ') }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td class="text-muted fw-semibold">Livraison</td>
+                                    <td><span class="badge bg-success">Rapide</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted fw-semibold">Disponibilité</td>
+                                    <td><span class="badge bg-success">En stock</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        {% if service.description %}
+                        <hr>
+                        <div class="text-muted" style="white-space: pre-wrap; line-height: 1.7;">{{ service.description|nl2br }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-5 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100" style="background:#eef2ff; border: 2px solid #2a4b9a;">
+                    <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+                        <i class="fas fa-bolt fs-1 mb-3" style="color:#2a4b9a;"></i>
+                        <h4 class="fw-bold" style="color:#2a4b9a;">Prêt à commander ?</h4>
+                        <p class="text-muted mt-2 mb-4">
+                            Créez un compte Dressur gratuitement, rechargez votre solde et passez votre commande en quelques clics.
+                        </p>
+                        <a href="{{ path('app_inscription') }}" class="btn btn-primary btn-lg mb-2">
+                            <i class="fas fa-user-plus me-1"></i> S'inscrire gratuitement
+                        </a>
+                        <a href="{{ path('app_connexion') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-1"></i> Déjà inscrit ? Se connecter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Garanties #}
+    <section class="mb-5">
+        <h2 class="fw-semibold text-center mb-4">Pourquoi choisir Dressur ?</h2>
+        <div class="row g-3 text-center">
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <i class="fas fa-shield-alt fs-2 mb-3" style="color:#2a4b9a;"></i>
+                        <h5 class="fw-semibold" style="color:#2a4b9a;">Paiement sécurisé</h5>
+                        <p class="text-muted mt-2">Rechargez votre compte via Mobile Money (MTN, Moov) en toute sécurité.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <i class="fas fa-rocket fs-2 mb-3" style="color:#2a4b9a;"></i>
+                        <h5 class="fw-semibold" style="color:#2a4b9a;">Livraison rapide</h5>
+                        <p class="text-muted mt-2">Vos {{ serviceName|lower }} sont délivrés rapidement après validation de la commande.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 d-flex align-items-stretch">
+                <div class="card mb-0 shadow-sm w-100">
+                    <div class="card-body p-4">
+                        <i class="fas fa-headset fs-2 mb-3" style="color:#2a4b9a;"></i>
+                        <h5 class="fw-semibold" style="color:#2a4b9a;">Support disponible</h5>
+                        <p class="text-muted mt-2">Notre équipe est disponible pour vous accompagner à chaque étape.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Autres services de la même plateforme #}
+    {% if autres_services is not empty %}
+    <section class="mb-5">
+        <h2 class="fw-semibold mb-4"><i class="fas fa-play fs-5 me-2"></i>Autres services {{ platformName }}</h2>
+        <div class="row g-3">
+            {% for item in autres_services %}
+            {% set p = (item.enfant.prix * 1.2 * 1.7 * 700)|round(0, 'ceil') %}
+            {% set p_display = p >= 100 ? p : 100 %}
+            <div class="col-md-4 col-6 d-flex align-items-stretch">
+                <a href="{{ path('app_promo_reseau_service_detail', {token: item.token}) }}"
+                   class="card mb-0 shadow-sm text-decoration-none w-100" style="border-top: 3px solid #2a4b9a;">
+                    <div class="card-body py-3 px-3">
+                        <div class="fw-semibold" style="color:#2a4b9a;">{{ item.enfant.titre }}</div>
+                        <small class="text-muted">{{ p_display|number_format(0, ',', ' ') }} F CFA</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <section class="pb-5">
+        <div class="card mb-0 shadow-sm">
+            <div class="card-body text-center py-4">
+                <a href="{{ path('app_promo_reseau_detail', {token: parent_token}) }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Retour à {{ platformName }}
+                </a>
+                <a href="{{ path('app_promotion_reseaux_sociaux') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-th me-1"></i> Tous les réseaux sociaux
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

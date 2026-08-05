@@ -1,0 +1,174 @@
+<?php
+
+namespace App\Controller\Crud;
+
+use App\Entity\Boost;
+use App\Form\BoostType;
+use App\Repository\BoostRepository;
+use App\Repository\FormuleBoostRepository;
+use App\Repository\UserRepository;
+use App\Services\CookieDS;
+use App\Services\TraitementsDS;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route('/crud/boost')]
+class CrudBoostController extends AbstractController
+{
+    private $theme;
+    private $cookieDS;
+    private $traitementsDS;
+
+    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS)
+    {
+        $this->cookieDS = $cookieDS;
+        $this->traitementsDS = $traitementsDS;
+        if($this->cookieDS->check("theme")) {
+            if($this->cookieDS->get("theme") == "dark-theme") {
+                $this->theme = "dark-theme";
+            } else {
+                $this->theme = "light-theme";
+            }
+        } else {
+            $this->theme = "light-theme";
+        }
+    }
+
+    #[Route('/', name: 'app_crud_boost_index', methods: ['GET'])]
+    public function index(BoostRepository $boostRepository, Request $request): Response
+    {
+        $sourceFilter = $request->query->get('source', '');
+        $boosts = $boostRepository->findAllOrderedByStatus($sourceFilter);
+
+        return $this->render('crud_boost/index.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'boosts' => $boosts,
+            'sourceFilter' => $sourceFilter,
+            'sourceCounts' => $boostRepository->getSourceCounts(),
+        ]);
+    }
+
+    #[Route('/admin-new', name: 'app_crud_boost_admin_new', methods: ['GET', 'POST'])]
+    public function adminNew(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserRepository $userRepository,
+        FormuleBoostRepository $formuleBoostRepository
+    ): Response {
+        $users    = $userRepository->findBy([], ['pseudo' => 'ASC']);
+        $formules = $formuleBoostRepository->findBy(['activated' => true], ['id' => 'ASC']);
+        $errors   = [];
+
+        if ($request->isMethod('POST')) {
+            $userId    = $request->request->get('user_id');
+            $formuleId = $request->request->get('formule_id');
+            $mode      = $request->request->get('mode', 'Gratuit');
+
+            $user    = $userId    ? $userRepository->find($userId)              : null;
+            $formule = $formuleId ? $formuleBoostRepository->find($formuleId)   : null;
+
+            if (!$user)    { $errors[] = "Utilisateur invalide."; }
+            if (!$formule) { $errors[] = "Formule invalide."; }
+
+            if (empty($errors)) {
+                $boost = new Boost();
+                $boost
+                    ->setUser($user)
+                    ->setFormuleBoost($formule)
+                    ->setDateDebut(new DateTime())
+                    ->setMode($mode)
+                    ->setSource('admin')
+                    ->setTypeBoost($formule->getTypeBoost())
+                ;
+                // Boost par durée : on fixe dateExp dès la création
+                // Boost par quota : dateExp reste null jusqu'à épuisement du quota
+                if ($formule->getTypeBoost() === 'date') {
+                    $boost->setDateExp(new DateTime('+' . $formule->getNbrJour() . ' days'));
+                }
+                $entityManager->persist($boost);
+                $entityManager->flush();
+                $typeLabel = $formule->getTypeBoost() === 'quota'
+                    ? "quota de {$formule->getNbContactsMax()} contacts"
+                    : "{$formule->getNbrJour()} jour(s)";
+                $this->addFlash('success', "Boost #{$boost->getId()} créé pour {$user->getPseudo()} — {$formule->getTitre()} ({$typeLabel}).");
+                return $this->redirectToRoute('app_crud_boost_index', [], Response::HTTP_SEE_OTHER);
+            }
+        }
+
+        return $this->render('crud_boost/new_admin.html.twig', [
+            'theme'    => $this->theme,
+            'user'     => $this->traitementsDS->getUserByUidInCookies(),
+            'users'    => $users,
+            'formules' => $formules,
+            'errors'   => $errors,
+        ]);
+    }
+
+    #[Route('/new', name: 'app_crud_boost_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $boost = new Boost();
+        $form = $this->createForm(BoostType::class, $boost);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($boost);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_crud_boost_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('crud_boost/new.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'boost' => $boost,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_crud_boost_show', methods: ['GET'])]
+    public function show(Boost $boost): Response
+    {
+        return $this->render('crud_boost/show.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'boost' => $boost,
+        ]);
+    }
+
+    #[Route('/{id}/edit', name: 'app_crud_boost_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Boost $boost, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(BoostType::class, $boost);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_crud_boost_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->renderForm('crud_boost/edit.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'boost' => $boost,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_crud_boost_delete', methods: ['POST'])]
+    public function delete(Request $request, Boost $boost, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$boost->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($boost);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_crud_boost_index', [], Response::HTTP_SEE_OTHER);
+    }
+}

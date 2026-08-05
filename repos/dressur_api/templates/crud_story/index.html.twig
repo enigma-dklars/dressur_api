@@ -1,0 +1,124 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Stories{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-3">
+        <div class="col-8">
+            <span class="h4">Stories Dressur</span>
+        </div>
+        <div class="col-4 text-end">
+            <a href="{{ path('app_crud_story_delete_images_no_use') }}" class="btn btn-sm btn-danger me-2 js-confirm-orphan">
+                <i class="fas fa-trash me-1"></i> Suppr. images orphelines
+            </a>
+            <a href="{{ path('app_crud_story_new') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus me-1"></i> Nouvelle Story
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Images</th>
+                    <th>Vidéos</th>
+                    <th>User</th>
+                    <th>URL</th>
+                    <th>Description</th>
+                    <th>Créé le</th>
+                    <th>Modifié le</th>
+                    <th>Expire le</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for story in stories %}
+                <tr>
+                    <td class="text-nowrap">
+                        <a href="{{ path('app_crud_story_show', {'id': story.id}) }}" class="btn btn-xs btn-info me-1"><i class="fas fa-eye"></i></a>
+                        <a href="{{ path('app_crud_story_edit', {'id': story.id}) }}" class="btn btn-xs btn-success me-1"><i class="fas fa-pencil"></i></a>
+                        <form method="post" action="{{ path('app_crud_story_delete', {'id': story.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer cette story ?')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ story.id) }}">
+                            <button class="btn btn-xs btn-danger"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                    <td>{{ story.id }}</td>
+                    <td class="text-center">
+                        {% if story.images|length > 0 %}
+                            <span class="badge bg-success">{{ story.images|length }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if story.videos|length > 0 %}
+                            <span class="badge bg-info">{{ story.videos|length }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary">0</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ story.user ? story.user.pseudo : '<span class="text-muted">—</span>'|raw }}</td>
+                    <td>
+                        {% if story.url %}
+                            <a href="{{ story.url }}" target="_blank" class="text-truncate d-inline-block" style="max-width:120px">{{ story.url }}</a>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-truncate" style="max-width:160px">{{ story.description }}</td>
+                    <td class="text-nowrap">{{ story.createdAt ? story.createdAt|date('d/m/Y H:i') : '' }}</td>
+                    <td class="text-nowrap">
+                        {% if story.updatedAt %}
+                            {{ story.updatedAt|date('d/m/Y H:i') }}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-nowrap">
+                        {% if story.expiredAt %}
+                            {% if story.expiredAt < date() %}
+                                <span class="badge bg-danger">{{ story.expiredAt|date('d/m/Y') }}</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">{{ story.expiredAt|date('d/m/Y') }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="10" class="text-center text-muted">Aucune story trouvée</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+document.querySelectorAll('.js-confirm-orphan').forEach(function (btn) {
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        var href = this.href;
+        Swal.fire({
+            title: 'Supprimer les images orphelines ?',
+            text: 'Toutes les images non liées à une story seront définitivement supprimées.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Oui, supprimer',
+            cancelButtonText: 'Annuler'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Purge User{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="h4 me-3 text-danger">Purge User</p></div>
+        <div class="col-6 text-end">
+            <a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_user_banned_liste') }}">Liste Banned User</a>
+            <a class="btn btn-sm btn-danger h4" href="{{ path('app_crud_user_banned') }}">Bannir un User</a>
+            <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_index') }}">Back To List</a>
+        </div>
+    </div>
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="px-3 py-3 rounded text-white fs-5 bg-{{ label }}">{{ message }}</div>
+        {% endfor %}
+    {% endfor %}
+
+    <form action="{{ path('app_crud_user_purge') }}" method="post" class="mt-3 py-5 px-3 bg-danger rounded">
+        <label for="identifier" class="text-white fs-6">Enter User Email | Phone Number | Pseudo | Uid | Id :</label>
+        <div class="input-group">
+            <input type="text" class="form-control form-control-lg my-2" id="identifier" name="identifier" autofocus required>
+            <button type="submit" class="btn btn-lg btn-white my-2">Purge User</button>
+        </div>
+    </form>
+{% endblock %}

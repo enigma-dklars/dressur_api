@@ -1,0 +1,84 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div class="card-body">
+        <h4 class="text-center pb-3">Modifiez et complétez vos informations</h4>
+        
+        <div class="row g-2">
+
+            <div class="col-12">
+                <div class="mt-0" id="msgError" style="display: none;"></div>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="inputPseudo" class="mb-1">Pseudo</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-person-circle fs-6"></i></div>
+                <input value="{{user.pseudo}}" type="text" class="form-control mb-1 getInfo radius-30 ps-5" id="inputPseudo" placeholder="Pseudo">
+                </div>
+            </div>
+            <div class="{% if user.telIsVerified == false %}col-md-3{% else %}col-md-4{% endif %}">
+                <label for="inputEmail" class="mb-1">E-mail</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-envelope-fill fs-6"></i></div>
+                <input value="{{user.mail}}" type="text" class="form-control mb-1 getInfo radius-30 ps-5" id="inputEmail" placeholder="E-mail">
+                </div>
+            </div>
+            {% if user.telIsVerified == false %}
+                <div class="col-md-3">
+                    <label for="inputTelWhatsApp" class="mb-1">Numéro WhatsApp</label>
+                    <div class="ms-auto position-relative">
+                    <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fab fa-whatsapp-square fs-6"></i></div>
+                    <input value="{{user.tel}}" type="text" class="form-control mb-1 getInfo radius-30 ps-5" id="inputTelWhatsApp" placeholder="Numéro WhatsApp">
+                    </div>
+                </div>
+            {% endif %}
+            <div class="{% if user.telIsVerified == false %}col-md-3{% else %}col-md-5{% endif %}">
+                <label for="inputNomPrenom" class="mb-1">Nom & Prénom(s)</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="bi bi-person-circle fs-6"></i></div>
+                <input value="{{user.nom}}" type="text" class="form-control mb-1 radius-30 ps-5" id="inputNomPrenom" placeholder="Nom et Prénom(s)">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="inputTiktok" class="mb-1">Lien TikTok</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.tiktok}}" type="text" class="form-control mb-1 radius-30 ps-5" id="inputTiktok" placeholder="Lien TikTok">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="inputInstagram" class="mb-1">Lien Instagram</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.instagram}}" type="text" class="form-control mb-1 radius-30 ps-5" id="inputInstagram" placeholder="Lien Instagram">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <label for="inputFacebook" class="mb-1">Lien Facebook</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.facebook}}" type="text" class="form-control mb-1 radius-30 ps-5" id="inputFacebook" placeholder="Lien Facebook">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="inputYoutube" class="mb-1">Lien Youtube</label>
+                <div class="ms-auto position-relative">
+                <div class="position-absolute top-50 translate-middle-y search-icon px-3"><i class="fas fa-link"></i></div>
+                <input value="{{user.youtube}}" type="text" class="form-control mb-1 radius-30 ps-5" id="inputYoutube" placeholder="Lien Youtube">
+                </div>
+            </div>
+            <div class="col-md-12">
+                <label for="inputAPropos" class="mb-1">A propos de vous</label>
+                <textarea id="inputAPropos" class="form-control mb-1" rows="15">{{user.apropos}}</textarea>
+            </div>
+        </div>
+
+        <button class="btn btn-primary mt-3" id="enregistrerProfil">ENREGISTRER</button>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Transaction index{% endblock %}
+
+{% block body %}
+    <p class="h4 me-3">Transaction index</p>
+    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_transaction_new') }}">Create new</a> #}
+
+    <!-- Filtre Source -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <span class="small fw-semibold me-1">Source :</span>
+        <a href="{{ path('app_crud_transaction_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_transaction_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_transaction_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_transaction_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>Source</th>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>TransactionFor</th>
+                    <th>IdTransaction</th>
+                    <th>Amount</th>
+                    <th>Reference</th>
+                    <th>CustomerId</th>
+                    <th>CurrencyId</th>
+                    <th>CreatedAt</th>
+                    <th>UpdatedAt</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for transaction in transactions %}
+                <tr>
+                    <td></td>
+                    <td>{% include "crud_transaction/_delete_form.html.twig" %}</td>
+                    <td class="text-center">
+                        {% set _src = transaction.user ? transaction.user.registerSource : null %}
+                        {% if _src == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif _src == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if transaction.user %}
+                            {{ transaction.user.pseudo }}
+                        {% elseif transaction.userBot %}
+                            {{ transaction.userBot.nom }}
+                            <span class="badge bg-secondary ms-1">bot</span>
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>                        
+                        <span class="badge text-white fw-normal
+                        {% if transaction.status == 'pending' %}bg-warning{% endif %}
+                        {% if transaction.status == 'canceled' %}bg-danger{% endif %}
+                        {% if transaction.status == 'approved' %}bg-success{% endif %}
+                        {% if transaction.status == 'transferred' %}bg-primary{% endif %}
+                        {% if transaction.status == 'expired' %}bg-dark{% endif %}
+                        ">{{ transaction.status }}</span>
+                    </td>
+                    <td>{{ transaction.transactionFor }}</td>
+                    <td>{{ transaction.idTransaction }}</td>
+                    <td>{{ transaction.amount }}</td>
+                    <td>{{ transaction.reference }}</td>
+                    <td>{{ transaction.customerId }}</td>
+                    <td>{{ transaction.currencyId }}</td>
+                    <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ transaction.updatedAt ? transaction.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ transaction.id }}</td>
+                    {# <td>{{ transaction.annotherInfo ? transaction.annotherInfo|join(', ') : '' }}</td> #}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="13">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+$(document).on('click', '.btn-force-process', function () {
+    const btn       = $(this);
+    const id        = btn.data('id');
+    const forType   = btn.data('for');
+    const status    = btn.data('status');
+
+    Swal.fire({
+        title: 'Forcer le traitement ?',
+        html:  '<b>Type :</b> ' + forType + '<br><b>Statut actuel :</b> ' + status +
+               '<br><br>Cette action va vérifier le paiement sur FedaPay et exécuter le traitement correspondant si le paiement est approuvé.',
+        icon:  'warning',
+        showCancelButton:  true,
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor:  '#6b7280',
+        confirmButtonText:  'Oui, vérifier & traiter',
+        cancelButtonText:   'Annuler',
+    }).then((result) => {
+        if (!result.isConfirmed) return;
+
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+        fetch('/api/admin/force-process/' + id, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                Swal.fire({
+                    title: 'Échec',
+                    text:  data.message,
+                    icon:  'error',
+                    confirmButtonText: 'OK',
+                });
+                btn.prop('disabled', false).html('<i class="bi bi-arrow-repeat"></i>');
+            } else {
+                Swal.fire({
+                    title: 'Succès !',
+                    text:  data.message,
+                    icon:  'success',
+                    confirmButtonText: 'OK',
+                }).then(() => location.reload());
+            }
+        })
+        .catch(() => {
+            Swal.fire('Erreur réseau', 'La requête a échoué. Réessayez.', 'error');
+            btn.prop('disabled', false).html('<i class="bi bi-arrow-repeat"></i>');
+        });
+    });
+});
+</script>
+{% endblock %}

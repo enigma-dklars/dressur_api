@@ -1,0 +1,11 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}New HistoriqueProgrammeRecompense{% endblock %}
+
+{% block body %}
+    <h1>Create new HistoriqueProgrammeRecompense</h1>
+
+    {{ include('historique_programme_recompense/_form.html.twig') }}
+
+    <a href="{{ path('app_historique_programme_recompense_index') }}">back to list</a>
+{% endblock %}

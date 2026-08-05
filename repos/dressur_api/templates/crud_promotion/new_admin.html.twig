@@ -1,0 +1,173 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Nouvelle Promotion Admin{% endblock %}
+
+{% block body %}
+<div class="row g-2 mb-3">
+    <div class="col">
+        <span class="h4">Nouvelle Promotion Admin</span>
+        <span class="badge bg-success ms-2">Acceptée automatiquement</span>
+    </div>
+    <div class="col-auto">
+        <a href="{{ path('app_crud_promotion_index') }}" class="btn btn-sm btn-secondary">← Retour à la liste</a>
+    </div>
+</div>
+
+{% if errors is defined and errors|length > 0 %}
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            {% for error in errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<form method="post" action="{{ path('app_crud_promotion_admin_new') }}" enctype="multipart/form-data">
+
+    <div class="row g-3">
+
+        {# Colonne gauche : champs #}
+        <div class="col-md-7">
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Bénéficiaire</div>
+                <div class="card-body">
+                    <label class="form-label">Utilisateur <span class="text-danger">*</span></label>
+                    <select name="user_id" class="form-select single-select mb-2" required>
+                        <option value="">-- Choisir un utilisateur --</option>
+                        {% for u in users %}
+                            <option value="{{ u.id }}">{{ u.pseudo }}{% if u.nom %} — {{ u.nom }}{% endif %}{% if u.mail %} ({{ u.mail }}){% endif %}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Formule &amp; Type</div>
+                <div class="card-body">
+                    <label class="form-label">Formule <span class="text-danger">*</span></label>
+                    <select name="formule_id" id="formule_select" class="form-select mb-2" required>
+                        <option value="">-- Choisir une formule --</option>
+                        {% for f in formules %}
+                            <option value="{{ f.id }}" data-jours="{{ f.nbrJour }}">
+                                {{ f.titre }} — {{ f.prix }} FCFA — {{ f.nbrJour }} jour(s)
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <div id="expiration_info" class="alert alert-info py-2 mb-2" style="display:none;">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        Date d'expiration calculée : <strong id="expiration_date"></strong>
+                    </div>
+
+                    <label class="form-label mt-1">Type de promotion <span class="text-danger">*</span></label>
+                    <select name="type_promotion_affaire" class="form-select mb-2" required>
+                        <option value="produit_service">Produit / Service</option>
+                        <option value="offre_emploi">Offre d'emploi</option>
+                        <option value="dmd_emploi">Demande d'emploi</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Description</div>
+                <div class="card-body">
+                    <textarea name="description" class="form-control" rows="4" placeholder="Décrivez la promotion…" required></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        {# Colonne droite : image #}
+        <div class="col-md-5">
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Image <span class="text-danger">*</span> <span class="text-muted fw-normal small">(max 1 Mo)</span></div>
+                <div class="card-body">
+                    <input type="file" name="image" id="image_input" class="form-control mb-3" accept="image/*" required>
+
+                    <div id="image_preview_wrapper" style="display:none;">
+                        <p class="mb-1 small text-muted">Aperçu :</p>
+                        <img id="image_preview"
+                             src=""
+                             alt="Aperçu"
+                             style="max-width:100%; max-height:260px; border-radius:8px; border:1px solid #dee2e6; object-fit:contain;">
+                        <div id="image_size_warning" class="alert alert-warning py-1 mt-2 small" style="display:none;">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Image trop grande (&gt; 1 Mo) — elle sera refusée.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header fw-semibold">Récapitulatif</div>
+                <div class="card-body small">
+                    <table class="table table-sm mb-0">
+                        <tr><td>Status</td><td><span class="badge bg-success">Acceptée (3)</span></td></tr>
+                        <tr><td>Mode</td><td><span class="badge bg-secondary">Admin</span></td></tr>
+                        <tr><td>Source</td><td><span class="badge bg-dark">admin</span></td></tr>
+                        <tr><td>Date début</td><td>Maintenant</td></tr>
+                        <tr><td>Date expiration</td><td id="recap_exp" class="text-muted">— choisir une formule —</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-check-circle me-2"></i>Enregistrer la promotion
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</form>
+{% endblock %}
+
+{% block script %}
+<script>
+(function () {
+
+    // ── Prévisualisation image ──────────────────────────────────────
+    var input   = document.getElementById('image_input');
+    var wrapper = document.getElementById('image_preview_wrapper');
+    var preview = document.getElementById('image_preview');
+    var warning = document.getElementById('image_size_warning');
+
+    input.addEventListener('change', function () {
+        var file = this.files[0];
+        if (!file) { wrapper.style.display = 'none'; return; }
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            wrapper.style.display = 'block';
+            warning.style.display = (file.size > 1 * 1024 * 1024) ? 'block' : 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // ── Date d'expiration calculée ──────────────────────────────────
+    var select     = document.getElementById('formule_select');
+    var infoBox    = document.getElementById('expiration_info');
+    var expDate    = document.getElementById('expiration_date');
+    var recapExp   = document.getElementById('recap_exp');
+
+    select.addEventListener('change', function () {
+        var opt = this.options[this.selectedIndex];
+        var jours = parseInt(opt.getAttribute('data-jours'));
+        if (!jours) { infoBox.style.display = 'none'; recapExp.textContent = '— choisir une formule —'; return; }
+
+        var d = new Date();
+        d.setDate(d.getDate() + jours);
+        var label = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+        expDate.textContent   = label + ' (' + jours + ' jour' + (jours > 1 ? 's' : '') + ')';
+        recapExp.textContent  = label;
+        infoBox.style.display = 'block';
+    });
+
+})();
+</script>
+{% endblock %}

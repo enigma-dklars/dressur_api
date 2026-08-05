@@ -1,0 +1,11 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}New FormulePromoAffaire{% endblock %}
+
+{% block body %}
+    <h1>Create new FormulePromoAffaire</h1>
+
+    {{ include('crud_formule_promo_affaire/_form.html.twig') }}
+
+    <a href="{{ path('app_crud_formule_promo_affaire_index') }}">back to list</a>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends user.lecteur == true ? 'basePrivate.html.twig' : 'baseAdmin.html.twig' %}
+
+{% block title %}Ckeck User And Confirm{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2">
+        <div class="col-6"><p class="me-3 text-success">Ckeck User And Confirm</p></div>
+        <div class="col-6 text-end"><a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_user_index') }}">Back To List</a></div>
+    </div>
+
+    {# Display flash messages #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="px-3 py-3 rounded text-white bg-{{ label }}">{{ message }}</div> <br>
+        {% endfor %}
+    {% endfor %}
+
+    <form action="{{ path('app_crud_user_check_and_confirme') }}" method="post" class="my-3 py-5 px-3 bg-success rounded">
+        <label for="identifier" class="text-white">Enter User Email | Phone Number | Pseudo | Uid | Id :</label>
+        <div class="input-group">
+            <input type="text" class="form-control form-control-lg my-2" id="identifier" name="identifier" autofocus required>
+            <button type="submit" class="btn btn-lg btn-white my-2">GO!</button>
+        </div>
+    </form>
+
+    <hr>
+    <p class="my-3">Message</p>
+    <p class="fs-5">{{ message|raw }}</p>
+
+    {% if wa_message is not null %}
+    <div class="mt-4">
+        <p class="fw-semibold mb-2">
+            <i class="fab fa-whatsapp text-success me-1"></i>
+            Message WhatsApp à envoyer manuellement
+            {% if user_check and user_check.user_info.tel is defined %}
+                <span class="text-muted fw-normal small">— {{ user_check.user_info.tel }}</span>
+            {% endif %}
+        </p>
+        <div class="position-relative">
+            <pre id="wa-message-box" style="background:#e9fbe5;border:1px solid #b7f5c8;border-radius:12px;padding:20px 20px 20px 20px;white-space:pre-wrap;word-break:break-word;font-family:inherit;font-size:14px;line-height:1.7;margin:0;">{{ wa_message }}</pre>
+            {% if user.lecteur != true %}
+            <button onclick="copyWaMessage()" id="copy-btn"
+                    class="btn btn-success btn-sm position-absolute top-0 end-0 m-2">
+                <i class="fas fa-copy me-1"></i>Copier
+            </button>
+            {% endif %}
+        </div>
+        <p class="text-muted small mt-2">
+            Copiez ce message et envoyez-le manuellement sur WhatsApp. Le lien de confirmation est valide tant que le numéro ne change pas.
+        </p>
+    </div>
+    {% endif %}
+
+    <script>
+    function copyWaMessage() {
+        const text = document.getElementById('wa-message-box').innerText;
+        const btn  = document.getElementById('copy-btn');
+        navigator.clipboard.writeText(text).then(() => {
+            btn.innerHTML = '<i class="fas fa-check me-1"></i>Copié !';
+            btn.classList.replace('btn-success', 'btn-outline-success');
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy me-1"></i>Copier';
+                btn.classList.replace('btn-outline-success', 'btn-success');
+            }, 2500);
+        }).catch(() => {
+            btn.innerHTML = '<i class="fas fa-times me-1"></i>Erreur';
+        });
+    }
+    </script>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% set r = app.request.attributes.get('_route') %}
+
+{# ── Groupes actifs ──────────────────────────────────────────────────── #}
+
+{% set services_routes   = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
+{% set services_active   = r in services_routes %}
+
+{% set actu_active       = r in ['app_actu','app_actu_detail'] %}
+
+
+{% set params_routes     = ['app_editprofil','app_editPassword','app_tutoriels','app_assistant','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences','app_contact','app_guide_import_contacts','app_export_vcf','app_export_csv','app_notifications'] %}
+{% set params_active     = r in params_routes %}
+
+<aside class="sidebar-wrapper" data-simplebar="true">
+    <div class="sidebar-header">
+      <div>
+        <img src="/assets/images/ds_logo.png" class="logo-icon" alt="logo icon">
+      </div>
+      <div>
+        <h4 class="logo-text">Dressur</h4>
+      </div>
+      <div class="toggle-icon ms-auto"><i class="bi bi-chevron-double-left"></i>
+      </div>
+    </div>
+    <!--navigation-->
+    <ul class="metismenu" id="menu">
+
+      {# ── Admin ─────────────────────────────────────────────────────── #}
+      {% if user.admin == true %}
+      <li class="{{ r == 'app_admin' ? 'mm-active' : '' }}">
+        <a href="/admin" class="{{ r == 'app_admin' ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-user-shield text-danger"></i></div>
+          <div class="menu-title text-danger">Administration</div>
+        </a>
+      </li>
+      {% endif %}
+
+      {# ── Public (web only) ─────────────────────────────────────────── #}
+      <li class="{{ r == 'app_public' ? 'mm-active' : '' }}">
+        <a href="{{ path('app_public') }}" class="{{ r == 'app_public' ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-globe"></i></div>
+          <div class="menu-title">Public</div>
+        </a>
+      </li>
+
+      {# ── Dashboard ─────────────────────────────────────────────────── #}
+      <li class="{{ r == 'app_private' ? 'mm-active' : '' }}">
+        <a href="/private" class="{{ r == 'app_private' ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-house-user"></i></div>
+          <div class="menu-title">Dashboard</div>
+        </a>
+      </li>
+      {# ── Services ──────────────────────────────────────────────────── #}
+      <li class="{{ services_active ? 'mm-active' : '' }}">
+        <a href="/services" class="{{ services_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-briefcase"></i></div>
+          <div class="menu-title">Services</div>
+        </a>
+        <ul class="{{ services_active ? 'mm-show' : '' }}">
+
+          {# Boost Contact #}
+          <li class="{{ r == 'app_newboostcontact' ? 'mm-active' : '' }}">
+            <a href="/newboostcontact" class="small-fort {{ r == 'app_newboostcontact' ? 'active' : '' }}">
+              <i class="fas fa-square-plus"></i>Boost Contact
+            </a>
+          </li>
+          <li class="{{ r == 'app_listeboostcontact' ? 'mm-active' : '' }}">
+            <a href="/listeboostcontact" class="small-fort {{ r == 'app_listeboostcontact' ? 'active' : '' }}">
+              <i class="fas fa-align-left"></i>Liste Boost Contact
+            </a>
+          </li>
+
+          {# Promotion Affaire #}
+          <li class="{{ r == 'app_newpromoaffaire' ? 'mm-active' : '' }}">
+            <a href="/newpromoaffaire" class="small-fort {{ r == 'app_newpromoaffaire' ? 'active' : '' }}">
+              <i class="fas fa-square-plus"></i>Promotion Affaire
+            </a>
+          </li>
+          <li class="{{ r == 'app_listepromoaffaire' ? 'mm-active' : '' }}">
+            <a href="/listepromoaffaire" class="small-fort {{ r == 'app_listepromoaffaire' ? 'active' : '' }}">
+              <i class="fas fa-align-left"></i>Liste Promo. Affaire
+            </a>
+          </li>
+
+          {# Promotion Réseau Sociaux #}
+          <li class="{{ r == 'app_newpromoreseau' ? 'mm-active' : '' }}">
+            <a href="/newpromoreseau" class="small-fort {{ r == 'app_newpromoreseau' ? 'active' : '' }}">
+              <i class="fas fa-square-plus"></i>Promo. Réseau Sociaux
+            </a>
+          </li>
+          <li class="{{ r == 'app_listepromoreseau' ? 'mm-active' : '' }}">
+            <a href="/listepromoreseau" class="small-fort {{ r == 'app_listepromoreseau' ? 'active' : '' }}">
+              <i class="fas fa-align-left"></i>Liste Promo. Réseau S.
+            </a>
+          </li>
+
+        </ul>
+      </li>
+
+      {# ── Actu ──────────────────────────────────────────────────────── #}
+      <li class="{{ actu_active ? 'mm-active' : '' }}">
+        <a href="/actu" class="{{ actu_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-newspaper"></i></div>
+          <div class="menu-title">Actu</div>
+        </a>
+      </li>
+      {# ── Paramètres ────────────────────────────────────────────────── #}
+      <li class="{{ params_active ? 'mm-active' : '' }}">
+        <a href="/parametres" class="{{ params_active ? 'active' : '' }}">
+          <div class="parent-icon"><i class="fas fa-gear"></i></div>
+          <div class="menu-title">Paramètres</div>
+        </a>
+        <ul class="{{ params_active ? 'mm-show' : '' }}">
+
+
+          {# — Mon Espace — #}
+          <li class="sidebar-section-label"><span>Mon Espace</span></li>
+          <li class="{{ r in ['app_notifications'] ? 'mm-active' : '' }}">
+            <a href="{{ path('app_notifications') }}" class="small-fort {{ r in ['app_notifications'] ? 'active' : '' }}">
+              <i class="fas fa-bell"></i>Notifications
+            </a>
+          </li>
+          <li class="{{ r == 'app_contact' ? 'mm-active' : '' }}">
+            <a href="/contact" class="small-fort {{ r == 'app_contact' ? 'active' : '' }}">
+              <i class="fas fa-address-book"></i>Contacts
+            </a>
+          </li>
+          <li>
+            <a href="#" class="small-fort sidebar-soon">
+              <i class="fas fa-trophy"></i>Récompenses
+            </a>
+          </li>
+
+          <li class="{{ r == 'app_guide_import_contacts' ? 'mm-active' : '' }}">
+            <a href="/contacts/guide-import" class="small-fort {{ r == 'app_guide_import_contacts' ? 'active' : '' }}">
+              <i class="fas fa-book-open"></i>Guide d'import
+            </a>
+          </li>
+          <li class="{{ r == 'app_export_vcf' ? 'mm-active' : '' }}">
+            <a href="/export_vcf" class="small-fort {{ r == 'app_export_vcf' ? 'active' : '' }}">
+              <i class="fas fa-address-card"></i>Export VCF
+            </a>
+          </li>
+          <li class="{{ r == 'app_export_csv' ? 'mm-active' : '' }}">
+            <a href="/export_csv" class="small-fort {{ r == 'app_export_csv' ? 'active' : '' }}">
+              <i class="fas fa-file-csv"></i>Export CSV
+            </a>
+          </li>
+
+          {# — Mon Compte — #}
+          <li class="sidebar-section-label"><span>Mon Compte</span></li>
+          <li class="{{ r == 'app_editprofil' ? 'mm-active' : '' }}">
+            <a href="/editprofil" class="small-fort {{ r == 'app_editprofil' ? 'active' : '' }}">
+              <i class="fas fa-user"></i>Profil
+            </a>
+          </li>
+          <li class="{{ r == 'app_editPassword' ? 'mm-active' : '' }}">
+            <a href="/editPassword" class="small-fort {{ r == 'app_editPassword' ? 'active' : '' }}">
+              <i class="fas fa-lock"></i>Modifier le mot de passe
+            </a>
+          </li>
+          <li class="{{ r in ['app_preferencePays','app_hub_preferences'] ? 'mm-active' : '' }}">
+            <a href="/preferences" class="small-fort {{ r in ['app_preferencePays','app_hub_preferences'] ? 'active' : '' }}">
+              <i class="fas fa-heart"></i>Préférences
+            </a>
+          </li>
+
+          {# — Assistance & Avis — #}
+          <li class="sidebar-section-label"><span>Assistance &amp; Avis</span></li>
+          <li class="{{ r == 'app_tutoriels' ? 'mm-active' : '' }}">
+            <a href="{{ path('app_tutoriels') }}" class="small-fort {{ r == 'app_tutoriels' ? 'active' : '' }}">
+              <i class="fas fa-graduation-cap"></i>Tutoriels
+            </a>
+          </li>
+          <li class="{{ r == 'app_assistant' ? 'mm-active' : '' }}">
+            <a href="{{ path('app_assistant') }}" class="small-fort {{ r == 'app_assistant' ? 'active' : '' }}">
+              <i class="fas fa-comments"></i>Assistant IA
+            </a>
+          </li>
+          <li class="{{ r == 'app_support' ? 'mm-active' : '' }}">
+            <a href="/support" class="small-fort {{ r == 'app_support' ? 'active' : '' }}">
+              <i class="fas fa-headset"></i>Support Technique
+            </a>
+          </li>
+          <li class="{{ r == 'app_addSuggestion' ? 'mm-active' : '' }}">
+            <a href="/addSuggestion" class="small-fort {{ r == 'app_addSuggestion' ? 'active' : '' }}">
+              <i class="fas fa-lightbulb"></i>Suggestions
+            </a>
+          </li>
+          <li class="{{ r == 'app_signalerUser' ? 'mm-active' : '' }}">
+            <a href="/signalerUser" class="small-fort {{ r == 'app_signalerUser' ? 'active' : '' }}">
+              <i class="fas fa-triangle-exclamation"></i>Signaler un utilisateur
+            </a>
+          </li>
+
+          {# — Actions Avancées — #}
+          <li class="sidebar-section-label"><span>Actions Avancées</span></li>
+          <li class="{{ r == 'app_deleteCompte' ? 'mm-active' : '' }}">
+            <a href="/deleteCompte" class="small-fort {{ r == 'app_deleteCompte' ? 'active' : '' }}" style="color:#e74c3c;">
+              <i class="fas fa-trash"></i>Supprimer mon compte
+            </a>
+          </li>
+
+          {# — Application — #}
+          <li class="sidebar-section-label"><span>Application</span></li>
+          <li class="{{ r == 'app_apropos' ? 'mm-active' : '' }}">
+            <a href="/apropos" class="small-fort {{ r == 'app_apropos' ? 'active' : '' }}">
+              <i class="fas fa-circle-info"></i>À Propos
+            </a>
+          </li>
+          <li>
+            <a href="/logout" class="small-fort">
+              <i class="fas fa-right-from-bracket"></i>Se déconnecter
+            </a>
+          </li>
+
+        </ul>
+      </li>
+
+    </ul>
+    <!--end navigation-->
+</aside>
+
+<style>
+/* Labels de section dans les sous-menus */
+.sidebar-section-label {
+  list-style: none;
+  padding: 10px 20px 4px 20px;
+  pointer-events: none;
+}
+.sidebar-section-label span {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #888;
+  opacity: 0.7;
+}
+/* Liens non encore disponibles */
+.sidebar-soon {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+html.dark-theme .sidebar-section-label span {
+  color: #aaa;
+}
+</style>
+
+<script>
+(function () {
+    window.addEventListener('load', function () {
+        setTimeout(function () {
+            var active = document.querySelector('.sidebar-wrapper .mm-active');
+            var scrollEl = document.querySelector('.sidebar-wrapper .simplebar-content-wrapper');
+            if (!active || !scrollEl) return;
+            var offsetTop = 0;
+            var node = active;
+            while (node && node !== scrollEl) {
+                offsetTop += node.offsetTop;
+                var parent = node.offsetParent;
+                if (!parent || parent === document.body || parent === document.documentElement) break;
+                node = parent;
+            }
+            scrollEl.scrollTop = Math.max(0, offsetTop - (scrollEl.clientHeight / 2) + (active.offsetHeight / 2));
+        }, 250);
+    });
+})();
+</script>

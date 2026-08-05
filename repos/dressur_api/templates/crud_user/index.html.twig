@@ -1,0 +1,227 @@
+{% extends user.lecteur == true ? 'basePrivate.html.twig' : 'baseAdmin.html.twig' %}
+
+{% block title %}User : {{option}}{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-4">
+        <div class="col-md-6">
+            <p class="h4 me-3">User : {{option}}</p>
+        </div>
+        <div class="col-md-6">
+            <!-- Barre de recherche -->
+            <form method="get" class="d-flex">
+                <input type="text" name="search" class="form-control me-2" 
+                       placeholder="Rechercher..." value="{{ search ?? '' }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+                {% if search %}
+                    <a href="{{ path('app_crud_user_index') }}" class="btn btn-secondary ms-2">
+                        <i class="fas fa-times"></i>
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Filtre Source -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <span class="fw-semibold me-1">Source :</span>
+        <a href="{{ path('app_crud_user_index', {'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'mobile', 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'web', 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'none', 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+    </div>
+
+    <!-- Informations sur les résultats -->
+    <div class="alert alert-info mb-3 small p-1 text-center">
+        <strong>{{ totalItems }}</strong> utilisateur(s) trouvé(s)
+        {% if search %}
+            pour la recherche : "<strong>{{ search }}</strong>"
+        {% endif %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped my-5">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Source</th>
+                    <th>Pseudo</th>
+                    <th>Tel</th>
+                    <th>Tel V.</th>
+                    <th>Mail</th>
+                    <th>Mail V.</th>
+                    <th>Rec?</th>
+                    <th>Vendeur?</th>
+                    <th>Solde</th>
+                    {# <th>Invt</th> #}
+                    {# <th>Parr</th> #}
+                    {# <th>Bonus</th> #}
+                    <th>Lock</th>
+                    <th>LastLoginTo</th>
+                    <th>CreatedAt</th>
+                    <th>Uid</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% set adminUser = user %}
+            {% for user in users %}
+                <tr>
+                    <td>{% if adminUser.lecteur != true %}{% include "crud_user/_delete_form.html.twig" %}{% endif %}</td>
+                    <td class="text-center">
+                        {% if user.registerSource == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif user.registerSource == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{ user.pseudo }}
+                    </td>
+                    <td>{{ user.tel }}</td>
+                    <td class="text-center">
+                        {% if user.telIsVerified == true %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            {% if adminUser.lecteur != true %}
+                            <form action="{{ path('app_crud_user_activerTel', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation du numéro WhatsApp ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('activer_tel' ~ user.id) }}">
+                                <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
+                            </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="small">{{ user.mail }}</td>
+                    <td class="text-center">
+                        {% if user.mailIsVerified == true %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            {% if adminUser.lecteur != true %}
+                            <form action="{{ path('app_crud_user_activerMail', {'id': user.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Confirmer l\'activation de l\'adresse mail ?')">
+                                <input type="hidden" name="_token" value="{{ csrf_token('activer_mail' ~ user.id) }}">
+                                <button type="submit" class="text-white badge bg-danger border-0">Activer</button>
+                            </form>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if user.isInscritProgrammeRecompense %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>                                
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if user.isVendeur %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{user.soldeProgrammeRecompense}}</td>
+                    {# <td class="text-end">{{user.filleuls|length}}</td>
+                    <td class="text-center">
+                        {% if user.parrain %}
+                            <span class="badge bg-success">Yes</span>
+                        {% else %}
+                            <span class="badge bg-danger">No</span>                                
+                        {% endif %}
+                    </td>
+                    <td class="text-end">{{user.soldeBonus}}</td> #}
+                    <td class="text-center">
+                        {{ user.blocked ? '<span class="badge bg-danger">Yes</span>' : '<span class="badge bg-success">No</span>' }}
+                    </td>
+                    <td>{{ user.lastLoginTo ? user.lastLoginTo|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ user.uid }}</td>
+                    <td>{{ user.id }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="22">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Bootstrap 5 -->
+    {% if totalPages > 1 %}
+    <nav aria-label="Page navigation" class="mt-3">
+        <ul class="pagination justify-content-center">
+            <!-- Premier -->
+            <li class="page-item {% if currentPage == 1 %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path('app_crud_user_index', {'page': 1, 'search': search}) }}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+            
+            <!-- Précédent -->
+            <li class="page-item {% if currentPage == 1 %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path('app_crud_user_index', {'page': currentPage - 1, 'search': search}) }}">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            </li>
+            
+            <!-- Pages -->
+            {% set startPage = max(1, currentPage - 2) %}
+            {% set endPage = min(totalPages, startPage + 4) %}
+            {% set startPage = max(1, endPage - 4) %}
+            
+            {% for i in startPage..endPage %}
+                <li class="page-item {% if i == currentPage %}active{% endif %}">
+                    <a class="page-link" 
+                       href="{{ path('app_crud_user_index', {'page': i, 'search': search}) }}">
+                        {{ i }}
+                    </a>
+                </li>
+            {% endfor %}
+            
+            <!-- Suivant -->
+            <li class="page-item {% if currentPage == totalPages %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path('app_crud_user_index', {'page': currentPage + 1, 'search': search}) }}">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+            
+            <!-- Dernier -->
+            <li class="page-item {% if currentPage == totalPages %}disabled{% endif %}">
+                <a class="page-link" 
+                   href="{{ path('app_crud_user_index', {'page': totalPages, 'search': search}) }}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+
+    <!-- Sélecteur de limite par page -->
+    <div class="d-flex justify-content-end align-items-center mt-3">
+        <span class="me-2">Afficher :</span>
+        <select class="form-select form-select-sm" style="width: auto;" onchange="changeLimit(this.value)">
+            <option value="10" {% if limit == 10 %}selected{% endif %}>10</option>
+            <option value="20" {% if limit == 20 %}selected{% endif %}>20</option>
+            <option value="50" {% if limit == 50 %}selected{% endif %}>50</option>
+            <option value="100" {% if limit == 100 %}selected{% endif %}>100</option>
+        </select>
+        <span class="ms-2">par page</span>
+    </div>
+{% endblock %}
+
+{% block script %}
+<script>
+function changeLimit(limit) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('limit', limit);
+    url.searchParams.set('page', 1); // Retour à la première page
+    window.location.href = url.toString();
+}
+</script>
+{% endblock %}

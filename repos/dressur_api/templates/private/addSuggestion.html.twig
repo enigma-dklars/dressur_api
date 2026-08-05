@@ -1,0 +1,34 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Suggestion{% endblock %}
+
+{% block body %}
+<div class="card mt-3">
+    <div class="card-body">
+        <p class="h4 text-center mb-3">Faire une Suggestion</p>
+        <div class="row g-2">
+            <div class="col-md-6 text-center">
+                <i class="text-warning fas fa-lightbulb py-3" style="font-size: 12rem;"></i>
+                <p class="text-center pb-3">
+                    Nous cherchons constamment à améliorer notre application pour vous. Votre opinion est précieuse ! Que vous ayez une idée, une suggestion de fonctionnalité ou des commentaires, faites-nous en part.
+                </p>
+            </div>
+            <div class="col-md-6">
+                <div class="row g-2">
+
+                    <div class="col-12">
+                        <div class="mt-0" id="msgError" style="display: none;"></div>
+                    </div>
+                    <div class="col-12">
+                        <label for="">Votre ou vos suggestions</label>
+                        <textarea id="suggestion"  rows="10" class="form-control getInfo"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <button class="btn btn-warning" id="addSuggerer">SUGGERER</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

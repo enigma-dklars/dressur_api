@@ -1,0 +1,38 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Env{% endblock %}
+
+{% block body %}
+    <h1>Env</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ env.id }}</td>
+            </tr>
+            <tr>
+                <th>VersionApp</th>
+                <td>{{ env.versionApp }}</td>
+            </tr>
+            <tr>
+                <th>VersionDressurBot</th>
+                <td>{{ env.versionDressurBot }}</td>
+            </tr>
+            <tr>
+                <th>ImportantUpdate</th>
+                <td>{{ env.importantUpdate ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>UsersTel</th>
+                <td>{{ env.usersTel ? env.usersTel|length : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {# <a href="{{ path('app_crud_env_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_env_edit', {'id': env.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_env/_delete_form.html.twig') }} #}
+{% endblock %}

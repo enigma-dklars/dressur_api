@@ -1,0 +1,277 @@
+{% extends 'base.html.twig' %}
+
+{% set description = "Connectez-vous à votre compte Dressur pour accéder à vos compétences et gérer votre profil." %}
+{% set title = "Se Connecter" %}
+
+{% block referencement %}
+    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta property="og:url" content="{{ url('app_connexion') }}" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:description" content="{{description}}" />
+    <meta name="twitter:image" content="https://dressur.site/assets/img/hero.jpg" />
+    <meta name="description" content="{{description}}" />
+    <meta name="keywords" content="connexion à Dressur, se connecter à son compte, login Dressur, accès au profil Dressur, gestion de compte" />
+{% endblock %}
+
+{% block robots_meta %}<meta name="robots" content="noindex, nofollow">{% endblock %}
+{% block title %}{{title}}{% endblock %}
+
+{% block style %}
+<style>
+    body { background: #f4f6fb; }
+    html.dark-theme body { background: #111827; }
+
+    .auth-wrap {
+        min-height: calc(100vh - 70px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+    }
+    .auth-card {
+        display: flex;
+        width: 100%;
+        max-width: 900px;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+
+    /* Left panel */
+    .auth-panel {
+        background: linear-gradient(160deg, #0f2460 0%, #1a3a8f 55%, #1565c0 100%);
+        width: 42%;
+        padding: 48px 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    .auth-panel::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 200px; height: 200px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+    }
+    .auth-panel::after {
+        content: '';
+        position: absolute;
+        bottom: -40px; left: -40px;
+        width: 160px; height: 160px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+    }
+    .auth-panel-logo {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #fff;
+        letter-spacing: -0.5px;
+        margin-bottom: 32px;
+    }
+    .auth-panel-logo span { color: #4fc3f7; }
+    .auth-panel h2 {
+        color: #fff;
+        font-weight: 800;
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+    .auth-panel p {
+        color: rgba(255,255,255,0.7);
+        font-size: 0.88rem;
+        line-height: 1.65;
+        margin-bottom: 28px;
+    }
+    .auth-feature {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: rgba(255,255,255,0.85);
+        font-size: 0.84rem;
+        margin-bottom: 10px;
+    }
+    .auth-feature i {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.12);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        color: #4fc3f7;
+    }
+
+    /* Right panel — form */
+    .auth-form-panel {
+        flex: 1;
+        background: #fff;
+        padding: 48px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    html.dark-theme .auth-form-panel { background: #1a2232; }
+    .auth-form-panel h3 {
+        font-weight: 800;
+        font-size: 1.55rem;
+        color: #0f2460;
+        margin-bottom: 4px;
+    }
+    html.dark-theme .auth-form-panel h3 { color: #fcfcfc; }
+    .auth-form-panel .sub {
+        font-size: 0.87rem;
+        color: #6c757d;
+        margin-bottom: 28px;
+    }
+
+    /* Inputs */
+    .auth-field { margin-bottom: 18px; }
+    .auth-label {
+        font-size: 0.81rem;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 7px;
+        display: block;
+    }
+    html.dark-theme .auth-label { color: #c8cdd4; }
+    .auth-input-wrap { position: relative; }
+    .auth-input-icon {
+        position: absolute;
+        top: 50%; left: 14px;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9rem;
+        pointer-events: none;
+    }
+    .auth-input {
+        width: 100%;
+        background: #f8f9ff;
+        border: 1.5px solid #e9ecef;
+        border-radius: 12px;
+        padding: 11px 14px 11px 40px;
+        font-size: 0.92rem;
+        color: #374151;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+        font-family: inherit;
+    }
+    html.dark-theme .auth-input { background: #111827; border-color: #2e3a55; color: #fcfcfc; }
+    .auth-input:focus {
+        border-color: #1a3a8f;
+        box-shadow: 0 0 0 3px rgba(26,58,143,0.1);
+    }
+    html.dark-theme .auth-input:focus { border-color: #4fc3f7; box-shadow: 0 0 0 3px rgba(79,195,247,0.1); }
+    .auth-input::placeholder { color: #b0b8c4; }
+
+    /* Btn */
+    .btn-auth {
+        width: 100%;
+        background: linear-gradient(135deg, #0f2460, #1a3a8f);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 13px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.28s;
+        box-shadow: 0 4px 16px rgba(26,58,143,0.3);
+        letter-spacing: 0.3px;
+    }
+    .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,58,143,0.38); }
+
+    /* Links */
+    .auth-link { color: #1a3a8f; font-weight: 600; text-decoration: none; }
+    html.dark-theme .auth-link { color: #4fc3f7; }
+    .auth-link:hover { text-decoration: underline; }
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #d1d5db;
+        font-size: 0.78rem;
+        margin: 18px 0;
+    }
+    .auth-divider::before, .auth-divider::after { content:''; flex:1; height:1px; background:#e9ecef; }
+    html.dark-theme .auth-divider::before, html.dark-theme .auth-divider::after { background:#2e3a55; }
+
+    /* Error */
+    #msgError { border-radius: 10px; font-size: 0.87rem; }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+        .auth-panel { display: none; }
+        .auth-card { max-width: 460px; }
+        .auth-form-panel { padding: 36px 28px; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="auth-wrap">
+    <div class="auth-card">
+
+        {# Left panel #}
+        <div class="auth-panel">
+            <div class="auth-panel-logo"><i class="fas fa-circle-nodes me-2"></i>Dress<span>ur</span></div>
+            <h2>Bon retour parmi nous !</h2>
+            <p>Connectez-vous pour accéder à votre espace Dressur et gérer tous vos services.</p>
+            <div class="auth-feature"><i class="fas fa-robot"></i> Dressur Bot — envois WhatsApp</div>
+            <div class="auth-feature"><i class="fas fa-users"></i> Boost Contact</div>
+            <div class="auth-feature"><i class="fas fa-bullhorn"></i> Promotion Affaire</div>
+            <div class="auth-feature"><i class="fas fa-thumbs-up"></i> Réseaux Sociaux</div>
+        </div>
+
+        {# Right panel — form #}
+        <div class="auth-form-panel">
+            <h3>Connexion</h3>
+            <p class="sub">Entrez vos identifiants pour accéder à votre compte.</p>
+
+            <div id="msgError" style="display:none;"></div>
+
+            <form class="form-body">
+                <div class="auth-field">
+                    <label class="auth-label" for="inputEmail">Adresse e-mail</label>
+                    <div class="auth-input-wrap">
+                        <i class="auth-input-icon fas fa-envelope"></i>
+                        <input type="email" class="auth-input getInfo" id="inputEmail" placeholder="votre@email.com">
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <label class="auth-label" for="inputMotPasse">Mot de passe</label>
+                    <div class="auth-input-wrap">
+                        <i class="auth-input-icon fas fa-lock"></i>
+                        <input type="password" class="auth-input getInfo" id="inputMotPasse" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="text-end mb-3" style="font-size:.84rem;">
+                    <a href="{{ path('app_mot_de_passe_oublier') }}" class="auth-link">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="button" class="btn-auth" id="connexion">
+                    <i class="fas fa-right-to-bracket me-2"></i> Se connecter
+                </button>
+            </form>
+
+            <div class="auth-divider">ou</div>
+
+            <p class="text-center mb-0" style="font-size:.87rem; color:#6c757d;">
+                Pas encore de compte ?
+                <a href="{{ path('app_inscription') }}" class="auth-link ms-1">S'inscrire gratuitement →</a>
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

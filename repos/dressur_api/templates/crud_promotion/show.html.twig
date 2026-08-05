@@ -1,0 +1,84 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Promotion{% endblock %}
+
+{% block body %}
+    <h1>Promotion</h1>
+
+    <table class="table table-bordered table-striped">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ promotion.id }}</td>
+            </tr>
+            <tr>
+                <th>Image</th>
+                <td><img src="/assets/images/placeholder.png" data-original="/promotion/{{ promotion.image }}" class="lazy card-img-top" alt="" srcset=""></td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ promotion.description|nl2br }}</td>
+            </tr>
+            <tr>
+                <th>DateDebut</th>
+                <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>DateExp</th>
+                <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>{{ promotion.status }}</td>
+            </tr>
+            <tr>
+                <th>NombreDeVue</th>
+                <td>{{ promotion.nombreDeVue }}</td>
+            </tr>
+            <tr>
+                <th>Mode</th>
+                <td>{{ promotion.mode }}</td>
+            </tr>
+            <tr>
+                <th>NombreImpression</th>
+                <td>{{ promotion.nombreImpression }}</td>
+            </tr>
+            <tr>
+                <th>Limited</th>
+                <td>{{ promotion.limited ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>WhoSaw</th>
+                <td>{{ promotion.whoSaw ? promotion.whoSaw|length : '' }}</td>
+            </tr>
+            <tr>
+                <th>Motif (dernier)</th>
+                <td>{{ promotion.motif }}</td>
+            </tr>
+            <tr>
+                <th>IsFakeVue</th>
+                <td>{{ promotion.isFakeVue ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 class="mt-4">Historique des refus</h2>
+    {% if promotion.motifsRefus|length == 0 %}
+        <p class="text-muted">Aucun refus enregistré.</p>
+    {% else %}
+        <ol>
+            {% for motifEntry in promotion.motifsRefus|sort((a, b) => b.dateRefus <=> a.dateRefus) %}
+                <li class="mb-2">
+                    <strong>{{ motifEntry.dateRefus|date('d/m/Y à H:i') }}</strong><br>
+                    {{ motifEntry.motif }}
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+
+    {# <a href="{{ path('app_crud_promotion_index') }}">back to list</a>
+
+    <a href="{{ path('app_crud_promotion_edit', {'id': promotion.id}) }}" class="btn btn-sm btn-success">Edit</a>
+
+    {{ include('crud_promotion/_delete_form.html.twig') }} #}
+{% endblock %}

@@ -1,0 +1,127 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}PromoReseau index{% endblock %}
+
+{% block body %}
+    <div class="row g-2">
+        <div class="col-8">
+            <span class="h4 me-3">PromoReseau index</span>
+            <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_promo_reseau_new') }}">Create new</a>
+        </div>
+        <div class="col-4 text-end fs-5 
+            {% if soldeZefame <= 5 %}text-danger{% endif %} 
+            {% if soldeZefame > 5 and soldeZefame <= 10 %}text-warning{% endif %}
+            {% if soldeZefame > 10 %}text-success{% endif %}
+        ">
+            Solde : {{soldeZefame}} €
+        </div>
+    </div>
+
+    <!-- Filtre Source -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <span class="small fw-semibold me-1">Source :</span>
+        <a href="{{ path('app_crud_promo_reseau_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Source</th>
+                    <th>Service</th>
+                    <th>User</th>
+                    <th>Qte.</th>
+                    <th>Prix</th>
+                    <th>Prix.Zef</th>
+                    <th>Status</th>
+                    <th>Id.Zef</th>
+                    <th>C.Debut</th>
+                    <th>C.Restant</th>
+                    <th>Url</th>
+                    <th>Id</th>
+                    <th>CreatedAt</th>
+                    <th>UpdatedAt</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for promo_reseau in promo_reseaus %}
+                <tr>
+                    <td>{% include "crud_promo_reseau/_delete_form.html.twig" %}</td>
+                    <td class="text-center">
+                        {% if promo_reseau.source == 'web' %}
+                            <span class="badge bg-primary">web</span>
+                        {% elseif promo_reseau.source == 'mobile' %}
+                            <span class="badge bg-warning text-dark">mobile</span>
+                        {% else %}
+                            <span class="badge bg-secondary">none</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ promo_reseau.formulePromoReseau }}</td>
+                    <td>{{ promo_reseau.user.pseudo }}</td>
+                    <td>{{ promo_reseau.qteDemander }}</td>
+                    <td>{{ promo_reseau.prixFixer }}</td>
+                    <td>{{ promo_reseau.prixZefame }}</td>
+                    <td class="text-center">
+                        {% if promo_reseau.status == 0 %} <span class="badge bg-info text-white fw-normal">Rembour</span> {% endif %}
+                        {% if promo_reseau.status == 1 %} 
+                            <span class="badge bg-warning text-white fw-normal">En.Attent</span>
+                            <a href="{{ path('app_crud_promo_reseau_demarrage_direct_zefame', {'id': promo_reseau.id}) }}" class="badge bg-danger text-white fw-normal">Démarrer</a> 
+                        {% endif %}
+                        {% if promo_reseau.status == 2 %} <span class="badge bg-danger text-white fw-normal">En.Cours</span> {% endif %}
+                        {% if promo_reseau.status == 3 %} <span class="badge bg-success text-white fw-normal">Terminer</span> {% endif %}
+                    </td>
+                    <td>{{ promo_reseau.idZefame }}</td>
+                    <td>{{ promo_reseau.compteurDebut }}</td>
+                    <td>{{ promo_reseau.compteurRestant }}</td>
+                    <td>
+                        <span url="{{ promo_reseau.url }}" class="copier_url badge bg-danger" style="cursor: pointer;"><i class="fas fa-copy"></i> Copier</span>
+                        <span url="{{ promo_reseau.url }}" class="afficher_url badge bg-primary mt-1" style="cursor: pointer;"><i class="fas fa-eye"></i> Afficher</span>
+                        <textarea id="urlTextarea" style="display: none;">{{ promo_reseau.url }}</textarea>
+                    </td>
+                    <td>{{ promo_reseau.id }}</td>
+                    <td>{{ promo_reseau.createdAt ? promo_reseau.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promo_reseau.updatedAt ? promo_reseau.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="11">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        $(document).ready(function() {
+        // Fonction pour copier l'URL dans le presse-papiers
+        $('.copier_url').click(function() {
+            var url = $(this).attr('url');
+            navigator.clipboard.writeText(url).then(function() {
+                alert('URL copiée dans le presse-papiers');
+            }, function(err) {
+                console.error('Erreur lors de la copie de l\'URL: ', err);
+            });
+        });
+
+        // Fonction pour afficher l'URL dans un SweetAlert ou une modale
+        $('.afficher_url').click(function() {
+            var url = $(this).attr('url');
+            // Utilisation de SweetAlert pour afficher l'URL
+            Swal.fire({
+                title: 'URL',
+                text: url,
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+        });
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}New DeletedDS{% endblock %}
+
+{% block body %}
+    <h1>Create new DeletedDS</h1>
+
+    {{ include('crud_deleted_ds/_form.html.twig') }}
+
+    <a href="{{ path('app_crud_deleted_d_s_index') }}">back to list</a>
+{% endblock %}

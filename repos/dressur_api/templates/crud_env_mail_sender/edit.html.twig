@@ -1,0 +1,13 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Edit EnvMailSender{% endblock %}
+
+{% block body %}
+    <h1>Edit EnvMailSender</h1>
+
+    {{ include('crud_env_mail_sender/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_crud_env_mail_sender_index') }}">back to list</a>
+
+    {{ include('crud_env_mail_sender/_delete_form.html.twig') }}
+{% endblock %}

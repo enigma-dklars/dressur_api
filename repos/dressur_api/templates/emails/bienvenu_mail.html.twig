@@ -1,0 +1,33 @@
+{% extends 'emails/templates_mail.html.twig' %}
+
+{% block contenu_mail %}
+   <div>
+        <p>
+            Bienvenue {{pseudoUser}}, sur Dressur ! Nous sommes ravis de vous accueillir dans notre communauté 
+            et de vous offrir une nouvelle expérience numérique exceptionnelle. 
+        </p>
+        <p> 
+            <strong>Dressur en un coup d'œil :</strong>  
+        </p>
+        <p>
+            Dressur a été conçu pour être bien plus qu'une simple application mobile. 
+            C'est votre allié pour gérer votre visibilité en ligne, communiquer avec style, 
+            et optimiser votre présence numérique.
+        </p>
+   </div>
+    <div>
+        <p>
+            <strong>Besoin d'aide ?</strong>
+        </p> 
+        <p>
+            Notre équipe de support est là pour vous. N'hésitez pas à nous contacter 
+            à adresse e-mail du support : </strong> <a href="mailto:dressur.ds@gmail.com" style="text-decoration: none;">dressur.ds@gmail.com</a></span>
+            en cas de questions, de préoccupations ou même
+            de simples salutations. Nous sommes là pour vous aider à tirer le meilleur parti de Dressur.
+        </p>  
+        <p>
+            Encore une fois, bienvenue à bord de Dressur ! Nous sommes impatients 
+            de vous accompagner dans votre parcours numérique.
+        </p>  
+    </div>
+{% endblock %}

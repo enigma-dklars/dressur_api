@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr" class="{{theme}}">
+    <head>
+        <!-- Google Tag Manager -->
+            <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-T734ZNFG');</script>
+        <!-- End Google Tag Manager -->
+        
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}{% endblock %} | Dressur Web</title>
+        {% block referencement %}{% endblock %}
+        {% block robots_meta %}
+        <meta name="robots" content="index, follow">
+        <meta name="googlebot" content="index, follow">
+        {% endblock %}
+        <link rel="canonical" href="{{ app.request.schemeAndHttpHost ~ app.request.pathInfo }}" />
+        <link rel="icon" href="/assets/images/dressur_logo_blanc.png" type="image/png" />
+
+        <!--plugins-->
+        <link href="/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+        <link href="/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
+        <link href="/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
+        <link href="/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+        <link href="/assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+        <!-- Bootstrap CSS -->
+        <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="/assets/css/bootstrap-extended.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+        <link href="/assets/css/style.css" rel="stylesheet" />
+        <link href="/assets/css/icons.css" rel="stylesheet">
+        <link rel="stylesheet" href="/assets/bootstrap-icons191/font/bootstrap-icons.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+        <!-- loader-->
+        <link href="/assets/css/pace.min.css" rel="stylesheet" />
+
+        <!--Theme Styles-->
+        <link href="/assets/css/dark-theme.css" rel="stylesheet" />
+        <link href="/assets/css/light-theme.css" rel="stylesheet" />
+        <link href="/assets/css/semi-dark.css" rel="stylesheet" />
+        <link href="/assets/css/preloader.css" rel="stylesheet" />
+        <link href="/assets/css/my-css.css" rel="stylesheet" />
+
+        {% block style %}{% endblock %}
+        {% block jsonld %}{% endblock %}
+    </head>
+
+    <body class="">
+        <!--start wrapper-->
+        <div class="wrapper">
+            {% include "public/_includes/header_public.html.twig" %}
+            
+            <!--start content-->
+            <main class="">
+                {% block body %}{% endblock %}
+            </main>
+            <!--end page main-->
+
+            {% include "public/_includes/footer_public.html.twig" %}
+        </div>
+        <!--end wrapper-->
+
+        <!-- Bootstrap bundle JS -->
+        <script src="/assets/js/bootstrap.bundle.min.js"></script>
+        <!--plugins-->
+        <script src="/assets/js/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+        <script src="/assets/js/pace.min.js"></script>
+        <script src="/assets/js/sweetalert.js"></script>
+        <script src="/assets/js/custum-js-ds.js"></script>
+        
+        {% block script %}{% endblock %}
+    </body>
+</html>

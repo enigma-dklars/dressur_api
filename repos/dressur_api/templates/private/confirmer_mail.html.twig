@@ -1,0 +1,126 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Confirmation de l'adresse mail{% endblock %}
+
+{% block body %}
+
+{# Champ uid requis par le JS de custum-js-ds.js #}
+<input type="hidden" id="uid" value="{{ user.uid }}">
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+
+        {# ── Entête ── #}
+        <div class="text-center mb-4 mt-2">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary mb-3" style="width:80px;height:80px;">
+                <i class="fas fa-envelope-open fa-2x text-white"></i>
+            </span>
+            <h4 class="fw-bold mb-1">Vérifiez vos e-mails</h4>
+            <p class="text-muted mb-0">
+                Nous avons envoyé un code de confirmation à votre adresse&nbsp;:
+            </p>
+            <span class="d-inline-block mt-2 px-3 py-2 rounded fw-semibold text-white bg-primary" style="font-size:.9rem;letter-spacing:.2px;word-break:break-all;">
+                {{ user.mail }}
+            </span>
+        </div>
+
+        {# ── Carte de saisie du code ── #}
+        <div class="card border-0 shadow-sm radius-10 mb-3">
+            <div class="card-body p-4">
+
+                {# Message d'erreur/succès #}
+                <div class="mb-3 msgError" id="msgErrorValideMail" style="display:none;"></div>
+
+                {# Saisie du code #}
+                <div class="mb-3">
+                    <label for="codeVerifMail" class="form-label fw-semibold">
+                        <i class="fas fa-key me-1 text-primary"></i> Code reçu par e-mail
+                    </label>
+                    <input
+                        type="text"
+                        class="form-control form-control-lg text-center fw-bold getInfo getInfoVerifMail"
+                        id="codeVerifMail"
+                        placeholder="------"
+                        maxlength="6"
+                        autocomplete="one-time-code"
+                        inputmode="numeric"
+                        style="letter-spacing: 6px; font-size: 1.4rem;"
+                    >
+                </div>
+
+                {# Bouton Confirmer (plein, primaire) #}
+                <button class="btn btn-primary w-100 py-3 fw-bold mb-3" id="validerVerifMail" style="font-size:1rem;">
+                    <i class="fas fa-check-circle me-2"></i> CONFIRMER
+                </button>
+
+                {# Séparateur #}
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <hr class="flex-grow-1 m-0">
+                    <span class="text-muted small">ou</span>
+                    <hr class="flex-grow-1 m-0">
+                </div>
+
+                {# Bouton Renvoyer (contour, avec icône) #}
+                <button class="btn btn-outline-primary w-100 py-2 fw-semibold" id="envoyerCodeMail" style="font-size:.95rem;">
+                    <i class="fas fa-paper-plane me-2"></i> Renvoyer le code
+                </button>
+
+            </div>
+        </div>
+
+        {# ── Bloc d'aide ── #}
+        <div class="card border-0 shadow-sm radius-10" style="border-left: 4px solid var(--bs-primary) !important;">
+            <div class="card-body p-4">
+
+                <p class="fw-semibold mb-3 text-primary">
+                    <i class="fas fa-circle-info me-2"></i>Vous ne recevez pas le code ?
+                </p>
+
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+
+                    <li class="d-flex align-items-start gap-2">
+                        <span class="text-primary mt-1" style="font-size:.55rem;">&#9679;</span>
+                        <span class="text-muted small lh-base">
+                            Vérifiez que votre adresse e-mail a été saisie correctement lors de l'inscription.
+                        </span>
+                    </li>
+
+                    <li class="d-flex align-items-start gap-2">
+                        <span class="text-primary mt-1" style="font-size:.55rem;">&#9679;</span>
+                        <span class="text-muted small lh-base">
+                            Si elle est incorrecte, rendez-vous dans
+                            <a href="/editprofil" class="text-primary fw-semibold text-decoration-none">Paramètres → Profil</a>
+                            pour la corriger, puis revenez ici et renvoyez un nouveau code.
+                        </span>
+                    </li>
+
+                    <li class="d-flex align-items-start gap-2">
+                        <span class="text-primary mt-1" style="font-size:.55rem;">&#9679;</span>
+                        <span class="text-muted small lh-base">
+                            Pensez à vérifier votre dossier <strong>Spam</strong> ou <strong>Indésirables</strong> — le mail peut parfois s'y retrouver.
+                        </span>
+                    </li>
+
+                    <li class="d-flex align-items-start gap-2">
+                        <span class="text-primary mt-1" style="font-size:.55rem;">&#9679;</span>
+                        <span class="text-muted small lh-base">
+                            Si vous utilisez plusieurs adresses e-mail, assurez-vous d'ouvrir la bonne boîte de réception.
+                        </span>
+                    </li>
+
+                </ul>
+
+                <div class="mt-3 pt-3 border-top text-center">
+                    <span class="text-muted small">Toujours bloqué ? </span>
+                    <a href="/support" class="text-primary small fw-semibold text-decoration-none">
+                        <i class="fas fa-headset me-1"></i>Contacter le support
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
