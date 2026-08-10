@@ -4,6 +4,7 @@ namespace App\Controller\API;
 
 use App\Repository\AffiliationUsedRepository;
 use App\Repository\UserRepository;
+use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,7 +19,64 @@ class EspacePartenaireController extends AbstractController
         private EntityManagerInterface $em,
         private UserRepository $userRepository,
         private AffiliationUsedRepository $affiliationUsedRepository,
+        private CookieDS $cookieDS,
     ) {}
+
+    private function garantirCodePartenaire(\App\Entity\User $user): string
+    {
+        if ($user->getCodePartenaire()) {
+            return $user->getCodePartenaire();
+        }
+
+        do {
+            $code = \App\Entity\User::generateCodePartenaire();
+        } while ($this->userRepository->findOneBy(['codePartenaire' => $code]));
+
+        $user->setCodePartenaire($code);
+        return $code;
+    }
+
+    private function listerAccompagnes(\App\Entity\User $user): array
+    {
+        $liste = [];
+        foreach ($user->getAccompagnes() as $acc) {
+            $affiliationUsed = $this->affiliationUsedRepository->findOneBy([
+                'tel'  => $acc->getTel(),
+                'mail' => $acc->getMail(),
+            ]);
+            $dateAffiliation = $affiliationUsed
+                ? $affiliationUsed->getCreatedAt()->format('d/m/Y')
+                : '—';
+            $liste[] = [
+                'nom'             => $acc->getNom() ?? '—',
+                'pseudo'          => $acc->getPseudo() ?? '—',
+                'tel'             => $acc->getTel() ?? '—',
+                'mail'            => $acc->getMail() ?? '—',
+                'dateAffiliation' => $dateAffiliation,
+            ];
+        }
+        return $liste;
+    }
+
+    #[Route('/api/espacePartenaire', name: 'api_espace_partenaire', methods: ['POST'])]
+    public function espacePartenaire(Request $request): JsonResponse
+    {
+        $uid = $this->cookieDS->getWithFallback('uid', $request);
+        $user = $uid ? $this->userRepository->findOneBy(['uid' => $uid]) : null;
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Non authentifié.'], 401);
+        }
+
+        $codePartenaire = $this->garantirCodePartenaire($user);
+        $this->em->flush();
+
+        return new JsonResponse([
+            'success'         => true,
+            'codePartenaire'  => $codePartenaire,
+            'estPartenaire'   => $user->getEstPartenaire(),
+            'accompagnes'     => $this->listerAccompagnes($user),
+        ]);
+    }
 
     #[Route('/api/devenirPartenaire', name: 'api_devenir_partenaire', methods: ['POST'])]
     public function devenirPartenaire(Request $request): JsonResponse
@@ -76,6 +134,7 @@ class EspacePartenaireController extends AbstractController
             ]);
         }
         // ── Tout est bon : activer le statut Partenaire ───────────────
+        $codePartenaire = $this->garantirCodePartenaire($user);
         $user->setEstPartenaire(true);
         // Notification pour le user
         $this->traitementsDS->addNotification(
@@ -84,8 +143,9 @@ class EspacePartenaireController extends AbstractController
         );
         $this->em->flush();
         return new JsonResponse([
-            'success' => true,
-            'message' => 'Félicitations ! Vous êtes maintenant Partenaire Dressur.',
+            'success'        => true,
+            'message'        => 'Félicitations ! Vous êtes maintenant Partenaire Dressur.',
+            'codePartenaire' => $codePartenaire,
         ]);
     }
 
@@ -96,26 +156,9 @@ class EspacePartenaireController extends AbstractController
         if (!$user) {
             return new JsonResponse(['success' => false, 'message' => 'Non authentifié.'], 401);
         }
-        $liste = [];
-        foreach ($user->getAccompagnes() as $acc) {
-            $affiliationUsed = $this->affiliationUsedRepository->findOneBy([
-                'tel'  => $acc->getTel(),
-                'mail' => $acc->getMail(),
-            ]);
-            $dateAffiliation = $affiliationUsed
-                ? $affiliationUsed->getCreatedAt()->format('d/m/Y')
-                : '—';
-            $liste[] = [
-                'nom'             => $acc->getNom() ?? '—',
-                'pseudo'          => $acc->getPseudo() ?? '—',
-                'tel'             => $acc->getTel() ?? '—',
-                'mail'            => $acc->getMail() ?? '—',
-                'dateAffiliation' => $dateAffiliation,
-            ];
-        }
         return new JsonResponse([
             'success'     => true,
-            'accompagnes' => $liste,
+            'accompagnes' => $this->listerAccompagnes($user),
         ]);
     }
 }
