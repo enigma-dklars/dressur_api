@@ -28,8 +28,7 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
                 Un partenaire vous a transmis un code à 8 caractères. Renseignez-le ci-dessous pour être associé.
             </p>
             {# ── Conditions ───────────────────────────────── #}
-            {% set secondsDepuisInscription = "now"|date('U') - user.createdAt|date('U') %}
-            {% set inscritDepuis24h = secondsDepuisInscription < 86400 %}
+            {% set inscritDepuis24h = user.codePartenaireDisponible|default(false) %}
             <p class="fw-semibold mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px">Conditions requises</p>
             <ul class="cp-cond-list">
                 <li>
@@ -111,12 +110,12 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
         try {
             const response = await fetch('/api/utiliserCodePartenaire', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: code }),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+                body: new URLSearchParams({ codePartenaire: code }),
                 credentials: 'same-origin'
             });
             const data = await response.json();
-            if (data.success) {
+            if (data.error === false) {
                 feedback.className = 'alert alert-success';
                 feedback.textContent = data.message || 'Partenaire associé avec succès !';
                 feedback.style.display = 'block';

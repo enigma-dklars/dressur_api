@@ -81,10 +81,12 @@ class AffiliationController extends AbstractController
                 ]);
             }
             // --- 6. Vérification : inscrit depuis moins de 24h ---
-            $now = new \DateTime();
-            $diff = $now->diff($user->getCreatedAt());
-            $heuresDepuisInscription = ($diff->days * 24) + $diff->h;
-            if ($heuresDepuisInscription >= 24) {
+            // La fenêtre est strictement [0, 24h) et la date serveur fait foi.
+            $createdAt = $user->getCreatedAt();
+            $ageEnSecondes = $createdAt
+                ? (new \DateTimeImmutable('now'))->getTimestamp() - $createdAt->getTimestamp()
+                : PHP_INT_MAX;
+            if ($ageEnSecondes < 0 || $ageEnSecondes >= 24 * 60 * 60) {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Délai dépassé',
@@ -110,7 +112,19 @@ class AffiliationController extends AbstractController
                 ]);
             }
             // --- 8. Récupération et validation du code saisi ---
-            $codeSaisi = strtoupper(trim((string) $request->request->get('codePartenaire')));
+            // Accepte les formulaires classiques et les anciens payloads JSON.
+            $codeBrut = $request->request->get('codePartenaire');
+            if ($codeBrut === null || trim((string) $codeBrut) === '') {
+                $codeBrut = $request->request->get('code');
+            }
+            if (($codeBrut === null || trim((string) $codeBrut) === '')
+                && str_contains(strtolower((string) $request->headers->get('Content-Type')), 'application/json')) {
+                $payload = json_decode($request->getContent(), true);
+                if (is_array($payload)) {
+                    $codeBrut = $payload['codePartenaire'] ?? $payload['code'] ?? null;
+                }
+            }
+            $codeSaisi = strtoupper(trim((string) $codeBrut));
             if (empty($codeSaisi)) {
                 return new JsonResponse([
                     'error' => true,

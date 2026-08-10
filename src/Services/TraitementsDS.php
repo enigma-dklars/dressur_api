@@ -1046,6 +1046,12 @@ class TraitementsDS extends AbstractController
             if (in_array($r->getStatus(), [2, 3]) && $r->getFormulePromoReseau()) $cumulFcfa += $r->getFormulePromoReseau()->getPrix();
         }
         $joursInscrit = (int)(new \DateTime())->diff($user->getCreatedAt())->days;
+        // Même règle que l'endpoint d'affiliation : l'inscription doit dater de moins de 24h.
+        $createdAt = $user->getCreatedAt();
+        $ageEnSecondes = $createdAt
+            ? (new \DateTimeImmutable('now'))->getTimestamp() - $createdAt->getTimestamp()
+            : PHP_INT_MAX;
+        $codePartenaireDisponible = $ageEnSecondes >= 0 && $ageEnSecondes < 24 * 60 * 60;
 
         return [
             "totalVues" => 0,
@@ -1091,6 +1097,7 @@ class TraitementsDS extends AbstractController
             'vendeur' => $user->isVendeur() ? true : false,
             'aUnPartenaire' => $user->getPartenaire() !== null,
             'codePartenaire' => $user->getCodePartenaire(),
+            'codePartenaireDisponible' => $codePartenaireDisponible,
             'estPartenaire'  => $user->getEstPartenaire(),
             'joursInscrit'   => $joursInscrit,
             'condNom'        => ($user->getNom() !== null && trim($user->getNom()) !== ''),
