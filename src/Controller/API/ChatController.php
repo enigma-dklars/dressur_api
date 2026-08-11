@@ -282,7 +282,7 @@ Options :
 Titre : "Paramètres"
 Sections :
 - Mon Compte :
-  • "Profil" → modifier nom, pseudo, à propos, réseaux sociaux (TikTok, Instagram, Facebook, YouTube).
+  • "Profil" → modifier nom, pseudo et à propos.
   • "Modifier le mot de passe" → changer son mot de passe.
 - Assistance & Avis :
   • "Assistant IA" → cet assistant.
