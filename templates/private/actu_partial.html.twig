@@ -4,9 +4,9 @@
 <div class="row g-3">
     {% for actu in actus %}
         {% set isSiteApplication = actu.typePromotionAffaire == "sites_applications" %}
-        {% set siteAppName = actu.nomSiteApp|default(actu.nom)|default('') %}
-        {% set siteAppUrl = actu.urlSiteApp|default(actu.url)|default('') %}
-        {% set siteAppSubtype = actu.sousTypeSiteApp|default(actu.sousType)|default('') %}
+        {% set siteAppName = actu.nomSiteApp|default(actu.nom|default('')) %}
+        {% set siteAppUrl = actu.urlSiteApp|default(actu.url|default('')) %}
+        {% set siteAppSubtype = actu.sousTypeSiteApp|default(actu.sousType|default('')) %}
         <div class="col-md-4">
             <div class="card mb-0 shadow h-100">
                 <a href="/actu/{{ actu.token }}">
