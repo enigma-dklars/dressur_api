@@ -1,11 +1,25 @@
 {% extends 'baseAdmin.html.twig' %}
 
-{% block title %}New DeletedDS{% endblock %}
+{% block title %}Ajouter un élément{% endblock %}
 
 {% block body %}
-    <h1>Create new DeletedDS</h1>
+    <div class="row g-2 align-items-center mb-3">
+        <div class="col">
+            <h4 class="mb-0">Ajouter un élément</h4>
+            <small class="text-muted">Saisissez les informations puis validez pour l'ajouter à la liste.</small>
+        </div>
+        <div class="col-auto">
+            <a href="{{ path('app_crud_deleted_d_s_index') }}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Retour à la liste
+            </a>
+        </div>
+    </div>
 
-    {{ include('crud_deleted_ds/_form.html.twig') }}
-
-    <a href="{{ path('app_crud_deleted_d_s_index') }}">back to list</a>
+    <div class="card radius-10">
+        <div class="card-body">
+            {{ include('crud_deleted_ds/_form.html.twig', {
+                'button_label': 'Ajouter'
+            }) }}
+        </div>
+    </div>
 {% endblock %}

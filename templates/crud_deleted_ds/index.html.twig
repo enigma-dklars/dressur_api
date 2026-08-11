@@ -1,40 +1,51 @@
 {% extends 'baseAdmin.html.twig' %}
 
-{% block title %}DeletedDS index{% endblock %}
+{% block title %}Deleted DS{% endblock %}
 
 {% block body %}
-    <p class="h4 me-3">DeletedDS index</p>
-    {# <a class="btn btn-sm btn-primary h4" href="{{ path('app_crud_deleted_d_s_new') }}">Create new</a> #}
+    <div class="row g-2 align-items-center mb-3">
+        <div class="col">
+            <h4 class="mb-0">Deleted DS</h4>
+            <small class="text-muted">Historique des suppressions de comptes</small>
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-sm btn-primary" href="{{ path('app_crud_deleted_d_s_new') }}">
+                <i class="fas fa-plus me-1"></i> Ajouter
+            </a>
+        </div>
+    </div>
 
-    <table class="data-table table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th width="0"></th>
-                <th></th>
-                <th>Id</th>
-                <th>Tel</th>
-                <th>Mail</th>
-                <th>CreatedAt</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for deleted_d in deleted_ds %}
-            <tr>
-                <td></td>
-                <td>
-                    {% include "crud_deleted_ds/_delete_form.html.twig" %}
-                </td>
-                <td>{{ deleted_d.id }}</td>
-                <td>{{ deleted_d.tel }}</td>
-                <td>{{ deleted_d.mail }}</td>
-                <td>{{ deleted_d.createdAt ? deleted_d.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th width="0"></th>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Tel</th>
+                    <th>Mail</th>
+                    <th>CreatedAt</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for deleted_d in deleted_ds %}
+                <tr>
+                    <td></td>
+                    <td>
+                        {% include "crud_deleted_ds/_delete_form.html.twig" %}
+                    </td>
+                    <td>{{ deleted_d.id }}</td>
+                    <td>{{ deleted_d.tel }}</td>
+                    <td>{{ deleted_d.mail }}</td>
+                    <td>{{ deleted_d.createdAt ? deleted_d.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">Aucun élément trouvé</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
 {% endblock %}

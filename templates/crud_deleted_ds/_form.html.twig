@@ -1,4 +1,38 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn btn-sm btn-primary">{{ button_label|default('Save') }}</button>
+
+    <div class="row g-3">
+        <div class="col-12">
+            {{ form_label(form.motif) }}
+            {{ form_widget(form.motif) }}
+            {{ form_errors(form.motif) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_label(form.tel) }}
+            {{ form_widget(form.tel) }}
+            {{ form_errors(form.tel) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_label(form.mail) }}
+            {{ form_widget(form.mail) }}
+            {{ form_errors(form.mail) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_label(form.createdAt) }}
+            {{ form_widget(form.createdAt) }}
+            {{ form_errors(form.createdAt) }}
+        </div>
+
+        <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+            <a href="{{ path('app_crud_deleted_d_s_index') }}" class="btn btn-secondary">
+                Annuler
+            </a>
+            <button class="btn btn-primary" type="submit">
+                <i class="fas fa-check me-1"></i> {{ button_label|default('Enregistrer') }}
+            </button>
+        </div>
+    </div>
+
 {{ form_end(form) }}
