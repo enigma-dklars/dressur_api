@@ -416,12 +416,31 @@ class UserController extends AbstractController
                 
 
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
-        $uid = str_replace(["\n", "\r", " "], "", $uid);
+        $uid = is_string($uid)
+            ? str_replace(["\n", "\r", " "], "", $uid)
+            : null;
+
+        if (!$uid) {
+            return new JsonResponse([
+                'error' => true,
+                'code' => 'session_missing',
+                'deleted' => true,
+                'blocked' => false,
+                'titre' => 'Session expirée',
+                'message' => 'Votre session n’est plus disponible. Veuillez vous reconnecter.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
         if($verificationUser["error"] == true){
+            $code = ($verificationUser["blocked"] ?? false)
+                ? 'account_blocked'
+                : (($verificationUser["deleted"] ?? false)
+                    ? 'session_invalid'
+                    : 'session_error');
             return new JsonResponse([
                 'error' => true,
+                'code' => $code,
                 'titre' => $verificationUser["titre"],
                 'message' => $verificationUser["message"],
                 'deleted' => $verificationUser["deleted"],
