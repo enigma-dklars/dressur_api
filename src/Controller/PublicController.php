@@ -230,7 +230,7 @@ class PublicController extends AbstractController
             $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $descpPromo;
         }
 
-        $promoData = [
+        $promoData = array_merge([
             "token"                => $token,
             "image"                => $promo->getImage(),
             "description"          => $descpPromo,
@@ -243,7 +243,7 @@ class PublicController extends AbstractController
             "isFakeVue"            => $promo->getIsFakeVue(),
             "status"               => $promo->getStatus(),
             "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime('now', new \DateTimeZone('Africa/Lagos')))->format('Y-m-d'),
-        ];
+        ], $traitementsDS->getSiteApplicationFields($promo));
 
         $rawAutres   = array_filter($traitementsDS->getTopAffaires(10), fn($p) => $p['id'] !== $id);
         $autresPromos = array_map(function ($p) {

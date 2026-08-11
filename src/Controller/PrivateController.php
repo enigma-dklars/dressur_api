@@ -394,7 +394,7 @@ class PrivateController extends AbstractController
             $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $promo->getDescription();
         }
 
-        $promoData = [
+        $promoData = array_merge([
             "token"                => $token,
             "image"                => $promo->getImage(),
             "description"          => $descpPromo,
@@ -404,7 +404,7 @@ class PrivateController extends AbstractController
             "nombreImpression"     => (string) $traitementsDS->formatNumber($promo->getNombreImpression()),
             "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
             "annotherInfo"         => $promo->getAnnotherInfo(),
-        ];
+        ], $traitementsDS->getSiteApplicationFields($promo));
 
         $rawAutres = array_filter(
             $traitementsDS->getTopAffaires(10),

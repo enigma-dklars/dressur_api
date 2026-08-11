@@ -338,6 +338,7 @@ class TraitementsDS extends AbstractController
                 "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                 "publishOnDressurStatus" => $promo->isPublishOnDressurStatus() ? 1 : 0,
             ];
+            $unePromo = array_merge($unePromo, $this->getSiteApplicationFields($promo));
             array_push($userPromos, $unePromo);
         }
 
@@ -537,7 +538,7 @@ class TraitementsDS extends AbstractController
             if ($promo->getTypePromotionAffaire() == "dmd_emploi") {
                 $descp_promo = $promo->getAnnotherInfo()["description_profil_demandeur"];
             }
-            $result[] = [
+            $promotionData = [
                 "uidUser"              => $promo->getUser()->getUid(),
                 "id"                   => $promo->getId(),
                 "image"                => $promo->getImage(),
@@ -550,6 +551,7 @@ class TraitementsDS extends AbstractController
                 "annotherInfo"         => $promo->getAnnotherInfo(),
                 "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
+            $result[] = array_merge($promotionData, $this->getSiteApplicationFields($promo));
         }
         return $result;
     }
@@ -579,6 +581,7 @@ class TraitementsDS extends AbstractController
                 "annotherInfo" => $promo->getAnnotherInfo(),
                 "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
             ];
+            $unePromo = array_merge($unePromo, $this->getSiteApplicationFields($promo));
             array_push($top_trois_affaires, $unePromo);            
         }
         // Mélanger l'ordre des éléments de manière aléatoire
@@ -633,6 +636,7 @@ class TraitementsDS extends AbstractController
                         "annotherInfo" => $promo->getAnnotherInfo(),
                         "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                     ];
+                    $unePromo = array_merge($unePromo, $this->getSiteApplicationFields($promo));
                     array_push($listePubliciteAffichageAuxUsers, $unePromo);
                 }
             } else {
@@ -659,6 +663,7 @@ class TraitementsDS extends AbstractController
                             "annotherInfo" => $promo->getAnnotherInfo(),
                             "inProgrammeRecompense" => $promo->isInProgrammeRecompense() ? 1 : 0,
                         ];
+                        $unePromo = array_merge($unePromo, $this->getSiteApplicationFields($promo));
                         array_push($listePubliciteAffichageAuxUsers, $unePromo);
                     }
                 }
@@ -678,7 +683,7 @@ class TraitementsDS extends AbstractController
                 $descp_promo = $promoVIP->getAnnotherInfo()["description_profil_demandeur"];
             }
 
-            array_push($listePubliciteAffichageAuxUsers, [
+            $promoData = [
                 "uidUser" => $promoVIP->getUser()->getUid(),
                 "id" => $promoVIP->getId(),
                 "image" => $promoVIP->getImage(),
@@ -690,10 +695,80 @@ class TraitementsDS extends AbstractController
                 "typePromotionAffaire" => $promoVIP->getTypePromotionAffaire(),
                 "annotherInfo" => $promoVIP->getAnnotherInfo(),
                 "inProgrammeRecompense" => $promoVIP->isInProgrammeRecompense() ? 1 : 0,
-            ]);
+            ];
+            array_push(
+                $listePubliciteAffichageAuxUsers,
+                array_merge($promoData, $this->getSiteApplicationFields($promoVIP))
+            );
         }
         shuffle($listePubliciteAffichageAuxUsers);
         return $listePubliciteAffichageAuxUsers;
+    }
+
+    /**
+     * Normalise les champs d'une promotion Sites & Applications pour les
+     * consommateurs web et mobile. Les autres types ne reçoivent aucun champ
+     * supplémentaire afin de préserver leur contrat existant.
+     *
+     * @return array<string, string|null>
+     */
+    public function getSiteApplicationFields(Promotion $promotion): array
+    {
+        if ($promotion->getTypePromotionAffaire() !== 'sites_applications') {
+            return [];
+        }
+
+        $annotherInfo = $promotion->getAnnotherInfo() ?? [];
+        $firstNonEmpty = static function (mixed ...$values): string {
+            foreach ($values as $value) {
+                $value = trim((string) $value);
+                if ($value !== '') {
+                    return $value;
+                }
+            }
+
+            return '';
+        };
+
+        // Les anciennes transactions utilisaient annotherInfo avant que les
+        // colonnes dédiées ne soient systématiquement renseignées.
+        $nom = $firstNonEmpty(
+            $promotion->getNomSiteApp(),
+            $annotherInfo['nomSiteApp'] ?? null,
+            $annotherInfo['nom'] ?? null
+        );
+        $urlCandidate = $firstNonEmpty(
+            $promotion->getUrlSiteApp(),
+            $annotherInfo['urlSiteApp'] ?? null,
+            $annotherInfo['url'] ?? null
+        );
+        $url = filter_var($urlCandidate, FILTER_VALIDATE_URL)
+            && in_array(parse_url($urlCandidate, PHP_URL_SCHEME), ['http', 'https'], true)
+            ? $urlCandidate
+            : '';
+        $sousTypeCandidate = $firstNonEmpty(
+            $promotion->getSousTypeSiteApp(),
+            $annotherInfo['sousTypeSiteApp'] ?? null,
+            $annotherInfo['sousType'] ?? null
+        );
+        $sousType = in_array($sousTypeCandidate, ['site_web', 'app_mobile', 'logiciel_desktop'], true)
+            ? $sousTypeCandidate
+            : '';
+        $image = $firstNonEmpty(
+            $promotion->getImage(),
+            $annotherInfo['image'] ?? null,
+            $annotherInfo['logo'] ?? null
+        );
+
+        return [
+            'image'           => $image !== '' ? $image : null,
+            'nom'             => $nom !== '' ? $nom : null,
+            'nomSiteApp'      => $nom !== '' ? $nom : null,
+            'url'             => $url !== '' ? $url : null,
+            'urlSiteApp'      => $url !== '' ? $url : null,
+            'sousType'        => $sousType !== '' ? $sousType : null,
+            'sousTypeSiteApp' => $sousType !== '' ? $sousType : null,
+        ];
     }
 
     public function listePromotionAffaireInProgrammeRecompense($user){
