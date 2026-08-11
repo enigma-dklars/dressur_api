@@ -198,12 +198,6 @@ class ChatController extends AbstractController
             'Contacts reçus : '   . $nbrContactsRecus,
             'Contacts ajoutés : ' . $nbrContactsAjoutes,
             'Boost contact actif : ' . ($boostActif ? 'Oui (' . $boostInfo . ')' : 'Non'),
-            'Réseaux sociaux renseignés : ' . implode(', ', array_filter([
-                $user->getTiktok()    ? 'TikTok'    : null,
-                $user->getInstagram() ? 'Instagram' : null,
-                $user->getFacebook()  ? 'Facebook'  : null,
-                $user->getYoutube()   ? 'YouTube'   : null,
-            ])) ?: 'Aucun',
             'Membre depuis : ' . ($user->getCreatedAt() ? $user->getCreatedAt()->format('d/m/Y') : 'Inconnu'),
         ]);
 

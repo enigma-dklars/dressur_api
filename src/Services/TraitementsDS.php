@@ -901,10 +901,6 @@ class TraitementsDS extends AbstractController
                 "tel" => $userContact->getTel(),
                 "nom" => $userContact->getNom() ? $userContact->getNom() : "",
                 "apropos" => $userContact->getApropos() ? $userContact->getApropos() : "",
-                "tiktok" => $userContact->getTiktok() ? $userContact->getTiktok() : "",
-                "instagram" => $userContact->getInstagram() ? $userContact->getInstagram() : "",
-                "facebook" => $userContact->getFacebook() ? $userContact->getFacebook() : "",
-                "youtube" => $userContact->getYoutube() ? $userContact->getYoutube() : "",
             ]);
         }
 
@@ -924,10 +920,6 @@ class TraitementsDS extends AbstractController
                 "tel" => $unUser->getTel(),
                 "nom" => (string)$unUser,
                 "apropos" => $unUser->getApropos() ? $unUser->getApropos() : "",
-                "tiktok" => $unUser->getTiktok() ? $unUser->getTiktok() : "",
-                "instagram" => $unUser->getInstagram() ? $unUser->getInstagram() : "",
-                "facebook" => $unUser->getFacebook() ? $unUser->getFacebook() : "",
-                "youtube" => $unUser->getYoutube() ? $unUser->getYoutube() : "",
             ];
             array_push($userContacts, $unContact);
         }
@@ -1105,10 +1097,6 @@ class TraitementsDS extends AbstractController
     public function infosUser($user){
         $lesPublicitesArray = $this->listePubliciteAffichageAuxUsers($user);
         $lesPublicites = json_encode($lesPublicitesArray);
-        if(strlen(str_replace(" ", "", $user->getTiktok())) == 0 ) { $user->setTiktok(null); }
-        if(strlen(str_replace(" ", "", $user->getInstagram())) == 0 ) { $user->setInstagram(null); }
-        if(strlen(str_replace(" ", "", $user->getFacebook())) == 0 ) { $user->setFacebook(null); }
-        if(strlen(str_replace(" ", "", $user->getYoutube())) == 0 ) { $user->setYoutube(null); }
         if(strlen(str_replace(" ", "", $user->getApropos())) == 0 ) { $user->setApropos(null); }
         $cumulFcfa = 0;
         foreach ($user->getBoosts() as $b) {
@@ -1148,10 +1136,6 @@ class TraitementsDS extends AbstractController
             "pays" => $user->getPays(),
             "tel" => $user->getTel(),
             "apropos" => $user->getApropos(),
-            "tiktok" => $user->getTiktok(),
-            "instagram" => $user->getInstagram(),
-            "facebook" => $user->getFacebook(),
-            "youtube" => $user->getYoutube(),
             "createdAt" => $user->getCreatedAt(),
             "mailIsVerified" => $user->getMailIsVerified(),
             "telIsVerified" => $user->getTelIsVerified(),
