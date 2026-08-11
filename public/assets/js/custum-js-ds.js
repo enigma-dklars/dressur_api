@@ -1725,10 +1725,6 @@ $(document).ready(function () {
         let inputTelWhatsApp = $("#inputTelWhatsApp").val();
         let inputEmail = $("#inputEmail").val();
         let inputNomPrenom = $("#inputNomPrenom").val();
-        let inputTiktok = $("#inputTiktok").val();
-        let inputInstagram = $("#inputInstagram").val();
-        let inputFacebook = $("#inputFacebook").val();
-        let inputYoutube = $("#inputYoutube").val();
         let inputAPropos = $("#inputAPropos").val();
 
         $(".getInfo").each(function() {
@@ -1786,10 +1782,6 @@ $(document).ready(function () {
                 nom : inputNomPrenom,
                 pseudo : inputPseudo,
                 apropos : inputAPropos,
-                tiktok : inputTiktok,
-                instagram : inputInstagram,
-                facebook : inputFacebook,
-                youtube : inputYoutube,
             },
             success: function (response) {
                 if(response.error == true){

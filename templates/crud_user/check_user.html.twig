@@ -131,21 +131,6 @@
         </div>
     </div>
 
-    {# ── Réseaux sociaux ───────────────────────────────────────── #}
-    {% if u.tiktok or u.instagram or u.facebook or u.youtube %}
-    <div class="card mb-3">
-        <div class="card-header fw-bold">🌐 Réseaux sociaux</div>
-        <div class="card-body">
-            <div class="row g-2">
-                {% if u.tiktok %}<div class="col-6 col-md-3"><small class="text-muted d-block">TikTok</small><a href="{{ u.tiktok }}" target="_blank">{{ u.tiktok }}</a></div>{% endif %}
-                {% if u.instagram %}<div class="col-6 col-md-3"><small class="text-muted d-block">Instagram</small><a href="{{ u.instagram }}" target="_blank">{{ u.instagram }}</a></div>{% endif %}
-                {% if u.facebook %}<div class="col-6 col-md-3"><small class="text-muted d-block">Facebook</small><a href="{{ u.facebook }}" target="_blank">{{ u.facebook }}</a></div>{% endif %}
-                {% if u.youtube %}<div class="col-6 col-md-3"><small class="text-muted d-block">YouTube</small><a href="{{ u.youtube }}" target="_blank">{{ u.youtube }}</a></div>{% endif %}
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     {# ── Programme Récompense ──────────────────────────────────── #}
     <div class="card mb-3">
         <div class="card-header fw-bold">🎁 Programme Récompense</div>

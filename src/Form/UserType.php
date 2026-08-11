@@ -55,28 +55,6 @@ class UserType extends AbstractType
                 'attr' => ['class' => 'form-control', 'rows' => 3],
             ])
 
-            // --- Réseaux sociaux ---
-            ->add('tiktok', TextType::class, [
-                'label' => 'TikTok',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('instagram', TextType::class, [
-                'label' => 'Instagram',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('facebook', TextType::class, [
-                'label' => 'Facebook',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-            ->add('youtube', TextType::class, [
-                'label' => 'YouTube',
-                'required' => false,
-                'attr' => ['class' => 'form-control'],
-            ])
-
             // --- Statuts & droits ---
             ->add('mailIsVerified', CheckboxType::class, [
                 'label' => 'Email vérifié',

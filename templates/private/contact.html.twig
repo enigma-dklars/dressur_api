@@ -87,8 +87,8 @@
                             <small class="text-muted">{{ contact.tel }}</small>
                         </div>
 
-                        {# Bouton info → modal réseaux sociaux / à propos #}
-                        {% if contact.tiktok or contact.instagram or contact.facebook or contact.youtube or contact.apropos %}
+                        {# Bouton info → modal à propos #}
+                        {% if contact.apropos %}
                             <button class="btn btn-link btn-sm text-muted p-1 ms-1 flex-shrink-0"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modal_contact_{{ contact.id }}">
@@ -128,8 +128,8 @@
                 </div>
             </div>
 
-            {# ── Modal réseaux sociaux / à propos ──────────────────── #}
-            {% if contact.tiktok or contact.instagram or contact.facebook or contact.youtube or contact.apropos %}
+            {# ── Modal à propos ────────────────────────────────────── #}
+            {% if contact.apropos %}
                 <div class="modal fade"
                      id="modal_contact_{{ contact.id }}"
                      tabindex="-1"
@@ -146,26 +146,6 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
                             <div class="modal-body">
-                                {% if contact.tiktok %}
-                                    <a href="{{ contact.tiktok }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
-                                        <i class="fab fa-tiktok me-2"></i> TikTok
-                                    </a>
-                                {% endif %}
-                                {% if contact.instagram %}
-                                    <a href="{{ contact.instagram }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
-                                        <i class="fab fa-instagram me-2"></i> Instagram
-                                    </a>
-                                {% endif %}
-                                {% if contact.facebook %}
-                                    <a href="{{ contact.facebook }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
-                                        <i class="fab fa-facebook-f me-2"></i> Facebook
-                                    </a>
-                                {% endif %}
-                                {% if contact.youtube %}
-                                    <a href="{{ contact.youtube }}" class="btn btn-light w-100 text-start mb-2" target="_blank" rel="noopener noreferrer">
-                                        <i class="fab fa-youtube me-2"></i> YouTube
-                                    </a>
-                                {% endif %}
                                 {% if contact.apropos %}
                                     <div class="p-3 bg-light rounded small mt-1" style="white-space: pre-line;">{{ contact.apropos }}</div>
                                 {% endif %}

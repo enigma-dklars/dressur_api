@@ -179,10 +179,6 @@ class UserController extends AbstractController
         $pseudo = $datas->get('pseudo');
         $tel = $datas->get('tel');
         $apropos = $datas->get('apropos');
-        $tiktok = $datas->get('tiktok');
-        $instagram = $datas->get('instagram');
-        $facebook = $datas->get('facebook');
-        $youtube = $datas->get('youtube');
         
                 
 
@@ -215,42 +211,6 @@ class UserController extends AbstractController
                 'titre' => 'Erreur!',
                 'message' => "Cette adresse mail a été banni de Dressur. Contactez l'assistance s'il s'agit d'une erreur.",
             ]);
-        }
-
-        if($instagram) {
-            if (!$verificationsDS->isValidSocialUrl($instagram, 'instagram')) {
-                return new JsonResponse([
-                    'error' => true,
-                    'message' => strtoupper('instagram').' URL invalide.',
-                ]);
-            }
-        }
-
-        if($facebook) {
-            if (!$verificationsDS->isValidSocialUrl($facebook, 'facebook')) {
-                return new JsonResponse([
-                    'error' => true,
-                    'message' => strtoupper('facebook').' URL invalide.',
-                ]);
-            }
-        }
-
-        if($youtube) {
-            if (!$verificationsDS->isValidSocialUrl($youtube, 'youtube')) {
-                return new JsonResponse([
-                    'error' => true,
-                    'message' => strtoupper('youtube').' URL invalide.',
-                ]);
-            }
-        }
-
-        if($tiktok) {
-            if (!$verificationsDS->isValidSocialUrl($tiktok, 'tiktok')) {
-                return new JsonResponse([
-                    'error' => true,
-                    'message' => strtoupper('tiktok').' URL invalide.',
-                ]);
-            }
         }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -321,10 +281,6 @@ class UserController extends AbstractController
             ->setNom($nom)
             ->setPseudo($pseudo)
             ->setApropos($apropos)
-            ->setTiktok($tiktok)
-            ->setInstagram($instagram)
-            ->setFacebook($facebook)
-            ->setYoutube($youtube)
         ;
 
         if($user->getTelIsVerified() == false) {
