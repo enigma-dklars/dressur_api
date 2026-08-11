@@ -5,34 +5,63 @@
 {% block body %}
 <div class="row g-3">
     {% for actu in actus %}
+        {% set isSiteApplication = actu.typePromotionAffaire == "sites_applications" %}
+        {% set siteAppName = actu.nomSiteApp|default(actu.nom)|default('') %}
+        {% set siteAppUrl = actu.urlSiteApp|default(actu.url)|default('') %}
+        {% set siteAppSubtype = actu.sousTypeSiteApp|default(actu.sousType)|default('') %}
         <div class="col-md-4">
             <div class="card mb-0 shadow h-100">
                 <a href="/actu/{{ actu.token }}">
-                    <img src="/promotion/{{ actu.image }}" class="card-img-top image-actu" alt="{{ actu.pseudoAnnonceur }}">
+                    <img src="/promotion/{{ actu.image }}" class="card-img-top image-actu" alt="{% if isSiteApplication %}{{ siteAppName }}{% else %}{{ actu.pseudoAnnonceur }}{% endif %}">
                 </a>
                 <div class="card-body">
-                    <p class="card-text actu-small-description mb-2">
-                        {% if actu.typePromotionAffaire == "produit_service" %}<div class="actu-small-description mb-1">{{ actu.description }}</div>{% endif %}
-                        {% if actu.typePromotionAffaire == "offre_emploi" %}<div class="actu-small-description mb-1">{{ actu.annotherInfo.description_poste }}</div>{% endif %}
-                        {% if actu.typePromotionAffaire == "dmd_emploi" %}<div class="actu-small-description mb-1">{{ actu.annotherInfo.description_profil_demandeur }}</div>{% endif %}
-                    </p>
-                    <div class="row align-items-center">
-                        <div class="col-5">
-                            <div class="row g-2">
-                                <div class="col-auto text-muted small"><i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}</div>
-                                <div class="col-auto text-muted small"><i class="fas fa-hand-pointer me-1"></i>{{ actu.nombreDeVues }}</div>
-                            </div>
+                    {% if isSiteApplication %}
+                        <h5 class="card-title mb-1">{{ siteAppName }}</h5>
+                        <div class="text-muted small mb-3">
+                            {% if siteAppSubtype == "site_web" %}Site web
+                            {% elseif siteAppSubtype == "app_mobile" %}Application mobile
+                            {% elseif siteAppSubtype == "logiciel_desktop" %}Logiciel desktop
+                            {% else %}{{ siteAppSubtype }}{% endif %}
                         </div>
-                        <div class="col-7 text-end d-flex gap-1 justify-content-end">
+                        <div class="card-text mb-3">{{ actu.description|nl2br }}</div>
+                    {% else %}
+                        <p class="card-text actu-small-description mb-2">
+                            {% if actu.typePromotionAffaire == "produit_service" %}<div class="actu-small-description mb-1">{{ actu.description }}</div>{% endif %}
+                            {% if actu.typePromotionAffaire == "offre_emploi" %}<div class="actu-small-description mb-1">{{ actu.annotherInfo.description_poste }}</div>{% endif %}
+                            {% if actu.typePromotionAffaire == "dmd_emploi" %}<div class="actu-small-description mb-1">{{ actu.annotherInfo.description_profil_demandeur }}</div>{% endif %}
+                        </p>
+                    {% endif %}
+                    <div class="row align-items-center">
+                        {% if not isSiteApplication %}
+                            <div class="col-5">
+                                <div class="row g-2">
+                                    <div class="col-auto text-muted small"><i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}</div>
+                                    <div class="col-auto text-muted small"><i class="fas fa-hand-pointer me-1"></i>{{ actu.nombreDeVues }}</div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="{% if isSiteApplication %}col-12{% else %}col-7{% endif %} text-end d-flex gap-1 justify-content-end">
                             <button class="btn btn-outline-secondary btn-sm py-0 px-2 ds-share-btn"
                                 data-share-url="https://dressur.site/actualite/{{ actu.token }}"
-                                data-share-title="{{ actu.pseudoAnnonceur }} — Dressur"
-                                data-share-text="{{ actu.description[:100] }}">
+                                data-share-title="{% if isSiteApplication %}{{ siteAppName }}{% else %}{{ actu.pseudoAnnonceur }} — Dressur{% endif %}"
+                                data-share-text="{% if isSiteApplication %}{{ actu.description }}{% else %}{{ actu.description[:100] }}{% endif %}">
                                 <i class="fas fa-share-nodes"></i>
                             </button>
-                            <a href="/actu/{{ actu.token }}" class="btn btn-outline-primary btn-sm py-0 px-2">
-                                Voir <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
+                            {% if isSiteApplication %}
+                                {% if siteAppUrl %}
+                                    <a href="{{ siteAppUrl }}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                        {% if siteAppSubtype == "site_web" %}Ouvrir
+                                        {% elseif siteAppSubtype == "app_mobile" %}Télécharger
+                                        {% elseif siteAppSubtype == "logiciel_desktop" %}Savoir plus
+                                        {% else %}Savoir plus{% endif %}
+                                        <i class="fas fa-external-link-alt ms-1"></i>
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="/actu/{{ actu.token }}" class="btn btn-outline-primary btn-sm py-0 px-2">
+                                    Voir <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
