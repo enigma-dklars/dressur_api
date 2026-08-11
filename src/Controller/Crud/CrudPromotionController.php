@@ -373,13 +373,16 @@ class CrudPromotionController extends AbstractController
               }
           }
 
-          return $this->render('crud_promotion/edit.html.twig', [
+          $formData = $request->isMethod('POST') ? $request->request->all() : [];
+
+        return $this->render('crud_promotion/edit.html.twig', [
               'theme' => $this->theme,
               'user' => $this->traitementsDS->getUserByUidInCookies(),
               'promotion' => $promotion,
               'users' => $users,
               'formules' => $formules,
               'errors' => $errors,
+            'formData' => $formData,
           ]);
       }
 
