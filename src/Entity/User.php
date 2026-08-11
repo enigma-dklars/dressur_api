@@ -66,18 +66,6 @@ class User
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Promotion::class, orphanRemoval: true)]
     private Collection $promotions;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $tiktok = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $instagram = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $facebook = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $youtube = null;
-
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?Contact $contact = null;
 
@@ -392,54 +380,6 @@ class User
                 $promotion->setUser(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getTiktok(): ?string
-    {
-        return $this->tiktok;
-    }
-
-    public function setTiktok(?string $tiktok): self
-    {
-        $this->tiktok = $tiktok;
-
-        return $this;
-    }
-
-    public function getInstagram(): ?string
-    {
-        return $this->instagram;
-    }
-
-    public function setInstagram(?string $instagram): self
-    {
-        $this->instagram = $instagram;
-
-        return $this;
-    }
-
-    public function getFacebook(): ?string
-    {
-        return $this->facebook;
-    }
-
-    public function setFacebook(?string $facebook): self
-    {
-        $this->facebook = $facebook;
-
-        return $this;
-    }
-
-    public function getYoutube(): ?string
-    {
-        return $this->youtube;
-    }
-
-    public function setYoutube(?string $youtube): self
-    {
-        $this->youtube = $youtube;
 
         return $this;
     }
