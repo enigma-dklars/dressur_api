@@ -128,6 +128,13 @@
         cursor: pointer;
     }
     html.dark-theme .actu-small-description { color: #c8cdd4; }
+    .actu-app-description {
+        font-size: 0.87rem;
+        color: #374151;
+        line-height: 1.55;
+        margin-bottom: 14px;
+    }
+    html.dark-theme .actu-app-description { color: #c8cdd4; }
     .actu-meta {
         font-size: 0.79rem;
         color: #6c757d;
@@ -226,9 +233,13 @@
 <div class="container my-5">
     <div class="row g-4" id="actualite-grid" data-offset="12" data-total="{{ total }}">
         {% for actu in actus %}
+            {% set isSiteApplication = actu.typePromotionAffaire == "sites_applications" %}
+            {% set siteAppName = actu.nomSiteApp|default(actu.nom)|default('') %}
+            {% set siteAppUrl = actu.urlSiteApp|default(actu.url)|default('') %}
+            {% set siteAppSubtype = actu.sousTypeSiteApp|default(actu.sousType)|default('') %}
             {% set waText %}Bonjour/Bonsoir *{{ actu.pseudoAnnonceur }}*, j'ai une question concernant la promotion ci-dessous: {% if actu.description|length >= 100 %}<<{{ actu.description[:100] }}...>>{% else %}<<{{ actu.description }}>>{% endif %} *Depuis Dressur.* {% endset %}
             {% set waUrl = 'https://wa.me/' ~ actu.whatsappNumber ~ '?text=' ~ waText|url_encode %}
-            {% set altText %}{% if actu.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.lieu_travail is defined and actu.annotherInfo.lieu_travail %} à {{ actu.annotherInfo.lieu_travail }}{% endif %} — {{ actu.pseudoAnnonceur }}{% elseif actu.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.localisation_souhaite is defined and actu.annotherInfo.localisation_souhaite %} à {{ actu.annotherInfo.localisation_souhaite }}{% endif %} — {{ actu.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ actu.pseudoAnnonceur }}{% endif %}{% endset %}
+            {% set altText %}{% if isSiteApplication %}{{ siteAppName }}{% elseif actu.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.lieu_travail is defined and actu.annotherInfo.lieu_travail %} à {{ actu.annotherInfo.lieu_travail }}{% endif %} — {{ actu.pseudoAnnonceur }}{% elseif actu.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if actu.annotherInfo.titre_demande_poste_rechercher is defined and actu.annotherInfo.titre_demande_poste_rechercher %} — {{ actu.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if actu.annotherInfo.localisation_souhaite is defined and actu.annotherInfo.localisation_souhaite %} à {{ actu.annotherInfo.localisation_souhaite }}{% endif %} — {{ actu.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ actu.pseudoAnnonceur }}{% endif %}{% endset %}
 
             <div class="col-md-4">
                 <div class="actu-card card mb-0">
@@ -240,25 +251,54 @@
                              loading="lazy" width="400" height="200">
                     </a>
                     <div class="card-body d-flex flex-column">
-                        <p class="actu-small-description">
-                            {% if actu.typePromotionAffaire == "produit_service" %}{{ actu.description }}{% endif %}
-                            {% if actu.typePromotionAffaire == "offre_emploi" %}{{ actu.annotherInfo.description_poste }}{% endif %}
-                            {% if actu.typePromotionAffaire == "dmd_emploi" %}{{ actu.annotherInfo.description_profil_demandeur }}{% endif %}
-                        </p>
-                        <div class="d-flex align-items-center justify-content-between mt-auto">
-                            <div class="actu-meta">
-                                <span><i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}</span>
-                                <span><i class="fas fa-hand-pointer me-1"></i>{{ actu.nombreDeVues }}</span>
+                        {% if isSiteApplication %}
+                            <h2 class="h5 mb-1">{{ siteAppName }}</h2>
+                            <div class="text-muted small mb-2">
+                                {% if siteAppSubtype == "site_web" %}Site web
+                                {% elseif siteAppSubtype == "app_mobile" %}Application mobile
+                                {% elseif siteAppSubtype == "logiciel_desktop" %}Logiciel desktop
+                                {% else %}{{ siteAppSubtype }}{% endif %}
                             </div>
+                            <div class="actu-app-description">{{ actu.description|nl2br }}</div>
+                        {% else %}
+                            <p class="actu-small-description">
+                                {% if actu.typePromotionAffaire == "produit_service" %}{{ actu.description }}{% endif %}
+                                {% if actu.typePromotionAffaire == "offre_emploi" %}{{ actu.annotherInfo.description_poste }}{% endif %}
+                                {% if actu.typePromotionAffaire == "dmd_emploi" %}{{ actu.annotherInfo.description_profil_demandeur }}{% endif %}
+                            </p>
+                        {% endif %}
+                        <div class="d-flex align-items-center justify-content-between mt-auto">
+                            {% if not isSiteApplication %}
+                                <div class="actu-meta">
+                                    <span><i class="fas fa-eye me-1"></i>{{ actu.nombreImpression }}</span>
+                                    <span><i class="fas fa-hand-pointer me-1"></i>{{ actu.nombreDeVues }}</span>
+                                </div>
+                            {% else %}
+                                <div></div>
+                            {% endif %}
                             <div class="actu-actions">
-                                <a href="{{ waUrl }}" target="_blank" class="btn-wa"><i class="fab fa-whatsapp"></i></a>
+                                {% if not isSiteApplication %}
+                                    <a href="{{ waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-wa"><i class="fab fa-whatsapp"></i></a>
+                                {% endif %}
                                 <button class="btn-share ds-share-btn"
                                     data-share-url="https://dressur.site/actualite/{{ actu.token }}"
-                                    data-share-title="{{ actu.pseudoAnnonceur }} — Dressur"
+                                    data-share-title="{% if isSiteApplication %}{{ siteAppName }}{% else %}{{ actu.pseudoAnnonceur }} — Dressur{% endif %}"
                                     data-share-text="{{ actu.description[:100] }}">
                                     <i class="fas fa-share-nodes"></i>
                                 </button>
-                                <a href="/actualite/{{ actu.token }}" class="btn-see">Voir <i class="fas fa-arrow-right"></i></a>
+                                {% if isSiteApplication %}
+                                    {% if siteAppUrl %}
+                                        <a href="{{ siteAppUrl|e('html_attr') }}" target="_blank" rel="noopener noreferrer" class="btn-see">
+                                            {% if siteAppSubtype == "site_web" %}Ouvrir
+                                            {% elseif siteAppSubtype == "app_mobile" %}Télécharger
+                                            {% elseif siteAppSubtype == "logiciel_desktop" %}Savoir plus
+                                            {% endif %}
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="/actualite/{{ actu.token }}" class="btn-see">Voir <i class="fas fa-arrow-right"></i></a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
