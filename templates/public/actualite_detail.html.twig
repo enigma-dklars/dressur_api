@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
+{% set isSiteApplication = promo.typePromotionAffaire == "sites_applications" %}
+{% set siteAppName = promo.nomSiteApp|default(promo.nom)|default('') %}
+{% set siteAppUrl = promo.urlSiteApp|default(promo.url)|default('') %}
+{% set siteAppSubtype = promo.sousTypeSiteApp|default(promo.sousType)|default('') %}
+
 {% set title = promo.pseudoAnnonceur ~ ' — Actualité' %}
 {% set description %}{% if promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail %} à {{ promo.annotherInfo.lieu_travail }}{% endif %} par {{ promo.pseudoAnnonceur }}{% if promo.annotherInfo.description_poste is defined and promo.annotherInfo.description_poste %} · {{ promo.annotherInfo.description_poste[:80] }}{% endif %}{% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.localisation_souhaite is defined and promo.annotherInfo.localisation_souhaite %} à {{ promo.annotherInfo.localisation_souhaite }}{% endif %} par {{ promo.pseudoAnnonceur }}{% if promo.annotherInfo.description_profil_demandeur is defined and promo.annotherInfo.description_profil_demandeur %} · {{ promo.annotherInfo.description_profil_demandeur[:80] }}{% endif %}{% else %}{{ promo.description[:160] }}{% endif %}{% endset %}
 {% set description = description|trim|slice(0, 155) %}
@@ -191,46 +196,71 @@
 
     <div class="row g-4">
         <div class="col-lg-8 mx-auto">
-            {% set altPromo %}{% if promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail %} à {{ promo.annotherInfo.lieu_travail }}{% endif %} — {{ promo.pseudoAnnonceur }}{% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.localisation_souhaite is defined and promo.annotherInfo.localisation_souhaite %} à {{ promo.annotherInfo.localisation_souhaite }}{% endif %} — {{ promo.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ promo.pseudoAnnonceur }}{% endif %}{% endset %}
+            {% set altPromo %}{% if isSiteApplication %}{{ siteAppName }}{% elseif promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.lieu_travail is defined and promo.annotherInfo.lieu_travail %} à {{ promo.annotherInfo.lieu_travail }}{% endif %} — {{ promo.pseudoAnnonceur }}{% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi{% if promo.annotherInfo.titre_demande_poste_rechercher is defined and promo.annotherInfo.titre_demande_poste_rechercher %} — {{ promo.annotherInfo.titre_demande_poste_rechercher }}{% endif %}{% if promo.annotherInfo.localisation_souhaite is defined and promo.annotherInfo.localisation_souhaite %} à {{ promo.annotherInfo.localisation_souhaite }}{% endif %} — {{ promo.pseudoAnnonceur }}{% else %}Promotion produit / service — {{ promo.pseudoAnnonceur }}{% endif %}{% endset %}
             <div class="card shadow">
                 <img src="/promotion/{{ promo.image }}" class="card-img-top w-100" alt="{{ altPromo|trim }}" style="height:auto; display:block;">
                 <div class="card-body p-4">
 
-                    <div class="d-flex align-items-start mb-3">
-                        <div class="flex-grow-1">
-                            <h5 class="mb-1 fw-bold">{{ promo.pseudoAnnonceur }}</h5>
-                            <span class="badge bg-info">
-                                {% if promo.typePromotionAffaire == "produit_service" %}Produit / Service
-                                {% elseif promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi
-                                {% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi
-                                {% else %}{{ promo.typePromotionAffaire }}
-                                {% endif %}
-                            </span>
-                        </div>
-                        <div class="text-end text-muted small ms-3">
-                            <div><i class="fas fa-eye me-1"></i>{{ promo.nombreImpression }} vues</div>
-                            <div><i class="fas fa-hand-pointer me-1"></i>{{ promo.nombreDeVues }} clics</div>
-                        </div>
-                    </div>
-
-                    <p class="fs-6 mb-3">{{ promo.description|nl2br }}</p>
-
-                    {% if promo.annotherInfo %}
-                        <hr>
-                        <div class="row g-2">
-                        {% for key, value in promo.annotherInfo %}
-                            {% if value is not empty %}
-                            <div class="col-12 mb-1">
-                                <span class="fw-bold text-primary">{{ key | replace({'_': ' '}) | capitalize }} :</span>
-                                <span>{{ value|nl2br }}</span>
+                    {% if isSiteApplication %}
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="flex-grow-1">
+                                <h1 class="h3 mb-2 fw-bold">{{ siteAppName }}</h1>
+                                <span class="badge bg-info">
+                                    {% if siteAppSubtype == "site_web" %}Site web
+                                    {% elseif siteAppSubtype == "app_mobile" %}Application mobile
+                                    {% elseif siteAppSubtype == "logiciel_desktop" %}Logiciel desktop
+                                    {% else %}{{ siteAppSubtype }}{% endif %}
+                                </span>
                             </div>
-                            {% endif %}
-                        {% endfor %}
                         </div>
-                        <hr>
+
+                        <div class="fs-6 mb-3">{{ promo.description|nl2br }}</div>
+                    {% else %}
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="flex-grow-1">
+                                <h5 class="mb-1 fw-bold">{{ promo.pseudoAnnonceur }}</h5>
+                                <span class="badge bg-info">
+                                    {% if promo.typePromotionAffaire == "produit_service" %}Produit / Service
+                                    {% elseif promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi
+                                    {% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi
+                                    {% else %}{{ promo.typePromotionAffaire }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="text-end text-muted small ms-3">
+                                <div><i class="fas fa-eye me-1"></i>{{ promo.nombreImpression }} vues</div>
+                                <div><i class="fas fa-hand-pointer me-1"></i>{{ promo.nombreDeVues }} clics</div>
+                            </div>
+                        </div>
+
+                        <p class="fs-6 mb-3">{{ promo.description|nl2br }}</p>
+
+                        {% if promo.annotherInfo %}
+                            <hr>
+                            <div class="row g-2">
+                            {% for key, value in promo.annotherInfo %}
+                                {% if value is not empty %}
+                                <div class="col-12 mb-1">
+                                    <span class="fw-bold text-primary">{{ key | replace({'_': ' '}) | capitalize }} :</span>
+                                    <span>{{ value|nl2br }}</span>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            </div>
+                            <hr>
+                        {% endif %}
                     {% endif %}
 
                     <div class="mt-3 d-flex gap-2 flex-wrap">
+                        {% if isSiteApplication and siteAppUrl %}
+                            <a href="{{ siteAppUrl|e('html_attr') }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                                {% if siteAppSubtype == "site_web" %}Ouvrir
+                                {% elseif siteAppSubtype == "app_mobile" %}Télécharger
+                                {% elseif siteAppSubtype == "logiciel_desktop" %}Savoir plus
+                                {% endif %}
+                                <i class="fas fa-external-link-alt ms-1"></i>
+                            </a>
+                        {% endif %}
                         {% set waText %}Bonjour/Bonsoir *{{ promo.pseudoAnnonceur }}*, j'ai une question concernant votre promotion sur Dressur.{% endset %}
                         {% set waUrl = 'https://wa.me/' ~ promo.whatsappNumber ~ '?text=' ~ waText|url_encode %}
                         <button type="button" class="btn btn-success ds-contact-btn"
