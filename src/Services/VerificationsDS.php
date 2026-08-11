@@ -220,27 +220,4 @@ class VerificationsDS extends AbstractController
         ];
     }
 
-    public function isValidSocialUrl($url, $socialNetwork) {
-        // Vérifie si l'URL est valide
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            return false;
-        }
-        
-        // Définit les domaines pour chaque réseau social
-        $socialDomains = [
-            'youtube' => ['youtube.com', 'youtu.be'],
-            'tiktok' => ['tiktok.com'],
-            'instagram' => ['instagram.com'],
-            'facebook' => ['facebook.com'],
-        ];
-        
-        // Vérifie si l'URL contient le domaine du réseau social
-        foreach ($socialDomains[$socialNetwork] as $domain) {
-            if (strpos($url, $domain) !== false) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
 }
