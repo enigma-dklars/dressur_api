@@ -18,6 +18,9 @@
 .ds-network-name{font-weight:600;font-size:14px;margin:0 0 3px;color:var(--bs-body-color,#212529)}
 .ds-network-url{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--bs-secondary-color,#6c757d);font-size:12px;text-decoration:none}
 .ds-network-url:hover{color:var(--bs-primary,#0d6efd)}
+.ds-network-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.ds-network-edit,.ds-network-delete{border:0;background:transparent;color:var(--bs-secondary-color,#6c757d);border-radius:9px;padding:8px 10px;line-height:1}
+.ds-network-edit:hover{background:rgba(13,110,253,.10);color:var(--bs-primary,#0d6efd)}
 .ds-network-delete{flex-shrink:0;border:0;background:transparent;color:var(--bs-secondary-color,#6c757d);border-radius:9px;padding:8px 10px;line-height:1}
 .ds-network-delete:hover{background:rgba(220,53,69,.10);color:#dc3545}
 .ds-networks-empty{background:var(--bs-body-bg,#fff);border:1px dashed var(--bs-border-color,rgba(0,0,0,.16));border-radius:15px;padding:34px 22px;text-align:center}
@@ -94,24 +97,32 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
             <form id="dsAddNetworkForm">
                 <div class="modal-body">
                     <div id="dsAddNetworkError" class="alert alert-danger d-none" role="alert"></div>
-                    <div class="mb-3">
+                <div class="mb-3" id="dsNetworkTypeGroup">
                         <label for="dsNetworkType" class="form-label">Réseau</label>
                         <select class="form-select" id="dsNetworkType" required>
                             <option value="">Sélectionnez un réseau</option>
                         </select>
                     </div>
+                    <div class="mb-3 d-none" id="dsEditingNetworkGroup">
+                        <label for="dsEditingNetworkLabel" class="form-label">Réseau</label>
+                        <input type="text" class="form-control" id="dsEditingNetworkLabel" readonly>
+                    </div>
                     <div class="mb-2">
                         <label for="dsNetworkUrl" class="form-label">URL du profil</label>
                         <input type="url" class="form-control" id="dsNetworkUrl"
-                               placeholder="https://…" autocomplete="url" required>
+                               placeholder="https://…" autocomplete="url" maxlength="512"
+                               aria-describedby="dsNetworkUrlHelp dsNetworkUrlCount" required>
                     </div>
-                    <p class="ds-network-modal-note mb-0">L’URL sera vérifiée par Dressur avant son enregistrement.</p>
+                    <div class="d-flex justify-content-between gap-3">
+                        <p class="ds-network-modal-note mb-0" id="dsNetworkUrlHelp">URL HTTPS, 512 caractères maximum.</p>
+                        <span class="ds-network-modal-note text-nowrap" id="dsNetworkUrlCount">0/512</span>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
                     <button type="submit" class="btn btn-primary" id="dsSaveNetworkButton">
                         <span class="spinner-border spinner-border-sm d-none me-1" id="dsSaveNetworkSpinner" aria-hidden="true"></span>
-                        Enregistrer
+                        <span id="dsSaveNetworkText">Enregistrer</span>
                     </button>
                 </div>
             </form>
@@ -139,10 +150,20 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     const addForm = document.getElementById('dsAddNetworkForm');
     const addError = document.getElementById('dsAddNetworkError');
     const networkType = document.getElementById('dsNetworkType');
+    const networkTypeGroup = document.getElementById('dsNetworkTypeGroup');
+    const editingNetworkGroup = document.getElementById('dsEditingNetworkGroup');
+    const editingNetworkLabel = document.getElementById('dsEditingNetworkLabel');
     const networkUrl = document.getElementById('dsNetworkUrl');
+    const networkUrlCount = document.getElementById('dsNetworkUrlCount');
     const saveButton = document.getElementById('dsSaveNetworkButton');
+    const saveButtonText = document.getElementById('dsSaveNetworkText');
     const saveSpinner = document.getElementById('dsSaveNetworkSpinner');
     const modal = document.getElementById('dsAddNetworkModal');
+    const modalTitle = document.getElementById('dsAddNetworkModalLabel');
+    const maxUrlLength = 512;
+    let networks = [];
+    let catalog = [];
+    let editingNetworkType = null;
 
     function setVisible(element, visible) {
         element.classList.toggle('d-none', !visible);
@@ -156,6 +177,58 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     function showSuccess(message) {
         success.textContent = message;
         setVisible(success, true);
+    }
+
+    function getNetworkLabel(networkTypeValue) {
+        const network = catalog.find(function (item) {
+            return item.id === networkTypeValue;
+        });
+
+        return network ? network.label : networkTypeValue || 'Réseau';
+    }
+
+    function updateUrlCounter() {
+        const length = networkUrl.value.length;
+        networkUrlCount.textContent = length + '/' + maxUrlLength;
+        networkUrlCount.classList.toggle('text-danger', length >= maxUrlLength);
+    }
+
+    function clearFormError() {
+        addError.textContent = '';
+        setVisible(addError, false);
+        networkUrl.classList.remove('is-invalid');
+    }
+
+    function setCreateMode() {
+        editingNetworkType = null;
+        modalTitle.textContent = 'Ajouter un réseau';
+        saveButtonText.textContent = 'Enregistrer';
+        setVisible(networkTypeGroup, true);
+        setVisible(editingNetworkGroup, false);
+        networkType.disabled = false;
+        addForm.reset();
+        clearFormError();
+        updateUrlCounter();
+    }
+
+    function setEditMode(network) {
+        editingNetworkType = network.networkType;
+        modalTitle.textContent = 'Modifier l’URL du réseau';
+        saveButtonText.textContent = 'Enregistrer les modifications';
+        setVisible(networkTypeGroup, false);
+        setVisible(editingNetworkGroup, true);
+        networkType.disabled = true;
+        editingNetworkLabel.value = getNetworkLabel(network.networkType);
+        networkUrl.value = network.url || '';
+        clearFormError();
+        updateUrlCounter();
+    }
+
+    function renderPage() {
+        populateCatalog();
+        renderNetworks(networks);
+        setVisible(empty, networks.length === 0);
+        setVisible(list, networks.length > 0);
     }
 
     async function requestJson(url, options) {
@@ -217,34 +290,57 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
             body.append(name, link);
 
             const deleteButton = document.createElement('button');
+            const actions = document.createElement('div');
+            actions.className = 'ds-network-actions';
+
+            const editButton = document.createElement('button');
+            editButton.type = 'button';
+            editButton.className = 'ds-network-edit';
+            editButton.title = 'Modifier ce réseau';
+            editButton.setAttribute('aria-label', 'Modifier ' + getNetworkLabel(network.networkType));
+            editButton.innerHTML = '<i class="fas fa-pen" aria-hidden="true"></i>';
+            editButton.addEventListener('click', function () {
+                setEditMode(network);
+                bootstrap.Modal.getOrCreateInstance(modal).show();
+            });
+
             deleteButton.type = 'button';
             deleteButton.className = 'ds-network-delete';
             deleteButton.dataset.networkType = network.networkType || '';
             deleteButton.title = 'Supprimer ce réseau';
-            deleteButton.setAttribute('aria-label', 'Supprimer ' + (network.networkType || 'ce réseau'));
+            deleteButton.setAttribute('aria-label', 'Supprimer ' + getNetworkLabel(network.networkType));
             deleteButton.innerHTML = '<i class="fas fa-trash" aria-hidden="true"></i>';
             deleteButton.addEventListener('click', deleteNetwork);
 
-            card.append(icon, body, deleteButton);
+            actions.append(editButton, deleteButton);
+            card.append(icon, body, actions);
             list.appendChild(card);
         });
     }
 
-    function populateCatalog(networks) {
+    function populateCatalog() {
         networkType.replaceChildren();
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = 'Sélectionnez un réseau';
+        const addedNetworkTypes = new Set(networks.map(function (network) {
+            return network.networkType;
+        }));
+        const availableCatalog = catalog.filter(function (network) {
+            return !addedNetworkTypes.has(network.id);
+        });
+        placeholder.textContent = availableCatalog.length
+            ? 'Sélectionnez un réseau'
+            : 'Tous les réseaux sont déjà ajoutés';
         networkType.appendChild(placeholder);
 
-        networks.forEach(function (network) {
+        availableCatalog.forEach(function (network) {
             const option = document.createElement('option');
             option.value = network.id;
             option.textContent = network.label || network.id;
             networkType.appendChild(option);
         });
 
-        const enabled = networks.length > 0;
+        const enabled = availableCatalog.length > 0;
         addButton.disabled = !enabled;
         addFirstButton.disabled = !enabled;
     }
@@ -263,14 +359,11 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
                 requestJson(networksEndpoint),
                 requestJson(catalogEndpoint)
             ]);
-            const networks = Array.isArray(responses[0].networks) ? responses[0].networks : [];
-            const catalog = Array.isArray(responses[1].networks) ? responses[1].networks : [];
+            networks = Array.isArray(responses[0].networks) ? responses[0].networks : [];
+            catalog = Array.isArray(responses[1].networks) ? responses[1].networks : [];
 
-            populateCatalog(catalog);
-            renderNetworks(networks);
+            renderPage();
             setVisible(loading, false);
-            setVisible(networks.length === 0 ? empty : list, true);
-            showSuccess('Vos réseaux sont à jour.');
         } catch (requestError) {
             setVisible(loading, false);
             showError(requestError.message);
@@ -287,7 +380,10 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
         button.disabled = true;
         try {
             await requestJson(networksEndpoint + '/' + encodeURIComponent(type), { method: 'DELETE' });
-            await loadNetworks();
+            networks = networks.filter(function (network) {
+                return network.networkType !== type;
+            });
+            renderPage();
             showSuccess('Le réseau a été supprimé.');
         } catch (requestError) {
             button.disabled = false;
@@ -295,24 +391,64 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
         }
     }
 
+    addButton.addEventListener('click', setCreateMode);
+    addFirstButton.addEventListener('click', setCreateMode);
+    networkUrl.addEventListener('input', updateUrlCounter);
+    modal.addEventListener('hidden.bs.modal', setCreateMode);
+
     addForm.addEventListener('submit', async function (event) {
         event.preventDefault();
-        setVisible(addError, false);
+        clearFormError();
+
+        const selectedNetworkType = editingNetworkType || networkType.value;
+        const url = networkUrl.value.trim();
+        if (!selectedNetworkType) {
+            addError.textContent = 'Veuillez sélectionner un réseau.';
+            setVisible(addError, true);
+            return;
+        }
+        if (!url) {
+            addError.textContent = 'Veuillez saisir une URL.';
+            setVisible(addError, true);
+            return;
+        }
+        if (networkUrl.value.length > maxUrlLength) {
+            networkUrl.classList.add('is-invalid');
+            addError.textContent = 'L’URL ne doit pas dépasser 512 caractères.';
+            setVisible(addError, true);
+            return;
+        }
+
         saveButton.disabled = true;
         setVisible(saveSpinner, true);
 
         try {
-            await requestJson(networksEndpoint, {
-                method: 'POST',
+            const responseData = await requestJson(
+                editingNetworkType
+                    ? networksEndpoint + '/' + encodeURIComponent(editingNetworkType)
+                    : networksEndpoint,
+                {
+                method: editingNetworkType ? 'PATCH' : 'POST',
                 body: JSON.stringify({
-                    networkType: networkType.value,
-                    url: networkUrl.value.trim()
+                    ...(editingNetworkType ? {} : { networkType: selectedNetworkType }),
+                    url: url
                 })
-            });
-            addForm.reset();
+                }
+            );
+            if (editingNetworkType) {
+                networks = networks.map(function (network) {
+                    return network.networkType === editingNetworkType
+                        ? responseData.network
+                        : network;
+                });
+            } else {
+                networks = networks.concat(responseData.network);
+            }
+            renderPage();
             bootstrap.Modal.getOrCreateInstance(modal).hide();
-            await loadNetworks();
-            showSuccess('Le réseau a été ajouté.');
+            showSuccess(editingNetworkType
+                ? 'L’URL du réseau a été modifiée.'
+                : 'Le réseau a été ajouté.');
         } catch (requestError) {
             addError.textContent = requestError.message;
             setVisible(addError, true);
@@ -323,6 +459,7 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     });
 
     retryButton.addEventListener('click', loadNetworks);
+    setCreateMode();
     loadNetworks();
 }());
 </script>
