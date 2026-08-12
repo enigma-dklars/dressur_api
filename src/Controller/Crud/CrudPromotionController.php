@@ -43,6 +43,35 @@ class CrudPromotionController extends AbstractController
             $this->theme = "light-theme";
         }
     }
+
+    private function encodePromoToken(int $id): string
+    {
+        $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
+        $encrypted = openssl_encrypt((string) $id, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+
+        return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
+    }
+
+    /**
+     * @param Promotion[] $promotions
+     *
+     * @return array<int, string>
+     */
+    private function buildPublicPromotionUrls(array $promotions): array
+    {
+        $urls = [];
+
+        foreach ($promotions as $promotion) {
+            $id = $promotion->getId();
+            if ($id === null) {
+                continue;
+            }
+
+            $urls[$id] = 'https://dressur.site/actualite/' . $this->encodePromoToken($id);
+        }
+
+        return $urls;
+    }
     
     #[Route('/', name: 'app_crud_promotion_index', methods: ['GET'])]
     public function index(PromotionRepository $promotionRepository, Request $request): Response
@@ -57,10 +86,13 @@ class CrudPromotionController extends AbstractController
             $promotions = $promotionRepository->findBy([], ['id' => 'DESC']);
         }
 
+        $promotionPublicUrls = $this->buildPublicPromotionUrls($promotions);
+
         return $this->render('crud_promotion/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'promotions' => $promotions,
+            'promotionPublicUrls' => $promotionPublicUrls,
             'sourceFilter' => $sourceFilter,
             'sourceCounts' => $promotionRepository->getSourceCounts(),
         ]);
@@ -69,10 +101,13 @@ class CrudPromotionController extends AbstractController
     #[Route('/promo_en_attente', name: 'app_crud_promotion_promo_en_attente', methods: ['GET'])]
     public function promo_en_attente(PromotionRepository $promotionRepository): Response
     {
+        $promotions = $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']);
+
         return $this->render('crud_promotion/index.html.twig', [
             'theme'        => $this->theme,
             'user'         => $this->traitementsDS->getUserByUidInCookies(),
-            'promotions'   => $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']),
+            'promotions'   => $promotions,
+            'promotionPublicUrls' => $this->buildPublicPromotionUrls($promotions),
             'sourceFilter' => '',
             'sourceCounts' => $promotionRepository->getSourceCounts(),
         ]);

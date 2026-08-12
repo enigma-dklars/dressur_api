@@ -48,6 +48,7 @@
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
                     <th>Id</th>
+                    <th>URL publique</th>
                 </tr>
             </thead>
             <tbody>
@@ -132,10 +133,17 @@
                     <td>{{ promotion.nombreDeVue }}</td>
                     <td>{{ promotion.nombreImpression }}</td>
                     <td>{{ promotion.id }}</td>
+                    <td>
+                        {% if promotionPublicUrls[promotion.id] is defined %}
+                            <a href="{{ promotionPublicUrls[promotion.id] }}" target="_blank" rel="noopener noreferrer">
+                                {{ promotionPublicUrls[promotion.id] }}
+                            </a>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="14">no records found</td>
+                    <td colspan="21">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>
