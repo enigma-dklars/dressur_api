@@ -202,13 +202,10 @@ class WebhookController extends AbstractController
             $this->em->persist($boost);
 
             $formule = $boost->getFormulePromoReseau();
-            $formuleLower = mb_strtolower($formule->getTitre() ?? '', 'UTF-8');
-            if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
-                    OR
-                    (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
-                ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
+            if (!$this->traitementsDS->formuleNecessiteCommentaires($formule)
+                    && !empty($formule->getIdZefame())) {
                 $resultZefame = $this->zefameApi->order([
-                    'service'  => $boost->getFormulePromoReseau()->getIdZefame(),
+                    'service'  => $formule->getIdZefame(),
                     'link'     => $boost->getUrl(),
                     'quantity' => $boost->getQteDemander(),
                     'runs'     => 2,

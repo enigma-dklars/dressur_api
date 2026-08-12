@@ -136,9 +136,9 @@ class CrudPromoReseauController extends AbstractController
     public function demarrage_direct_zefame(Request $request, PromoReseau $promoReseau, EntityManagerInterface $em, ZefameApi $zefame): Response
     {
         $formule = $promoReseau->getFormulePromoReseau();
-        $formuleLower = mb_strtolower($formule, 'UTF-8'); // Utilise mb_strtolower pour bien gérer les accents et UTF-8
-        if (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false && !empty($promoReseau->getFormulePromoReseau()->getIdZefame())) {
-            $idServiveZefame = $promoReseau->getFormulePromoReseau()->getIdZefame();
+        if (!$this->traitementsDS->formuleNecessiteCommentaires($formule)
+                && !empty($formule->getIdZefame())) {
+            $idServiveZefame = $formule->getIdZefame();
             $linkPromo = $promoReseau->getUrl();
             $qte = $promoReseau->getQteDemander();
             $resultZefame = $zefame->order([

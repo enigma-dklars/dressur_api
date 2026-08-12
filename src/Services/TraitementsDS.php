@@ -131,6 +131,55 @@ class TraitementsDS extends AbstractController
     }
 
     /**
+     * Indique si une formule de promotion réseau nécessite des commentaires personnalisés.
+     *
+     * La détection porte sur le titre complet de la formule, en incluant ses parents,
+     * afin de ne pas dépendre du libellé d'une seule déclinaison.
+     */
+    public function formuleNecessiteCommentaires(FormulePromoReseau $formule): bool
+    {
+        $titres = [];
+        $formuleCourante = $formule;
+        $formulesVisitees = [];
+
+        while ($formuleCourante !== null) {
+            $identifiant = spl_object_id($formuleCourante);
+            if (isset($formulesVisitees[$identifiant])) {
+                break;
+            }
+
+            $formulesVisitees[$identifiant] = true;
+            $titres[] = $formuleCourante->getTitre() ?? '';
+            $formuleCourante = $formuleCourante->getParent();
+        }
+
+        $titreComplet = mb_strtolower(implode(' ', array_reverse($titres)), 'UTF-8');
+
+        if (class_exists(\Normalizer::class)) {
+            $titreNormalise = \Normalizer::normalize($titreComplet, \Normalizer::FORM_D);
+            if ($titreNormalise !== false) {
+                $titreComplet = $titreNormalise;
+            }
+            $titreComplet = preg_replace('/\p{Mn}+/u', '', $titreComplet) ?? $titreComplet;
+        } else {
+            $titreComplet = strtr($titreComplet, [
+                'à' => 'a', 'â' => 'a', 'ä' => 'a',
+                'ç' => 'c',
+                'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+                'î' => 'i', 'ï' => 'i',
+                'ô' => 'o', 'ö' => 'o',
+                'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+                'ÿ' => 'y',
+            ]);
+        }
+
+        return preg_match(
+            '/(?:^|[^\p{L}\p{N}])(?:commentaires?|customises?)(?:$|[^\p{L}\p{N}])/u',
+            $titreComplet
+        ) === 1;
+    }
+
+    /**
      * Résout l'utilisateur depuis le cookie uid signé HMAC.
      *
      * @web-only — À utiliser exclusivement dans les controllers web (Twig/admin).
@@ -1874,13 +1923,10 @@ class TraitementsDS extends AbstractController
             $this->em->persist($boost);
 
             $formule      = $boost->getFormulePromoReseau();
-            $formuleLower = mb_strtolower($formule, 'UTF-8');
-            if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
-                    OR
-                    (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
-                ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
+            if (!$this->formuleNecessiteCommentaires($formule)
+                    && !empty($formule->getIdZefame())) {
                 $resultZefame = $this->zefameApi->order([
-                    'service'  => $boost->getFormulePromoReseau()->getIdZefame(),
+                    'service'  => $formule->getIdZefame(),
                     'link'     => $boost->getUrl(),
                     'quantity' => $boost->getQteDemander(),
                     'runs'     => 2,
