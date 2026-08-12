@@ -21,7 +21,10 @@
 .ds-network-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
 .ds-network-edit,.ds-network-delete{border:0;background:transparent;color:var(--bs-secondary-color,#6c757d);border-radius:9px;padding:8px 10px;line-height:1}
 .ds-network-edit:hover{background:rgba(13,110,253,.10);color:var(--bs-primary,#0d6efd)}
-.ds-network-delete{flex-shrink:0;border:0;background:transparent;color:var(--bs-secondary-color,#6c757d);border-radius:9px;padding:8px 10px;line-height:1}
+.ds-network-delete{flex-shrink:0}
+.ds-network-delete-spinner{display:none;width:.9rem;height:.9rem}
+.ds-network-delete.is-loading .ds-network-delete-icon{display:none}
+.ds-network-delete.is-loading .ds-network-delete-spinner{display:inline-block}
 .ds-network-delete:hover{background:rgba(220,53,69,.10);color:#dc3545}
 .ds-networks-empty{background:var(--bs-body-bg,#fff);border:1px dashed var(--bs-border-color,rgba(0,0,0,.16));border-radius:15px;padding:34px 22px;text-align:center}
 .ds-networks-empty-icon{width:56px;height:56px;border-radius:17px;display:flex;align-items:center;justify-content:center;margin:0 auto 13px;background:rgba(13,110,253,.10)}
@@ -164,6 +167,7 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     let networks = [];
     let catalog = [];
     let editingNetworkType = null;
+    let deletingNetworkType = null;
 
     function setVisible(element, visible) {
         element.classList.toggle('d-none', !visible);
@@ -309,7 +313,8 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
             deleteButton.dataset.networkType = network.networkType || '';
             deleteButton.title = 'Supprimer ce réseau';
             deleteButton.setAttribute('aria-label', 'Supprimer ' + getNetworkLabel(network.networkType));
-            deleteButton.innerHTML = '<i class="fas fa-trash" aria-hidden="true"></i>';
+            deleteButton.innerHTML = '<span class="ds-network-delete-icon"><i class="fas fa-trash" aria-hidden="true"></i></span>' +
+                '<span class="spinner-border spinner-border-sm ds-network-delete-spinner" aria-hidden="true"></span>';
             deleteButton.addEventListener('click', deleteNetwork);
 
             actions.append(editButton, deleteButton);
@@ -373,21 +378,36 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     async function deleteNetwork(event) {
         const button = event.currentTarget;
         const type = button.dataset.networkType;
-        if (!type || !window.confirm('Supprimer ce réseau de votre profil ?')) {
+        if (
+            !type
+            || button.disabled
+            || deletingNetworkType !== null
+            || !window.confirm('Supprimer ' + getNetworkLabel(type) + ' de votre profil ?')
+        ) {
             return;
         }
 
+        deletingNetworkType = type;
         button.disabled = true;
+        button.classList.add('is-loading');
+        button.setAttribute('aria-busy', 'true');
         try {
             await requestJson(networksEndpoint + '/' + encodeURIComponent(type), { method: 'DELETE' });
             networks = networks.filter(function (network) {
                 return network.networkType !== type;
             });
             renderPage();
+            setVisible(error, false);
             showSuccess('Le réseau a été supprimé.');
         } catch (requestError) {
-            button.disabled = false;
             showError(requestError.message);
+        } finally {
+            deletingNetworkType = null;
+            if (document.body.contains(button)) {
+                button.disabled = false;
+                button.classList.remove('is-loading');
+                button.removeAttribute('aria-busy');
+            }
         }
     }
 
