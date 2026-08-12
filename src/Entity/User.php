@@ -110,6 +110,9 @@ class User
     #[ORM\OneToMany(mappedBy: 'partenaire', targetEntity: self::class)]
     private Collection $accompagnes;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserSocialNetwork::class, orphanRemoval: true)]
+    private Collection $socialNetworks;
+
     #[ORM\Column(type: 'boolean', options: ['default' => false])]
     private bool $estPartenaire = false;
 
@@ -135,6 +138,7 @@ class User
         $this->promoReseaus = new ArrayCollection();
         $this->suggestions = new ArrayCollection();
         $this->accompagnes = new ArrayCollection();
+        $this->socialNetworks = new ArrayCollection();
     }
 
     public function __toString()
@@ -617,6 +621,35 @@ class User
             // set the owning side to null (unless already changed)
             if ($accompagne->getPartenaire() === $this) {
                 $accompagne->setPartenaire(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserSocialNetwork>
+     */
+    public function getSocialNetworks(): Collection
+    {
+        return $this->socialNetworks;
+    }
+
+    public function addSocialNetwork(UserSocialNetwork $socialNetwork): static
+    {
+        if (!$this->socialNetworks->contains($socialNetwork)) {
+            $this->socialNetworks->add($socialNetwork);
+            $socialNetwork->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSocialNetwork(UserSocialNetwork $socialNetwork): static
+    {
+        if ($this->socialNetworks->removeElement($socialNetwork)) {
+            if ($socialNetwork->getUser() === $this) {
+                $socialNetwork->setUser(null);
             }
         }
 
