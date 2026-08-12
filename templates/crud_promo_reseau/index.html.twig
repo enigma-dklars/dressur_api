@@ -69,7 +69,27 @@
                         {% if promo_reseau.status == 0 %} <span class="badge bg-info text-white fw-normal">Rembour</span> {% endif %}
                         {% if promo_reseau.status == 1 %} 
                             <span class="badge bg-warning text-white fw-normal">En.Attent</span>
-                            <a href="{{ path('app_crud_promo_reseau_demarrage_direct_zefame', {'id': promo_reseau.id}) }}" class="badge bg-danger text-white fw-normal">Démarrer</a> 
+                            {% if commentairesRequis[promo_reseau.id]|default(false) %}
+                                <button
+                                    type="button"
+                                    class="badge bg-danger text-white fw-normal border-0"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#commentairesModal-{{ promo_reseau.id }}"
+                                >
+                                    Commentaires requis
+                                </button>
+                            {% else %}
+                                <form
+                                    method="post"
+                                    action="{{ path('app_crud_promo_reseau_demarrage_direct_zefame', {'id': promo_reseau.id}) }}"
+                                    class="d-inline"
+                                >
+                                    <input type="hidden" name="_token" value="{{ csrf_token('demarrage_direct_zefame_' ~ promo_reseau.id) }}">
+                                    <button type="submit" class="badge bg-danger text-white fw-normal border-0">
+                                        Démarrer
+                                    </button>
+                                </form>
+                            {% endif %}
                         {% endif %}
                         {% if promo_reseau.status == 2 %} <span class="badge bg-danger text-white fw-normal">En.Cours</span> {% endif %}
                         {% if promo_reseau.status == 3 %} <span class="badge bg-success text-white fw-normal">Terminer</span> {% endif %}
@@ -95,7 +115,69 @@
         </table>
     </div>
 
+    {% for promo_reseau in promo_reseaus %}
+        {% if promo_reseau.status == 1 and commentairesRequis[promo_reseau.id]|default(false) %}
+            <div
+                class="modal fade"
+                id="commentairesModal-{{ promo_reseau.id }}"
+                tabindex="-1"
+                aria-labelledby="commentairesModalLabel-{{ promo_reseau.id }}"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="commentairesModalLabel-{{ promo_reseau.id }}">
+                                Démarrer avec commentaires
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                        </div>
+                        <form
+                            method="post"
+                            action="{{ path('app_crud_promo_reseau_demarrage_direct_zefame', {'id': promo_reseau.id}) }}"
+                            data-comment-form
+                        >
+                            <div class="modal-body">
+                                <dl class="row mb-3">
+                                    <dt class="col-sm-4">Formule</dt>
+                                    <dd class="col-sm-8">{{ promo_reseau.formulePromoReseau }}</dd>
+                                    <dt class="col-sm-4">Lien</dt>
+                                    <dd class="col-sm-8 text-break">{{ promo_reseau.url }}</dd>
+                                    <dt class="col-sm-4">Quantité</dt>
+                                    <dd class="col-sm-8">{{ promo_reseau.qteDemander }}</dd>
+                                </dl>
+                                <label for="comments-{{ promo_reseau.id }}" class="form-label">Commentaires</label>
+                                <textarea
+                                    id="comments-{{ promo_reseau.id }}"
+                                    name="comments"
+                                    class="form-control"
+                                    rows="6"
+                                    data-comment-textarea
+                                    data-comment-max="{{ promo_reseau.qteDemander }}"
+                                    aria-describedby="comments-help-{{ promo_reseau.id }} comments-count-{{ promo_reseau.id }} comments-error-{{ promo_reseau.id }}"
+                                ></textarea>
+                                <div id="comments-help-{{ promo_reseau.id }}" class="form-text">
+                                    Un commentaire par ligne. Maximum : {{ promo_reseau.qteDemander }} commentaires.
+                                </div>
+                                <div id="comments-count-{{ promo_reseau.id }}" class="small mt-2" data-comment-count>
+                                    0 / {{ promo_reseau.qteDemander }}
+                                </div>
+                                <div id="comments-error-{{ promo_reseau.id }}" class="invalid-feedback d-block" data-comment-error></div>
+                            </div>
+                            <div class="modal-footer">
+                                <input type="hidden" name="_token" value="{{ csrf_token('demarrage_direct_zefame_' ~ promo_reseau.id) }}">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-danger" data-comment-submit>Démarrer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
 {% endblock %}
+
 
 
 {% block script %}
@@ -121,6 +203,52 @@
                 icon: 'info',
                 confirmButtonText: 'OK'
             });
+        });
+
+        document.querySelectorAll('[data-comment-form]').forEach(function(form) {
+            var textarea = form.querySelector('[data-comment-textarea]');
+            var countElement = form.querySelector('[data-comment-count]');
+            var errorElement = form.querySelector('[data-comment-error]');
+            var submitButton = form.querySelector('[data-comment-submit]');
+            var maximum = Number(textarea.dataset.commentMax);
+
+            function getComments() {
+                return textarea.value
+                    .split(/\r?\n/)
+                    .map(function(line) { return line.trim(); })
+                    .filter(function(line) { return line.length > 0; });
+            }
+
+            function validateComments() {
+                var comments = getComments();
+                var isEmpty = comments.length === 0;
+                var isTooLong = comments.length > maximum;
+                countElement.textContent = comments.length + ' / ' + maximum;
+                textarea.classList.toggle('is-invalid', isEmpty || isTooLong);
+                submitButton.disabled = isEmpty || isTooLong;
+
+                if (isEmpty) {
+                    errorElement.textContent = 'Ajoutez au moins un commentaire.';
+                } else if (isTooLong) {
+                    errorElement.textContent = 'Le nombre de commentaires dépasse le maximum autorisé.';
+                } else {
+                    errorElement.textContent = '';
+                }
+
+                return !isEmpty && !isTooLong;
+            }
+
+            textarea.addEventListener('input', validateComments);
+            form.addEventListener('submit', function(event) {
+                if (!validateComments()) {
+                    event.preventDefault();
+                    return;
+                }
+
+                submitButton.disabled = true;
+                submitButton.textContent = 'Démarrage...';
+            });
+            validateComments();
         });
     });
     </script>

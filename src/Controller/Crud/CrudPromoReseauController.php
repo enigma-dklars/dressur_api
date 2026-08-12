@@ -14,6 +14,7 @@ use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Utilities\ZefameApi;
 use DateTime;
+use Doctrine\DBAL\LockMode;
 
 #[Route('/crud/promo/reseau')]
 class CrudPromoReseauController extends AbstractController
@@ -58,6 +59,7 @@ class CrudPromoReseauController extends AbstractController
             'promo_reseaus' => $promo_reseaus,
             'sourceFilter' => $sourceFilter,
             'sourceCounts' => $promoReseauRepository->getSourceCounts(),
+            'commentairesRequis' => $this->commentairesRequisParPromotion($promo_reseaus),
         ]);
     }
 
@@ -65,12 +67,32 @@ class CrudPromoReseauController extends AbstractController
     public function promo_reseau_en_attente(PromoReseauRepository $promoReseauRepository, TraitementsDS $traitementsDS): Response
     {
         $traitementsDS->checkAndUpdateStatusZefame();
+        $promo_reseaus = $promoReseauRepository->findBy(['status' => 1], ['id' => 'DESC']);
+
         return $this->render('crud_promo_reseau/index.html.twig', [
             'theme' => $this->theme,
             'soldeZefame' => $traitementsDS->getSoldeZefame(),
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'promo_reseaus' => $promoReseauRepository->findBy(['status' => 1], ['id' => 'DESC']),
+            'promo_reseaus' => $promo_reseaus,
+            'commentairesRequis' => $this->commentairesRequisParPromotion($promo_reseaus),
         ]);
+    }
+
+    /**
+     * @param iterable<PromoReseau> $promoReseaus
+     * @return array<int, bool>
+     */
+    private function commentairesRequisParPromotion(iterable $promoReseaus): array
+    {
+        $commentairesRequis = [];
+
+        foreach ($promoReseaus as $promoReseau) {
+            $formule = $promoReseau->getFormulePromoReseau();
+            $commentairesRequis[$promoReseau->getId()] = $formule !== null
+                && $this->traitementsDS->formuleNecessiteCommentaires($formule);
+        }
+
+        return $commentairesRequis;
     }
 
     #[Route('/new', name: 'app_crud_promo_reseau_new', methods: ['GET', 'POST'])]
@@ -132,51 +154,137 @@ class CrudPromoReseauController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/demarrage_direct_zefame', name: 'app_crud_promo_reseau_demarrage_direct_zefame', methods: ['GET', 'POST'])]
+    #[Route('/{id}/demarrage_direct_zefame', name: 'app_crud_promo_reseau_demarrage_direct_zefame', methods: ['POST'])]
     public function demarrage_direct_zefame(Request $request, PromoReseau $promoReseau, EntityManagerInterface $em, ZefameApi $zefame): Response
     {
-        $formule = $promoReseau->getFormulePromoReseau();
-        if (!$this->traitementsDS->formuleNecessiteCommentaires($formule)
-                && !empty($formule->getIdZefame())) {
-            $idServiveZefame = $formule->getIdZefame();
-            $linkPromo = $promoReseau->getUrl();
-            $qte = $promoReseau->getQteDemander();
-            $resultZefame = $zefame->order([
-                'service' => $idServiveZefame, 
-                'link' => $linkPromo, 
-                'quantity' => $qte, 
-                'runs' => 2, 
-                'interval' => 5
-            ]);
+        if (!$this->isCsrfTokenValid(
+            'demarrage_direct_zefame_'.$promoReseau->getId(),
+            (string)$request->request->get('_token')
+        )) {
+            $this->addFlash('danger', 'Le formulaire de démarrage est invalide ou a expiré.');
 
-            if(isset($resultZefame->order)){
-                $promoReseau->setIdZefame($resultZefame->order)
-                    ->setStatus(2)
-                ;
-                $em->flush();
-            } else if(isset($resultZefame->error)){
-                $this->addFlash(
-                    'danger',
-                    $resultZefame->error
-                );
-            } else {
-                $this->addFlash(
-                    'danger',
-                    "Résultat inatendu..."
-                );
-                $this->addFlash(
-                    'danger',
-                    (string)$resultZefame
-                );
-            }
-        } else {
-            $this->addFlash(
-                'danger',
-                "Impossible de demarrer directement..."
-            );
+            return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
         }
 
-        return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente', [], Response::HTTP_SEE_OTHER);
+        $connection = $em->getConnection();
+        $connection->beginTransaction();
+
+        try {
+            $promoReseau = $em->find(
+                PromoReseau::class,
+                $promoReseau->getId(),
+                LockMode::PESSIMISTIC_WRITE
+            );
+
+            if ($promoReseau === null) {
+                $connection->rollBack();
+                $this->addFlash('danger', 'La promotion demandée est introuvable.');
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            if ($promoReseau->getStatus() !== 1) {
+                $connection->rollBack();
+                $this->addFlash('warning', 'Cette promotion ne peut plus être démarrée.');
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            if ($promoReseau->getIdZefame() !== null && $promoReseau->getIdZefame() !== '*****') {
+                $connection->rollBack();
+                $this->addFlash('warning', 'Une commande Zefame existe déjà pour cette promotion.');
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            $formule = $promoReseau->getFormulePromoReseau();
+            if ($formule === null) {
+                $connection->rollBack();
+                $this->addFlash('danger', 'La formule de cette promotion est introuvable.');
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            $idServiceZefame = $formule->getIdZefame();
+            if ($idServiceZefame === null || $idServiceZefame <= 0) {
+                $connection->rollBack();
+                $this->addFlash('danger', 'La formule ne possède pas de service Zefame valide.');
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            $qte = $promoReseau->getQteDemander();
+            if ($qte === null || $qte <= 0) {
+                $connection->rollBack();
+                $this->addFlash('danger', 'La quantité de la promotion est invalide.');
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            $formuleNecessiteCommentaires = $this->traitementsDS->formuleNecessiteCommentaires($formule);
+            $parametresCommande = [
+                'service' => $idServiceZefame,
+                'link' => $promoReseau->getUrl(),
+                'quantity' => $qte,
+                'runs' => 2,
+                'interval' => 5,
+            ];
+
+            if ($formuleNecessiteCommentaires) {
+                $commentaires = $this->traitementsDS->normaliserCommentaires(
+                    $request->request->get('comments')
+                );
+
+                if ($commentaires === []) {
+                    $connection->rollBack();
+                    $this->addFlash('danger', 'Ajoutez au moins un commentaire avant de démarrer la promotion.');
+
+                    return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+                }
+
+                if (count($commentaires) > $qte) {
+                    $connection->rollBack();
+                    $this->addFlash(
+                        'danger',
+                        sprintf(
+                            'Le nombre de commentaires (%d) ne peut pas dépasser la quantité commandée (%d).',
+                            count($commentaires),
+                            $qte
+                        )
+                    );
+
+                    return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+                }
+
+                $parametresCommande['comments'] = implode("\n", $commentaires);
+            }
+
+            $resultZefame = $zefame->order($parametresCommande);
+
+            if (!isset($resultZefame->order) || $resultZefame->order === '') {
+                $messageErreur = isset($resultZefame->error) && $resultZefame->error !== ''
+                    ? (string)$resultZefame->error
+                    : 'Zefame n’a pas retourné d’identifiant de commande.';
+                $connection->rollBack();
+                $this->addFlash('danger', $messageErreur);
+
+                return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
+            }
+
+            $promoReseau
+                ->setIdZefame((string)$resultZefame->order)
+                ->setStatus(2);
+            $em->flush();
+            $connection->commit();
+            $this->addFlash('success', 'La promotion a été démarrée avec succès.');
+        } catch (\Throwable $exception) {
+            if ($connection->isTransactionActive()) {
+                $connection->rollBack();
+            }
+            $this->addFlash('danger', 'Impossible de démarrer la promotion. Aucune commande n’a été enregistrée.');
+        }
+
+        return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
     }
 
     #[Route('/{id}', name: 'app_crud_promo_reseau_delete', methods: ['POST'])]

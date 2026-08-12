@@ -43,6 +43,33 @@ class TraitementsDSFormuleCommentairesTest extends TestCase
         ];
     }
 
+    /**
+     * @dataProvider commentairesProvider
+     */
+    public function testNormaliserCommentaires(string $saisie, array $commentairesAttendus): void
+    {
+        self::assertSame(
+            $commentairesAttendus,
+            $this->createTraitementsDS()->normaliserCommentaires($saisie)
+        );
+    }
+
+    public function commentairesProvider(): array
+    {
+        return [
+            'commentaire unique' => ['  Excellent produit  ', ['Excellent produit']],
+            'plusieurs commentaires' => [
+                "Super publication\nTrès belle photo",
+                ['Super publication', 'Très belle photo'],
+            ],
+            'lignes vides ignorées' => [
+                "Premier commentaire\n\n  \nDeuxième commentaire  ",
+                ['Premier commentaire', 'Deuxième commentaire'],
+            ],
+            'textarea vide' => ['', []],
+        ];
+    }
+
     private function createTraitementsDS(): TraitementsDS
     {
         /** @var TraitementsDS $traitementsDS */

@@ -180,6 +180,25 @@ class TraitementsDS extends AbstractController
     }
 
     /**
+     * Nettoie une liste de commentaires envoyée ligne par ligne.
+     *
+     * @return list<string>
+     */
+    public function normaliserCommentaires(?string $commentaires): array
+    {
+        $lignes = preg_split('/\R/u', $commentaires ?? '') ?: [];
+        $lignes = array_map(
+            static fn (string $ligne): string => trim($ligne),
+            $lignes
+        );
+
+        return array_values(array_filter(
+            $lignes,
+            static fn (string $ligne): bool => $ligne !== ''
+        ));
+    }
+
+    /**
      * Résout l'utilisateur depuis le cookie uid signé HMAC.
      *
      * @web-only — À utiliser exclusivement dans les controllers web (Twig/admin).
