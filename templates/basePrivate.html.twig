@@ -616,39 +616,59 @@
     });
 
     $(document).on('change', '#imageUpload', async function() {
+        const input = this;
+        const cropRequestId = (input._promotionCropRequestId || 0) + 1;
+        input._promotionCropRequestId = cropRequestId;
         const file = this.files[0];
-        if (!file) return;
-
-        // Vérifier la taille
-        if (file.size > MAX_IMAGE_SIZE) {
-            showAlert('Attention !!!', 'L\'image ne peut pas dépasser 1 Mo.', 'warning');
-            return;
-        }
-
-        if (typeof window.PromotionImageCropper !== 'function') {
-            showAlert('Erreur', 'Le recadreur d’image est indisponible. Veuillez actualiser la page.', 'danger');
-            this.value = '';
-            return;
-        }
-
-        const croppedFile = await window.PromotionImageCropper(file);
-        if (!croppedFile) {
-            this.value = '';
+        if (!file) {
             selectedImage = null;
             $('#imagePreview').empty();
             updateSubmitButtonsState();
             return;
         }
 
-        window.setPromotionImageInputFile?.(this, croppedFile);
+        selectedImage = null;
+        $('#imagePreview').empty();
+        updateSubmitButtonsState();
+
+        // Vérifier la taille
+        if (file.size > MAX_IMAGE_SIZE) {
+            showAlert('Attention !!!', 'L\'image ne peut pas dépasser 1 Mo.', 'warning');
+            input.value = '';
+            return;
+        }
+
+        if (typeof window.PromotionImageCropper !== 'function') {
+            showAlert('Erreur', 'Le recadreur d’image est indisponible. Veuillez actualiser la page.', 'danger');
+            input.value = '';
+            return;
+        }
+
+        const croppedFile = await window.PromotionImageCropper(file);
+        if (input._promotionCropRequestId !== cropRequestId) {
+            return;
+        }
+
+        if (!croppedFile) {
+            input.value = '';
+            selectedImage = null;
+            $('#imagePreview').empty();
+            updateSubmitButtonsState();
+            return;
+        }
+
+        window.setPromotionImageInputFile?.(input, croppedFile);
         selectedImage = croppedFile;
 
         // Afficher l'aperçu
         const reader = new FileReader();
         reader.onload = function(e) {
+            if (input._promotionCropRequestId !== cropRequestId) {
+                return;
+            }
             $('#imagePreview').html(`<img src="${e.target.result}" alt="Aperçu">`);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(croppedFile);
 
         // Mettre à jour l'état du bouton
         updateSubmitButtonsState();

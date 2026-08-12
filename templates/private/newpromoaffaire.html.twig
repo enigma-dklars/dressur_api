@@ -1143,25 +1143,61 @@ if (descTextarea && descCounter) {
 
 // ── Prévisualisation image ─────────────────────────────────────────────────
 const imageSiteAppInput = document.getElementById('imageSiteApp');
+const siteAppSubmitButton = document.getElementById('submitSiteApp');
 if (imageSiteAppInput) {
+    imageSiteAppInput.dataset.cropStatus = 'empty';
+    imageSiteAppInput._promotionCroppedFile = null;
+    if (siteAppSubmitButton) {
+        siteAppSubmitButton.disabled = true;
+    }
+
     imageSiteAppInput.addEventListener('change', async function () {
+        const input = this;
+        const cropRequestId = (input._promotionCropRequestId || 0) + 1;
+        input._promotionCropRequestId = cropRequestId;
         const file = this.files[0];
         const preview = document.getElementById('imageSiteAppPreview');
-        if (!file || !preview) return;
+        if (!file || !preview) {
+            input.dataset.cropStatus = 'empty';
+            input._promotionCroppedFile = null;
+            if (preview) preview.innerHTML = '';
+            if (siteAppSubmitButton) siteAppSubmitButton.disabled = true;
+            return;
+        }
+
+        input.dataset.cropStatus = 'pending';
+        input._promotionCroppedFile = null;
+        preview.innerHTML = '';
+        if (siteAppSubmitButton) {
+            siteAppSubmitButton.disabled = true;
+        }
 
         const croppedFile = await window.PromotionImageCropper(file);
+        if (input._promotionCropRequestId !== cropRequestId) {
+            return;
+        }
+
         if (!croppedFile) {
             this.value = '';
+            input.dataset.cropStatus = 'invalid';
             preview.innerHTML = '';
             return;
         }
 
-        window.setPromotionImageInputFile(this, croppedFile);
+        window.setPromotionImageInputFile(input, croppedFile);
+        input._promotionCroppedFile = croppedFile;
+        input.dataset.cropStatus = 'ready';
+        if (siteAppSubmitButton) {
+            siteAppSubmitButton.disabled = false;
+        }
         const reader = new FileReader();
         reader.onload = e => {
+            if (input._promotionCropRequestId !== cropRequestId) {
+                return;
+            }
             preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;border-radius:8px;margin-top:8px;">`;
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(croppedFile);
     });
 }
 
@@ -1179,13 +1215,17 @@ if (siteAppForm) {
         const nom             = document.getElementById('nomSiteApp').value.trim();
         const url             = document.getElementById('urlSiteApp').value.trim();
         const description     = document.getElementById('descriptionSiteApp').value.trim();
-        const image           = document.getElementById('imageSiteApp').files[0];
+        const imageInput      = document.getElementById('imageSiteApp');
+        const image           = imageInput._promotionCroppedFile || imageInput.files[0];
         const methodePaiement = document.getElementById('paymentMethodSiteApp').value;
         const tel             = document.getElementById('paymentNumberSiteApp').value.trim();
 
         if (!nom) { showAlert('danger', 'Veuillez renseigner le nom du site / de l\'application.'); return; }
         if (!url) { showAlert('danger', 'Veuillez renseigner l\'URL.'); return; }
-        if (!image) { showAlert('danger', 'Veuillez sélectionner une image (icône ou logo).'); return; }
+        if (imageInput.dataset.cropStatus !== 'ready' || !image) {
+            showAlert('danger', 'Veuillez sélectionner et valider le recadrage de l’image (icône ou logo).');
+            return;
+        }
         if (!methodePaiement) { showAlert('danger', 'Veuillez choisir un moyen de paiement.'); return; }
         if (!tel) { showAlert('danger', 'Veuillez renseigner le numéro de paiement.'); return; }
 
@@ -1211,6 +1251,9 @@ if (siteAppForm) {
             } else if (data.solde_used) {
                 showAlert('success', data.message || 'Promotion Sites & Applications enregistrée avec succès !');
                 siteAppForm.reset();
+                imageInput.dataset.cropStatus = 'empty';
+                imageInput._promotionCroppedFile = null;
+                if (siteAppSubmitButton) siteAppSubmitButton.disabled = true;
                 document.getElementById('imageSiteAppPreview').innerHTML = '';
                 if (descCounter) descCounter.textContent = '120';
             } else if (data.url) {
