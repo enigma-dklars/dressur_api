@@ -1828,6 +1828,10 @@ class TraitementsDS extends AbstractController
         $myTransaction->setStatus('approved');
 
         $transactionFor = $myTransaction->getTransactionFor();
+        $transactionInfo = $myTransaction->getAnnotherInfo() ?? [];
+        $rewardBudget = array_key_exists('rewardBudget', $transactionInfo)
+            ? (int) $transactionInfo['rewardBudget']
+            : null;
 
         if ($transactionFor === 'boost_contact') {
             $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
@@ -1853,21 +1857,23 @@ class TraitementsDS extends AbstractController
         }
 
         if ($transactionFor === 'boost_affaire') {
-            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
-            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
-            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
-            $whatsappContact        = $myTransaction->getAnnotherInfo()['whatsappContact']        ?? null;
+            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($transactionInfo['formulePromoAffaire']);
+            $inProgrammeRecompense  = $transactionInfo['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $transactionInfo['publishOnDressurStatus'] ?? false;
+            $whatsappContact        = $transactionInfo['whatsappContact']        ?? null;
+            $promotionInfo = $rewardBudget === null ? [] : ['rewardBudget' => $rewardBudget];
             $promotion = new Promotion();
             $promotion
                 ->setMode("Payant")
                 ->setUser($user)
                 ->setFormulePromoAffaire($formulePromoAffaire)
-                ->setImage($myTransaction->getAnnotherInfo()['image'])
-                ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                ->setImage($transactionInfo['image'])
+                ->setDescription($transactionInfo['description'])
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setWhatsappContact($whatsappContact)
-                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+                ->setSource($transactionInfo['source'] ?? 'mobile')
+                ->setAnnotherInfo($promotionInfo ?: null);
             $this->em->persist($promotion);
 
             $htmlAdmin = $this->renderView('emails/promo_affaire_admin_notif.html.twig', [
@@ -1886,17 +1892,22 @@ class TraitementsDS extends AbstractController
         }
 
         if ($transactionFor === 're_boost_affaire') {
-            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
-            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
-            $promotion              = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($transactionInfo['formulBoostId']);
+            $inProgrammeRecompense  = $transactionInfo['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $transactionInfo['publishOnDressurStatus'] ?? false;
+            $promotion              = $this->promotionRepository->find($transactionInfo['promotionId']);
+            $promotionInfo = $promotion->getAnnotherInfo() ?? [];
+            if ($rewardBudget !== null) {
+                $promotionInfo['rewardBudget'] = $rewardBudget;
+            }
             $promotion->setMode("Payant")
                 // dateDebut et dateExp seront fixées par l'admin lors de la validation
                 ->setReferencement($formulePromoAffaire->getReferencement())
                 ->setStatus(1)
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
-                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+                ->setSource($transactionInfo['source'] ?? 'mobile')
+                ->setAnnotherInfo($promotionInfo ?: null);
             $this->addNotification("Solde débité. Votre Promotion Affaire est en attente de validation par notre équipe.", $user);
         }
 

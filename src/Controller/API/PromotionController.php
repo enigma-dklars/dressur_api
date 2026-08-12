@@ -24,8 +24,10 @@ use App\Repository\MethodePaiementRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
+use App\Services\ProgrammeRecompenseBudget;
 use App\Utilities\SendMail;
 use App\Utilities\UuidGenerator;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -39,13 +41,24 @@ class PromotionController extends AbstractController
     private $env;
     private $sendMail;
     private $cookieDS;
+    private ProgrammeRecompenseBudget $programmeRecompenseBudget;
+    private LoggerInterface $logger;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail, CookieDS $cookieDS)
+    public function __construct(
+        EntityManagerInterface $em,
+        EnvRepository $env,
+        SendMail $sendMail,
+        CookieDS $cookieDS,
+        ProgrammeRecompenseBudget $programmeRecompenseBudget,
+        LoggerInterface $logger
+    )
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->sendMail = $sendMail;
         $this->cookieDS = $cookieDS;
+        $this->programmeRecompenseBudget = $programmeRecompenseBudget;
+        $this->logger = $logger;
     }
 
     #[Route('/listeFormulePromoAffaire', name: 'listeFormulePromoAffaire', methods: ['POST', 'GET'])]
@@ -248,9 +261,27 @@ class PromotionController extends AbstractController
         $boostFacebook = false;
         $montantBoostFacebook = 0;
 
-        if ($datas->get('inProgrammeRecompense') !== null) {
-            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
-            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        $inProgrammeRecompense = $this->requestBoolean($datas->get('inProgrammeRecompense'));
+        try {
+            $rewardBudgetData = $this->programmeRecompenseBudget->resolve(
+                $inProgrammeRecompense,
+                $datas->has('rewardBudget'),
+                $datas->get('rewardBudget'),
+                $this->isCustomRewardBudget($datas),
+                $datas->get('totalViewsGoal')
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant invalide',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        $rewardBudget = $rewardBudgetData['amount'];
+        if ($rewardBudgetData['legacy']) {
+            $this->logger->notice('Ancienne requête Programme Récompense reçue sans rewardBudget.', [
+                'route' => 'api_addProduitService',
+            ]);
         }
         if ($datas->get('publishOnDressurStatus') !== null) {
             $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
@@ -374,7 +405,7 @@ class PromotionController extends AbstractController
         // ── Paiement via solde ────────────────────────────────────────────────
         $montantSolde = $formulBoost->getPrix();
         if ($inProgrammeRecompense) {
-            $montantSolde += round((($totalViewsGoal * 2500) / 4000) * 1.20);
+            $montantSolde += $rewardBudget;
         }
         if ($publishOnDressurStatus) {
             $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
@@ -394,6 +425,7 @@ class PromotionController extends AbstractController
                     'image'                 => $fileName,
                     'description'           => $text,
                     'inProgrammeRecompense' => $inProgrammeRecompense,
+                    'rewardBudget'          => $rewardBudget,
                     'publishOnDressurStatus'=> $publishOnDressurStatus,
                     'boostFacebook'         => $boostFacebook,
                     'montantBoostFacebook'  => $montantBoostFacebook,
@@ -431,7 +463,7 @@ class PromotionController extends AbstractController
             $montantTotal += $formulBoost->getPrix();
 
             if ($inProgrammeRecompense) {
-                $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
+                $montantForProgrammeRecompense = $rewardBudget;
 
                 $factureLignes[] = "Programme Récompense";
 
@@ -486,6 +518,7 @@ class PromotionController extends AbstractController
                         'image' => $fileName,
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget' => $rewardBudget,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
@@ -534,6 +567,7 @@ class PromotionController extends AbstractController
                         'image' => $fileName,
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget' => $rewardBudget,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
@@ -580,6 +614,7 @@ class PromotionController extends AbstractController
                         'image' => $fileName,
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget' => $rewardBudget,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
@@ -1035,9 +1070,27 @@ class PromotionController extends AbstractController
         $boostFacebook = false;
         $montantBoostFacebook = 0;
 
-        if ($datas->get('inProgrammeRecompense') !== null) {
-            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
-            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        $inProgrammeRecompense = $this->requestBoolean($datas->get('inProgrammeRecompense'));
+        try {
+            $rewardBudgetData = $this->programmeRecompenseBudget->resolve(
+                $inProgrammeRecompense,
+                $datas->has('rewardBudget'),
+                $datas->get('rewardBudget'),
+                $this->isCustomRewardBudget($datas),
+                $datas->get('totalViewsGoal')
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant invalide',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        $rewardBudget = $rewardBudgetData['amount'];
+        if ($rewardBudgetData['legacy']) {
+            $this->logger->notice('Ancienne requête Programme Récompense reçue sans rewardBudget.', [
+                'route' => 'api_newPromoPayant',
+            ]);
         }
         if ($datas->get('publishOnDressurStatus') !== null) {
             $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
@@ -1127,7 +1180,7 @@ class PromotionController extends AbstractController
             // ── Paiement via solde ────────────────────────────────────────────────
             $montantSolde = $formulBoost->getPrix();
             if ($inProgrammeRecompense) {
-                $montantSolde += round((($totalViewsGoal * 2500) / 4000) * 1.20);
+                $montantSolde += $rewardBudget;
             }
             if ($publishOnDressurStatus) {
                 $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
@@ -1146,6 +1199,7 @@ class PromotionController extends AbstractController
                         'formulBoostId'         => $formulBoost->getId(),
                         'promotionId'           => $promotion->getId(),
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget'         => $rewardBudget,
                         'publishOnDressurStatus'=> $publishOnDressurStatus,
                         'boostFacebook'         => $boostFacebook,
                         'montantBoostFacebook'  => $montantBoostFacebook,
@@ -1182,7 +1236,7 @@ class PromotionController extends AbstractController
                 $montantTotal += $formulBoost->getPrix();
 
                 if ($inProgrammeRecompense) {
-                    $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
+                    $montantForProgrammeRecompense = $rewardBudget;
 
                     $factureLignes[] = "Programme Récompense";
 
@@ -1235,6 +1289,9 @@ class PromotionController extends AbstractController
                             'userUid' => $user->getUid(),
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
+                            'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'rewardBudget' => $rewardBudget,
+                            'publishOnDressurStatus' => $publishOnDressurStatus,
                             'boostFacebook' => $boostFacebook,
                             'montantBoostFacebook' => $montantBoostFacebook,
                             'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
@@ -1282,6 +1339,7 @@ class PromotionController extends AbstractController
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
                             'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'rewardBudget' => $rewardBudget,
                             'publishOnDressurStatus' => $publishOnDressurStatus,
                             'boostFacebook' => $boostFacebook,
                             'montantBoostFacebook' => $montantBoostFacebook,
@@ -1327,6 +1385,7 @@ class PromotionController extends AbstractController
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
                             'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'rewardBudget' => $rewardBudget,
                             'publishOnDressurStatus' => $publishOnDressurStatus,
                             'boostFacebook' => $boostFacebook,
                             'montantBoostFacebook' => $montantBoostFacebook,
@@ -1416,5 +1475,51 @@ class PromotionController extends AbstractController
             'error'      => false,
             'promotions' => $data,
         ]);
+    }
+
+    private function requestBoolean(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
+        return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function isCustomRewardBudget($datas): bool
+    {
+        foreach ([
+            'rewardBudgetType',
+            'rewardBudgetMode',
+            'isCustomRewardBudget',
+            'rewardBudgetCustom',
+        ] as $key) {
+            if (!$datas->has($key)) {
+                continue;
+            }
+
+            $value = $datas->get($key);
+            if (is_bool($value)) {
+                return $value;
+            }
+
+            $normalized = strtolower(trim((string) $value));
+            if (in_array($normalized, ['custom', 'customized', 'personnalise', 'personnalisé', 'manual', 'manuel', '1', 'true', 'yes'], true)) {
+                return true;
+            }
+            if (in_array($normalized, ['predefined', 'preset', 'fixed', 'predetermine', 'prédéfini', '0', 'false', 'no'], true)) {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

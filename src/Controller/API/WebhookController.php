@@ -69,6 +69,11 @@ class WebhookController extends AbstractController
      */
     private function allWebhookDressur($myTransaction): void
     {
+        $transactionInfo = $myTransaction->getAnnotherInfo() ?? [];
+        $rewardBudget = array_key_exists('rewardBudget', $transactionInfo)
+            ? (int) $transactionInfo['rewardBudget']
+            : null;
+
         if ($myTransaction->getTransactionFor() == "boost_contact") {
             $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
             $typeBoost = $myTransaction->getAnnotherInfo()['typeBoost'] ?? 'date';
@@ -96,25 +101,27 @@ class WebhookController extends AbstractController
         }
 
         if ($myTransaction->getTransactionFor() == "boost_affaire") {
-            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
-            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
-            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
-            $boostFacebook          = $myTransaction->getAnnotherInfo()['boostFacebook']          ?? false;
-            $montantBoostFacebook   = $myTransaction->getAnnotherInfo()['montantBoostFacebook']   ?? 0;
-            $whatsappContact        = $myTransaction->getAnnotherInfo()['whatsappContact']        ?? null;
+            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($transactionInfo['formulePromoAffaire']);
+            $inProgrammeRecompense  = $transactionInfo['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $transactionInfo['publishOnDressurStatus'] ?? false;
+            $boostFacebook          = $transactionInfo['boostFacebook']          ?? false;
+            $montantBoostFacebook   = $transactionInfo['montantBoostFacebook']   ?? 0;
+            $whatsappContact        = $transactionInfo['whatsappContact']        ?? null;
+            $promotionInfo = $rewardBudget === null ? [] : ['rewardBudget' => $rewardBudget];
             $promotion = new Promotion();
             $promotion
                 ->setMode("Payant")
                 ->setUser($myTransaction->getUser())
                 ->setFormulePromoAffaire($formulePromoAffaire)
-                ->setImage($myTransaction->getAnnotherInfo()['image'])
-                ->setDescription($myTransaction->getAnnotherInfo()['description'])
+                ->setImage($transactionInfo['image'])
+                ->setDescription($transactionInfo['description'])
                 ->setInProgrammeRecompense($inProgrammeRecompense)
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setBoostFacebook($boostFacebook)
                 ->setMontantBoostFacebook($montantBoostFacebook)
                 ->setWhatsappContact($whatsappContact)
-                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                ->setSource($transactionInfo['source'] ?? 'mobile')
+                ->setAnnotherInfo($promotionInfo ?: null)
             ;
             $this->em->persist($promotion);
 
@@ -139,12 +146,16 @@ class WebhookController extends AbstractController
         }
 
         if ($myTransaction->getTransactionFor() == "re_boost_affaire") {
-            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
-            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
-            $boostFacebook          = $myTransaction->getAnnotherInfo()['boostFacebook']          ?? false;
-            $montantBoostFacebook   = $myTransaction->getAnnotherInfo()['montantBoostFacebook']   ?? 0;
-            $promotion = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+            $formulePromoAffaire = $this->formulePromoAffaireRepository->find($transactionInfo['formulBoostId']);
+            $inProgrammeRecompense  = $transactionInfo['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $transactionInfo['publishOnDressurStatus'] ?? false;
+            $boostFacebook          = $transactionInfo['boostFacebook']          ?? false;
+            $montantBoostFacebook   = $transactionInfo['montantBoostFacebook']   ?? 0;
+            $promotion = $this->promotionRepository->find($transactionInfo['promotionId']);
+            $promotionInfo = $promotion->getAnnotherInfo() ?? [];
+            if ($rewardBudget !== null) {
+                $promotionInfo['rewardBudget'] = $rewardBudget;
+            }
             $promotion->setMode("Payant")
                 // dateDebut et dateExp seront fixées par l'admin lors de la validation
                 ->setReferencement($formulePromoAffaire->getReferencement())
@@ -153,7 +164,8 @@ class WebhookController extends AbstractController
                 ->setPublishOnDressurStatus($publishOnDressurStatus)
                 ->setBoostFacebook($boostFacebook)
                 ->setMontantBoostFacebook($montantBoostFacebook)
-                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                ->setSource($transactionInfo['source'] ?? 'mobile')
+                ->setAnnotherInfo($promotionInfo ?: null)
             ;
             $this->traitementsDS->addNotification("Paiement confirmé. Votre Promotion Affaire est en attente de validation par notre équipe.", $myTransaction->getUser());
         }
