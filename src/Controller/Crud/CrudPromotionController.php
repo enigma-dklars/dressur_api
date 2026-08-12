@@ -67,7 +67,7 @@ class CrudPromotionController extends AbstractController
                 continue;
             }
 
-            $urls[$id] = 'https://dressur.site/actualite/' . $this->encodePromoToken($id);
+            $urls[$id] = 'https://dressur.site/actualite/pub/' . $this->encodePromoToken($id);
         }
 
         return $urls;
