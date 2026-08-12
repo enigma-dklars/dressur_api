@@ -25,6 +25,7 @@ use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\PromotionBilling;
+use App\Services\PromotionImageValidator;
 use App\Services\ProgrammeRecompenseBudget;
 use App\Utilities\SendMail;
 use App\Utilities\UuidGenerator;
@@ -44,6 +45,7 @@ class PromotionController extends AbstractController
     private $cookieDS;
     private ProgrammeRecompenseBudget $programmeRecompenseBudget;
     private PromotionBilling $promotionBilling;
+    private PromotionImageValidator $promotionImageValidator;
     private LoggerInterface $logger;
 
     public function __construct(
@@ -53,6 +55,7 @@ class PromotionController extends AbstractController
         CookieDS $cookieDS,
         ProgrammeRecompenseBudget $programmeRecompenseBudget,
         PromotionBilling $promotionBilling,
+        PromotionImageValidator $promotionImageValidator,
         LoggerInterface $logger
     )
     {
@@ -62,6 +65,7 @@ class PromotionController extends AbstractController
         $this->cookieDS = $cookieDS;
         $this->programmeRecompenseBudget = $programmeRecompenseBudget;
         $this->promotionBilling = $promotionBilling;
+        $this->promotionImageValidator = $promotionImageValidator;
         $this->logger = $logger;
     }
 
@@ -319,13 +323,13 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        // Vérification et traitement de l'image
-        if (!$image->isValid()) {
+        $imageValidation = $this->promotionImageValidator->validate($image);
+        if (!$imageValidation['valid']) {
             return new JsonResponse([
                 'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Erreur lors du traitement de l'image.",
-            ]);
+                'titre' => 'Image invalide',
+                'message' => $imageValidation['message'],
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         if($mode == "payant"){
@@ -376,7 +380,7 @@ class PromotionController extends AbstractController
         }
 
         // Générer un nom de fichier unique
-        $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$image->getClientOriginalExtension();
+        $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$imageValidation['extension'];
 
         // Déplacer l'image vers le dossier de promotion dans le dossier public
         try {
@@ -656,20 +660,13 @@ class PromotionController extends AbstractController
         // Prix fixe pour ce type de promotion
         $montantSolde = 7750;
 
-        if ($image === null) {
+        $imageValidation = $this->promotionImageValidator->validate($image);
+        if (!$imageValidation['valid']) {
             return new JsonResponse([
                 'error'   => true,
-                'titre'   => "Erreur",
-                'message' => "Veuillez fournir une image (icône ou logo).",
-            ]);
-        }
-
-        if (!$image->isValid()) {
-            return new JsonResponse([
-                'error'   => true,
-                'titre'   => 'Erreur!',
-                'message' => "Erreur lors du traitement de l'image.",
-            ]);
+                'titre'   => 'Image invalide',
+                'message' => $imageValidation['message'],
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -693,7 +690,7 @@ class PromotionController extends AbstractController
         }
 
         // Upload image
-        $fileName = "dressur_pro_" . UuidGenerator::v4() . '.' . $image->getClientOriginalExtension();
+        $fileName = "dressur_pro_" . UuidGenerator::v4() . '.' . $imageValidation['extension'];
         try {
             $image->move($this->getParameter('promotion_directory'), $fileName);
         } catch (FileException $e) {
@@ -937,16 +934,17 @@ class PromotionController extends AbstractController
         }
         
         if ($image) {
-            if (!$image->isValid()) {
+            $imageValidation = $this->promotionImageValidator->validate($image);
+            if (!$imageValidation['valid']) {
                 return new JsonResponse([
                     'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Erreur lors du traitement de l'image.",
-                ]);
+                    'titre' => 'Image invalide',
+                    'message' => $imageValidation['message'],
+                ], Response::HTTP_BAD_REQUEST);
             }
 
             // Générer un nom de fichier unique
-            $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$image->getClientOriginalExtension();
+            $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$imageValidation['extension'];
 
             // Déplacer l'image vers le dossier de promotion dans le dossier public
             try {

@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Services\CookieDS;
+use App\Services\PromotionImageValidator;
 use App\Services\TraitementsDS;
 use App\Utilities\SendMail;
 use DateTime;
@@ -27,12 +28,14 @@ class CrudPromotionController extends AbstractController
     private $cookieDS;
     private $traitementsDS;
     private $sendMail;
+    private PromotionImageValidator $promotionImageValidator;
 
-    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS, SendMail $sendMail)
+    public function __construct(CookieDS $cookieDS, TraitementsDS $traitementsDS, SendMail $sendMail, PromotionImageValidator $promotionImageValidator)
     {
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
         $this->sendMail = $sendMail;
+        $this->promotionImageValidator = $promotionImageValidator;
         if($this->cookieDS->check("theme")) {
             if($this->cookieDS->get("theme") == "dark-theme") {
                 $this->theme = "dark-theme";
@@ -185,19 +188,17 @@ class CrudPromotionController extends AbstractController
             }
 
             if ($imageFile) {
-                if ($imageFile->getSize() > 1 * 1024 * 1024) {
-                    $errors[] = "L'image ne doit pas dépasser 1 Mo (taille reçue : " . round($imageFile->getSize() / 1024) . " Ko).";
-                }
-                $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                if (!in_array($imageFile->getMimeType(), $allowedMimes)) {
-                    $errors[] = "Format d'image non supporté (jpg, png, gif, webp uniquement).";
+                $imageValidation = $this->promotionImageValidator->validate($imageFile);
+                if (!$imageValidation['valid']) {
+                    $errors[] = $imageValidation['message'];
                 }
             } else {
-                $errors[] = "Une image est obligatoire.";
+                $errors[] = 'Une image est obligatoire.';
+                $imageValidation = null;
             }
 
             if (empty($errors)) {
-                $fileName = 'dressur_pro_' . uniqid() . '.' . $imageFile->guessExtension();
+                $fileName = 'dressur_pro_' . uniqid() . '.' . $imageValidation['extension'];
                 $imageFile->move($this->getParameter('promotion_directory'), $fileName);
 
                 $promotion = new Promotion();
@@ -344,17 +345,18 @@ class CrudPromotionController extends AbstractController
                   }
               }
 
+              $imageValidation = null;
               if ($imageFile) {
-                  if ($imageFile->getSize() > 1 * 1024 * 1024) $errors[] = 'L’image ne doit pas dépasser 1 Mo.';
-                  if (!in_array($imageFile->getMimeType(), ['image/jpeg', 'image/png', 'image/gif', 'image/webp'], true)) {
-                      $errors[] = 'Format d’image non supporté (jpg, png, gif, webp uniquement).';
+                  $imageValidation = $this->promotionImageValidator->validate($imageFile);
+                  if (!$imageValidation['valid']) {
+                      $errors[] = $imageValidation['message'];
                   }
               }
 
               if (!$errors) {
                   $oldImage = $promotion->getImage();
                   if ($imageFile) {
-                      $extension = $imageFile->guessExtension();
+                      $extension = $imageValidation['extension'] ?? null;
                       if (!$extension) {
                           $errors[] = 'Impossible de déterminer le format de la nouvelle image.';
                       } else {
