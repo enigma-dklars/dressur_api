@@ -225,14 +225,8 @@
             return 0;
         }
 
-        const $viewsGoal = $('#viewsGoal');
-        const viewsGoal = $viewsGoal.length ? parseInt($viewsGoal.val()) || 2500 : 2500;
-        const effectiveViews = viewsGoal < 2500 ? 2500 : viewsGoal;
-        
-        // Règle de 3 : 4000 vues = 2500 FCFA
-        const baseReward = (effectiveViews * 2500) / 4000;
-        // Ajout de 20% de commission plateforme
-        return baseReward * 1.2;
+        const budget = Number($('#rewardBudget').val());
+        return Number.isInteger(budget) && budget > 0 ? budget : 0;
     }
 
     /**
@@ -245,6 +239,19 @@
         }
         
         return (currentFormuleData.jours * DRESSUR_STATUS_PRICE_PER_7_DAYS) / 7;
+    }
+
+    /**
+     * Calcule le montant du boost Facebook
+     */
+    function calculateBoostFacebookAmount() {
+        const $boostFacebook = $('#boostFacebook');
+        if (!$boostFacebook.length || !$boostFacebook.is(':checked')) {
+            return 0;
+        }
+
+        const amount = Number($('#boostFacebookAmount').val());
+        return Number.isInteger(amount) && amount >= 700 ? amount : 0;
     }
 
     /**
@@ -262,16 +269,14 @@
         const formulePrice = currentFormuleData.prix;
         const rewardAmount = calculateRewardAmount();
         const statusAmount = calculateDressurStatusAmount();
-        const subTotal = formulePrice + rewardAmount + statusAmount;
-        const fedapayCommission = calculateFedapayCommission(subTotal);
-        const total = subTotal + fedapayCommission;
+        const boostFacebookAmount = calculateBoostFacebookAmount();
+        const total = formulePrice + rewardAmount + statusAmount + boostFacebookAmount;
 
         // Mise à jour du DOM avec jQuery
         $('#summaryFormulePrice').text(formatNumber(formulePrice) + ' F');
         $('#summaryRewardPrice').text(formatNumber(rewardAmount) + ' F');
         $('#summaryStatusPrice').text(formatNumber(statusAmount) + ' F');
-        $('#summarySubTotal').text(formatNumber(subTotal) + ' F');
-        $('#summaryFedapayCommission').text(formatNumber(fedapayCommission) + ' F');
+        $('#summaryBoostFacebookPrice').text(formatNumber(boostFacebookAmount) + ' F');
         $('#summaryTotal').text(formatNumber(total) + ' F');
         $('#rewardAmount').text(formatNumber(rewardAmount));
         $('#statusAmount').text(formatNumber(statusAmount));
@@ -442,7 +447,12 @@
         updatePricingSummary();
     });
 
-    $(document).on('input', '#viewsGoal', function() {
+    $(document).on('input change', '#rewardBudget, #boostFacebookAmount', function() {
+        updatePricingSummary();
+    });
+
+    $(document).on('change', '#boostFacebook', function() {
+        $('#boostFacebookSection').toggle(this.checked);
         updatePricingSummary();
     });
 
@@ -543,9 +553,28 @@
             formData.append('image', selectedImage);
             formData.append('paymentMethod', $('#paymentMethod').val());
             formData.append('tel', $('#paymentNumber').val());
-            formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
-            formData.append('totalViewsGoal', $('#viewsGoal').val());
-            formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+            formData.append(
+                'inProgrammeRecompense',
+                $('#participateReward').is(':checked') ? '1' : '0'
+            );
+            formData.append(
+                'rewardBudget',
+                $('#participateReward').is(':checked')
+                    ? $('#rewardBudget').val()
+                    : '0'
+            );
+            formData.append('rewardBudgetType', $('#rewardBudgetType').val() || 'predefined');
+            formData.append(
+                'publishOnDressurStatus',
+                $('#publishDressurStatus').is(':checked') ? '1' : '0'
+            );
+            formData.append('boostFacebook', $('#boostFacebook').is(':checked') ? '1' : '0');
+            formData.append(
+                'montantBoostFacebook',
+                $('#boostFacebook').is(':checked')
+                    ? ($('#boostFacebookAmount').val() || '0')
+                    : '0'
+            );
             formData.append('whatsappContact', $('#whatsappContact').val().trim());
             formData.append('source', 'web');
 

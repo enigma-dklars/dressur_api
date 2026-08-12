@@ -256,7 +256,6 @@
     // ==========================================
     const API_BASE_URL = window.API_BASE_URL || "https://dressur.site/api";
     const LANG_USER = window.LANG_USER || 'fr';
-    const DRESSUR_STATUS_RATE = 0.25; // 25% du prix de la formule
     const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
     const CUSTOM_REWARD_BUDGET_MIN = 5001;
     const CUSTOM_REWARD_BUDGET_ERROR = 'Le montant personnalisé doit être supérieur à 5 000 FCFA.';
@@ -350,12 +349,8 @@
             return 0;
         }
 
-        if ($('#rewardBudgetType').val() === 'custom') {
-            return getCustomRewardBudgetError() ? 0 : getCustomRewardBudgetValue();
-        }
-
         const budget = Number($('#rewardBudget').val());
-        return Number.isInteger(budget) ? budget : 0;
+        return Number.isInteger(budget) && budget > 0 ? budget : 0;
     }
 
     function updateRewardBreakdown(budget) {
@@ -462,11 +457,11 @@
      */
     function calculateDressurStatusAmount() {
         const $publishStatus = $('#publishDressurStatus');
-        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.prix < 1000) {
+        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.jours === 0) {
             return 0;
         }
         
-        return currentFormuleData.prix * DRESSUR_STATUS_RATE;
+        return Math.round((currentFormuleData.jours * 5000) / 7);
     }
 
     /**
@@ -851,12 +846,28 @@
             formData.append('image', selectedImage);
             formData.append('paymentMethod', $('#paymentMethod').val());
             formData.append('tel', $('#paymentNumber').val());
-            formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
-            formData.append('rewardBudget', $('#rewardBudget').val());
+            formData.append(
+                'inProgrammeRecompense',
+                $('#participateReward').is(':checked') ? '1' : '0'
+            );
+            formData.append(
+                'rewardBudget',
+                $('#participateReward').is(':checked')
+                    ? $('#rewardBudget').val()
+                    : '0'
+            );
             formData.append('rewardBudgetType', $('#rewardBudgetType').val());
-            formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+            formData.append(
+                'publishOnDressurStatus',
+                $('#publishDressurStatus').is(':checked') ? '1' : '0'
+            );
             formData.append('boostFacebook', $('#boostFacebook').is(':checked') ? '1' : '0');
-            formData.append('montantBoostFacebook', $('#boostFacebookAmount').val() || '0');
+            formData.append(
+                'montantBoostFacebook',
+                $('#boostFacebook').is(':checked')
+                    ? ($('#boostFacebookAmount').val() || '0')
+                    : '0'
+            );
             formData.append('whatsappContact', $('#whatsappContact').val().trim());
             formData.append('source', 'web');
 
