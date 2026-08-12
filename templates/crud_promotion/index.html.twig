@@ -47,7 +47,6 @@
                     <th>DateExp</th>
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
-                    <th>Id</th>
                     <th>URL pub</th>
                 </tr>
             </thead>
@@ -132,7 +131,6 @@
                     <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promotion.nombreDeVue }}</td>
                     <td>{{ promotion.nombreImpression }}</td>
-                    <td>{{ promotion.id }}</td>
                     <td>
                         {% set publicUrl = promotionPublicUrls[promotion.id] ?? null %}
                         {% if publicUrl %}
@@ -140,7 +138,7 @@
                             <button
                                 type="button"
                                 class="btn btn-sm btn-outline-primary js-copy-public-url"
-                                data-public-url="{{ publicUrl }}"
+                                data-public-url="{{ publicUrl|e('html_attr') }}"
                                 aria-label="Copier l'URL publique"
                             >
                                 <i class="fas fa-copy me-1" aria-hidden="true"></i>
@@ -151,7 +149,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="21">no records found</td>
+                    <td colspan="20">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>
