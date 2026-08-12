@@ -10,6 +10,11 @@ final class PromotionImageValidator
     private const RATIO_TOLERANCE = 0.02;
 
     /**
+     * @var callable(string): (array<int|string, mixed>|false)
+     */
+    private $imageInfoReader;
+
+    /**
      * MIME types already accepted by the Promotion Affaire upload flows.
      *
      * @var array<string, string>
@@ -20,6 +25,16 @@ final class PromotionImageValidator
         'image/gif'  => 'gif',
         'image/webp' => 'webp',
     ];
+
+    /**
+     * @param callable(string): (array<int|string, mixed>|false)|null $imageInfoReader
+     */
+    public function __construct(?callable $imageInfoReader = null)
+    {
+        $this->imageInfoReader = $imageInfoReader ?? static function (string $path) {
+            return @getimagesize($path);
+        };
+    }
 
     /**
      * Validate an uploaded Promotion Affaire image without decoding or rewriting it.
@@ -64,7 +79,7 @@ final class PromotionImageValidator
             return $this->invalid('Le fichier image est introuvable ou illisible.');
         }
 
-        $imageInfo = @getimagesize($path);
+        $imageInfo = ($this->imageInfoReader)($path);
         if ($imageInfo === false) {
             return $this->invalid('Le fichier fourni n’est pas une image lisible ou est corrompu.');
         }
