@@ -48,7 +48,7 @@
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
                     <th>Id</th>
-                    <th>URL publique</th>
+                    <th>URL pub</th>
                 </tr>
             </thead>
             <tbody>
@@ -134,10 +134,18 @@
                     <td>{{ promotion.nombreImpression }}</td>
                     <td>{{ promotion.id }}</td>
                     <td>
-                        {% if promotionPublicUrls[promotion.id] is defined %}
-                            <a href="{{ promotionPublicUrls[promotion.id] }}" target="_blank" rel="noopener noreferrer">
-                                {{ promotionPublicUrls[promotion.id] }}
-                            </a>
+                        {% set publicUrl = promotionPublicUrls[promotion.id] ?? null %}
+                        {% if publicUrl %}
+                            <span class="small text-break d-block mb-1">{{ publicUrl }}</span>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-primary js-copy-public-url"
+                                data-public-url="{{ publicUrl }}"
+                                aria-label="Copier l'URL publique"
+                            >
+                                <i class="fas fa-copy me-1" aria-hidden="true"></i>
+                                <span class="js-copy-public-url-label">Copier</span>
+                            </button>
                         {% endif %}
                     </td>
                 </tr>
@@ -154,6 +162,76 @@
 
 {% block script %}
 <script>
+function fallbackCopyPublicUrl(text) {
+    var input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.top = '-9999px';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+
+    var copied = false;
+    try {
+        copied = document.execCommand('copy');
+    } catch (error) {
+        copied = false;
+    }
+
+    document.body.removeChild(input);
+    return copied;
+}
+
+document.querySelectorAll('.js-copy-public-url').forEach(function (button) {
+    var label = button.querySelector('.js-copy-public-url-label');
+    var icon = button.querySelector('i');
+    var defaultLabel = label.textContent;
+    var defaultIconClass = icon.className;
+    var resetTimer;
+
+    button.addEventListener('click', async function () {
+        var url = button.dataset.publicUrl;
+        var copied = false;
+
+        if (resetTimer) {
+            window.clearTimeout(resetTimer);
+        }
+
+        if (url && navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(url);
+                copied = true;
+            } catch (error) {
+                copied = false;
+            }
+        }
+
+        if (!copied && url) {
+            copied = fallbackCopyPublicUrl(url);
+        }
+
+        button.classList.remove('btn-outline-primary', 'btn-success', 'btn-danger');
+        if (copied) {
+            button.classList.add('btn-success');
+            icon.className = 'fas fa-check me-1';
+            label.textContent = 'Copié !';
+        } else {
+            button.classList.add('btn-danger');
+            icon.className = 'fas fa-exclamation-triangle me-1';
+            label.textContent = 'Copie impossible';
+        }
+
+        resetTimer = window.setTimeout(function () {
+            button.classList.remove('btn-success', 'btn-danger');
+            button.classList.add('btn-outline-primary');
+            icon.className = defaultIconClass;
+            label.textContent = defaultLabel;
+        }, copied ? 2000 : 3000);
+    });
+});
+
 document.querySelectorAll('.js-confirm-orphan').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
         e.preventDefault();
