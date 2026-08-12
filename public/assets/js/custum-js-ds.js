@@ -1602,6 +1602,139 @@ $(document).ready(function () {
         });
     });
 
+    const REBOOST_PREDEFINED_REWARD_BUDGETS = [500, 1000, 2000, 5000];
+
+    function getReboostModal(idPromoAffaire) {
+        return $("#modal_payerpromoaffaire_" + idPromoAffaire);
+    }
+
+    function setReboostRewardBudget($modal, budget, type) {
+        const isCustom = type === "custom";
+        $modal.find(".reboost-reward-budget-type").val(isCustom ? "custom" : "predefined");
+        $modal.find(".reboost-reward-budget").val(isCustom ? "0" : String(budget));
+        $modal.find(".reboost-custom-reward-group").toggle(isCustom);
+
+        $modal.find(".reboost-budget-button").each(function () {
+            const isActive = String($(this).data("budget")) === String(isCustom ? "custom" : budget);
+            $(this)
+                .toggleClass("btn-primary active", isActive)
+                .toggleClass("btn-outline-primary", !isActive)
+                .attr("aria-pressed", isActive ? "true" : "false");
+        });
+    }
+
+    function validateReboostRewardBudget($modal) {
+        if ($modal.find(".reboost-in-programme").val() !== "1") {
+            return { valid: true, budget: "0", type: "predefined" };
+        }
+
+        const type = $modal.find(".reboost-reward-budget-type").val() === "custom"
+            ? "custom"
+            : "predefined";
+        const rawBudget = String(
+            type === "custom"
+                ? ($modal.find(".reboost-custom-reward-budget").val() || "")
+                : ($modal.find(".reboost-reward-budget").val() || "")
+        ).trim();
+
+        if (!/^\d+$/.test(rawBudget)) {
+            return {
+                valid: false,
+                message: type === "custom"
+                    ? "Le montant personnalisé doit contenir uniquement des chiffres entiers."
+                    : "Veuillez sélectionner un budget du Programme Récompense."
+            };
+        }
+
+        const budget = Number(rawBudget);
+        if (!Number.isSafeInteger(budget) || budget <= 0) {
+            return { valid: false, message: "Le budget doit être un entier positif en FCFA." };
+        }
+
+        if (type === "custom" && budget <= 5000) {
+            return { valid: false, message: "Un montant personnalisé doit être strictement supérieur à 5 000 FCFA." };
+        }
+
+        if (type === "predefined" && !REBOOST_PREDEFINED_REWARD_BUDGETS.includes(budget)) {
+            return { valid: false, message: "Le budget doit être 500, 1 000, 2 000 ou 5 000 FCFA." };
+        }
+
+        return { valid: true, budget: String(budget), type: type };
+    }
+
+    function validateReboostFacebookAmount($modal) {
+        if (!$modal.find(".reboost-boost-facebook").is(":checked")) {
+            return { valid: true, amount: "0" };
+        }
+
+        const rawAmount = String($modal.find(".reboost-facebook-amount").val() || "").trim();
+        if (!/^\d+$/.test(rawAmount)) {
+            return { valid: false, message: "Le montant du boost Facebook doit être un entier positif." };
+        }
+
+        const amount = Number(rawAmount);
+        if (!Number.isSafeInteger(amount) || amount < 700) {
+            return { valid: false, message: "Le montant minimum pour le boost Facebook est de 700 FCFA." };
+        }
+
+        return { valid: true, amount: String(amount) };
+    }
+
+    function showReboostOptionError(idPromoAffaire, message) {
+        $(".msgError-" + idPromoAffaire).html(`
+            <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
+                <div class="d-flex align-items-center">
+                    <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
+                    <div class="ms-3"><div class="text-danger">${message}</div></div>
+                </div>
+            </div>
+        `).show();
+    }
+
+    $(document).on("change", ".reboost-in-programme", function () {
+        const $modal = $(this).closest(".modal");
+        const enabled = $(this).val() === "1";
+        $modal.find(".reboost-reward-options").toggle(enabled);
+
+        if (enabled) {
+            const currentBudget = Number($modal.find(".reboost-reward-budget").val());
+            if (!REBOOST_PREDEFINED_REWARD_BUDGETS.includes(currentBudget)) {
+                setReboostRewardBudget($modal, 500, "predefined");
+            }
+        } else {
+            setReboostRewardBudget($modal, 0, "predefined");
+        }
+    });
+
+    $(document).on("click", ".reboost-budget-button", function () {
+        const $modal = $(this).closest(".modal");
+        const budget = String($(this).data("budget"));
+        setReboostRewardBudget($modal, budget === "custom" ? 0 : budget, budget === "custom" ? "custom" : "predefined");
+    });
+
+    $(document).on("input change", ".reboost-custom-reward-budget", function () {
+        const $modal = $(this).closest(".modal");
+        const validation = validateReboostRewardBudget($modal);
+        $(this)
+            .toggleClass("is-invalid", !validation.valid)
+            .attr("aria-invalid", validation.valid ? "false" : "true");
+        if (validation.valid) {
+            $modal.find(".reboost-reward-budget").val(validation.budget);
+        } else {
+            $modal.find(".reboost-reward-budget").val("0");
+        }
+    });
+
+    $(document).on("change", ".reboost-boost-facebook", function () {
+        const $modal = $(this).closest(".modal");
+        $modal.find(".reboost-facebook-amount-group").toggle($(this).is(":checked"));
+        if (!$(this).is(":checked")) {
+            $modal.find(".reboost-facebook-amount").val("0");
+        } else if (!$modal.find(".reboost-facebook-amount").val()) {
+            $modal.find(".reboost-facebook-amount").val("700");
+        }
+    });
+
     $(document).on("click", ".payerpromoaffaire", function () {
         $(".msgError").each(function() {
             elementMsgError = $(this)
@@ -1622,6 +1755,7 @@ $(document).ready(function () {
         let idFormulBoost = $(".formulBoostPayant-"+idPromoAffaire).val();
         let valueMethodePaiement = $(".moyenPaiementPayant-"+idPromoAffaire).val();
         let tel = $(".numeroPaiementPayant-"+idPromoAffaire).val();
+        let $modal = getReboostModal(idPromoAffaire);
                 
         $(".getInfoBoostPayant-"+idPromoAffaire).each(function() {
             let titre = $(this).prev().text();
@@ -1655,6 +1789,20 @@ $(document).ready(function () {
             return 0;
         }
 
+        const rewardBudgetValidation = validateReboostRewardBudget($modal);
+        if (!rewardBudgetValidation.valid) {
+            showReboostOptionError(idPromoAffaire, rewardBudgetValidation.message);
+            traitementContact("payerpromoaffaire-"+idPromoAffaire, "fin", "PAYER et BOOSTER");
+            return 0;
+        }
+
+        const facebookAmountValidation = validateReboostFacebookAmount($modal);
+        if (!facebookAmountValidation.valid) {
+            showReboostOptionError(idPromoAffaire, facebookAmountValidation.message);
+            traitementContact("payerpromoaffaire-"+idPromoAffaire, "fin", "PAYER et BOOSTER");
+            return 0;
+        }
+
         $.ajax({
             type: "POST",
             url: "/api/newPromoPayant",
@@ -1664,7 +1812,14 @@ $(document).ready(function () {
                 idPromotion : idPromoAffaire,
                 idFormulBoost : idFormulBoost,
                 valueMethodePaiement : valueMethodePaiement,
-                tel : tel
+                tel : tel,
+                inProgrammeRecompense : $modal.find(".reboost-in-programme").val() === "1" ? "1" : "0",
+                rewardBudget : rewardBudgetValidation.budget,
+                rewardBudgetType : rewardBudgetValidation.type,
+                publishOnDressurStatus : $modal.find(".reboost-publish-status").is(":checked") ? "1" : "0",
+                boostFacebook : $modal.find(".reboost-boost-facebook").is(":checked") ? "1" : "0",
+                montantBoostFacebook : facebookAmountValidation.amount,
+                source : "web"
             },
             success: function (response) {
                 if(response.error == true){
