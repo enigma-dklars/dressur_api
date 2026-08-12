@@ -1,0 +1,329 @@
+{% extends "basePrivate.html.twig" %}
+{% block title %}Mes réseaux{% endblock %}
+
+{% block body %}
+<style>
+.ds-networks-wrap{max-width:720px;margin:0 auto}
+.ds-networks-header{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:18px}
+.ds-networks-heading{flex:1}
+.ds-networks-back{display:inline-flex;align-items:center;gap:6px;color:var(--bs-secondary-color,#6c757d);font-size:12px;text-decoration:none;margin-bottom:10px}
+.ds-networks-back:hover{color:var(--bs-primary,#0d6efd)}
+.ds-networks-title{font-weight:700;font-size:1.1rem;margin:0 0 5px;display:flex;align-items:center;gap:8px}
+.ds-networks-intro{font-size:13px;color:var(--bs-secondary-color,#6c757d);margin:0}
+.ds-networks-add{white-space:nowrap;border-radius:20px;font-size:12px;font-weight:600;padding:8px 14px}
+.ds-network-card{display:flex;align-items:center;gap:14px;background:var(--bs-body-bg,#fff);border-radius:15px;border:1px solid var(--bs-border-color,rgba(0,0,0,.08));box-shadow:0 3px 10px rgba(0,0,0,.05);padding:14px 16px;margin-bottom:10px}
+.ds-network-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:rgba(13,110,253,.10);flex-shrink:0}
+.ds-network-icon i{font-size:19px;color:var(--bs-primary,#0d6efd)}
+.ds-network-body{min-width:0;flex:1}
+.ds-network-name{font-weight:600;font-size:14px;margin:0 0 3px;color:var(--bs-body-color,#212529)}
+.ds-network-url{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--bs-secondary-color,#6c757d);font-size:12px;text-decoration:none}
+.ds-network-url:hover{color:var(--bs-primary,#0d6efd)}
+.ds-network-delete{flex-shrink:0;border:0;background:transparent;color:var(--bs-secondary-color,#6c757d);border-radius:9px;padding:8px 10px;line-height:1}
+.ds-network-delete:hover{background:rgba(220,53,69,.10);color:#dc3545}
+.ds-networks-empty{background:var(--bs-body-bg,#fff);border:1px dashed var(--bs-border-color,rgba(0,0,0,.16));border-radius:15px;padding:34px 22px;text-align:center}
+.ds-networks-empty-icon{width:56px;height:56px;border-radius:17px;display:flex;align-items:center;justify-content:center;margin:0 auto 13px;background:rgba(13,110,253,.10)}
+.ds-networks-empty-icon i{font-size:24px;color:var(--bs-primary,#0d6efd)}
+.ds-networks-empty h6{font-weight:700;margin-bottom:6px}
+.ds-networks-empty p{color:var(--bs-secondary-color,#6c757d);font-size:13px;margin-bottom:17px}
+.ds-networks-state{font-size:13px}
+.ds-networks-spinner{width:1rem;height:1rem}
+.ds-network-modal-note{font-size:12px;color:var(--bs-secondary-color,#6c757d)}
+html.dark-theme .ds-network-card,html.dark-theme .ds-networks-empty,html.semi-dark .ds-network-card,html.semi-dark .ds-networks-empty{background:#202a40;border-color:rgba(255,255,255,.10);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+html.dark-theme .ds-network-name,html.semi-dark .ds-network-name{color:#fcfcfc}
+html.dark-theme .ds-network-url,html.semi-dark .ds-network-url{color:#9ea4aa}
+html.dark-theme .ds-networks-title,html.semi-dark .ds-networks-title{color:#fcfcfc}
+html.dark-theme .ds-networks-intro,html.semi-dark .ds-networks-intro{color:#9ea4aa}
+html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa}
+@media (max-width:575px){
+    .ds-networks-header{align-items:stretch;flex-direction:column;gap:12px}
+    .ds-networks-add{align-self:flex-start}
+}
+</style>
+
+<div class="ds-networks-wrap">
+    <div class="ds-networks-header">
+        <div class="ds-networks-heading">
+            <a href="/parametres" class="ds-networks-back">
+                <i class="fas fa-arrow-left"></i> Paramètres
+            </a>
+            <h5 class="ds-networks-title">
+                <i class="fas fa-share-nodes text-primary"></i>Mes réseaux
+            </h5>
+            <p class="ds-networks-intro">Ajoutez les liens publics que vous souhaitez afficher sur votre profil.</p>
+        </div>
+        <button type="button" class="btn btn-primary ds-networks-add" id="dsAddNetworkButton"
+                data-bs-toggle="modal" data-bs-target="#dsAddNetworkModal" disabled>
+            <i class="fas fa-plus me-1"></i>Ajouter un réseau
+        </button>
+    </div>
+
+    <div id="dsNetworksLoading" class="alert alert-light ds-networks-state d-flex align-items-center gap-2" role="status">
+        <span class="spinner-border ds-networks-spinner" aria-hidden="true"></span>
+        Chargement de vos réseaux…
+    </div>
+
+    <div id="dsNetworksError" class="alert alert-danger ds-networks-state d-none" role="alert">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+            <span id="dsNetworksErrorMessage">Impossible de charger vos réseaux.</span>
+            <button type="button" class="btn btn-sm btn-outline-danger" id="dsNetworksRetry">Réessayer</button>
+        </div>
+    </div>
+
+    <div id="dsNetworksSuccess" class="alert alert-success ds-networks-state d-none" role="status"></div>
+
+    <div id="dsNetworksEmpty" class="ds-networks-empty d-none">
+        <div class="ds-networks-empty-icon"><i class="fas fa-share-nodes"></i></div>
+        <h6>Aucun réseau enregistré</h6>
+        <p>Ajoutez vos réseaux publics pour permettre à vos contacts de vous retrouver facilement.</p>
+        <button type="button" class="btn btn-primary btn-sm" id="dsAddFirstNetworkButton"
+                data-bs-toggle="modal" data-bs-target="#dsAddNetworkModal" disabled>
+            <i class="fas fa-plus me-1"></i>Ajouter mon premier réseau
+        </button>
+    </div>
+
+    <div id="dsNetworksList" class="d-none" aria-live="polite"></div>
+</div>
+
+<div class="modal fade" id="dsAddNetworkModal" tabindex="-1" aria-labelledby="dsAddNetworkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dsAddNetworkModalLabel">Ajouter un réseau</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <form id="dsAddNetworkForm">
+                <div class="modal-body">
+                    <div id="dsAddNetworkError" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="mb-3">
+                        <label for="dsNetworkType" class="form-label">Réseau</label>
+                        <select class="form-select" id="dsNetworkType" required>
+                            <option value="">Sélectionnez un réseau</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label for="dsNetworkUrl" class="form-label">URL du profil</label>
+                        <input type="url" class="form-control" id="dsNetworkUrl"
+                               placeholder="https://…" autocomplete="url" required>
+                    </div>
+                    <p class="ds-network-modal-note mb-0">L’URL sera vérifiée par Dressur avant son enregistrement.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="dsSaveNetworkButton">
+                        <span class="spinner-border spinner-border-sm d-none me-1" id="dsSaveNetworkSpinner" aria-hidden="true"></span>
+                        Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+(function () {
+    'use strict';
+
+    const networksEndpoint = '/api/user/social-networks';
+    const catalogEndpoint = networksEndpoint + '/catalog';
+    const loading = document.getElementById('dsNetworksLoading');
+    const error = document.getElementById('dsNetworksError');
+    const errorMessage = document.getElementById('dsNetworksErrorMessage');
+    const success = document.getElementById('dsNetworksSuccess');
+    const empty = document.getElementById('dsNetworksEmpty');
+    const list = document.getElementById('dsNetworksList');
+    const addButton = document.getElementById('dsAddNetworkButton');
+    const addFirstButton = document.getElementById('dsAddFirstNetworkButton');
+    const retryButton = document.getElementById('dsNetworksRetry');
+    const addForm = document.getElementById('dsAddNetworkForm');
+    const addError = document.getElementById('dsAddNetworkError');
+    const networkType = document.getElementById('dsNetworkType');
+    const networkUrl = document.getElementById('dsNetworkUrl');
+    const saveButton = document.getElementById('dsSaveNetworkButton');
+    const saveSpinner = document.getElementById('dsSaveNetworkSpinner');
+    const modal = document.getElementById('dsAddNetworkModal');
+
+    function setVisible(element, visible) {
+        element.classList.toggle('d-none', !visible);
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        setVisible(error, true);
+    }
+
+    function showSuccess(message) {
+        success.textContent = message;
+        setVisible(success, true);
+    }
+
+    async function requestJson(url, options) {
+        const requestOptions = Object.assign({
+            credentials: 'same-origin',
+            headers: { 'Accept': 'application/json' }
+        }, options || {});
+
+        if (requestOptions.body) {
+            requestOptions.headers = Object.assign({}, requestOptions.headers, {
+                'Content-Type': 'application/json'
+            });
+        }
+
+        const response = await fetch(url, requestOptions);
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (parseError) {
+            data = {};
+        }
+
+        if (!response.ok || data.error) {
+            const requestError = new Error(
+                data.message || data.titre || 'Une erreur est survenue. Veuillez réessayer.'
+            );
+            requestError.data = data;
+            requestError.status = response.status;
+            throw requestError;
+        }
+
+        return data;
+    }
+
+    function renderNetworks(networks) {
+        list.replaceChildren();
+        networks.forEach(function (network) {
+            const card = document.createElement('article');
+            card.className = 'ds-network-card';
+
+            const icon = document.createElement('div');
+            icon.className = 'ds-network-icon';
+            icon.innerHTML = '<i class="fas fa-share-nodes" aria-hidden="true"></i>';
+
+            const body = document.createElement('div');
+            body.className = 'ds-network-body';
+
+            const name = document.createElement('p');
+            name.className = 'ds-network-name';
+            name.textContent = network.networkType || 'Réseau';
+
+            const link = document.createElement('a');
+            link.className = 'ds-network-url';
+            link.href = network.url || '#';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.textContent = network.url || 'URL indisponible';
+
+            body.append(name, link);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button';
+            deleteButton.className = 'ds-network-delete';
+            deleteButton.dataset.networkType = network.networkType || '';
+            deleteButton.title = 'Supprimer ce réseau';
+            deleteButton.setAttribute('aria-label', 'Supprimer ' + (network.networkType || 'ce réseau'));
+            deleteButton.innerHTML = '<i class="fas fa-trash" aria-hidden="true"></i>';
+            deleteButton.addEventListener('click', deleteNetwork);
+
+            card.append(icon, body, deleteButton);
+            list.appendChild(card);
+        });
+    }
+
+    function populateCatalog(networks) {
+        networkType.replaceChildren();
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Sélectionnez un réseau';
+        networkType.appendChild(placeholder);
+
+        networks.forEach(function (network) {
+            const option = document.createElement('option');
+            option.value = network.id;
+            option.textContent = network.label || network.id;
+            networkType.appendChild(option);
+        });
+
+        const enabled = networks.length > 0;
+        addButton.disabled = !enabled;
+        addFirstButton.disabled = !enabled;
+    }
+
+    async function loadNetworks() {
+        setVisible(loading, true);
+        setVisible(error, false);
+        setVisible(success, false);
+        setVisible(empty, false);
+        setVisible(list, false);
+        addButton.disabled = true;
+        addFirstButton.disabled = true;
+
+        try {
+            const responses = await Promise.all([
+                requestJson(networksEndpoint),
+                requestJson(catalogEndpoint)
+            ]);
+            const networks = Array.isArray(responses[0].networks) ? responses[0].networks : [];
+            const catalog = Array.isArray(responses[1].networks) ? responses[1].networks : [];
+
+            populateCatalog(catalog);
+            renderNetworks(networks);
+            setVisible(loading, false);
+            setVisible(networks.length === 0 ? empty : list, true);
+            showSuccess('Vos réseaux sont à jour.');
+        } catch (requestError) {
+            setVisible(loading, false);
+            showError(requestError.message);
+        }
+    }
+
+    async function deleteNetwork(event) {
+        const button = event.currentTarget;
+        const type = button.dataset.networkType;
+        if (!type || !window.confirm('Supprimer ce réseau de votre profil ?')) {
+            return;
+        }
+
+        button.disabled = true;
+        try {
+            await requestJson(networksEndpoint + '/' + encodeURIComponent(type), { method: 'DELETE' });
+            await loadNetworks();
+            showSuccess('Le réseau a été supprimé.');
+        } catch (requestError) {
+            button.disabled = false;
+            showError(requestError.message);
+        }
+    }
+
+    addForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+        setVisible(addError, false);
+        saveButton.disabled = true;
+        setVisible(saveSpinner, true);
+
+        try {
+            await requestJson(networksEndpoint, {
+                method: 'POST',
+                body: JSON.stringify({
+                    networkType: networkType.value,
+                    url: networkUrl.value.trim()
+                })
+            });
+            addForm.reset();
+            bootstrap.Modal.getOrCreateInstance(modal).hide();
+            await loadNetworks();
+            showSuccess('Le réseau a été ajouté.');
+        } catch (requestError) {
+            addError.textContent = requestError.message;
+            setVisible(addError, true);
+        } finally {
+            saveButton.disabled = false;
+            setVisible(saveSpinner, false);
+        }
+    });
+
+    retryButton.addEventListener('click', loadNetworks);
+    loadNetworks();
+}());
+</script>
+{% endblock %}

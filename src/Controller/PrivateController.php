@@ -476,6 +476,16 @@ class PrivateController extends AbstractController
         ]);
     }
 
+    #[Route('/mes-reseaux', name: 'app_mes_reseaux')]
+    public function mesReseaux(): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/mes_reseaux.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+        ]);
+    }
+
     #[Route('/code-partenaire', name: 'app_code_partenaire')]
     public function codePartenaire(TraitementsDS $traitementsDS): Response
     {
