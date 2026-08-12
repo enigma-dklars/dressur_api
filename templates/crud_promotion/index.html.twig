@@ -113,7 +113,7 @@
                             <span class="badge bg-success">{{promotion.mode}}</span>
                         {% endif %}
                     </td>
-                    <td class="text-center">{{ (promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{% include "crud_promotion/_reward_budget.html.twig" %}</td>
                     <td class="text-center">{{ (promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
                     <td class="text-center">{{ (promotion.boostFacebook ? '<span class="badge bg-primary">' ~ promotion.montantBoostFacebook ~ ' F</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
                     <td class="text-center">
