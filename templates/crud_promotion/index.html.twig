@@ -132,17 +132,17 @@
                     <td>{{ promotion.nombreDeVue }}</td>
                     <td>{{ promotion.nombreImpression }}</td>
                     <td>
-                        {% set publicUrl = promotionPublicUrls[promotion.id] ?? null %}
-                        {% if publicUrl %}
-                            <span class="small text-break d-block mb-1">{{ publicUrl }}</span>
+                        {% set advertisingUrl = promotionPublicUrls[promotion.id] ?? null %}
+                        {% if advertisingUrl %}
+                            <span class="small text-break d-block mb-1">{{ advertisingUrl }}</span>
                             <button
                                 type="button"
-                                class="btn btn-sm btn-outline-primary js-copy-public-url"
-                                data-public-url="{{ publicUrl|e('html_attr') }}"
-                                aria-label="Copier l'URL publique"
+                                class="btn btn-sm btn-outline-primary js-copy-advertising-url"
+                                data-advertising-url="{{ advertisingUrl|e('html_attr') }}"
+                                aria-label="Copier l'URL publicitaire"
                             >
                                 <i class="fas fa-copy me-1" aria-hidden="true"></i>
-                                <span class="js-copy-public-url-label">Copier</span>
+                                <span class="js-copy-advertising-url-label">Copier</span>
                             </button>
                         {% endif %}
                     </td>
@@ -160,7 +160,7 @@
 
 {% block script %}
 <script>
-function fallbackCopyPublicUrl(text) {
+function fallbackCopyAdvertisingUrl(text) {
     var input = document.createElement('textarea');
     input.value = text;
     input.setAttribute('readonly', '');
@@ -182,22 +182,25 @@ function fallbackCopyPublicUrl(text) {
     return copied;
 }
 
-document.querySelectorAll('.js-copy-public-url').forEach(function (button) {
-    var label = button.querySelector('.js-copy-public-url-label');
+var dedicatedAdvertisingUrlPrefix = 'https://dressur.site/actualite/pub/';
+
+document.querySelectorAll('.js-copy-advertising-url').forEach(function (button) {
+    var label = button.querySelector('.js-copy-advertising-url-label');
     var icon = button.querySelector('i');
     var defaultLabel = label.textContent;
     var defaultIconClass = icon.className;
     var resetTimer;
 
     button.addEventListener('click', async function () {
-        var url = button.dataset.publicUrl;
+        var url = button.dataset.advertisingUrl;
+        var isDedicatedAdvertisingUrl = url && url.indexOf(dedicatedAdvertisingUrlPrefix) === 0;
         var copied = false;
 
         if (resetTimer) {
             window.clearTimeout(resetTimer);
         }
 
-        if (url && navigator.clipboard && window.isSecureContext) {
+        if (isDedicatedAdvertisingUrl && navigator.clipboard && window.isSecureContext) {
             try {
                 await navigator.clipboard.writeText(url);
                 copied = true;
@@ -206,8 +209,8 @@ document.querySelectorAll('.js-copy-public-url').forEach(function (button) {
             }
         }
 
-        if (!copied && url) {
-            copied = fallbackCopyPublicUrl(url);
+        if (!copied && isDedicatedAdvertisingUrl) {
+            copied = fallbackCopyAdvertisingUrl(url);
         }
 
         button.classList.remove('btn-outline-primary', 'btn-success', 'btn-danger');
