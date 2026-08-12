@@ -211,6 +211,47 @@ class PublicController extends AbstractController
         ]);
     }
 
+    #[Route('/actualite/pub/{token}', name: 'app_actualite_pub')]
+    public function actualitePub(string $token, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, EntityManagerInterface $em): Response
+    {
+        $id = $this->decodePromoToken($token);
+        if ($id === null) { return $this->redirectToRoute('app_actualite'); }
+        $promo = $promotionRepository->find($id);
+        if (!$promo) { return $this->redirectToRoute('app_actualite'); }
+
+        $promo->setNombreDeVue(($promo->getNombreDeVue() ?? 0) + 1);
+        $em->flush();
+
+        $descpPromo = $promo->getDescription();
+        if ($promo->getTypePromotionAffaire() === "offre_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_poste"] ?? $descpPromo;
+        }
+        if ($promo->getTypePromotionAffaire() === "dmd_emploi") {
+            $descpPromo = $promo->getAnnotherInfo()["description_profil_demandeur"] ?? $descpPromo;
+        }
+
+        $promoData = array_merge([
+            "token"                => $token,
+            "image"                => $promo->getImage(),
+            "description"          => $descpPromo,
+            "whatsappNumber"       => $promo->getWhatsappContact() ?? $promo->getUser()->getTel(),
+            "pseudoAnnonceur"      => $promo->getUser()->getPseudo(),
+            "nombreDeVues"         => (string) $traitementsDS->formatNumber($promo->getNombreDeVue()),
+            "nombreImpression"     => (string) $traitementsDS->formatNumber($promo->getNombreImpression()),
+            "typePromotionAffaire" => $promo->getTypePromotionAffaire(),
+            "annotherInfo"         => $promo->getAnnotherInfo(),
+            "isFakeVue"            => $promo->getIsFakeVue(),
+            "status"               => $promo->getStatus(),
+            "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime('now', new \DateTimeZone('Africa/Lagos')))->format('Y-m-d'),
+        ], $traitementsDS->getSiteApplicationFields($promo));
+
+        return $this->render('public/actualite_pub.html.twig', [
+            'promo'      => $promoData,
+            'is_connect' => $this->is_connect,
+            'theme'      => $this->theme,
+        ]);
+    }
+
     #[Route('/actualite/{token}', name: 'app_actualite_detail')]
     public function actualiteDetail(string $token, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, EntityManagerInterface $em): Response
     {

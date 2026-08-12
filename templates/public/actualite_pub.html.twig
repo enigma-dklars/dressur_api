@@ -1,0 +1,152 @@
+{% extends 'base.html.twig' %}
+
+{% set isSiteApplication = promo.typePromotionAffaire == "sites_applications" %}
+{% set siteAppName = promo.nomSiteApp|default(promo.nom)|default('') %}
+{% set siteAppUrl = promo.urlSiteApp|default(promo.url)|default('') %}
+{% set siteAppSubtype = promo.sousTypeSiteApp|default(promo.sousType)|default('') %}
+{% set title = promo.pseudoAnnonceur ~ ' — Promotion' %}
+{% set description = promo.description|default('')|striptags|trim|slice(0, 155) %}
+{% set publicUrl = url('app_actualite_pub', { token: promo.token }) %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block robots_meta %}
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+{% endblock %}
+
+{% block body %}
+<div class="container my-3">
+    <div class="mb-3 h6">
+        <span class="fw-bolder">Dressur</span> /
+        <span class="text-primary">Promotion</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                {% if promo.image %}
+                    <img src="/promotion/{{ promo.image }}" class="card-img-top w-100" alt="{{ title }}" style="height:auto; display:block;">
+                {% endif %}
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="flex-grow-1">
+                            {% if isSiteApplication and siteAppName %}
+                                <h1 class="h3 mb-2 fw-bold">{{ siteAppName }}</h1>
+                            {% else %}
+                                <h1 class="h3 mb-2 fw-bold">{{ promo.pseudoAnnonceur }}</h1>
+                            {% endif %}
+                            <span class="badge bg-info">
+                                {% if promo.typePromotionAffaire == "produit_service" %}Produit / Service
+                                {% elseif promo.typePromotionAffaire == "offre_emploi" %}Offre d'emploi
+                                {% elseif promo.typePromotionAffaire == "dmd_emploi" %}Demande d'emploi
+                                {% elseif isSiteApplication %}{{ siteAppSubtype|default('Application') }}
+                                {% else %}{{ promo.typePromotionAffaire }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end text-muted small ms-3">
+                            <div><i class="fas fa-eye me-1"></i>{{ promo.nombreImpression }} vues</div>
+                            <div><i class="fas fa-hand-pointer me-1"></i>{{ promo.nombreDeVues }} clics</div>
+                        </div>
+                    </div>
+
+                    <p class="fs-6 mb-3">{{ promo.description|nl2br }}</p>
+
+                    {% if isSiteApplication and siteAppUrl %}
+                        <a href="{{ siteAppUrl|e('html_attr') }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary mb-3">
+                            Ouvrir la promotion <i class="fas fa-external-link-alt ms-1"></i>
+                        </a>
+                    {% endif %}
+
+                    {% if promo.annotherInfo %}
+                        <hr>
+                        <div class="row g-2">
+                        {% for key, value in promo.annotherInfo %}
+                            {% if value is not empty %}
+                            <div class="col-12 mb-1">
+                                <span class="fw-bold text-primary">{{ key|replace({'_': ' '})|capitalize }} :</span>
+                                <span>{{ value|nl2br }}</span>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% set waNumber = promo.whatsappNumber|default('')|trim %}
+                    {% if waNumber %}
+                        {% set waText %}Bonjour/Bonsoir *{{ promo.pseudoAnnonceur }}*, j'ai une question concernant votre promotion sur Dressur.{% endset %}
+                        {% set waUrl = 'https://wa.me/' ~ waNumber|url_encode ~ '?text=' ~ waText|url_encode %}
+                        <a href="{{ waUrl|e('html_attr') }}" target="_blank" rel="noopener noreferrer" class="btn btn-success">
+                            <i class="fab fa-whatsapp me-2"></i>Contacter l'annonceur par WhatsApp
+                        </a>
+                    {% endif %}
+
+                    <div class="mt-3 d-flex gap-2 flex-wrap">
+                        <button class="btn btn-outline-secondary ds-share-btn"
+                            data-share-url="{{ publicUrl|e('html_attr') }}"
+                            data-share-title="{{ title|e('html_attr') }}"
+                            data-share-text="{{ description|e('html_attr') }}">
+                            <i class="fas fa-share-nodes me-1"></i>Partager
+                        </button>
+                        <button class="btn btn-outline-dark ds-copy-btn"
+                            data-copy-url="{{ publicUrl|e('html_attr') }}">
+                            <i class="fas fa-link me-1"></i>Copier le lien
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+(function() {
+    async function copyToClipboard(value, button) {
+        try {
+            await navigator.clipboard.writeText(value);
+        } catch (err) {
+            var input = document.createElement('input');
+            input.value = value;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+        }
+        var original = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check me-1"></i>Lien copié !';
+        setTimeout(function() { button.innerHTML = original; }, 2500);
+    }
+
+    document.addEventListener('click', async function(event) {
+        var shareButton = event.target.closest('.ds-share-btn');
+        if (shareButton) {
+            var shareData = {
+                title: shareButton.dataset.shareTitle,
+                text: shareButton.dataset.shareText,
+                url: shareButton.dataset.shareUrl
+            };
+            if (navigator.share) {
+                try {
+                    await navigator.share(shareData);
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        await copyToClipboard(shareData.url, shareButton);
+                    }
+                }
+            } else {
+                await copyToClipboard(shareData.url, shareButton);
+            }
+            return;
+        }
+
+        var copyButton = event.target.closest('.ds-copy-btn');
+        if (copyButton) {
+            await copyToClipboard(copyButton.dataset.copyUrl, copyButton);
+        }
+    });
+})();
+</script>
+{% endblock %}
