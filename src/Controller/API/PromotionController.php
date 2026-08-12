@@ -24,6 +24,7 @@ use App\Repository\MethodePaiementRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
+use App\Services\PromotionBilling;
 use App\Services\ProgrammeRecompenseBudget;
 use App\Utilities\SendMail;
 use App\Utilities\UuidGenerator;
@@ -42,6 +43,7 @@ class PromotionController extends AbstractController
     private $sendMail;
     private $cookieDS;
     private ProgrammeRecompenseBudget $programmeRecompenseBudget;
+    private PromotionBilling $promotionBilling;
     private LoggerInterface $logger;
 
     public function __construct(
@@ -50,6 +52,7 @@ class PromotionController extends AbstractController
         SendMail $sendMail,
         CookieDS $cookieDS,
         ProgrammeRecompenseBudget $programmeRecompenseBudget,
+        PromotionBilling $promotionBilling,
         LoggerInterface $logger
     )
     {
@@ -58,6 +61,7 @@ class PromotionController extends AbstractController
         $this->sendMail = $sendMail;
         $this->cookieDS = $cookieDS;
         $this->programmeRecompenseBudget = $programmeRecompenseBudget;
+        $this->promotionBilling = $promotionBilling;
         $this->logger = $logger;
     }
 
@@ -402,16 +406,15 @@ class PromotionController extends AbstractController
         }
 
         // ── Montant total facturé, partagé par tous les moyens de paiement ────
-        $montantTotal = $formulBoost->getPrix();
-        if ($inProgrammeRecompense) {
-            $montantTotal += $rewardBudget;
-        }
-        if ($publishOnDressurStatus) {
-            $montantTotal += round(($formulBoost->getNbrJour() * 5000) / 7);
-        }
-        if ($boostFacebook) {
-            $montantTotal += $montantBoostFacebook;
-        }
+        $montantTotal = $this->promotionBilling->calculateTotal(
+            $formulBoost->getPrix(),
+            $inProgrammeRecompense,
+            $rewardBudget,
+            $publishOnDressurStatus,
+            $formulBoost->getNbrJour(),
+            $boostFacebook,
+            $montantBoostFacebook
+        );
         // ── Paiement via solde ────────────────────────────────────────────────
         if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
             $myTransaction = (new EntityTransaction())
@@ -1166,16 +1169,15 @@ class PromotionController extends AbstractController
             $promotion->setFormulePromoAffaire($formulBoost);
 
             // ── Montant total facturé, partagé par tous les moyens de paiement ────
-            $montantTotal = $formulBoost->getPrix();
-            if ($inProgrammeRecompense) {
-                $montantTotal += $rewardBudget;
-            }
-            if ($publishOnDressurStatus) {
-                $montantTotal += round(($formulBoost->getNbrJour() * 5000) / 7);
-            }
-            if ($boostFacebook) {
-                $montantTotal += $montantBoostFacebook;
-            }
+            $montantTotal = $this->promotionBilling->calculateTotal(
+                $formulBoost->getPrix(),
+                $inProgrammeRecompense,
+                $rewardBudget,
+                $publishOnDressurStatus,
+                $formulBoost->getNbrJour(),
+                $boostFacebook,
+                $montantBoostFacebook
+            );
             // ── Paiement via solde ────────────────────────────────────────────────
             if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
                 $myTransaction = (new EntityTransaction())

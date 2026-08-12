@@ -50,6 +50,7 @@ final class ProgrammeRecompenseBudgetTest extends TestCase
         yield 'negative' => ['-500'];
         yield 'decimal string' => ['500.5'];
         yield 'decimal float' => [500.0];
+        yield 'empty string' => [''];
         yield 'text' => ['five hundred'];
     }
 
