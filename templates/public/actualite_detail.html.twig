@@ -262,11 +262,16 @@
                             </a>
                         {% endif %}
                         {% set waText %}Bonjour/Bonsoir *{{ promo.pseudoAnnonceur }}*, j'ai une question concernant votre promotion sur Dressur.{% endset %}
-                        {% set waUrl = 'https://wa.me/' ~ promo.whatsappNumber ~ '?text=' ~ waText|url_encode %}
-                        <button type="button" class="btn btn-success ds-contact-btn"
-                            data-wa-url="{{ waUrl }}">
-                            <i class="fab fa-whatsapp me-2"></i>Contacter l'annonceur
-                        </button>
+                        {% set waNumber = promo.whatsappNumber|default('')|trim %}
+                        {% if waNumber %}
+                            {% set waUrl = 'https://wa.me/' ~ waNumber|url_encode ~ '?text=' ~ waText|url_encode %}
+                            <button type="button"
+                                class="btn btn-success ds-contact-btn fw-semibold px-3 py-2"
+                                data-wa-url="{{ waUrl|e('html_attr') }}"
+                                aria-label="Contacter l'annonceur par WhatsApp">
+                                <i class="fab fa-whatsapp me-2"></i>Contacter l'annonceur par WhatsApp
+                            </button>
+                        {% endif %}
                         <button class="btn btn-outline-secondary ds-share-btn"
                             data-share-url="https://dressur.site/actualite/{{ promo.token }}"
                             data-share-title="{{ promo.pseudoAnnonceur }} — Dressur"
