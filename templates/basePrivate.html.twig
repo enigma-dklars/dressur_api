@@ -258,6 +258,8 @@
     const LANG_USER = window.LANG_USER || 'fr';
     const DRESSUR_STATUS_RATE = 0.25; // 25% du prix de la formule
     const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
+    const CUSTOM_REWARD_BUDGET_MIN = 5001;
+    const CUSTOM_REWARD_BUDGET_ERROR = 'Le montant personnalisé doit être supérieur à 5 000 FCFA.';
 
     /**
      * Récupère l'UID de l'utilisateur depuis l'input caché
@@ -347,7 +349,13 @@
         if (!$participateReward.length || !$participateReward.is(':checked')) {
             return 0;
         }
-        return parseInt($('#rewardBudget').val()) || 0;
+
+        if ($('#rewardBudgetType').val() === 'custom') {
+            return getCustomRewardBudgetError() ? 0 : getCustomRewardBudgetValue();
+        }
+
+        const budget = Number($('#rewardBudget').val());
+        return Number.isInteger(budget) ? budget : 0;
     }
 
     function updateRewardBreakdown(budget) {
@@ -360,6 +368,93 @@
         } else {
             $('#rewardBreakdown').hide();
         }
+    }
+
+    function getCustomRewardBudgetValue() {
+        const value = String($('#customRewardBudget').val() || '').trim();
+        if (!/^\d+$/.test(value)) {
+            return 0;
+        }
+
+        const amount = Number(value);
+        return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function getCustomRewardBudgetError() {
+        if (!$('#participateReward').is(':checked') || $('#rewardBudgetType').val() !== 'custom') {
+            return '';
+        }
+
+        const value = String($('#customRewardBudget').val() || '').trim();
+        if (!value) {
+            return 'Veuillez saisir un montant personnalisé.';
+        }
+        if (!/^\d+$/.test(value)) {
+            return 'Le montant personnalisé doit contenir uniquement des chiffres entiers.';
+        }
+
+        try {
+            if (BigInt(value) < BigInt(CUSTOM_REWARD_BUDGET_MIN)) {
+                return CUSTOM_REWARD_BUDGET_ERROR;
+            }
+        } catch (error) {
+            return 'Veuillez saisir un montant personnalisé valide.';
+        }
+
+        return '';
+    }
+
+    function updateCustomRewardBudgetValidation() {
+        const $input = $('#customRewardBudget');
+        if (!$input.length) {
+            return true;
+        }
+
+        const error = getCustomRewardBudgetError();
+        $input.toggleClass('is-invalid', Boolean(error));
+        $input.attr('aria-invalid', error ? 'true' : 'false');
+        return !error;
+    }
+
+    function syncRewardBudgetValue() {
+        if (!$('#participateReward').is(':checked')) {
+            $('#rewardBudget').val('0');
+            return;
+        }
+
+        if ($('#rewardBudgetType').val() === 'custom') {
+            const value = String($('#customRewardBudget').val() || '').trim();
+            $('#rewardBudget').val(getCustomRewardBudgetError() ? '0' : value);
+            return;
+        }
+
+        const predefinedBudget = Number($('.budget-btn.btn-primary').data('budget'));
+        $('#rewardBudget').val(Number.isInteger(predefinedBudget) ? predefinedBudget : 0);
+    }
+
+    function selectRewardBudget(budget) {
+        const isCustom = budget === 'custom';
+        $('#rewardBudgetType').val(isCustom ? 'custom' : 'predefined');
+
+        $('.budget-btn')
+            .removeClass('btn-primary active')
+            .addClass('btn-outline-primary')
+            .attr('aria-pressed', 'false');
+
+        $(`.budget-btn[data-budget="${budget}"]`)
+            .removeClass('btn-outline-primary')
+            .addClass('btn-primary active')
+            .attr('aria-pressed', 'true');
+
+        $('#customRewardBudgetGroup').toggle(isCustom);
+        if (!isCustom) {
+            $('#customRewardBudget').removeClass('is-invalid').attr('aria-invalid', 'false');
+        }
+
+        syncRewardBudgetValue();
+        updateCustomRewardBudgetValidation();
+        updatePricingSummary();
+        updateSubmitButtonsState();
     }
 
     /**
@@ -420,8 +515,10 @@
         const hasPaymentMethod = $('#paymentMethod').length && $('#paymentMethod').val() !== '';
         const hasPaymentNumber = $('#paymentNumber').length && $('#paymentNumber').val().trim() !== '';
         const hasWhatsapp = !$('#whatsappContact').length || /^\+\d{11,}$/.test(($('#whatsappContact').val() || '').trim());
+        const hasRewardBudget = !$('#participateReward').is(':checked') || updateCustomRewardBudgetValidation();
 
-        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber && hasWhatsapp;
+        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber &&
+               hasWhatsapp && hasRewardBudget;
     }
 
     /**
@@ -600,22 +697,48 @@
     $(document).on('change', '#participateReward', function() {
         $('#rewardSection').toggle(this.checked);
         if (this.checked) {
-            $('#rewardBudget').val('500');
-            $('.budget-btn').removeClass('btn-primary btn-outline-primary active').addClass('btn-outline-primary');
-            $('.budget-btn[data-budget="500"]').removeClass('btn-outline-primary').addClass('btn-primary');
+            selectRewardBudget('500');
         } else {
             $('#rewardBudget').val('0');
-            $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
+            $('#rewardBudgetType').val('predefined');
+            $('#customRewardBudgetGroup').hide();
+            $('#customRewardBudget').removeClass('is-invalid').attr('aria-invalid', 'false');
+            $('.budget-btn')
+                .removeClass('btn-primary active')
+                .addClass('btn-outline-primary')
+                .attr('aria-pressed', 'false');
+            updateSubmitButtonsState();
         }
         updatePricingSummary();
     });
 
     $(document).on('click', '.budget-btn', function() {
-        const budget = parseInt($(this).data('budget'));
-        $('#rewardBudget').val(budget);
-        $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
-        $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        if (!$('#participateReward').is(':checked')) {
+            return;
+        }
+        selectRewardBudget(String($(this).data('budget')));
+    });
+
+    $(document).on('input', '#customRewardBudget', function() {
+        const currentValue = this.value;
+        const previousValue = this.dataset.lastValidValue || '';
+        if (/^\d*$/.test(currentValue)) {
+            this.dataset.lastValidValue = currentValue;
+        } else {
+            this.value = previousValue;
+        }
+
+        syncRewardBudgetValue();
+        updateCustomRewardBudgetValidation();
         updatePricingSummary();
+        updateSubmitButtonsState();
+    });
+
+    $(document).on('change', '#customRewardBudget', function() {
+        syncRewardBudgetValue();
+        updateCustomRewardBudgetValidation();
+        updatePricingSummary();
+        updateSubmitButtonsState();
     });
 
     // ==========================================
@@ -665,6 +788,7 @@
     
     function validateProduitServiceForm() {
         const errors = [];
+        syncRewardBudgetValue();
 
         if (!currentFormuleData.id) {
             errors.push('Veuillez choisir une formule.');
@@ -695,6 +819,12 @@
             }
         }
 
+        if (!$('#participateReward').is(':checked')) {
+            $('#rewardBudget').val('0');
+        } else if (!updateCustomRewardBudgetValidation()) {
+            errors.push(getCustomRewardBudgetError() || CUSTOM_REWARD_BUDGET_ERROR);
+        }
+
         return errors;
     }
 
@@ -723,6 +853,7 @@
             formData.append('tel', $('#paymentNumber').val());
             formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
             formData.append('rewardBudget', $('#rewardBudget').val());
+            formData.append('rewardBudgetType', $('#rewardBudgetType').val());
             formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
             formData.append('boostFacebook', $('#boostFacebook').is(':checked') ? '1' : '0');
             formData.append('montantBoostFacebook', $('#boostFacebookAmount').val() || '0');
@@ -882,7 +1013,13 @@
         // Masquer les sections par défaut
         $('#rewardSection').hide();
         $('#rewardBudget').val('0');
-        $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
+        $('#rewardBudgetType').val('predefined');
+        $('#customRewardBudgetGroup').hide();
+        $('#customRewardBudget').val('').removeClass('is-invalid').attr('aria-invalid', 'false');
+        $('.budget-btn')
+            .removeClass('btn-primary active')
+            .addClass('btn-outline-primary')
+            .attr('aria-pressed', 'false');
         $('#statusSection').hide();
         $('#boostFacebookSection').hide();
         $('#boostFacebookAmount').val('700');
