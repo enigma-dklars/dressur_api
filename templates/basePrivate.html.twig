@@ -318,24 +318,6 @@
         return Math.round(num).toLocaleString('fr-FR');
     }
 
-    /**
-     * Vérifie si une image est carrée
-     */
-    function isImageSquare(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const aspectRatio = img.width / img.height;
-                    resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
     // ==========================================
     // SECTION PRODUITS/SERVICES - CALCULS
     // ==========================================
@@ -643,14 +625,23 @@
             return;
         }
 
-        // Vérifier le format carré
-        const isSquare = await isImageSquare(file);
-        if (!isSquare) {
-            showAlert('Attention !!!', 'L\'image doit être proche d\'un carré.', 'warning');
+        if (typeof window.PromotionImageCropper !== 'function') {
+            showAlert('Erreur', 'Le recadreur d’image est indisponible. Veuillez actualiser la page.', 'danger');
+            this.value = '';
             return;
         }
 
-        selectedImage = file;
+        const croppedFile = await window.PromotionImageCropper(file);
+        if (!croppedFile) {
+            this.value = '';
+            selectedImage = null;
+            $('#imagePreview').empty();
+            updateSubmitButtonsState();
+            return;
+        }
+
+        window.setPromotionImageInputFile?.(this, croppedFile);
+        selectedImage = croppedFile;
 
         // Afficher l'aperçu
         const reader = new FileReader();
