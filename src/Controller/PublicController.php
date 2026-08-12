@@ -245,17 +245,10 @@ class PublicController extends AbstractController
             "datePublished"        => $promo->getDateDebut() ? $promo->getDateDebut()->format('Y-m-d') : (new \DateTime('now', new \DateTimeZone('Africa/Lagos')))->format('Y-m-d'),
         ], $traitementsDS->getSiteApplicationFields($promo));
 
-        $rawAutres   = array_filter($traitementsDS->getTopAffaires(10), fn($p) => $p['id'] !== $id);
-        $autresPromos = array_map(function ($p) {
-            $p['token'] = $this->encodePromoToken($p['id']);
-            return $p;
-        }, array_slice(array_values($rawAutres), 0, 3));
-
         return $this->render('public/actualite_detail.html.twig', [
-            'promo'        => $promoData,
-            'autresPromos' => $autresPromos,
-            'is_connect'   => $this->is_connect,
-            'theme'        => $this->theme,
+            'promo'      => $promoData,
+            'is_connect' => $this->is_connect,
+            'theme'      => $this->theme,
         ]);
     }
 
