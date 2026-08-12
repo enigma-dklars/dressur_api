@@ -254,7 +254,6 @@ class PromotionController extends AbstractController
                 
 
         $factureLignes = [];
-        $montantTotal = 0;
 
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
@@ -402,22 +401,23 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        // ── Paiement via solde ────────────────────────────────────────────────
-        $montantSolde = $formulBoost->getPrix();
+        // ── Montant total facturé, partagé par tous les moyens de paiement ────
+        $montantTotal = $formulBoost->getPrix();
         if ($inProgrammeRecompense) {
-            $montantSolde += $rewardBudget;
+            $montantTotal += $rewardBudget;
         }
         if ($publishOnDressurStatus) {
-            $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
+            $montantTotal += round(($formulBoost->getNbrJour() * 5000) / 7);
         }
         if ($boostFacebook) {
-            $montantSolde += $montantBoostFacebook;
+            $montantTotal += $montantBoostFacebook;
         }
-        if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+        // ── Paiement via solde ────────────────────────────────────────────────
+        if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("boost_affaire")
-                ->setAmount($montantSolde)
+                ->setAmount($montantTotal)
                 ->setAnnotherInfo([
                     'userId'                => $user->getId(),
                     'userUid'               => $user->getUid(),
@@ -433,14 +433,14 @@ class PromotionController extends AbstractController
                     'whatsappContact'       => $whatsappContact,
                 ]);
             $this->em->persist($myTransaction);
-            $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+            $traitementsDS->payerViaSolde($myTransaction, $user, $montantTotal);
             $this->em->flush();
             return new JsonResponse([
                 'error'      => false,
                 'direct'     => true,
                 'solde_used' => true,
                 'titre'      => 'Succès',
-                'message'    => 'Solde débité de '.(int)$montantSolde.' FCFA. Promotion Affaire enregistrée.',
+                'message'    => 'Solde débité de '.(int)$montantTotal.' FCFA. Promotion Affaire enregistrée.',
             ]);
         }
         // ─────────────────────────────────────────────────────────────────────
@@ -460,27 +460,16 @@ class PromotionController extends AbstractController
 
             $factureLignes[] = "Promotion Affaire";
 
-            $montantTotal += $formulBoost->getPrix();
-
             if ($inProgrammeRecompense) {
-                $montantForProgrammeRecompense = $rewardBudget;
-
                 $factureLignes[] = "Programme Récompense";
-
-                $montantTotal += $montantForProgrammeRecompense;
             }
 
             if ($publishOnDressurStatus) {
-                $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
-
                 $factureLignes[] = "Publication Statut Dressur";
-
-                $montantTotal += $montantForPublishOnDressurStatus;
             }
 
             if ($boostFacebook) {
                 $factureLignes[] = "Boost Page Facebook";
-                $montantTotal += $montantBoostFacebook;
             }
 
             $array_create_transaction = [
@@ -555,7 +544,7 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementKPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $montantSolde,
+                    $montantTotal,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
@@ -602,7 +591,7 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFeexPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $montantSolde,
+                    $montantTotal,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
@@ -1063,7 +1052,6 @@ class PromotionController extends AbstractController
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $factureLignes = [];
-        $montantTotal = 0;
 
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
@@ -1177,22 +1165,23 @@ class PromotionController extends AbstractController
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
             $promotion->setFormulePromoAffaire($formulBoost);
 
-            // ── Paiement via solde ────────────────────────────────────────────────
-            $montantSolde = $formulBoost->getPrix();
+            // ── Montant total facturé, partagé par tous les moyens de paiement ────
+            $montantTotal = $formulBoost->getPrix();
             if ($inProgrammeRecompense) {
-                $montantSolde += $rewardBudget;
+                $montantTotal += $rewardBudget;
             }
             if ($publishOnDressurStatus) {
-                $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
+                $montantTotal += round(($formulBoost->getNbrJour() * 5000) / 7);
             }
             if ($boostFacebook) {
-                $montantSolde += $montantBoostFacebook;
+                $montantTotal += $montantBoostFacebook;
             }
-            if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+            // ── Paiement via solde ────────────────────────────────────────────────
+            if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
                 $myTransaction = (new EntityTransaction())
                     ->setUser($user)
                     ->setTransactionFor("re_boost_affaire")
-                    ->setAmount($montantSolde)
+                    ->setAmount($montantTotal)
                     ->setAnnotherInfo([
                         'userId'                => $user->getId(),
                         'userUid'               => $user->getUid(),
@@ -1206,14 +1195,14 @@ class PromotionController extends AbstractController
                         'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ]);
                 $this->em->persist($myTransaction);
-                $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+                $traitementsDS->payerViaSolde($myTransaction, $user, $montantTotal);
                 $this->em->flush();
                 return new JsonResponse([
                     'error'      => false,
                     'direct'     => true,
                     'solde_used' => true,
                     'titre'      => 'Succès',
-                    'message'    => 'Solde débité de '.(int)$montantSolde.' FCFA. Promotion Affaire relancée.',
+                    'message'    => 'Solde débité de '.(int)$montantTotal.' FCFA. Promotion Affaire relancée.',
                 ]);
             }
             // ─────────────────────────────────────────────────────────────────────
@@ -1233,27 +1222,16 @@ class PromotionController extends AbstractController
 
                 $factureLignes[] = "Promotion Affaire";
 
-                $montantTotal += $formulBoost->getPrix();
-
                 if ($inProgrammeRecompense) {
-                    $montantForProgrammeRecompense = $rewardBudget;
-
                     $factureLignes[] = "Programme Récompense";
-
-                    $montantTotal += $montantForProgrammeRecompense;
                 }
 
                 if ($publishOnDressurStatus) {
-                    $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
-
                     $factureLignes[] = "Publication Statut Dressur";
-
-                    $montantTotal += $montantForPublishOnDressurStatus;
                 }
 
                 if ($boostFacebook) {
                     $factureLignes[] = "Boost Page Facebook";
-                    $montantTotal += $montantBoostFacebook;
                 }
 
                 $array_create_transaction = [
@@ -1328,7 +1306,7 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementKPay(
                         $envPaiementApi, 
                         $methodePaiementEntity, 
-                        $montantSolde,
+                        $montantTotal,
                         $tel,
                         $user->getPseudo(),
                         $user->getMail(),
@@ -1374,7 +1352,7 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementFeexPay(
                         $envPaiementApi, 
                         $methodePaiementEntity, 
-                        $montantSolde,
+                        $montantTotal,
                         $tel,
                         $user->getPseudo(),
                         $user->getMail(),
