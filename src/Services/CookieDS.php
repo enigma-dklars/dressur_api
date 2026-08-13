@@ -95,12 +95,12 @@ class CookieDS {
     }
 
     /**
-     * Résoudre le uid : cookie en priorité (signé HMAC), puis fallback sur le body POST.
-     * Permet aux clients mobiles (Flutter) qui ne gèrent pas les cookies
-     * d'envoyer le uid directement dans le corps de la requête.
+     * Résoudre le uid : cookie signé en priorité, puis identité mobile.
      *
-     * @convention — Obligatoire sur tous les endpoints /api/* pour garantir
-     * la compatibilité web (cookie) ET mobile (body POST).
+     * Les clients mobiles utilisent l'en-tête X-Dressur-Uid pour tous les
+     * verbes HTTP. Le fallback dans le corps formulaire reste accepté pour
+     * les anciennes versions mobiles, mais un corps GET n'est jamais utilisé.
+     *
      * Ne jamais utiliser cookieDS->get('uid') directement dans un controller API.
      */
     public function getWithFallback(string $key, Request $request): string|false
@@ -111,7 +111,13 @@ class CookieDS {
             return $fromCookie;
         }
 
-        // 2. Fallback POST body — pour les clients mobiles sans cookie
+        // 2. En-tête dédié — méthode commune aux clients mobiles sans cookie
+        $fromHeader = $request->headers->get('X-Dressur-' . ucfirst($key));
+        if ($fromHeader !== null && trim($fromHeader) !== '') {
+            return trim($fromHeader);
+        }
+
+        // 3. Fallback formulaire — compatibilité avec les anciennes versions
         $fromPost = $request->request->get($key);
         if ($fromPost !== null && trim((string) $fromPost) !== '') {
             return trim((string) $fromPost);

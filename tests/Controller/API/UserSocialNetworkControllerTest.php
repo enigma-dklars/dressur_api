@@ -16,9 +16,25 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 final class UserSocialNetworkControllerTest extends TestCase
 {
+    private array $originalCookies = [];
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->originalCookies = $_COOKIE;
+        $_COOKIE = [];
+    }
+
+    protected function tearDown(): void
+    {
+        $_COOKIE = $this->originalCookies;
+        parent::tearDown();
+    }
+
     public function testAuthenticatedUserCanCreateAValidNetwork(): void
     {
         $user = new User();
@@ -292,6 +308,187 @@ final class UserSocialNetworkControllerTest extends TestCase
         self::assertSame('https://instagram.com/other-account', $otherNetwork->getUrl());
     }
 
+    public function testSignedWebCookieHasPriorityOverMobileHeader(): void
+    {
+        $user = new User();
+        $repository = $this->createMock(UserSocialNetworkRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('findForUser')
+            ->with($user)
+            ->willReturn([]);
+
+        $_COOKIE['uid'] = $this->signedCookie('web-uid');
+        $verification = $this->createMock(VerificationsDS::class);
+        $verification
+            ->expects(self::once())
+            ->method('verifUSer')
+            ->with('web-uid')
+            ->willReturn(['error' => false, 'user' => $user]);
+
+        $response = $this->createControllerWithRealCookie($repository)->list(
+            $this->mobileRequest('GET', '/api/user/social-networks', 'mobile-uid'),
+            $verification
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testMobileGetAuthenticatesWithDedicatedHeader(): void
+    {
+        $user = new User();
+        $repository = $this->createMock(UserSocialNetworkRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('findForUser')
+            ->with($user)
+            ->willReturn([]);
+
+        $verification = $this->verificationForUid('mobile-get-uid', $user);
+        $response = $this->createControllerWithRealCookie($repository)->list(
+            $this->mobileRequest('GET', '/api/user/social-networks', 'mobile-get-uid'),
+            $verification
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testMobilePostAuthenticatesWithDedicatedHeader(): void
+    {
+        $user = new User();
+        $repository = $this->createMock(UserSocialNetworkRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('findOneForUser')
+            ->with($user, 'instagram')
+            ->willReturn(null);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('persist');
+        $entityManager->expects(self::once())->method('flush');
+
+        $response = $this->createControllerWithRealCookie($repository, $entityManager)->create(
+            $this->mobileRequest('POST', '/api/user/social-networks', 'mobile-post-uid', [
+                'networkType' => 'instagram',
+                'url' => 'https://instagram.com/dressur',
+            ]),
+            $this->verificationForUid('mobile-post-uid', $user)
+        );
+
+        self::assertSame(Response::HTTP_CREATED, $response->getStatusCode());
+    }
+
+    public function testMobilePutAuthenticatesWithDedicatedHeader(): void
+    {
+        $user = new User();
+        $network = $this->network($user, 'linkedin', 'https://linkedin.com/in/old-account');
+        $repository = $this->createMock(UserSocialNetworkRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('findOneForUser')
+            ->with($user, 'linkedin')
+            ->willReturn($network);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('flush');
+
+        $response = $this->createControllerWithRealCookie($repository, $entityManager)->update(
+            'linkedin',
+            $this->mobileRequest('PUT', '/api/user/social-networks/linkedin', 'mobile-put-uid', [
+                'url' => 'https://linkedin.com/in/new-account',
+            ]),
+            $this->verificationForUid('mobile-put-uid', $user)
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testMobileDeleteAuthenticatesWithDedicatedHeader(): void
+    {
+        $user = new User();
+        $network = $this->network($user, 'youtube', 'https://youtube.com/@dressur');
+        $repository = $this->createMock(UserSocialNetworkRepository::class);
+        $repository
+            ->expects(self::once())
+            ->method('findOneForUser')
+            ->with($user, 'youtube')
+            ->willReturn($network);
+
+        $entityManager = $this->createMock(EntityManagerInterface::class);
+        $entityManager->expects(self::once())->method('remove')->with($network);
+        $entityManager->expects(self::once())->method('flush');
+
+        $response = $this->createControllerWithRealCookie($repository, $entityManager)->delete(
+            'youtube',
+            $this->mobileRequest('DELETE', '/api/user/social-networks/youtube', 'mobile-delete-uid'),
+            $this->verificationForUid('mobile-delete-uid', $user)
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testMissingIdentityIsRejected(): void
+    {
+        $verification = $this->createMock(VerificationsDS::class);
+        $verification->expects(self::never())->method('verifUSer');
+
+        $response = $this->createControllerWithRealCookie()->list(
+            Request::create('/api/user/social-networks', 'GET'),
+            $verification
+        );
+
+        self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        self::assertSame('authentication_required', $this->responseData($response)['code']);
+    }
+
+    public function testInvalidMobileUidIsRejected(): void
+    {
+        $verification = $this->createMock(VerificationsDS::class);
+        $verification
+            ->expects(self::once())
+            ->method('verifUSer')
+            ->with('invalid-uid')
+            ->willReturn([
+                'error' => true,
+                'deleted' => true,
+                'blocked' => false,
+                'titre' => 'Erreur!',
+                'message' => "Ce compte n'existe plus.",
+            ]);
+
+        $response = $this->createControllerWithRealCookie()->list(
+            $this->mobileRequest('GET', '/api/user/social-networks', 'invalid-uid'),
+            $verification
+        );
+
+        self::assertSame(Response::HTTP_UNAUTHORIZED, $response->getStatusCode());
+        self::assertSame('session_invalid', $this->responseData($response)['code']);
+    }
+
+    public function testBlockedMobileUserIsRejected(): void
+    {
+        $verification = $this->createMock(VerificationsDS::class);
+        $verification
+            ->expects(self::once())
+            ->method('verifUSer')
+            ->with('blocked-uid')
+            ->willReturn([
+                'error' => true,
+                'deleted' => false,
+                'blocked' => true,
+                'titre' => 'Erreur!',
+                'message' => 'Compte bloqué.',
+            ]);
+
+        $response = $this->createControllerWithRealCookie()->list(
+            $this->mobileRequest('GET', '/api/user/social-networks', 'blocked-uid'),
+            $verification
+        );
+
+        self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+        self::assertSame('account_blocked', $this->responseData($response)['code']);
+    }
+
     public function testClientSuppliedUserIdCannotAuthenticateTheRequest(): void
     {
         $user = new User();
@@ -334,6 +531,58 @@ final class UserSocialNetworkControllerTest extends TestCase
             new PublicSocialNetworkCatalog(),
             new PublicSocialNetworkUrlValidator(new PublicSocialNetworkCatalog()),
         );
+    }
+
+    private function createControllerWithRealCookie(
+        ?UserSocialNetworkRepository $repository = null,
+        ?EntityManagerInterface $entityManager = null
+    ): UserSocialNetworkController {
+        return new UserSocialNetworkController(
+            $entityManager ?? $this->createMock(EntityManagerInterface::class),
+            $repository ?? $this->createMock(UserSocialNetworkRepository::class),
+            new CookieDS(new ParameterBag(['kernel.secret' => 'test-secret'])),
+            new PublicSocialNetworkCatalog(),
+            new PublicSocialNetworkUrlValidator(new PublicSocialNetworkCatalog()),
+        );
+    }
+
+    private function signedCookie(string $uid): string
+    {
+        return $uid . '.' . hash_hmac('sha256', $uid, 'test-secret');
+    }
+
+    /**
+     * @param array<string, mixed> $parameters
+     */
+    private function mobileRequest(
+        string $method,
+        string $uri,
+        string $uid,
+        array $parameters = []
+    ): Request {
+        return Request::create(
+            $uri,
+            $method,
+            $parameters,
+            [],
+            [],
+            ['HTTP_X_DRESSUR_UID' => $uid],
+        );
+    }
+
+    private function verificationForUid(string $uid, User $user): VerificationsDS&MockObject
+    {
+        $verification = $this->createMock(VerificationsDS::class);
+        $verification
+            ->expects(self::once())
+            ->method('verifUSer')
+            ->with($uid)
+            ->willReturn([
+                'error' => false,
+                'user' => $user,
+            ]);
+
+        return $verification;
     }
 
     private function authenticatedCookie(): CookieDS&MockObject
