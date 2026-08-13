@@ -802,12 +802,10 @@ class TraitementsDS extends AbstractController
         // colonnes dédiées ne soient systématiquement renseignées.
         $nom = $firstNonEmpty(
             $promotion->getNomSiteApp(),
-            $annotherInfo['nomSiteApp'] ?? null,
             $annotherInfo['nom'] ?? null
         );
         $urlCandidate = $firstNonEmpty(
             $promotion->getUrlSiteApp(),
-            $annotherInfo['urlSiteApp'] ?? null,
             $annotherInfo['url'] ?? null
         );
         $url = filter_var($urlCandidate, FILTER_VALIDATE_URL)
@@ -816,7 +814,6 @@ class TraitementsDS extends AbstractController
             : '';
         $sousTypeCandidate = $firstNonEmpty(
             $promotion->getSousTypeSiteApp(),
-            $annotherInfo['sousTypeSiteApp'] ?? null,
             $annotherInfo['sousType'] ?? null
         );
         $sousType = in_array($sousTypeCandidate, ['site_web', 'app_mobile', 'logiciel_desktop'], true)
