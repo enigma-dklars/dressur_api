@@ -1,20 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% set description = "Découvrez Dressur, la solution mobile et web qui vous permet de gérer vos compétences et de garantir une grande visibilité. Téléchargez l'application et inscrivez-vous dès aujourd'hui !" %}
+{% set description = "Découvrez Dress You, la solution mobile et web qui vous permet de gérer vos compétences et de garantir une grande visibilité. Téléchargez l'application et inscrivez-vous dès aujourd'hui !" %}
 {% set title = "Accueil" %}
 
 {% block referencement %}
-    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:title" content="{{title}} | Dress You Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/og/og-accueil.jpg" />
     <meta property="og:url" content="{{ url('app_public') }}" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:title" content="{{title}} | Dress You Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="twitter:image" content="https://dressur.site/assets/img/og/og-accueil.jpg" />
     <meta name="description" content="{{description}}" />
-    <meta name="keywords" content="Dressur, actualités Dressur, produits Dressur, services Dressur, promotions, annonces utilisateurs, gestion compétences, visibilité, réseau social, marketing digital">
+    <meta name="keywords" content="Dress You, actualités Dress You, produits Dress You, services Dress You, promotions, annonces utilisateurs, gestion compétences, visibilité, réseau social, marketing digital">
 {% endblock %}
 
 {% block jsonld %}
@@ -25,7 +25,7 @@
     {
       "@type": "Organization",
       "@id": "https://dressur.site/#organization",
-      "name": "Dressur",
+      "name": "Dress You",
       "url": "https://dressur.site",
       "logo": "https://dressur.site/assets/images/dressur_logo_blanc.png",
       "sameAs": [
@@ -43,28 +43,28 @@
       "@type": "WebSite",
       "@id": "https://dressur.site/#website",
       "url": "https://dressur.site",
-      "name": "Dressur",
+      "name": "Dress You",
       "description": "{{ description }}",
       "publisher": { "@id": "https://dressur.site/#organization" },
       "inLanguage": "fr"
     },
     {
       "@type": "MobileApplication",
-      "name": "Dressur",
+      "name": "Dress You",
       "operatingSystem": "Android",
       "applicationCategory": "BusinessApplication",
-      "description": "Application mobile Dressur — gérez vos compétences, trouvez des contacts et promouvez vos affaires en Afrique de l'Ouest.",
+      "description": "Application mobile Dress You — gérez vos compétences, trouvez des contacts et promouvez vos affaires en Afrique de l'Ouest.",
       "url": "https://play.google.com/store/apps/details?id=com.dressur.ds",
       "publisher": { "@id": "https://dressur.site/#organization" }
     },
     {
       "@type": "ItemList",
-      "name": "Services Dressur",
+      "name": "Services Dress You",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Boost Contact", "url": "{{ url('app_boost_contact') }}" },
         { "@type": "ListItem", "position": 2, "name": "Promotion Affaire", "url": "{{ url('app_promotion_affaire') }}" },
         { "@type": "ListItem", "position": 3, "name": "Promotions Réseaux Sociaux", "url": "{{ url('app_promotion_reseaux_sociaux') }}" },
-        { "@type": "ListItem", "position": 4, "name": "Dressur Bot", "url": "{{ url('app_dressur_bot') }}" }
+        { "@type": "ListItem", "position": 4, "name": "Dress You Bot", "url": "{{ url('app_dressur_bot') }}" }
       ]
     }
   ]
@@ -744,7 +744,7 @@
                 <h1 class="hero-title">
                     Boostez votre<br>
                     <span>visibilité &amp; vos affaires</span><br>
-                    avec Dressur
+                    avec Dress You
                 </h1>
                 <p class="hero-subtitle">
                     Gérez vos compétences, trouvez de nouveaux contacts et promouvez vos produits &amp; services auprès de milliers d'utilisateurs.
@@ -763,7 +763,7 @@
             </div>
             <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
                 <div class="hero-image-wrap">
-                    <img src="/assets/img/hero_new.png" alt="Dressur Mobile &amp; Web" class="animated">
+                    <img src="/assets/img/hero_new.png" alt="Dress You Mobile &amp; Web" class="animated">
                 </div>
             </div>
         </div>
@@ -833,9 +833,9 @@
                         <div class="service-icon">
                             <i class="fas fa-robot"></i>
                         </div>
-                        <h5>Dressur Bot — Envoi WhatsApp en masse</h5>
+                        <h5>Dress You Bot — Envoi WhatsApp en masse</h5>
                         <p>Application Windows qui automatise l'envoi de messages via WhatsApp Web ou Desktop. Fournissez un fichier VCF et un message : le bot s'occupe du reste. Idéal pour les campagnes marketing et la prospection à grande échelle.</p>
-                        <span class="service-link">Découvrir Dressur Bot <i class="fas fa-arrow-right"></i></span>
+                        <span class="service-link">Découvrir Dress You Bot <i class="fas fa-arrow-right"></i></span>
                     </div>
                 </a>
             </div>
@@ -886,7 +886,7 @@
         <div class="text-center mb-5" data-aos="fade-up">
             <span class="section-tag">Comment ça marche</span>
             <h2 class="section-title">En 3 étapes simples</h2>
-            <p class="section-desc">Rejoignez Dressur et commencez à développer votre réseau en quelques minutes.</p>
+            <p class="section-desc">Rejoignez Dress You et commencez à développer votre réseau en quelques minutes.</p>
         </div>
         <div class="row justify-content-center">
             <div class="col-md-4 position-relative" data-aos="fade-up" data-aos-delay="50">
@@ -963,7 +963,7 @@
                     <div class="testi-stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="testi-text">Grâce à Dressur, j'ai pu trouver de nouveaux clients en quelques jours. Les promotions affaires sont vraiment efficaces pour toucher une cible précise.</p>
+                    <p class="testi-text">Grâce à Dress You, j'ai pu trouver de nouveaux clients en quelques jours. Les promotions affaires sont vraiment efficaces pour toucher une cible précise.</p>
                     <div class="testi-author">
                         <div class="testi-avatar">KA</div>
                         <div>
@@ -979,7 +979,7 @@
                     <div class="testi-stars">
                         <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="testi-text">Dressur Bot m'a fait gagner un temps fou. J'envoie mes offres à des centaines de contacts WhatsApp en quelques minutes. Un outil indispensable !</p>
+                    <p class="testi-text">Dress You Bot m'a fait gagner un temps fou. J'envoie mes offres à des centaines de contacts WhatsApp en quelques minutes. Un outil indispensable !</p>
                     <div class="testi-author">
                         <div class="testi-avatar">MN</div>
                         <div>
@@ -1068,7 +1068,7 @@
             <div class="col-lg-4" data-aos="fade-right">
                 <span class="section-tag">FAQ</span>
                 <h2 class="section-title">Questions fréquentes</h2>
-                <p class="section-desc" style="max-width:100%;">Une question ? Retrouvez les réponses aux interrogations les plus courantes sur Dressur.</p>
+                <p class="section-desc" style="max-width:100%;">Une question ? Retrouvez les réponses aux interrogations les plus courantes sur Dress You.</p>
                 <a href="{{ path('app_contactez_nous') }}" class="btn btn-outline-primary rounded-pill px-4 mt-3 fw-semibold">
                     <i class="fas fa-envelope me-2"></i> Nous contacter
                 </a>
@@ -1076,17 +1076,17 @@
             <div class="col-lg-8" data-aos="fade-left">
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
-                        Dressur est-il gratuit ?
+                        Dress You est-il gratuit ?
                         <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
                     </button>
-                    <div class="faq-answer">L'inscription sur Dressur est entièrement gratuite. Certains services premium comme le Boost Contact, les promotions et Dressur Bot sont payants. Consultez la page <a href="{{ path('app_tarifs') }}">Tarifs</a> pour les détails.</div>
+                    <div class="faq-answer">L'inscription sur Dress You est entièrement gratuite. Certains services premium comme le Boost Contact, les promotions et Dress You Bot sont payants. Consultez la page <a href="{{ path('app_tarifs') }}">Tarifs</a> pour les détails.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
-                        Comment fonctionne Dressur Bot ?
+                        Comment fonctionne Dress You Bot ?
                         <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
                     </button>
-                    <div class="faq-answer">Dressur Bot est une application Windows. Vous fournissez un fichier VCF contenant vos contacts et le message à envoyer. Le bot automatise l'envoi via WhatsApp Web ou WhatsApp Desktop, sans aucune manipulation manuelle.</div>
+                    <div class="faq-answer">Dress You Bot est une application Windows. Vous fournissez un fichier VCF contenant vos contacts et le message à envoyer. Le bot automatise l'envoi via WhatsApp Web ou WhatsApp Desktop, sans aucune manipulation manuelle.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
@@ -1097,10 +1097,10 @@
                 </div>
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
-                        Dressur est-il disponible dans mon pays ?
+                        Dress You est-il disponible dans mon pays ?
                         <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
                     </button>
-                    <div class="faq-answer">Dressur est principalement orienté Afrique de l'Ouest mais accessible partout dans le monde. L'application mobile est disponible sur Google Play pour les utilisateurs Android.</div>
+                    <div class="faq-answer">Dress You est principalement orienté Afrique de l'Ouest mais accessible partout dans le monde. L'application mobile est disponible sur Google Play pour les utilisateurs Android.</div>
                 </div>
                 <div class="faq-item">
                     <button class="faq-question" onclick="toggleFaq(this)">
@@ -1120,7 +1120,7 @@
 <section class="cta-section">
     <div class="container position-relative" data-aos="fade-up">
         <h2>Prêt à développer votre réseau ?</h2>
-        <p>Rejoignez des milliers d'entrepreneurs et professionnels qui font confiance à Dressur pour booster leur visibilité.</p>
+        <p>Rejoignez des milliers d'entrepreneurs et professionnels qui font confiance à Dress You pour booster leur visibilité.</p>
         <div class="d-flex flex-wrap gap-3 justify-content-center">
             <a href="{{ path('app_inscription') }}" class="btn-hero-primary">
                 <i class="fas fa-user-plus"></i> Créer mon compte gratuit
@@ -1137,7 +1137,7 @@
 {% block script %}
 <script>
 (function () {
-    const services = ['Boost Contact', 'Promotion Affaire', 'Promotions Réseaux Sociaux', 'Dressur Bot'];
+    const services = ['Boost Contact', 'Promotion Affaire', 'Promotions Réseaux Sociaux', 'Dress You Bot'];
     let si = 0, ci = 0, deleting = false;
     const el = document.getElementById('animated-service');
     if (!el) return;

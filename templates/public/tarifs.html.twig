@@ -1,20 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% set description = "Sur cette page sont regroupés les tarifs de chacun des services de Dressur : Dressur Bot, Boost Contact, Promotion Affaire, Promotion réseaux sociaux..." %}
-{% set title = "Tarifs des services Dressur" %}
+{% set description = "Sur cette page sont regroupés les tarifs de chacun des services de Dress You : Dress You Bot, Boost Contact, Promotion Affaire, Promotion réseaux sociaux..." %}
+{% set title = "Tarifs des services Dress You" %}
 
 {% block referencement %}
-    <meta property="og:title" content="{{title}} | Dressur Web" />
+    <meta property="og:title" content="{{title}} | Dress You Web" />
     <meta property="og:description" content="{{description}}" />
     <meta property="og:image" content="https://dressur.site/assets/img/og/og-tarifs.jpg" />
     <meta property="og:url" content="{{ url('app_tarifs') }}" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{title}} | Dressur Web" />
+    <meta name="twitter:title" content="{{title}} | Dress You Web" />
     <meta name="twitter:description" content="{{description}}" />
     <meta name="twitter:image" content="https://dressur.site/assets/img/og/og-tarifs.jpg" />
     <meta name="description" content="{{description}}" />
-    <meta name="keywords" content="tarif Dressur, prix kdo, prix cassé, prix gratuit, email Dressur, Facebook Dressur, application Dressur, support Dressur" />
+    <meta name="keywords" content="tarif Dress You, prix kdo, prix cassé, prix gratuit, email Dress You, Facebook Dress You, application Dress You, support Dress You" />
 {% endblock %}
 
 {% block jsonld %}
@@ -30,12 +30,12 @@
 {
   "@context": "https://schema.org",
   "@type": "ItemList",
-  "name": "Tarifs des services Dressur",
+  "name": "Tarifs des services Dress You",
   "description": "{{ description }}",
   "url": "{{ url('app_tarifs') }}",
   "itemListElement": [
-    { "@type": "ListItem", "position": 1, "item": { "@type": "Service", "name": "Dressur Bot", "description": "Automatisez l'envoi de messages WhatsApp en masse avec Dressur Bot.", "url": "{{ url('app_dressur_bot') }}", "offers": { "@type": "Offer", "price": "{{ bot_min }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock", "url": "{{ url('app_tarifs') }}", "hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy", "applicableCountry": "BJ", "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"}, "shippingDetails": {"@type": "OfferShippingDetails", "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"}, "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"}, "deliveryTime": {"@type": "ShippingDeliveryTime", "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}, "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}}} } } },
-    { "@type": "ListItem", "position": 2, "item": { "@type": "Service", "name": "Boost Contact", "description": "Optimisez vos contacts et augmentez votre visibilité avec Dressur.", "url": "{{ url('app_boost_contact') }}", "offers": { "@type": "Offer", "price": "{{ boost_min }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock", "url": "{{ url('app_tarifs') }}", "hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy", "applicableCountry": "BJ", "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"}, "shippingDetails": {"@type": "OfferShippingDetails", "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"}, "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"}, "deliveryTime": {"@type": "ShippingDeliveryTime", "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}, "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}}} } } },
+    { "@type": "ListItem", "position": 1, "item": { "@type": "Service", "name": "Dress You Bot", "description": "Automatisez l'envoi de messages WhatsApp en masse avec Dress You Bot.", "url": "{{ url('app_dressur_bot') }}", "offers": { "@type": "Offer", "price": "{{ bot_min }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock", "url": "{{ url('app_tarifs') }}", "hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy", "applicableCountry": "BJ", "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"}, "shippingDetails": {"@type": "OfferShippingDetails", "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"}, "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"}, "deliveryTime": {"@type": "ShippingDeliveryTime", "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}, "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}}} } } },
+    { "@type": "ListItem", "position": 2, "item": { "@type": "Service", "name": "Boost Contact", "description": "Optimisez vos contacts et augmentez votre visibilité avec Dress You.", "url": "{{ url('app_boost_contact') }}", "offers": { "@type": "Offer", "price": "{{ boost_min }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock", "url": "{{ url('app_tarifs') }}", "hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy", "applicableCountry": "BJ", "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"}, "shippingDetails": {"@type": "OfferShippingDetails", "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"}, "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"}, "deliveryTime": {"@type": "ShippingDeliveryTime", "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}, "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}}} } } },
     { "@type": "ListItem", "position": 3, "item": { "@type": "Service", "name": "Promotion Affaire", "description": "Promouvez vos produits, services et événements auprès d'un public ciblé.", "url": "{{ url('app_promotion_affaire') }}", "offers": { "@type": "Offer", "price": "{{ promo_affaire_min }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock", "url": "{{ url('app_tarifs') }}", "hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy", "applicableCountry": "BJ", "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"}, "shippingDetails": {"@type": "OfferShippingDetails", "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"}, "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"}, "deliveryTime": {"@type": "ShippingDeliveryTime", "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}, "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}}} } } },
     { "@type": "ListItem", "position": 4, "item": { "@type": "Service", "name": "Promotions Réseaux Sociaux", "description": "Achetez des abonnés, likes, vues sur Facebook, TikTok, Instagram, YouTube et plus.", "url": "{{ url('app_promotion_reseaux_sociaux') }}", "offers": { "@type": "Offer", "price": "{{ reseau_min }}", "priceCurrency": "XOF", "availability": "https://schema.org/InStock", "url": "{{ url('app_tarifs') }}", "hasMerchantReturnPolicy": {"@type": "MerchantReturnPolicy", "applicableCountry": "BJ", "returnPolicyCategory": "https://schema.org/MerchantReturnNotPermitted"}, "shippingDetails": {"@type": "OfferShippingDetails", "shippingRate": {"@type": "MonetaryAmount", "value": "0", "currency": "XOF"}, "shippingDestination": {"@type": "DefinedRegion", "addressCountry": "BJ"}, "deliveryTime": {"@type": "ShippingDeliveryTime", "handlingTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}, "transitTime": {"@type": "QuantitativeValue", "minValue": 0, "maxValue": 0, "unitCode": "DAY"}}} } } }
   ]
@@ -45,7 +45,7 @@
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://dressur.site/"},{"@type":"ListItem","position":2,"name":"Tarifs","item":"{{ url('app_tarifs') }}"}]}
 </script>
 <script type="application/ld+json">
-{ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [ { "@type": "Question", "name": "Le service Boost Contact de Dressur est-il gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, le service Boost Contact est disponible en mode Gratuit et en mode Payant. La formule gratuite vous permet déjà de trouver de nouveaux contacts et d'augmenter votre visibilité." } }, { "@type": "Question", "name": "Le service Promotion Affaire de Dressur est-il payant ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, le service Promotion Affaire est un service entièrement payant. Il vous permet de publier vos produits, services et offres d'emploi auprès d'un public ciblé. Plusieurs formules sont disponibles selon vos besoins." } }, { "@type": "Question", "name": "Dressur Bot est-il gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Non, Dressur Bot est un service payant proposé sous forme d'abonnement en FCFA. Plusieurs formules sont disponibles selon la durée d'activation souhaitée." } }, { "@type": "Question", "name": "Quels réseaux sociaux sont supportés par le service Promotions Réseaux Sociaux ?", "acceptedAnswer": { "@type": "Answer", "text": "Dressur prend en charge Facebook, TikTok, Instagram, YouTube, Twitter, Telegram, Twitch, Spotify et bien d'autres plateformes. Les tarifs peuvent varier en fonction des plateformes." } }, { "@type": "Question", "name": "Comment contacter l'assistance Dressur pour des questions sur les tarifs ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous pouvez contacter l'assistance Dressur via WhatsApp au +229 64 04 42 94 ou par email à dressur.ds@gmail.com. L'équipe vous répondra dans les meilleurs délais." } }, { "@type": "Question", "name": "Les tarifs de Dressur sont-ils en FCFA ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, tous les tarifs des services Dressur sont exprimés en Francs CFA (FCFA), la monnaie utilisée en Afrique de l'Ouest." } } ] }
+{ "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [ { "@type": "Question", "name": "Le service Boost Contact de Dress You est-il gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, le service Boost Contact est disponible en mode Gratuit et en mode Payant. La formule gratuite vous permet déjà de trouver de nouveaux contacts et d'augmenter votre visibilité." } }, { "@type": "Question", "name": "Le service Promotion Affaire de Dress You est-il payant ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, le service Promotion Affaire est un service entièrement payant. Il vous permet de publier vos produits, services et offres d'emploi auprès d'un public ciblé. Plusieurs formules sont disponibles selon vos besoins." } }, { "@type": "Question", "name": "Dress You Bot est-il gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Non, Dress You Bot est un service payant proposé sous forme d'abonnement en FCFA. Plusieurs formules sont disponibles selon la durée d'activation souhaitée." } }, { "@type": "Question", "name": "Quels réseaux sociaux sont supportés par le service Promotions Réseaux Sociaux ?", "acceptedAnswer": { "@type": "Answer", "text": "Dress You prend en charge Facebook, TikTok, Instagram, YouTube, Twitter, Telegram, Twitch, Spotify et bien d'autres plateformes. Les tarifs peuvent varier en fonction des plateformes." } }, { "@type": "Question", "name": "Comment contacter l'assistance Dress You pour des questions sur les tarifs ?", "acceptedAnswer": { "@type": "Answer", "text": "Vous pouvez contacter l'assistance Dress You via WhatsApp au +229 64 04 42 94 ou par email à dressur.ds@gmail.com. L'équipe vous répondra dans les meilleurs délais." } }, { "@type": "Question", "name": "Les tarifs de Dress You sont-ils en FCFA ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui, tous les tarifs des services Dress You sont exprimés en Francs CFA (FCFA), la monnaie utilisée en Afrique de l'Ouest." } } ] }
 </script>
 {% endblock %}
 
@@ -239,7 +239,7 @@
     <div class="tarif-sticky-nav">
         <ul class="nav tarif-nav">
             <li class="nav-item">
-                <a class="nav-link active" href="#dressur-bot"><i class="fas fa-robot"></i> Dressur Bot</a>
+                <a class="nav-link active" href="#dressur-bot"><i class="fas fa-robot"></i> Dress You Bot</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#boost-contact"><i class="fas fa-users"></i> Boost Contact</a>
@@ -253,14 +253,14 @@
         </ul>
     </div>
 
-    {# ── 1. Dressur Bot ── #}
+    {# ── 1. Dress You Bot ── #}
     <div class="tarif-section" id="dressur-bot">
         <div class="tarif-service-header">
             <div class="tarif-service-icon" style="background:#e8f0fe; color:#1a3a8f;">
                 <i class="fas fa-robot"></i>
             </div>
             <div>
-                <p class="tarif-service-title"><a href="{{ path('app_dressur_bot') }}" style="color:inherit; text-decoration:none;">1. Dressur Bot</a></p>
+                <p class="tarif-service-title"><a href="{{ path('app_dressur_bot') }}" style="color:inherit; text-decoration:none;">1. Dress You Bot</a></p>
                 <p class="tarif-service-desc">Automatisez l'envoi de messages WhatsApp en masse — nombre de messages illimité pendant la durée d'activation.</p>
             </div>
         </div>
@@ -271,7 +271,7 @@
                         <th>Formule</th>
                         <th>Prix</th>
                         <th>Durée</th>
-                        <th>Signature Dressur</th>
+                        <th>Signature Dress You</th>
                     </tr>
                 </thead>
                 <tbody>
