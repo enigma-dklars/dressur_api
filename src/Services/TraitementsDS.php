@@ -1768,24 +1768,71 @@ class TraitementsDS extends AbstractController
         // Bulk DELETE via DQL — évite de charger toutes les entités en mémoire
         // et remplace N SELECT + N×DELETE individuels par une seule requête chacun.
         // Note : DeletedDS n'a pas de champ FK vers user — pas de DQL ici.
-        $dqlDeletes = [
-            ['App\Entity\PromoReseau',  'user',      $user],
-            ['App\Entity\Promotion',    'user',      $user],
-            ['App\Entity\Suggestion',   'user',      $user],
-            ['App\Entity\Transaction',  'user',      $user],
-            ['App\Entity\VerifMail',    'user',      $user],
-            ['App\Entity\Boost',        'user',      $user],
-            ['App\Entity\Signalement',  'signaler',  $user],
-            ['App\Entity\Signalement',  'signalant', $user],
-            ['App\Entity\Message',      'emetteur',  $user],
-            ['App\Entity\Message',      'recepteur', $user],
-        ];
-
-        foreach ($dqlDeletes as [$entity, $field, $value]) {
+        $deleteByField = function (string $entity, string $field, object $value): void {
             $this->em->createQuery("DELETE $entity e WHERE e.$field = :val")
                 ->setParameter('val', $value)
                 ->execute();
+        };
+
+        // Les motifs de refus sont ciblés via les promotions de l'utilisateur.
+        // Les propriétés utilisées ici sont celles des mappings Doctrine
+        // (Promotion::$user et PromotionMotifRefus::$promotion).
+        // 1. Supprimer les preuves avant leur historique parent.
+        $deleteByField('App\Entity\Preuve', 'user', $user);
+
+        // 2. Supprimer uniquement les historiques appartenant à l'utilisateur.
+        $deleteByField('App\Entity\HistoriqueProgrammeRecompense', 'user', $user);
+
+        // 3. Supprimer les motifs de refus des promotions de l'utilisateur.
+        // Cette suppression reste nécessaire même si une migration SQL prévoit
+        // déjà une cascade, car elle garantit l'ordre avant Promotion.
+        $this->em->createQuery(
+            'DELETE FROM App\Entity\PromotionMotifRefus pmr
+             WHERE IDENTITY(pmr.promotion) IN (
+                 SELECT p.id
+                 FROM App\Entity\Promotion p
+                 WHERE p.user = :user
+             )'
+        )
+            ->setParameter('user', $user)
+            ->execute();
+
+        // 4. Supprimer les autres dépendances de l'utilisateur.
+        $otherUserDependencies = [
+            ['App\Entity\PromoReseau',     'user'],
+            ['App\Entity\Suggestion',      'user'],
+            ['App\Entity\Transaction',     'user'],
+            ['App\Entity\VerifMail',       'user'],
+            ['App\Entity\Boost',            'user'],
+            ['App\Entity\Signalement',     'signaler'],
+            ['App\Entity\Signalement',     'signalant'],
+            ['App\Entity\Message',          'emetteur'],
+            ['App\Entity\Message',          'recepteur'],
+            ['App\Entity\Story',            'user'],
+            ['App\Entity\ChatMessage',      'user'],
+            ['App\Entity\UserSocialNetwork', 'user'],
+        ];
+
+        foreach ($otherUserDependencies as [$entity, $field]) {
+            $deleteByField($entity, $field, $user);
         }
+
+        // User::$partenaire est une relation vers d'autres utilisateurs.
+        // On retire uniquement cette référence : les autres utilisateurs ne
+        // doivent pas être supprimés avec l'utilisateur purgé.
+        $this->em->createQuery(
+            'UPDATE App\Entity\User linkedUser
+             SET linkedUser.partenaire = NULL
+             WHERE linkedUser.partenaire = :user'
+        )
+            ->setParameter('user', $user)
+            ->execute();
+
+        // 5. Supprimer les notifications de l'utilisateur.
+        $deleteByField('App\Entity\Notification', 'user', $user);
+
+        // 6. Supprimer les promotions en dernier parmi leurs dépendances.
+        $deleteByField('App\Entity\Promotion', 'user', $user);
 
         try {
             $this->em->getConnection()->executeStatement(
