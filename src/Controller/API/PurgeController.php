@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Services\TraitementsDS;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,7 +26,11 @@ class PurgeController extends AbstractController
     {
         set_time_limit(10000);
 
-        $this->traitementsDS->execPurge($user);
+        try {
+            $this->traitementsDS->execPurge($user);
+        } catch (\Throwable $th) {
+            return $this->purgeErrorResponse();
+        }
         
         return new Response("ok");
     }
@@ -35,29 +40,33 @@ class PurgeController extends AbstractController
     {
         set_time_limit(10000);
 
-        $users = $userRepository->findBy(['blocked' => true]);
-        foreach ($users as $user) {
-            $this->traitementsDS->execPurge($user);
-        }
+        try {
+            $users = $userRepository->findBy(['blocked' => true]);
+            foreach ($users as $user) {
+                $this->traitementsDS->execPurge($user);
+            }
 
-        $usersDeleted = $userRepository->findBy(['deleted' => true]);
-        foreach ($usersDeleted as $userDeleted) {
-            $this->traitementsDS->execPurge($userDeleted);
-        }
+            $usersDeleted = $userRepository->findBy(['deleted' => true]);
+            foreach ($usersDeleted as $userDeleted) {
+                $this->traitementsDS->execPurge($userDeleted);
+            }
 
-        $usersSuspend = $userRepository->findBy(['suspended' => true]);
-        foreach ($usersSuspend as $userSuspend) {
-            $this->traitementsDS->execPurge($userSuspend);
-        }
+            $usersSuspend = $userRepository->findBy(['suspended' => true]);
+            foreach ($usersSuspend as $userSuspend) {
+                $this->traitementsDS->execPurge($userSuspend);
+            }
 
-        $usersnomailnotel = $userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false]);
-        foreach ($usersnomailnotel as $usernomailnotel) {
-            $this->traitementsDS->execPurge($usernomailnotel);
-        }
+            $usersnomailnotel = $userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => false]);
+            foreach ($usersnomailnotel as $usernomailnotel) {
+                $this->traitementsDS->execPurge($usernomailnotel);
+            }
 
-        $usersnotelhavemail = $userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => true]);
-        foreach ($usersnotelhavemail as $usernotelhavemail) {
-            $this->traitementsDS->execPurge($usernotelhavemail);
+            $usersnotelhavemail = $userRepository->findBy(['telIsVerified' => false, 'mailIsVerified' => true]);
+            foreach ($usersnotelhavemail as $usernotelhavemail) {
+                $this->traitementsDS->execPurge($usernotelhavemail);
+            }
+        } catch (\Throwable $th) {
+            return $this->purgeErrorResponse();
         }
         
         return new Response("ok");
@@ -68,30 +77,42 @@ class PurgeController extends AbstractController
     {
         set_time_limit(10000);
 
-        $usersDeleted = $userRepository->findBy(['deleted' => true]);
-        foreach ($usersDeleted as $userDeleted) {
-            $this->traitementsDS->execPurge($userDeleted);
-        }
-
-        $usersSuspend = $userRepository->findBy(['suspended' => true]);
-        foreach ($usersSuspend as $userSuspend) {
-            $this->traitementsDS->execPurge($userSuspend);
-        }
-
-        $usersnottel = $userRepository->findBy(['telIsVerified' => false]);
-        foreach ($usersnottel as $usernottel) {
-            if ($id_max >= $usernottel->getId()) {
-                $this->traitementsDS->execPurge($usernottel);
+        try {
+            $usersDeleted = $userRepository->findBy(['deleted' => true]);
+            foreach ($usersDeleted as $userDeleted) {
+                $this->traitementsDS->execPurge($userDeleted);
             }
-        }
 
-        $usersnotmail = $userRepository->findBy(['mailIsVerified' => false]);
-        foreach ($usersnotmail as $usernotmail) {
-            if ($id_max >= $usernotmail->getId()) {
-                $this->traitementsDS->execPurge($usernotmail);
+            $usersSuspend = $userRepository->findBy(['suspended' => true]);
+            foreach ($usersSuspend as $userSuspend) {
+                $this->traitementsDS->execPurge($userSuspend);
             }
+
+            $usersnottel = $userRepository->findBy(['telIsVerified' => false]);
+            foreach ($usersnottel as $usernottel) {
+                if ($id_max >= $usernottel->getId()) {
+                    $this->traitementsDS->execPurge($usernottel);
+                }
+            }
+
+            $usersnotmail = $userRepository->findBy(['mailIsVerified' => false]);
+            foreach ($usersnotmail as $usernotmail) {
+                if ($id_max >= $usernotmail->getId()) {
+                    $this->traitementsDS->execPurge($usernotmail);
+                }
+            }
+        } catch (\Throwable $th) {
+            return $this->purgeErrorResponse();
         }
         
         return new Response("ok");
+    }
+
+    private function purgeErrorResponse(): JsonResponse
+    {
+        return new JsonResponse([
+            'error' => true,
+            'message' => 'La suppression du compte a échoué. Veuillez réessayer.',
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

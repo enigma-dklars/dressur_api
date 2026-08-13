@@ -13,7 +13,6 @@ use App\Repository\UserRepository;
 use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
-use App\Entity\DeletedDS;
 use App\Entity\HistoriqueProgrammeRecompense;
 use App\Entity\Preuve;
 use App\Entity\Suggestion;
@@ -934,21 +933,16 @@ class UserController extends AbstractController
             ]);
         }
 
-        // Tracer la suppression avec le vrai motif utilisateur avant de purger
-        $deletedDS = new DeletedDS();
-        $deletedDS->setMail($user->getMail())
-            ->setTel($user->getTel())
-            ->setMotif($motifDeleted)
-        ;
-        $this->em->persist($deletedDS);
-        $this->em->flush();
-
-        // false → execPurge ne recrée pas un second DeletedDS et ne supprime pas l'user ici
-        $traitementsDS->execPurge($user, false);
-
-        // Suppression de l'user après purge de toutes ses entités liées
-        $this->em->remove($user);
-        $this->em->flush();
+        try {
+            // Le motif et la suppression sont traités dans une transaction unique.
+            $traitementsDS->execPurge($user, true, $motifDeleted);
+        } catch (\Throwable $th) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Erreur!',
+                'message' => 'La suppression du compte a échoué. Veuillez réessayer.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
         return new JsonResponse([
             'error' => false,
