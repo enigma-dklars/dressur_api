@@ -108,13 +108,37 @@
                     </small>
 
                     <div id="rewardSection" class="mt-3" style="display: none;">
-                        <input type="hidden" id="rewardBudget" value="500">
+                        <input type="hidden" id="rewardBudget" name="rewardBudget" value="0">
+                        <input type="hidden" id="rewardBudgetType" name="rewardBudgetType" value="predefined">
                         <label class="form-label fw-semibold">Choisissez votre budget récompenses</label>
+                        <small class="text-muted d-block mb-2">
+                            5 000 F est le dernier montant prédéfini. Choisissez « Autre » uniquement pour un montant supérieur à 5 000 F.
+                        </small>
                         <div class="d-flex gap-2 flex-wrap mb-3" id="rewardBudgetOptions">
-                            <button type="button" class="btn btn-outline-primary budget-btn active" data-budget="500">500 F</button>
-                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="1000">1 000 F</button>
-                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="2000">2 000 F</button>
-                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="5000">5 000 F</button>
+                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="500" aria-pressed="false">500 F</button>
+                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="1000" aria-pressed="false">1 000 F</button>
+                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="2000" aria-pressed="false">2 000 F</button>
+                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="5000" aria-pressed="false">5 000 F</button>
+                            <button type="button" class="btn btn-outline-primary budget-btn" data-budget="custom" aria-pressed="false">Autre</button>
+                        </div>
+                        <div id="customRewardBudgetGroup" class="mt-3" style="display: none;">
+                            <label for="customRewardBudget" class="form-label fw-semibold">Montant personnalisé (FCFA)</label>
+                            <input
+                                type="number"
+                                id="customRewardBudget"
+                                class="form-control"
+                                inputmode="numeric"
+                                step="1"
+                                min="5001"
+                                autocomplete="off"
+                                aria-describedby="customRewardBudgetHelp customRewardBudgetError"
+                            >
+                            <div id="customRewardBudgetHelp" class="form-text">
+                                Le montant personnalisé doit être supérieur à 5 000 FCFA.
+                            </div>
+                            <div id="customRewardBudgetError" class="invalid-feedback">
+                                Le montant personnalisé doit être supérieur à 5 000 FCFA.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -469,6 +493,46 @@
 <!-- Alert Container -->
 <div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1050;"></div>
 
+<div id="promotionImageCropper" class="promotion-cropper" hidden>
+    <div class="promotion-cropper__dialog" role="dialog" aria-modal="true" aria-labelledby="promotionImageCropperTitle">
+        <div class="promotion-cropper__header">
+            <div>
+                <h2 id="promotionImageCropperTitle" class="promotion-cropper__title">Recadrer l'image</h2>
+                <p class="promotion-cropper__hint mb-0">Déplacez l'image et utilisez le zoom pour ajuster le cadrage.</p>
+            </div>
+            <button type="button" class="btn-close" id="promotionImageCropperClose" aria-label="Fermer"></button>
+        </div>
+
+        <div class="promotion-cropper__body">
+            <div class="promotion-cropper__stage" id="promotionImageCropperStage">
+                <img id="promotionImageCropperImage" class="promotion-cropper__image" alt="Image à recadrer">
+                <div id="promotionImageCropperFrame" class="promotion-cropper__frame" aria-hidden="true"></div>
+            </div>
+
+            <div class="promotion-cropper__controls">
+                <div class="promotion-cropper__control">
+                    <span class="form-label mb-2 d-block">Format</span>
+                    <div class="btn-group" role="group" aria-label="Format de recadrage">
+                        <button type="button" class="btn btn-outline-primary promotion-cropper__ratio is-active" data-ratio="1" aria-pressed="true">1:1</button>
+                        <button type="button" class="btn btn-outline-primary promotion-cropper__ratio" data-ratio="1.3333333333" aria-pressed="false">4:3</button>
+                        <button type="button" class="btn btn-outline-primary promotion-cropper__ratio" data-ratio="0.75" aria-pressed="false">3:4</button>
+                    </div>
+                </div>
+
+                <div class="promotion-cropper__control">
+                    <label for="promotionImageCropperZoom" class="form-label mb-2 d-block">Zoom</label>
+                    <input type="range" class="form-range" id="promotionImageCropperZoom" min="1" max="3" step="0.01" value="1">
+                </div>
+            </div>
+        </div>
+
+        <div class="promotion-cropper__footer">
+            <button type="button" class="btn btn-outline-secondary" id="promotionImageCropperCancel">Annuler</button>
+            <button type="button" class="btn btn-primary" id="promotionImageCropperApply">Utiliser cette image</button>
+        </div>
+    </div>
+</div>
+
 <style>
     .bg-gradient-red {
         background: linear-gradient(135deg, #dc3545 0%, #550303 100%);
@@ -508,6 +572,140 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
+    body.promotion-cropper-open {
+        overflow: hidden;
+    }
+
+    .promotion-cropper[hidden] {
+        display: none;
+    }
+
+    .promotion-cropper {
+        position: fixed;
+        inset: 0;
+        z-index: 1100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        background: rgba(10, 18, 30, 0.78);
+    }
+
+    .promotion-cropper__dialog {
+        width: min(100%, 720px);
+        max-height: calc(100vh - 32px);
+        overflow: auto;
+        background: var(--bs-body-bg, #fff);
+        border-radius: 14px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+    }
+
+    .promotion-cropper__header,
+    .promotion-cropper__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px;
+    }
+
+    .promotion-cropper__header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .promotion-cropper__footer {
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .promotion-cropper__title {
+        margin: 0 0 4px;
+        font-size: 1.15rem;
+    }
+
+    .promotion-cropper__hint {
+        color: var(--bs-secondary-color, #6c757d);
+        font-size: 0.875rem;
+    }
+
+    .promotion-cropper__body {
+        padding: 20px;
+    }
+
+    .promotion-cropper__stage {
+        position: relative;
+        width: min(100%, 620px);
+        height: min(58vh, 520px);
+        min-height: 280px;
+        margin: 0 auto;
+        overflow: hidden;
+        background: #101820;
+        border-radius: 10px;
+        touch-action: none;
+        user-select: none;
+    }
+
+    .promotion-cropper__image {
+        position: absolute;
+        max-width: none;
+        transform-origin: center center;
+        cursor: grab;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .promotion-cropper__image:active {
+        cursor: grabbing;
+    }
+
+    .promotion-cropper__frame {
+        position: absolute;
+        box-sizing: border-box;
+        border: 2px solid #fff;
+        box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+        pointer-events: none;
+    }
+
+    .promotion-cropper__controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(180px, 0.8fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .promotion-cropper__ratio.is-active {
+        color: #fff;
+        background: var(--bs-primary, #0d6efd);
+        border-color: var(--bs-primary, #0d6efd);
+    }
+
+    @media (max-width: 576px) {
+        .promotion-cropper {
+            padding: 8px;
+        }
+
+        .promotion-cropper__dialog {
+            max-height: calc(100vh - 16px);
+        }
+
+        .promotion-cropper__body {
+            padding: 14px;
+        }
+
+        .promotion-cropper__stage {
+            height: min(54vh, 420px);
+            min-height: 240px;
+        }
+
+        .promotion-cropper__controls {
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+
+        .promotion-cropper__footer {
+            padding: 14px;
+        }
+    }
+
     .btn:disabled {
         opacity: 0.6;
         cursor: not-allowed;
@@ -515,6 +713,397 @@
 </style>
 
 <script>
+// ── Recadreur d'image natif ──────────────────────────────────────────────────
+(function () {
+    'use strict';
+
+    const ACCEPTED_RATIOS = [1, 4 / 3, 3 / 4];
+    const RATIO_TOLERANCE = 0.01;
+    const modal = document.getElementById('promotionImageCropper');
+    const stage = document.getElementById('promotionImageCropperStage');
+    const imageElement = document.getElementById('promotionImageCropperImage');
+    const frameElement = document.getElementById('promotionImageCropperFrame');
+    const zoomInput = document.getElementById('promotionImageCropperZoom');
+    const applyButton = document.getElementById('promotionImageCropperApply');
+    const cancelButton = document.getElementById('promotionImageCropperCancel');
+    const closeButton = document.getElementById('promotionImageCropperClose');
+    const ratioButtons = document.querySelectorAll('.promotion-cropper__ratio');
+    let cropState = null;
+
+    function showCropperMessage(message) {
+        const container = document.getElementById('alertContainer');
+        if (!container) {
+            window.alert(message);
+            return;
+        }
+
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-warning alert-dismissible fade show shadow';
+        alert.setAttribute('role', 'alert');
+        alert.append(document.createTextNode(message));
+
+        const dismissButton = document.createElement('button');
+        dismissButton.type = 'button';
+        dismissButton.className = 'btn-close';
+        dismissButton.setAttribute('data-bs-dismiss', 'alert');
+        dismissButton.setAttribute('aria-label', 'Fermer');
+        alert.appendChild(dismissButton);
+        container.appendChild(alert);
+
+        window.setTimeout(() => alert.remove(), 6000);
+    }
+
+    function loadImage(file) {
+        return new Promise((resolve, reject) => {
+            const objectUrl = URL.createObjectURL(file);
+            const image = new Image();
+
+            image.onload = () => resolve({ image, objectUrl });
+            image.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                reject(new Error('Impossible de lire cette image dans le navigateur.'));
+            };
+            image.src = objectUrl;
+        });
+    }
+
+    function hasAcceptedRatio(width, height) {
+        const ratio = width / height;
+        return ACCEPTED_RATIOS.some(acceptedRatio => Math.abs(ratio - acceptedRatio) <= RATIO_TOLERANCE);
+    }
+
+    function setInputFile(input, file) {
+        if (typeof DataTransfer === 'undefined') {
+            return false;
+        }
+
+        try {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            input.files = dataTransfer.files;
+            return input.files.length === 1;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function calculateFrame(state) {
+        const stageWidth = stage.clientWidth;
+        const stageHeight = stage.clientHeight;
+        const availableWidth = stageWidth * 0.88;
+        const availableHeight = stageHeight * 0.88;
+        let frameWidth = availableWidth;
+        let frameHeight = frameWidth / state.ratio;
+
+        if (frameHeight > availableHeight) {
+            frameHeight = availableHeight;
+            frameWidth = frameHeight * state.ratio;
+        }
+
+        state.frame = {
+            left: (stageWidth - frameWidth) / 2,
+            top: (stageHeight - frameHeight) / 2,
+            width: frameWidth,
+            height: frameHeight
+        };
+        state.baseScale = Math.max(
+            frameWidth / state.image.naturalWidth,
+            frameHeight / state.image.naturalHeight
+        );
+    }
+
+    function clampImagePosition(state) {
+        const minimumLeft = state.frame.left + state.frame.width - state.imageWidth;
+        const maximumLeft = state.frame.left;
+        const minimumTop = state.frame.top + state.frame.height - state.imageHeight;
+        const maximumTop = state.frame.top;
+
+        state.left = Math.min(maximumLeft, Math.max(minimumLeft, state.left));
+        state.top = Math.min(maximumTop, Math.max(minimumTop, state.top));
+    }
+
+    function applyScale(state, keepCenter) {
+        const centerX = state.left + state.imageWidth / 2;
+        const centerY = state.top + state.imageHeight / 2;
+        state.scale = state.baseScale * state.zoom;
+        state.imageWidth = state.image.naturalWidth * state.scale;
+        state.imageHeight = state.image.naturalHeight * state.scale;
+
+        if (keepCenter) {
+            state.left = centerX - state.imageWidth / 2;
+            state.top = centerY - state.imageHeight / 2;
+        } else {
+            state.left = state.frame.left + (state.frame.width - state.imageWidth) / 2;
+            state.top = state.frame.top + (state.frame.height - state.imageHeight) / 2;
+        }
+
+        clampImagePosition(state);
+    }
+
+    function renderCropper(state) {
+        frameElement.style.left = `${state.frame.left}px`;
+        frameElement.style.top = `${state.frame.top}px`;
+        frameElement.style.width = `${state.frame.width}px`;
+        frameElement.style.height = `${state.frame.height}px`;
+        imageElement.style.left = `${state.left}px`;
+        imageElement.style.top = `${state.top}px`;
+        imageElement.style.width = `${state.imageWidth}px`;
+        imageElement.style.height = `${state.imageHeight}px`;
+    }
+
+    function resetCropperGeometry(state, keepCenter = false) {
+        calculateFrame(state);
+        applyScale(state, keepCenter);
+        renderCropper(state);
+    }
+
+    function finishCropper(result) {
+        if (!cropState) {
+            return;
+        }
+
+        const state = cropState;
+        cropState = null;
+        modal.hidden = true;
+        document.body.classList.remove('promotion-cropper-open');
+        imageElement.removeAttribute('src');
+        applyButton.disabled = false;
+        state.previousFocus?.focus?.();
+        state.resolve(result);
+    }
+
+    function createCroppedFile(state) {
+        return new Promise(resolve => {
+            const sourceX = (state.frame.left - state.left) / state.scale;
+            const sourceY = (state.frame.top - state.top) / state.scale;
+            const sourceWidth = state.frame.width / state.scale;
+            const sourceHeight = state.frame.height / state.scale;
+            const canvas = document.createElement('canvas');
+
+            canvas.width = Math.max(1, Math.round(sourceWidth));
+            canvas.height = Math.max(1, Math.round(sourceHeight));
+
+            const context = canvas.getContext('2d');
+            if (!context) {
+                resolve(null);
+                return;
+            }
+
+            // Keep the crop at the source pixel dimensions. No target-size reduction
+            // or quality parameter is applied; the browser performs only the
+            // encoding required to create the new cropped file.
+            context.drawImage(
+                state.image,
+                sourceX,
+                sourceY,
+                sourceWidth,
+                sourceHeight,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
+
+            const outputType = /^image\//i.test(state.file.type) ? state.file.type : 'image/png';
+            canvas.toBlob(blob => {
+                if (!blob) {
+                    resolve(null);
+                    return;
+                }
+
+                const blobType = blob.type || outputType;
+                const originalExtension = state.file.name.match(/\.([^.]+)$/)?.[1] || 'png';
+                const outputExtension = {
+                    'image/jpeg': 'jpg',
+                    'image/png': 'png',
+                    'image/webp': 'webp',
+                    'image/bmp': 'bmp'
+                }[blobType] || originalExtension;
+                const baseName = state.file.name.replace(/\.[^.]+$/, '');
+                const outputName = blobType === state.file.type
+                    ? state.file.name
+                    : `${baseName}-recadree.${outputExtension}`;
+
+                resolve(new File([blob], outputName, {
+                    type: blobType,
+                    lastModified: state.file.lastModified
+                }));
+            }, outputType);
+        });
+    }
+
+    function openCropper(source, file) {
+        return new Promise(resolve => {
+            cropState = {
+                image: source.image,
+                objectUrl: source.objectUrl,
+                file,
+                ratio: 1,
+                zoom: 1,
+                scale: 1,
+                imageWidth: 0,
+                imageHeight: 0,
+                left: 0,
+                top: 0,
+                frame: null,
+                pointerId: null,
+                pointerX: 0,
+                pointerY: 0,
+                previousFocus: document.activeElement,
+                resolve
+            };
+
+            imageElement.src = source.objectUrl;
+            modal.hidden = false;
+            document.body.classList.add('promotion-cropper-open');
+            zoomInput.value = '1';
+            applyButton.disabled = false;
+
+            window.requestAnimationFrame(() => {
+                if (!cropState) {
+                    return;
+                }
+
+                resetCropperGeometry(cropState);
+                ratioButtons.forEach(button => {
+                    const isActive = button.dataset.ratio === '1';
+                    button.classList.toggle('is-active', isActive);
+                    button.setAttribute('aria-pressed', String(isActive));
+                });
+                zoomInput.focus();
+            });
+        });
+    }
+
+    window.PromotionImageCropper = async function (file) {
+        let source = null;
+
+        try {
+            source = await loadImage(file);
+            if (hasAcceptedRatio(source.image.naturalWidth, source.image.naturalHeight)) {
+                URL.revokeObjectURL(source.objectUrl);
+                return file;
+            }
+
+            return await openCropper(source, file);
+        } catch (error) {
+            if (source?.objectUrl) {
+                URL.revokeObjectURL(source.objectUrl);
+            }
+            showCropperMessage(error.message || 'Impossible de lire cette image.');
+            return null;
+        } finally {
+            if (source?.objectUrl) {
+                URL.revokeObjectURL(source.objectUrl);
+            }
+        }
+    };
+
+    window.setPromotionImageInputFile = setInputFile;
+
+    ratioButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (!cropState) {
+                return;
+            }
+
+            cropState.ratio = Number(button.dataset.ratio);
+            cropState.zoom = 1;
+            zoomInput.value = '1';
+            ratioButtons.forEach(otherButton => {
+                const isActive = otherButton === button;
+                otherButton.classList.toggle('is-active', isActive);
+                otherButton.setAttribute('aria-pressed', String(isActive));
+            });
+            resetCropperGeometry(cropState, true);
+        });
+    });
+
+    zoomInput.addEventListener('input', () => {
+        if (!cropState) {
+            return;
+        }
+
+        cropState.zoom = Number(zoomInput.value);
+        applyScale(cropState, true);
+        renderCropper(cropState);
+    });
+
+    stage.addEventListener('pointerdown', event => {
+        if (!cropState || event.button !== 0) {
+            return;
+        }
+
+        cropState.pointerId = event.pointerId;
+        cropState.pointerX = event.clientX;
+        cropState.pointerY = event.clientY;
+        stage.setPointerCapture(event.pointerId);
+    });
+
+    stage.addEventListener('pointermove', event => {
+        if (!cropState || cropState.pointerId !== event.pointerId) {
+            return;
+        }
+
+        cropState.left += event.clientX - cropState.pointerX;
+        cropState.top += event.clientY - cropState.pointerY;
+        cropState.pointerX = event.clientX;
+        cropState.pointerY = event.clientY;
+        clampImagePosition(cropState);
+        renderCropper(cropState);
+    });
+
+    function stopPointerTracking(event) {
+        if (!cropState || cropState.pointerId !== event.pointerId) {
+            return;
+        }
+
+        cropState.pointerId = null;
+        if (stage.hasPointerCapture(event.pointerId)) {
+            stage.releasePointerCapture(event.pointerId);
+        }
+    }
+
+    stage.addEventListener('pointerup', stopPointerTracking);
+    stage.addEventListener('pointercancel', stopPointerTracking);
+    cancelButton.addEventListener('click', () => finishCropper(null));
+    closeButton.addEventListener('click', () => finishCropper(null));
+
+    applyButton.addEventListener('click', async () => {
+        if (!cropState) {
+            return;
+        }
+
+        const state = cropState;
+        applyButton.disabled = true;
+        const croppedFile = await createCroppedFile(state);
+
+        if (!cropState || cropState !== state) {
+            return;
+        }
+
+        if (!croppedFile) {
+            applyButton.disabled = false;
+            showCropperMessage('Le recadrage n’a pas pu être généré.');
+            return;
+        }
+
+        finishCropper(croppedFile);
+    });
+
+    window.addEventListener('resize', () => {
+        if (cropState) {
+            resetCropperGeometry(cropState, true);
+        }
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && cropState) {
+            finishCropper(null);
+        }
+    });
+}());
+
 // ── Section switching ──────────────────────────────────────────────────────
 const typeSelect = document.getElementById('typePromoAffaire');
 const allSections = {
@@ -554,16 +1143,61 @@ if (descTextarea && descCounter) {
 
 // ── Prévisualisation image ─────────────────────────────────────────────────
 const imageSiteAppInput = document.getElementById('imageSiteApp');
+const siteAppSubmitButton = document.getElementById('submitSiteApp');
 if (imageSiteAppInput) {
-    imageSiteAppInput.addEventListener('change', function () {
-        const file    = this.files[0];
+    imageSiteAppInput.dataset.cropStatus = 'empty';
+    imageSiteAppInput._promotionCroppedFile = null;
+    if (siteAppSubmitButton) {
+        siteAppSubmitButton.disabled = true;
+    }
+
+    imageSiteAppInput.addEventListener('change', async function () {
+        const input = this;
+        const cropRequestId = (input._promotionCropRequestId || 0) + 1;
+        input._promotionCropRequestId = cropRequestId;
+        const file = this.files[0];
         const preview = document.getElementById('imageSiteAppPreview');
-        if (!file || !preview) return;
+        if (!file || !preview) {
+            input.dataset.cropStatus = 'empty';
+            input._promotionCroppedFile = null;
+            if (preview) preview.innerHTML = '';
+            if (siteAppSubmitButton) siteAppSubmitButton.disabled = true;
+            return;
+        }
+
+        input.dataset.cropStatus = 'pending';
+        input._promotionCroppedFile = null;
+        preview.innerHTML = '';
+        if (siteAppSubmitButton) {
+            siteAppSubmitButton.disabled = true;
+        }
+
+        const croppedFile = await window.PromotionImageCropper(file);
+        if (input._promotionCropRequestId !== cropRequestId) {
+            return;
+        }
+
+        if (!croppedFile) {
+            this.value = '';
+            input.dataset.cropStatus = 'invalid';
+            preview.innerHTML = '';
+            return;
+        }
+
+        window.setPromotionImageInputFile(input, croppedFile);
+        input._promotionCroppedFile = croppedFile;
+        input.dataset.cropStatus = 'ready';
+        if (siteAppSubmitButton) {
+            siteAppSubmitButton.disabled = false;
+        }
         const reader = new FileReader();
         reader.onload = e => {
+            if (input._promotionCropRequestId !== cropRequestId) {
+                return;
+            }
             preview.innerHTML = `<img src="${e.target.result}" style="max-width:200px;border-radius:8px;margin-top:8px;">`;
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(croppedFile);
     });
 }
 
@@ -581,13 +1215,17 @@ if (siteAppForm) {
         const nom             = document.getElementById('nomSiteApp').value.trim();
         const url             = document.getElementById('urlSiteApp').value.trim();
         const description     = document.getElementById('descriptionSiteApp').value.trim();
-        const image           = document.getElementById('imageSiteApp').files[0];
+        const imageInput      = document.getElementById('imageSiteApp');
+        const image           = imageInput._promotionCroppedFile || imageInput.files[0];
         const methodePaiement = document.getElementById('paymentMethodSiteApp').value;
         const tel             = document.getElementById('paymentNumberSiteApp').value.trim();
 
         if (!nom) { showAlert('danger', 'Veuillez renseigner le nom du site / de l\'application.'); return; }
         if (!url) { showAlert('danger', 'Veuillez renseigner l\'URL.'); return; }
-        if (!image) { showAlert('danger', 'Veuillez sélectionner une image (icône ou logo).'); return; }
+        if (imageInput.dataset.cropStatus !== 'ready' || !image) {
+            showAlert('danger', 'Veuillez sélectionner et valider le recadrage de l’image (icône ou logo).');
+            return;
+        }
         if (!methodePaiement) { showAlert('danger', 'Veuillez choisir un moyen de paiement.'); return; }
         if (!tel) { showAlert('danger', 'Veuillez renseigner le numéro de paiement.'); return; }
 
@@ -613,6 +1251,9 @@ if (siteAppForm) {
             } else if (data.solde_used) {
                 showAlert('success', data.message || 'Promotion Sites & Applications enregistrée avec succès !');
                 siteAppForm.reset();
+                imageInput.dataset.cropStatus = 'empty';
+                imageInput._promotionCroppedFile = null;
+                if (siteAppSubmitButton) siteAppSubmitButton.disabled = true;
                 document.getElementById('imageSiteAppPreview').innerHTML = '';
                 if (descCounter) descCounter.textContent = '120';
             } else if (data.url) {

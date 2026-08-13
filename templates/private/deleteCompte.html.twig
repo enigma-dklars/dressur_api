@@ -78,6 +78,7 @@
     const msgSuccess   = document.getElementById('msgDeleteSuccess');
     const btnLabel     = document.getElementById('btnDeleteLabel');
     const btnSpinner   = document.getElementById('btnDeleteSpinner');
+    let requestInFlight = false;
 
     function showError(msg) {
         msgError.textContent = msg;
@@ -92,6 +93,10 @@
     }
 
     btnDelete.addEventListener('click', async function () {
+        if (requestInFlight) {
+            return;
+        }
+
         msgError.style.display   = 'none';
         msgSuccess.style.display = 'none';
 
@@ -107,6 +112,7 @@
             return;
         }
 
+        requestInFlight = true;
         setLoading(true);
 
         try {
@@ -128,10 +134,12 @@
                 }, 2500);
             } else {
                 showError(data.message ?? "Une erreur est survenue. Veuillez réessayer.");
+                requestInFlight = false;
                 setLoading(false);
             }
         } catch (e) {
             showError("Impossible de contacter le serveur. Vérifiez votre connexion.");
+            requestInFlight = false;
             setLoading(false);
         }
     });

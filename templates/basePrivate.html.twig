@@ -156,7 +156,7 @@
 <body>
 {% set r = app.request.attributes.get('_route') %}
 {% set _services_routes  = ['app_newboostcontact','app_listeboostcontact','app_newpromoaffaire','app_listepromoaffaire','app_newpromoreseau','app_listepromoreseau','app_hub_services'] %}
-{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_preferencePays','app_hub_preferences','app_contact','app_guide_import_contacts','app_export_vcf','app_export_csv','app_notifications'] %}
+{% set _params_routes    = ['app_editprofil','app_editPassword','app_addSuggestion','app_signalerUser','app_support','app_apropos','app_deleteCompte','app_hub_parametres','app_mes_reseaux','app_preferencePays','app_hub_preferences','app_contact','app_guide_import_contacts','app_export_vcf','app_export_csv','app_notifications'] %}
 {% set _actu_active      = r in ['app_actu','app_actu_detail','app_private'] %}
 {% set _services_active  = r in _services_routes %}
 {% set _params_active    = r in _params_routes %}
@@ -256,8 +256,9 @@
     // ==========================================
     const API_BASE_URL = window.API_BASE_URL || "https://dressur.site/api";
     const LANG_USER = window.LANG_USER || 'fr';
-    const DRESSUR_STATUS_RATE = 0.25; // 25% du prix de la formule
     const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
+    const CUSTOM_REWARD_BUDGET_MIN = 5001;
+    const CUSTOM_REWARD_BUDGET_ERROR = 'Le montant personnalisé doit être supérieur à 5 000 FCFA.';
 
     /**
      * Récupère l'UID de l'utilisateur depuis l'input caché
@@ -317,24 +318,6 @@
         return Math.round(num).toLocaleString('fr-FR');
     }
 
-    /**
-     * Vérifie si une image est carrée
-     */
-    function isImageSquare(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const aspectRatio = img.width / img.height;
-                    resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
     // ==========================================
     // SECTION PRODUITS/SERVICES - CALCULS
     // ==========================================
@@ -347,7 +330,9 @@
         if (!$participateReward.length || !$participateReward.is(':checked')) {
             return 0;
         }
-        return parseInt($('#rewardBudget').val()) || 0;
+
+        const budget = Number($('#rewardBudget').val());
+        return Number.isInteger(budget) && budget > 0 ? budget : 0;
     }
 
     function updateRewardBreakdown(budget) {
@@ -362,16 +347,103 @@
         }
     }
 
+    function getCustomRewardBudgetValue() {
+        const value = String($('#customRewardBudget').val() || '').trim();
+        if (!/^\d+$/.test(value)) {
+            return 0;
+        }
+
+        const amount = Number(value);
+        return Number.isFinite(amount) ? amount : 0;
+    }
+
+    function getCustomRewardBudgetError() {
+        if (!$('#participateReward').is(':checked') || $('#rewardBudgetType').val() !== 'custom') {
+            return '';
+        }
+
+        const value = String($('#customRewardBudget').val() || '').trim();
+        if (!value) {
+            return 'Veuillez saisir un montant personnalisé.';
+        }
+        if (!/^\d+$/.test(value)) {
+            return 'Le montant personnalisé doit contenir uniquement des chiffres entiers.';
+        }
+
+        try {
+            if (BigInt(value) < BigInt(CUSTOM_REWARD_BUDGET_MIN)) {
+                return CUSTOM_REWARD_BUDGET_ERROR;
+            }
+        } catch (error) {
+            return 'Veuillez saisir un montant personnalisé valide.';
+        }
+
+        return '';
+    }
+
+    function updateCustomRewardBudgetValidation() {
+        const $input = $('#customRewardBudget');
+        if (!$input.length) {
+            return true;
+        }
+
+        const error = getCustomRewardBudgetError();
+        $input.toggleClass('is-invalid', Boolean(error));
+        $input.attr('aria-invalid', error ? 'true' : 'false');
+        return !error;
+    }
+
+    function syncRewardBudgetValue() {
+        if (!$('#participateReward').is(':checked')) {
+            $('#rewardBudget').val('0');
+            return;
+        }
+
+        if ($('#rewardBudgetType').val() === 'custom') {
+            const value = String($('#customRewardBudget').val() || '').trim();
+            $('#rewardBudget').val(getCustomRewardBudgetError() ? '0' : value);
+            return;
+        }
+
+        const predefinedBudget = Number($('.budget-btn.btn-primary').data('budget'));
+        $('#rewardBudget').val(Number.isInteger(predefinedBudget) ? predefinedBudget : 0);
+    }
+
+    function selectRewardBudget(budget) {
+        const isCustom = budget === 'custom';
+        $('#rewardBudgetType').val(isCustom ? 'custom' : 'predefined');
+
+        $('.budget-btn')
+            .removeClass('btn-primary active')
+            .addClass('btn-outline-primary')
+            .attr('aria-pressed', 'false');
+
+        $(`.budget-btn[data-budget="${budget}"]`)
+            .removeClass('btn-outline-primary')
+            .addClass('btn-primary active')
+            .attr('aria-pressed', 'true');
+
+        $('#customRewardBudgetGroup').toggle(isCustom);
+        if (!isCustom) {
+            $('#customRewardBudget').removeClass('is-invalid').attr('aria-invalid', 'false');
+        }
+
+        syncRewardBudgetValue();
+        updateCustomRewardBudgetValidation();
+        updatePricingSummary();
+        updateSubmitButtonsState();
+    }
+
     /**
      * Calcule les frais du statut Dressur
      */
     function calculateDressurStatusAmount() {
         const $publishStatus = $('#publishDressurStatus');
-        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.prix < 1000) {
+        if (!$publishStatus.length || !$publishStatus.is(':checked') || currentFormuleData.jours === 0) {
             return 0;
         }
         
-        return currentFormuleData.prix * DRESSUR_STATUS_RATE;
+        return Math.round((currentFormuleData.jours * 5000) / 7);
     }
 
     /**
@@ -420,8 +492,10 @@
         const hasPaymentMethod = $('#paymentMethod').length && $('#paymentMethod').val() !== '';
         const hasPaymentNumber = $('#paymentNumber').length && $('#paymentNumber').val().trim() !== '';
         const hasWhatsapp = !$('#whatsappContact').length || /^\+\d{11,}$/.test(($('#whatsappContact').val() || '').trim());
+        const hasRewardBudget = !$('#participateReward').is(':checked') || updateCustomRewardBudgetValidation();
 
-        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber && hasWhatsapp;
+        return hasFormule && hasDescription && hasImage && hasPaymentMethod && hasPaymentNumber &&
+               hasWhatsapp && hasRewardBudget;
     }
 
     /**
@@ -542,30 +616,59 @@
     });
 
     $(document).on('change', '#imageUpload', async function() {
+        const input = this;
+        const cropRequestId = (input._promotionCropRequestId || 0) + 1;
+        input._promotionCropRequestId = cropRequestId;
         const file = this.files[0];
-        if (!file) return;
+        if (!file) {
+            selectedImage = null;
+            $('#imagePreview').empty();
+            updateSubmitButtonsState();
+            return;
+        }
+
+        selectedImage = null;
+        $('#imagePreview').empty();
+        updateSubmitButtonsState();
 
         // Vérifier la taille
         if (file.size > MAX_IMAGE_SIZE) {
             showAlert('Attention !!!', 'L\'image ne peut pas dépasser 1 Mo.', 'warning');
+            input.value = '';
             return;
         }
 
-        // Vérifier le format carré
-        const isSquare = await isImageSquare(file);
-        if (!isSquare) {
-            showAlert('Attention !!!', 'L\'image doit être proche d\'un carré.', 'warning');
+        if (typeof window.PromotionImageCropper !== 'function') {
+            showAlert('Erreur', 'Le recadreur d’image est indisponible. Veuillez actualiser la page.', 'danger');
+            input.value = '';
             return;
         }
 
-        selectedImage = file;
+        const croppedFile = await window.PromotionImageCropper(file);
+        if (input._promotionCropRequestId !== cropRequestId) {
+            return;
+        }
+
+        if (!croppedFile) {
+            input.value = '';
+            selectedImage = null;
+            $('#imagePreview').empty();
+            updateSubmitButtonsState();
+            return;
+        }
+
+        window.setPromotionImageInputFile?.(input, croppedFile);
+        selectedImage = croppedFile;
 
         // Afficher l'aperçu
         const reader = new FileReader();
         reader.onload = function(e) {
+            if (input._promotionCropRequestId !== cropRequestId) {
+                return;
+            }
             $('#imagePreview').html(`<img src="${e.target.result}" alt="Aperçu">`);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(croppedFile);
 
         // Mettre à jour l'état du bouton
         updateSubmitButtonsState();
@@ -600,22 +703,48 @@
     $(document).on('change', '#participateReward', function() {
         $('#rewardSection').toggle(this.checked);
         if (this.checked) {
-            $('#rewardBudget').val('500');
-            $('.budget-btn').removeClass('btn-primary btn-outline-primary active').addClass('btn-outline-primary');
-            $('.budget-btn[data-budget="500"]').removeClass('btn-outline-primary').addClass('btn-primary');
+            selectRewardBudget('500');
         } else {
             $('#rewardBudget').val('0');
-            $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
+            $('#rewardBudgetType').val('predefined');
+            $('#customRewardBudgetGroup').hide();
+            $('#customRewardBudget').removeClass('is-invalid').attr('aria-invalid', 'false');
+            $('.budget-btn')
+                .removeClass('btn-primary active')
+                .addClass('btn-outline-primary')
+                .attr('aria-pressed', 'false');
+            updateSubmitButtonsState();
         }
         updatePricingSummary();
     });
 
     $(document).on('click', '.budget-btn', function() {
-        const budget = parseInt($(this).data('budget'));
-        $('#rewardBudget').val(budget);
-        $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
-        $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+        if (!$('#participateReward').is(':checked')) {
+            return;
+        }
+        selectRewardBudget(String($(this).data('budget')));
+    });
+
+    $(document).on('input', '#customRewardBudget', function() {
+        const currentValue = this.value;
+        const previousValue = this.dataset.lastValidValue || '';
+        if (/^\d*$/.test(currentValue)) {
+            this.dataset.lastValidValue = currentValue;
+        } else {
+            this.value = previousValue;
+        }
+
+        syncRewardBudgetValue();
+        updateCustomRewardBudgetValidation();
         updatePricingSummary();
+        updateSubmitButtonsState();
+    });
+
+    $(document).on('change', '#customRewardBudget', function() {
+        syncRewardBudgetValue();
+        updateCustomRewardBudgetValidation();
+        updatePricingSummary();
+        updateSubmitButtonsState();
     });
 
     // ==========================================
@@ -665,6 +794,7 @@
     
     function validateProduitServiceForm() {
         const errors = [];
+        syncRewardBudgetValue();
 
         if (!currentFormuleData.id) {
             errors.push('Veuillez choisir une formule.');
@@ -695,6 +825,12 @@
             }
         }
 
+        if (!$('#participateReward').is(':checked')) {
+            $('#rewardBudget').val('0');
+        } else if (!updateCustomRewardBudgetValidation()) {
+            errors.push(getCustomRewardBudgetError() || CUSTOM_REWARD_BUDGET_ERROR);
+        }
+
         return errors;
     }
 
@@ -721,11 +857,28 @@
             formData.append('image', selectedImage);
             formData.append('paymentMethod', $('#paymentMethod').val());
             formData.append('tel', $('#paymentNumber').val());
-            formData.append('inProgrammeRecompense', $('#participateReward').is(':checked'));
-            formData.append('rewardBudget', $('#rewardBudget').val());
-            formData.append('publishOnDressurStatus', $('#publishDressurStatus').is(':checked'));
+            formData.append(
+                'inProgrammeRecompense',
+                $('#participateReward').is(':checked') ? '1' : '0'
+            );
+            formData.append(
+                'rewardBudget',
+                $('#participateReward').is(':checked')
+                    ? $('#rewardBudget').val()
+                    : '0'
+            );
+            formData.append('rewardBudgetType', $('#rewardBudgetType').val());
+            formData.append(
+                'publishOnDressurStatus',
+                $('#publishDressurStatus').is(':checked') ? '1' : '0'
+            );
             formData.append('boostFacebook', $('#boostFacebook').is(':checked') ? '1' : '0');
-            formData.append('montantBoostFacebook', $('#boostFacebookAmount').val() || '0');
+            formData.append(
+                'montantBoostFacebook',
+                $('#boostFacebook').is(':checked')
+                    ? ($('#boostFacebookAmount').val() || '0')
+                    : '0'
+            );
             formData.append('whatsappContact', $('#whatsappContact').val().trim());
             formData.append('source', 'web');
 
@@ -882,7 +1035,13 @@
         // Masquer les sections par défaut
         $('#rewardSection').hide();
         $('#rewardBudget').val('0');
-        $('.budget-btn').removeClass('btn-primary active').addClass('btn-outline-primary');
+        $('#rewardBudgetType').val('predefined');
+        $('#customRewardBudgetGroup').hide();
+        $('#customRewardBudget').val('').removeClass('is-invalid').attr('aria-invalid', 'false');
+        $('.budget-btn')
+            .removeClass('btn-primary active')
+            .addClass('btn-outline-primary')
+            .attr('aria-pressed', 'false');
         $('#statusSection').hide();
         $('#boostFacebookSection').hide();
         $('#boostFacebookAmount').val('700');

@@ -1,0 +1,12 @@
+{% set rewardBudget = null %}
+{% if promotion.annotherInfo is not null and promotion.annotherInfo.rewardBudget is defined %}
+    {% set rewardBudget = promotion.annotherInfo.rewardBudget %}
+{% endif %}
+
+{% if not promotion.inProgrammeRecompense %}
+    <span class="badge bg-danger">No</span>
+{% elseif rewardBudget is not null %}
+    <span class="badge bg-success">{{ rewardBudget|number_format(0, ',', ' ') }} F</span>
+{% else %}
+    <span class="badge bg-secondary">—</span>
+{% endif %}

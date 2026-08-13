@@ -25,13 +25,15 @@ class CrudUserController extends AbstractController
     private $theme;
     private $cookieDS;
     private $traitementsDS;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, EnvRepository $env, LoggerInterface $logger)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
+        $this->logger = $logger;
         if($this->cookieDS->check("theme")) {
             if($this->cookieDS->get("theme") == "dark-theme") {
                 $this->theme = "dark-theme";
@@ -108,10 +110,19 @@ class CrudUserController extends AbstractController
             $this->addFlash('danger', 'Token CSRF invalide.');
             return $this->redirectToRoute('app_crud_user_check');
         }
+        $failedPurges = 0;
         foreach ($userRepository->findBy(['mailIsVerified' => false, 'telIsVerified' => false], [], 20) as $user) {
-            $traitementsDS->execPurge($user);
+            if (!$this->purgeUserSafely($traitementsDS, $user)) {
+                $failedPurges++;
+            }
         }
-        $this->addFlash('success', '20 user inutile supprimer.');
+
+        if ($failedPurges > 0) {
+            $this->addFlash('danger', $failedPurges . ' suppression(s) ont échoué et ont été annulées.');
+        } else {
+            $this->addFlash('success', '20 user inutile supprimer.');
+        }
+
         return $this->redirectToRoute('app_crud_user_check');
     }
 
@@ -504,7 +515,11 @@ class CrudUserController extends AbstractController
                 $this->addFlash('warning', count($found) . ' comptes trouvés pour "' . $input . '". Veuillez préciser la recherche avant de purger.');
             } elseif (count($found) === 1) {
                 $user = array_values($found)[0];
-                $traitementsDS->execPurge($user);
+                if (!$this->purgeUserSafely($traitementsDS, $user)) {
+                    $this->addFlash('danger', 'La suppression du compte a échoué. Veuillez réessayer.');
+                    return $this->redirectToRoute('app_crud_user_purge');
+                }
+
                 $this->addFlash('success', 'User and all related information have been deleted.');
                 return $this->redirectToRoute('app_crud_user_check');
             } else {
@@ -543,7 +558,11 @@ class CrudUserController extends AbstractController
                 $this->env->addUserBanned($user->getMail());
                 $this->env->addUserBanned($motif);
                 $this->em->flush();
-                $traitementsDS->execPurge($user);
+                if (!$this->purgeUserSafely($traitementsDS, $user)) {
+                    $this->addFlash('danger', 'La suppression du compte a échoué. Veuillez réessayer.');
+                    return $this->redirectToRoute('app_crud_user_banned');
+                }
+
                 $this->addFlash('success', 'User is Banned.');
                 return $this->redirectToRoute('app_crud_user_check');
             } else {
@@ -649,7 +668,11 @@ class CrudUserController extends AbstractController
             // $entityManager->remove($user);
             // $entityManager->flush();
             if($user) {
-                $traitementsDS->execPurge($user);
+                if (!$this->purgeUserSafely($traitementsDS, $user)) {
+                    $this->addFlash('danger', 'La suppression du compte a échoué. Veuillez réessayer.');
+                    return $this->redirectToRoute('app_crud_user_check');
+                }
+
                 // Add a flash message to confirm deletion
                 $this->addFlash('success', 'User and all related information have been deleted.');
                 
@@ -661,5 +684,21 @@ class CrudUserController extends AbstractController
         }
 
         return $this->redirectToRoute('app_crud_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function purgeUserSafely(TraitementsDS $traitementsDS, User $user): bool
+    {
+        try {
+            $traitementsDS->execPurge($user);
+
+            return true;
+        } catch (\Throwable $th) {
+            $this->logger->error('Échec de la suppression de compte depuis l’espace admin.', [
+                'user_id' => $user->getId(),
+                'exception' => $th,
+            ]);
+
+            return false;
+        }
     }
 }

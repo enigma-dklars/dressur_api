@@ -206,6 +206,42 @@
                                 <label for="numero-paiement">Indicatif + Numéro de Paiement</label>
                                 <input type="text" class="form-control getInfo getInfoBoostPayant-{{promoaffaire.id}} numeroPaiementPayant-{{promoaffaire.id}}" id="numero-paiement-{{promoaffaire.id}}">
                             </div>
+                            <div class="mt-3">
+                                <label for="in-programme-recompense-{{promoaffaire.id}}" class="form-label">Programme Récompense</label>
+                                <select id="in-programme-recompense-{{promoaffaire.id}}" class="form-select reboost-in-programme">
+                                    <option value="0" selected>Non</option>
+                                    <option value="1">Oui</option>
+                                </select>
+                            </div>
+                            <div class="mt-3 reboost-reward-options" style="display: none;">
+                                <label class="form-label">Budget du Programme Récompense</label>
+                                <div class="d-flex flex-wrap gap-2 mb-2">
+                                    {% for rewardBudget in [500, 1000, 2000, 5000] %}
+                                        <button type="button" class="btn btn-sm btn-outline-primary reboost-budget-button" data-budget="{{ rewardBudget }}">{{ rewardBudget|number_format(0, ',', ' ') }} FCFA</button>
+                                    {% endfor %}
+                                    <button type="button" class="btn btn-sm btn-outline-primary reboost-budget-button" data-budget="custom">Personnalisé</button>
+                                </div>
+                                <input type="hidden" class="reboost-reward-budget" value="0">
+                                <input type="hidden" class="reboost-reward-budget-type" value="predefined">
+                                <div class="reboost-custom-reward-group" style="display: none;">
+                                    <label for="custom-reward-budget-{{promoaffaire.id}}" class="form-label">Montant personnalisé</label>
+                                    <input type="text" inputmode="numeric" pattern="[0-9]+" class="form-control reboost-custom-reward-budget" id="custom-reward-budget-{{promoaffaire.id}}" placeholder="Ex. 5001" autocomplete="off">
+                                    <div class="form-text">Le montant doit être un entier strictement supérieur à 5 000 FCFA.</div>
+                                </div>
+                            </div>
+                            <div class="form-check mt-3">
+                                <input type="checkbox" class="form-check-input reboost-publish-status" id="publish-dressur-status-{{promoaffaire.id}}" value="1">
+                                <label class="form-check-label" for="publish-dressur-status-{{promoaffaire.id}}">Publier dans le statut Dressur</label>
+                            </div>
+                            <div class="form-check mt-2">
+                                <input type="checkbox" class="form-check-input reboost-boost-facebook" id="boost-facebook-{{promoaffaire.id}}" value="1">
+                                <label class="form-check-label" for="boost-facebook-{{promoaffaire.id}}">Ajouter un boost Facebook</label>
+                            </div>
+                            <div class="mt-2 reboost-facebook-amount-group" style="display: none;">
+                                <label for="boost-facebook-amount-{{promoaffaire.id}}" class="form-label">Montant du boost Facebook</label>
+                                <input type="text" inputmode="numeric" pattern="[0-9]+" class="form-control reboost-facebook-amount" id="boost-facebook-amount-{{promoaffaire.id}}" value="700" autocomplete="off">
+                                <div class="form-text">Minimum : 700 FCFA.</div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">Fermer</button>

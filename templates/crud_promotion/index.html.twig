@@ -47,7 +47,7 @@
                     <th>DateExp</th>
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
-                    <th>Id</th>
+                    <th>URL pub</th>
                 </tr>
             </thead>
             <tbody>
@@ -113,7 +113,7 @@
                             <span class="badge bg-success">{{promotion.mode}}</span>
                         {% endif %}
                     </td>
-                    <td class="text-center">{{ (promotion.inProgrammeRecompense ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{% include "crud_promotion/_reward_budget.html.twig" %}</td>
                     <td class="text-center">{{ (promotion.publishOnDressurStatus ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
                     <td class="text-center">{{ (promotion.boostFacebook ? '<span class="badge bg-primary">' ~ promotion.montantBoostFacebook ~ ' F</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
                     <td class="text-center">
@@ -131,11 +131,25 @@
                     <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
                     <td>{{ promotion.nombreDeVue }}</td>
                     <td>{{ promotion.nombreImpression }}</td>
-                    <td>{{ promotion.id }}</td>
+                    <td>
+                        {% set advertisingUrl = promotionPublicUrls[promotion.id] ?? null %}
+                        {% if advertisingUrl %}
+                            <span class="small text-break d-block mb-1">{{ advertisingUrl }}</span>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-primary js-copy-advertising-url"
+                                data-advertising-url="{{ advertisingUrl|e('html_attr') }}"
+                                aria-label="Copier l'URL publicitaire"
+                            >
+                                <i class="fas fa-copy me-1" aria-hidden="true"></i>
+                                <span class="js-copy-advertising-url-label">Copier</span>
+                            </button>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="14">no records found</td>
+                    <td colspan="20">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>
@@ -146,6 +160,79 @@
 
 {% block script %}
 <script>
+function fallbackCopyAdvertisingUrl(text) {
+    var input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.top = '-9999px';
+    input.style.opacity = '0';
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+
+    var copied = false;
+    try {
+        copied = document.execCommand('copy');
+    } catch (error) {
+        copied = false;
+    }
+
+    document.body.removeChild(input);
+    return copied;
+}
+
+var dedicatedAdvertisingUrlPrefix = 'https://dressur.site/actualite/pub/';
+
+document.querySelectorAll('.js-copy-advertising-url').forEach(function (button) {
+    var label = button.querySelector('.js-copy-advertising-url-label');
+    var icon = button.querySelector('i');
+    var defaultLabel = label.textContent;
+    var defaultIconClass = icon.className;
+    var resetTimer;
+
+    button.addEventListener('click', async function () {
+        var url = button.dataset.advertisingUrl;
+        var isDedicatedAdvertisingUrl = url && url.indexOf(dedicatedAdvertisingUrlPrefix) === 0;
+        var copied = false;
+
+        if (resetTimer) {
+            window.clearTimeout(resetTimer);
+        }
+
+        if (isDedicatedAdvertisingUrl && navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(url);
+                copied = true;
+            } catch (error) {
+                copied = false;
+            }
+        }
+
+        if (!copied && isDedicatedAdvertisingUrl) {
+            copied = fallbackCopyAdvertisingUrl(url);
+        }
+
+        button.classList.remove('btn-outline-primary', 'btn-success', 'btn-danger');
+        if (copied) {
+            button.classList.add('btn-success');
+            icon.className = 'fas fa-check me-1';
+            label.textContent = 'Copié !';
+        } else {
+            button.classList.add('btn-danger');
+            icon.className = 'fas fa-exclamation-triangle me-1';
+            label.textContent = 'Copie impossible';
+        }
+
+        resetTimer = window.setTimeout(function () {
+            button.classList.remove('btn-success', 'btn-danger');
+            button.classList.add('btn-outline-primary');
+            icon.className = defaultIconClass;
+            label.textContent = defaultLabel;
+        }, copied ? 2000 : 3000);
+    });
+});
+
 document.querySelectorAll('.js-confirm-orphan').forEach(function (btn) {
     btn.addEventListener('click', function (e) {
         e.preventDefault();

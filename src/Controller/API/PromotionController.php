@@ -24,8 +24,12 @@ use App\Repository\MethodePaiementRepository;
 use App\Repository\PromotionRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
+use App\Services\PromotionBilling;
+use App\Services\PromotionImageValidator;
+use App\Services\ProgrammeRecompenseBudget;
 use App\Utilities\SendMail;
 use App\Utilities\UuidGenerator;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
@@ -39,13 +43,30 @@ class PromotionController extends AbstractController
     private $env;
     private $sendMail;
     private $cookieDS;
+    private ProgrammeRecompenseBudget $programmeRecompenseBudget;
+    private PromotionBilling $promotionBilling;
+    private PromotionImageValidator $promotionImageValidator;
+    private LoggerInterface $logger;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail, CookieDS $cookieDS)
+    public function __construct(
+        EntityManagerInterface $em,
+        EnvRepository $env,
+        SendMail $sendMail,
+        CookieDS $cookieDS,
+        ProgrammeRecompenseBudget $programmeRecompenseBudget,
+        PromotionBilling $promotionBilling,
+        PromotionImageValidator $promotionImageValidator,
+        LoggerInterface $logger
+    )
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->sendMail = $sendMail;
         $this->cookieDS = $cookieDS;
+        $this->programmeRecompenseBudget = $programmeRecompenseBudget;
+        $this->promotionBilling = $promotionBilling;
+        $this->promotionImageValidator = $promotionImageValidator;
+        $this->logger = $logger;
     }
 
     #[Route('/listeFormulePromoAffaire', name: 'listeFormulePromoAffaire', methods: ['POST', 'GET'])]
@@ -241,16 +262,33 @@ class PromotionController extends AbstractController
                 
 
         $factureLignes = [];
-        $montantTotal = 0;
 
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
         $boostFacebook = false;
         $montantBoostFacebook = 0;
 
-        if ($datas->get('inProgrammeRecompense') !== null) {
-            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
-            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        $inProgrammeRecompense = $this->requestBoolean($datas->get('inProgrammeRecompense'));
+        try {
+            $rewardBudgetData = $this->programmeRecompenseBudget->resolve(
+                $inProgrammeRecompense,
+                $datas->has('rewardBudget'),
+                $datas->get('rewardBudget'),
+                $this->isCustomRewardBudget($datas),
+                $datas->get('totalViewsGoal')
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant invalide',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        $rewardBudget = $rewardBudgetData['amount'];
+        if ($rewardBudgetData['legacy']) {
+            $this->logger->notice('Ancienne requête Programme Récompense reçue sans rewardBudget.', [
+                'route' => 'api_addProduitService',
+            ]);
         }
         if ($datas->get('publishOnDressurStatus') !== null) {
             $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
@@ -285,13 +323,13 @@ class PromotionController extends AbstractController
             ]);
         }
 
-        // Vérification et traitement de l'image
-        if (!$image->isValid()) {
+        $imageValidation = $this->promotionImageValidator->validate($image);
+        if (!$imageValidation['valid']) {
             return new JsonResponse([
                 'error' => true,
-                'titre' => 'Erreur!',
-                'message' => "Erreur lors du traitement de l'image.",
-            ]);
+                'titre' => 'Image invalide',
+                'message' => $imageValidation['message'],
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         if($mode == "payant"){
@@ -342,7 +380,7 @@ class PromotionController extends AbstractController
         }
 
         // Générer un nom de fichier unique
-        $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$image->getClientOriginalExtension();
+        $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$imageValidation['extension'];
 
         // Déplacer l'image vers le dossier de promotion dans le dossier public
         try {
@@ -371,22 +409,22 @@ class PromotionController extends AbstractController
             ]);
         }
 
+        // ── Montant total facturé, partagé par tous les moyens de paiement ────
+        $montantTotal = $this->promotionBilling->calculateTotal(
+            $formulBoost->getPrix(),
+            $inProgrammeRecompense,
+            $rewardBudget,
+            $publishOnDressurStatus,
+            $formulBoost->getNbrJour(),
+            $boostFacebook,
+            $montantBoostFacebook
+        );
         // ── Paiement via solde ────────────────────────────────────────────────
-        $montantSolde = $formulBoost->getPrix();
-        if ($inProgrammeRecompense) {
-            $montantSolde += round((($totalViewsGoal * 2500) / 4000) * 1.20);
-        }
-        if ($publishOnDressurStatus) {
-            $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
-        }
-        if ($boostFacebook) {
-            $montantSolde += $montantBoostFacebook;
-        }
-        if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+        if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("boost_affaire")
-                ->setAmount($montantSolde)
+                ->setAmount($montantTotal)
                 ->setAnnotherInfo([
                     'userId'                => $user->getId(),
                     'userUid'               => $user->getUid(),
@@ -394,6 +432,7 @@ class PromotionController extends AbstractController
                     'image'                 => $fileName,
                     'description'           => $text,
                     'inProgrammeRecompense' => $inProgrammeRecompense,
+                    'rewardBudget'          => $rewardBudget,
                     'publishOnDressurStatus'=> $publishOnDressurStatus,
                     'boostFacebook'         => $boostFacebook,
                     'montantBoostFacebook'  => $montantBoostFacebook,
@@ -401,14 +440,14 @@ class PromotionController extends AbstractController
                     'whatsappContact'       => $whatsappContact,
                 ]);
             $this->em->persist($myTransaction);
-            $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+            $traitementsDS->payerViaSolde($myTransaction, $user, $montantTotal);
             $this->em->flush();
             return new JsonResponse([
                 'error'      => false,
                 'direct'     => true,
                 'solde_used' => true,
                 'titre'      => 'Succès',
-                'message'    => 'Solde débité de '.(int)$montantSolde.' FCFA. Promotion Affaire enregistrée.',
+                'message'    => 'Solde débité de '.(int)$montantTotal.' FCFA. Promotion Affaire enregistrée.',
             ]);
         }
         // ─────────────────────────────────────────────────────────────────────
@@ -428,27 +467,16 @@ class PromotionController extends AbstractController
 
             $factureLignes[] = "Promotion Affaire";
 
-            $montantTotal += $formulBoost->getPrix();
-
             if ($inProgrammeRecompense) {
-                $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
-
                 $factureLignes[] = "Programme Récompense";
-
-                $montantTotal += $montantForProgrammeRecompense;
             }
 
             if ($publishOnDressurStatus) {
-                $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
-
                 $factureLignes[] = "Publication Statut Dressur";
-
-                $montantTotal += $montantForPublishOnDressurStatus;
             }
 
             if ($boostFacebook) {
                 $factureLignes[] = "Boost Page Facebook";
-                $montantTotal += $montantBoostFacebook;
             }
 
             $array_create_transaction = [
@@ -486,6 +514,7 @@ class PromotionController extends AbstractController
                         'image' => $fileName,
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget' => $rewardBudget,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
@@ -522,7 +551,7 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementKPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $montantSolde,
+                    $montantTotal,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
@@ -534,6 +563,7 @@ class PromotionController extends AbstractController
                         'image' => $fileName,
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget' => $rewardBudget,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
@@ -568,7 +598,7 @@ class PromotionController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFeexPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $montantSolde,
+                    $montantTotal,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
@@ -580,6 +610,7 @@ class PromotionController extends AbstractController
                         'image' => $fileName,
                         'description' => $text,
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget' => $rewardBudget,
                         'publishOnDressurStatus' => $publishOnDressurStatus,
                         'boostFacebook' => $boostFacebook,
                         'montantBoostFacebook' => $montantBoostFacebook,
@@ -629,20 +660,13 @@ class PromotionController extends AbstractController
         // Prix fixe pour ce type de promotion
         $montantSolde = 7750;
 
-        if ($image === null) {
+        $imageValidation = $this->promotionImageValidator->validate($image);
+        if (!$imageValidation['valid']) {
             return new JsonResponse([
                 'error'   => true,
-                'titre'   => "Erreur",
-                'message' => "Veuillez fournir une image (icône ou logo).",
-            ]);
-        }
-
-        if (!$image->isValid()) {
-            return new JsonResponse([
-                'error'   => true,
-                'titre'   => 'Erreur!',
-                'message' => "Erreur lors du traitement de l'image.",
-            ]);
+                'titre'   => 'Image invalide',
+                'message' => $imageValidation['message'],
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         $verificationUser = $verificationsDS->verifUSer($uid);
@@ -666,7 +690,7 @@ class PromotionController extends AbstractController
         }
 
         // Upload image
-        $fileName = "dressur_pro_" . UuidGenerator::v4() . '.' . $image->getClientOriginalExtension();
+        $fileName = "dressur_pro_" . UuidGenerator::v4() . '.' . $imageValidation['extension'];
         try {
             $image->move($this->getParameter('promotion_directory'), $fileName);
         } catch (FileException $e) {
@@ -910,16 +934,17 @@ class PromotionController extends AbstractController
         }
         
         if ($image) {
-            if (!$image->isValid()) {
+            $imageValidation = $this->promotionImageValidator->validate($image);
+            if (!$imageValidation['valid']) {
                 return new JsonResponse([
                     'error' => true,
-                    'titre' => 'Erreur!',
-                    'message' => "Erreur lors du traitement de l'image.",
-                ]);
+                    'titre' => 'Image invalide',
+                    'message' => $imageValidation['message'],
+                ], Response::HTTP_BAD_REQUEST);
             }
 
             // Générer un nom de fichier unique
-            $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$image->getClientOriginalExtension();
+            $fileName = "dressur_pro_".UuidGenerator::v4().'.'.$imageValidation['extension'];
 
             // Déplacer l'image vers le dossier de promotion dans le dossier public
             try {
@@ -1028,16 +1053,33 @@ class PromotionController extends AbstractController
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
 
         $factureLignes = [];
-        $montantTotal = 0;
 
         $inProgrammeRecompense = false;
         $publishOnDressurStatus = false;
         $boostFacebook = false;
         $montantBoostFacebook = 0;
 
-        if ($datas->get('inProgrammeRecompense') !== null) {
-            $inProgrammeRecompense = ((int)$datas->get('inProgrammeRecompense') == 1);
-            $totalViewsGoal = (int) $datas->get('totalViewsGoal');
+        $inProgrammeRecompense = $this->requestBoolean($datas->get('inProgrammeRecompense'));
+        try {
+            $rewardBudgetData = $this->programmeRecompenseBudget->resolve(
+                $inProgrammeRecompense,
+                $datas->has('rewardBudget'),
+                $datas->get('rewardBudget'),
+                $this->isCustomRewardBudget($datas),
+                $datas->get('totalViewsGoal')
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant invalide',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        $rewardBudget = $rewardBudgetData['amount'];
+        if ($rewardBudgetData['legacy']) {
+            $this->logger->notice('Ancienne requête Programme Récompense reçue sans rewardBudget.', [
+                'route' => 'api_newPromoPayant',
+            ]);
         }
         if ($datas->get('publishOnDressurStatus') !== null) {
             $publishOnDressurStatus = ((int)$datas->get('publishOnDressurStatus') == 1);
@@ -1124,42 +1166,43 @@ class PromotionController extends AbstractController
         if($promotion->getStatus() == 2 || $promotion->getStatus() == 4) {
             $promotion->setFormulePromoAffaire($formulBoost);
 
+            // ── Montant total facturé, partagé par tous les moyens de paiement ────
+            $montantTotal = $this->promotionBilling->calculateTotal(
+                $formulBoost->getPrix(),
+                $inProgrammeRecompense,
+                $rewardBudget,
+                $publishOnDressurStatus,
+                $formulBoost->getNbrJour(),
+                $boostFacebook,
+                $montantBoostFacebook
+            );
             // ── Paiement via solde ────────────────────────────────────────────────
-            $montantSolde = $formulBoost->getPrix();
-            if ($inProgrammeRecompense) {
-                $montantSolde += round((($totalViewsGoal * 2500) / 4000) * 1.20);
-            }
-            if ($publishOnDressurStatus) {
-                $montantSolde += round(($formulBoost->getNbrJour() * 5000) / 7);
-            }
-            if ($boostFacebook) {
-                $montantSolde += $montantBoostFacebook;
-            }
-            if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+            if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
                 $myTransaction = (new EntityTransaction())
                     ->setUser($user)
                     ->setTransactionFor("re_boost_affaire")
-                    ->setAmount($montantSolde)
+                    ->setAmount($montantTotal)
                     ->setAnnotherInfo([
                         'userId'                => $user->getId(),
                         'userUid'               => $user->getUid(),
                         'formulBoostId'         => $formulBoost->getId(),
                         'promotionId'           => $promotion->getId(),
                         'inProgrammeRecompense' => $inProgrammeRecompense,
+                        'rewardBudget'         => $rewardBudget,
                         'publishOnDressurStatus'=> $publishOnDressurStatus,
                         'boostFacebook'         => $boostFacebook,
                         'montantBoostFacebook'  => $montantBoostFacebook,
                         'source'                => ($datas->get('source') === 'web') ? 'web' : 'mobile',
                     ]);
                 $this->em->persist($myTransaction);
-                $traitementsDS->payerViaSolde($myTransaction, $user, $montantSolde);
+                $traitementsDS->payerViaSolde($myTransaction, $user, $montantTotal);
                 $this->em->flush();
                 return new JsonResponse([
                     'error'      => false,
                     'direct'     => true,
                     'solde_used' => true,
                     'titre'      => 'Succès',
-                    'message'    => 'Solde débité de '.(int)$montantSolde.' FCFA. Promotion Affaire relancée.',
+                    'message'    => 'Solde débité de '.(int)$montantTotal.' FCFA. Promotion Affaire relancée.',
                 ]);
             }
             // ─────────────────────────────────────────────────────────────────────
@@ -1179,27 +1222,16 @@ class PromotionController extends AbstractController
 
                 $factureLignes[] = "Promotion Affaire";
 
-                $montantTotal += $formulBoost->getPrix();
-
                 if ($inProgrammeRecompense) {
-                    $montantForProgrammeRecompense = round((($totalViewsGoal * 2500) / 4000) * 1.20);
-
                     $factureLignes[] = "Programme Récompense";
-
-                    $montantTotal += $montantForProgrammeRecompense;
                 }
 
                 if ($publishOnDressurStatus) {
-                    $montantForPublishOnDressurStatus = round(($formulBoost->getNbrJour() * 5000) / 7);
-
                     $factureLignes[] = "Publication Statut Dressur";
-
-                    $montantTotal += $montantForPublishOnDressurStatus;
                 }
 
                 if ($boostFacebook) {
                     $factureLignes[] = "Boost Page Facebook";
-                    $montantTotal += $montantBoostFacebook;
                 }
 
                 $array_create_transaction = [
@@ -1235,6 +1267,9 @@ class PromotionController extends AbstractController
                             'userUid' => $user->getUid(),
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
+                            'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'rewardBudget' => $rewardBudget,
+                            'publishOnDressurStatus' => $publishOnDressurStatus,
                             'boostFacebook' => $boostFacebook,
                             'montantBoostFacebook' => $montantBoostFacebook,
                             'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
@@ -1271,7 +1306,7 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementKPay(
                         $envPaiementApi, 
                         $methodePaiementEntity, 
-                        $montantSolde,
+                        $montantTotal,
                         $tel,
                         $user->getPseudo(),
                         $user->getMail(),
@@ -1282,6 +1317,7 @@ class PromotionController extends AbstractController
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
                             'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'rewardBudget' => $rewardBudget,
                             'publishOnDressurStatus' => $publishOnDressurStatus,
                             'boostFacebook' => $boostFacebook,
                             'montantBoostFacebook' => $montantBoostFacebook,
@@ -1316,7 +1352,7 @@ class PromotionController extends AbstractController
                     $resultat = $traitementsDS->startPaiementFeexPay(
                         $envPaiementApi, 
                         $methodePaiementEntity, 
-                        $montantSolde,
+                        $montantTotal,
                         $tel,
                         $user->getPseudo(),
                         $user->getMail(),
@@ -1327,6 +1363,7 @@ class PromotionController extends AbstractController
                             'formulBoostId' => $formulBoost->getId(),
                             'promotionId' => $promotion->getId(),
                             'inProgrammeRecompense' => $inProgrammeRecompense,
+                            'rewardBudget' => $rewardBudget,
                             'publishOnDressurStatus' => $publishOnDressurStatus,
                             'boostFacebook' => $boostFacebook,
                             'montantBoostFacebook' => $montantBoostFacebook,
@@ -1416,5 +1453,51 @@ class PromotionController extends AbstractController
             'error'      => false,
             'promotions' => $data,
         ]);
+    }
+
+    private function requestBoolean(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        if (is_int($value)) {
+            return $value === 1;
+        }
+
+        if (!is_string($value)) {
+            return false;
+        }
+
+        return in_array(strtolower(trim($value)), ['1', 'true', 'yes', 'on'], true);
+    }
+
+    private function isCustomRewardBudget($datas): bool
+    {
+        foreach ([
+            'rewardBudgetType',
+            'rewardBudgetMode',
+            'isCustomRewardBudget',
+            'rewardBudgetCustom',
+        ] as $key) {
+            if (!$datas->has($key)) {
+                continue;
+            }
+
+            $value = $datas->get($key);
+            if (is_bool($value)) {
+                return $value;
+            }
+
+            $normalized = strtolower(trim((string) $value));
+            if (in_array($normalized, ['custom', 'customized', 'personnalise', 'personnalisé', 'manual', 'manuel', '1', 'true', 'yes'], true)) {
+                return true;
+            }
+            if (in_array($normalized, ['predefined', 'preset', 'fixed', 'predetermine', 'prédéfini', '0', 'false', 'no'], true)) {
+                return false;
+            }
+        }
+
+        return false;
     }
 }

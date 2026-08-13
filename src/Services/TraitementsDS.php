@@ -131,6 +131,74 @@ class TraitementsDS extends AbstractController
     }
 
     /**
+     * Indique si une formule de promotion réseau nécessite des commentaires personnalisés.
+     *
+     * La détection porte sur le titre complet de la formule, en incluant ses parents,
+     * afin de ne pas dépendre du libellé d'une seule déclinaison.
+     */
+    public function formuleNecessiteCommentaires(FormulePromoReseau $formule): bool
+    {
+        $titres = [];
+        $formuleCourante = $formule;
+        $formulesVisitees = [];
+
+        while ($formuleCourante !== null) {
+            $identifiant = spl_object_id($formuleCourante);
+            if (isset($formulesVisitees[$identifiant])) {
+                break;
+            }
+
+            $formulesVisitees[$identifiant] = true;
+            $titres[] = $formuleCourante->getTitre() ?? '';
+            $formuleCourante = $formuleCourante->getParent();
+        }
+
+        $titreComplet = mb_strtolower(implode(' ', array_reverse($titres)), 'UTF-8');
+
+        if (class_exists(\Normalizer::class)) {
+            $titreNormalise = \Normalizer::normalize($titreComplet, \Normalizer::FORM_D);
+            if ($titreNormalise !== false) {
+                $titreComplet = $titreNormalise;
+            }
+            $titreComplet = preg_replace('/\p{Mn}+/u', '', $titreComplet) ?? $titreComplet;
+        } else {
+            $titreComplet = strtr($titreComplet, [
+                'à' => 'a', 'â' => 'a', 'ä' => 'a',
+                'ç' => 'c',
+                'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
+                'î' => 'i', 'ï' => 'i',
+                'ô' => 'o', 'ö' => 'o',
+                'ù' => 'u', 'û' => 'u', 'ü' => 'u',
+                'ÿ' => 'y',
+            ]);
+        }
+
+        return preg_match(
+            '/(?:^|[^\p{L}\p{N}])(?:commentaires?|customises?)(?:$|[^\p{L}\p{N}])/u',
+            $titreComplet
+        ) === 1;
+    }
+
+    /**
+     * Nettoie une liste de commentaires envoyée ligne par ligne.
+     *
+     * @return list<string>
+     */
+    public function normaliserCommentaires(?string $commentaires): array
+    {
+        $lignes = preg_split('/\R/u', $commentaires ?? '') ?: [];
+        $lignes = array_map(
+            static fn (string $ligne): string => trim($ligne),
+            $lignes
+        );
+
+        return array_values(array_filter(
+            $lignes,
+            static fn (string $ligne): bool => $ligne !== ''
+        ));
+    }
+
+    /**
      * Résout l'utilisateur depuis le cookie uid signé HMAC.
      *
      * @web-only — À utiliser exclusivement dans les controllers web (Twig/admin).
@@ -1691,54 +1759,139 @@ class TraitementsDS extends AbstractController
     /**
      * Purge complète d'un utilisateur.
      *
-     * @param bool $deleteUser  true  → chemin admin   : trace DeletedDS + supprime l'user.
-     *                          false → chemin self-service : l'appelant a déjà créé le DeletedDS
-     *                                  (avec le vrai motif) et supprimera l'user après.
+     * Toutes les suppressions et la trace DeletedDS sont exécutées dans la
+     * même transaction afin d'éviter une purge partielle.
+     *
+     * @param bool        $deleteUser   true pour supprimer aussi l'utilisateur.
+     * @param string|null $deletedMotif motif réel fourni pour le self-service.
      */
-    public function execPurge($user, bool $deleteUser = true): void
+    public function execPurge($user, bool $deleteUser = true, ?string $deletedMotif = null): void
     {
-        // Bulk DELETE via DQL — évite de charger toutes les entités en mémoire
-        // et remplace N SELECT + N×DELETE individuels par une seule requête chacun.
-        // Note : DeletedDS n'a pas de champ FK vers user — pas de DQL ici.
-        $dqlDeletes = [
-            ['App\Entity\PromoReseau',  'user',      $user],
-            ['App\Entity\Promotion',    'user',      $user],
-            ['App\Entity\Suggestion',   'user',      $user],
-            ['App\Entity\Transaction',  'user',      $user],
-            ['App\Entity\VerifMail',    'user',      $user],
-            ['App\Entity\Boost',        'user',      $user],
-            ['App\Entity\Signalement',  'signaler',  $user],
-            ['App\Entity\Signalement',  'signalant', $user],
-            ['App\Entity\Message',      'emetteur',  $user],
-            ['App\Entity\Message',      'recepteur', $user],
-        ];
+        $connection = $this->em->getConnection();
+        $ownsTransaction = !$connection->isTransactionActive();
 
-        foreach ($dqlDeletes as [$entity, $field, $value]) {
-            $this->em->createQuery("DELETE $entity e WHERE e.$field = :val")
-                ->setParameter('val', $value)
-                ->execute();
+        if ($ownsTransaction) {
+            $connection->beginTransaction();
         }
 
         try {
+            if ($deleteUser) {
+                // La trace est persistée dans la même transaction que la purge.
+                $deletedDS = new DeletedDS();
+                $deletedDS->setMail($user->getMail())
+                    ->setTel($user->getTel())
+                    ->setMotif($deletedMotif ?? 'GET OUT BY ADMIN');
+                $this->em->persist($deletedDS);
+            }
+
+            // Bulk DELETE via DQL — évite de charger toutes les entités en mémoire
+            // et remplace N SELECT + N×DELETE individuels par une seule requête chacun.
+            $deleteByField = function (string $entity, string $field, object $value): void {
+                $this->em->createQuery("DELETE $entity e WHERE e.$field = :val")
+                    ->setParameter('val', $value)
+                    ->execute();
+            };
+
+            // Les motifs de refus sont ciblés via les promotions de l'utilisateur.
+            // Les propriétés utilisées ici sont celles des mappings Doctrine
+            // (Promotion::$user et PromotionMotifRefus::$promotion).
+            // 1. Supprimer les preuves avant leur historique parent.
+            $deleteByField('App\Entity\Preuve', 'user', $user);
+
+            // 2. Supprimer uniquement les historiques appartenant à l'utilisateur.
+            $deleteByField('App\Entity\HistoriqueProgrammeRecompense', 'user', $user);
+
+            // 3. Supprimer les motifs de refus des promotions de l'utilisateur.
+            // Cette suppression reste nécessaire même si une migration SQL prévoit
+            // déjà une cascade, car elle garantit l'ordre avant Promotion.
+            $this->em->createQuery(
+                'DELETE FROM App\Entity\PromotionMotifRefus pmr
+                 WHERE IDENTITY(pmr.promotion) IN (
+                     SELECT p.id
+                     FROM App\Entity\Promotion p
+                     WHERE p.user = :user
+                 )'
+            )
+                ->setParameter('user', $user)
+                ->execute();
+
+            // 4. Supprimer les autres dépendances de l'utilisateur.
+            $otherUserDependencies = [
+                ['App\Entity\PromoReseau',      'user'],
+                ['App\Entity\Suggestion',       'user'],
+                ['App\Entity\Transaction',      'user'],
+                ['App\Entity\VerifMail',        'user'],
+                ['App\Entity\Boost',             'user'],
+                ['App\Entity\Signalement',      'signaler'],
+                ['App\Entity\Signalement',      'signalant'],
+                ['App\Entity\Message',           'emetteur'],
+                ['App\Entity\Message',           'recepteur'],
+                ['App\Entity\Story',             'user'],
+                ['App\Entity\ChatMessage',       'user'],
+                ['App\Entity\UserSocialNetwork', 'user'],
+            ];
+
+            foreach ($otherUserDependencies as [$entity, $field]) {
+                $deleteByField($entity, $field, $user);
+            }
+
+            // Fallback applicatif si la migration SQL n'est pas encore appliquée :
+            // User::$partenaire est une relation vers d'autres utilisateurs.
+            // On retire uniquement cette référence : les autres utilisateurs ne
+            // doivent pas être supprimés avec l'utilisateur purgé.
+            $this->em->createQuery(
+                'UPDATE App\Entity\User linkedUser
+                 SET linkedUser.partenaire = NULL
+                 WHERE linkedUser.partenaire = :user'
+            )
+                ->setParameter('user', $user)
+                ->execute();
+
+            // 5. Supprimer les notifications de l'utilisateur.
+            $deleteByField('App\Entity\Notification', 'user', $user);
+
+            // 6. Supprimer les promotions en dernier parmi leurs dépendances.
+            $deleteByField('App\Entity\Promotion', 'user', $user);
+
             $this->em->getConnection()->executeStatement(
                 'DELETE FROM dsbonus_historique WHERE user_id = :id',
                 ['id' => $user->getId()]
             );
+
+            if ($deleteUser) {
+                // 7. L'utilisateur est supprimé en dernier.
+                $this->em->remove($user);
+            }
+
+            // Le flush et le commit sont inclus dans la même transaction.
+            $this->em->flush();
+
+            if ($ownsTransaction) {
+                $connection->commit();
+            }
         } catch (\Throwable $e) {
-            // Table absente en dev — on ignore et on continue la purge
-        }
+            if ($connection->isTransactionActive()) {
+                try {
+                    $connection->rollBack();
+                } catch (\Throwable $rollbackError) {
+                    $this->logger->error('Echec du rollback de la purge utilisateur', [
+                        'user_id' => $user->getId(),
+                        'exception' => $rollbackError,
+                    ]);
+                }
+            }
 
-        if ($deleteUser) {
-            // Chemin admin : tracer dans DeletedDS puis supprimer l'utilisateur
-            $deletedDS = new DeletedDS();
-            $deletedDS->setMail($user->getMail())
-                ->setTel($user->getTel())
-                ->setMotif('GET OUT BY ADMIN');
-            $this->em->persist($deletedDS);
-            $this->em->remove($user);
-        }
+            if ($this->em->isOpen()) {
+                $this->em->clear();
+            }
 
-        $this->em->flush();
+            $this->logger->error('Echec de la purge transactionnelle utilisateur', [
+                'user_id' => $user->getId(),
+                'exception' => $e,
+            ]);
+
+            throw new \RuntimeException('La suppression du compte a échoué.', 0, $e);
+        }
     }
 
     function genererMotAleatoire(int $longueur): string
@@ -1753,6 +1906,43 @@ class TraitementsDS extends AbstractController
         return $mot;
     }
 
+    /**
+     * Recopie les options d'une transaction payante sur sa Promotion.
+     *
+     * Le montant de la transaction n'est volontairement pas manipulé ici :
+     * il est calculé et enregistré par le contrôleur avant le débit du solde.
+     *
+     * @param array<string, mixed> $transactionInfo
+     */
+    public function appliquerOptionsPromotionPaiement(
+        Promotion $promotion,
+        array $transactionInfo,
+        bool $setWhatsappContact = false
+    ): Promotion {
+        $promotionInfo = $promotion->getAnnotherInfo() ?? [];
+        $rewardBudget = array_key_exists('rewardBudget', $transactionInfo)
+            ? (int) $transactionInfo['rewardBudget']
+            : null;
+
+        if ($rewardBudget !== null) {
+            $promotionInfo['rewardBudget'] = $rewardBudget;
+        }
+
+        $promotion
+            ->setInProgrammeRecompense($transactionInfo['inProgrammeRecompense'] ?? false)
+            ->setPublishOnDressurStatus($transactionInfo['publishOnDressurStatus'] ?? false)
+            ->setBoostFacebook($transactionInfo['boostFacebook'] ?? false)
+            ->setMontantBoostFacebook($transactionInfo['montantBoostFacebook'] ?? 0)
+            ->setSource($transactionInfo['source'] ?? 'mobile')
+            ->setAnnotherInfo($promotionInfo ?: null);
+
+        if ($setWhatsappContact || array_key_exists('whatsappContact', $transactionInfo)) {
+            $promotion->setWhatsappContact($transactionInfo['whatsappContact'] ?? null);
+        }
+
+        return $promotion;
+    }
+
     public function payerViaSolde(Transaction $myTransaction, User $user, int $montant): void
     {
         // Débiter le solde
@@ -1760,6 +1950,7 @@ class TraitementsDS extends AbstractController
         $myTransaction->setStatus('approved');
 
         $transactionFor = $myTransaction->getTransactionFor();
+        $transactionInfo = $myTransaction->getAnnotherInfo() ?? [];
 
         if ($transactionFor === 'boost_contact') {
             $formuleBoost = $this->formuleBoostRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
@@ -1785,21 +1976,18 @@ class TraitementsDS extends AbstractController
         }
 
         if ($transactionFor === 'boost_affaire') {
-            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulePromoAffaire']);
-            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
-            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
-            $whatsappContact        = $myTransaction->getAnnotherInfo()['whatsappContact']        ?? null;
+            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($transactionInfo['formulePromoAffaire']);
+            $inProgrammeRecompense  = $transactionInfo['inProgrammeRecompense']  ?? false;
+            $publishOnDressurStatus = $transactionInfo['publishOnDressurStatus'] ?? false;
             $promotion = new Promotion();
             $promotion
                 ->setMode("Payant")
                 ->setUser($user)
                 ->setFormulePromoAffaire($formulePromoAffaire)
-                ->setImage($myTransaction->getAnnotherInfo()['image'])
-                ->setDescription($myTransaction->getAnnotherInfo()['description'])
-                ->setInProgrammeRecompense($inProgrammeRecompense)
-                ->setPublishOnDressurStatus($publishOnDressurStatus)
-                ->setWhatsappContact($whatsappContact)
-                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+                ->setImage($transactionInfo['image'])
+                ->setDescription($transactionInfo['description'])
+            ;
+            $this->appliquerOptionsPromotionPaiement($promotion, $transactionInfo, true);
             $this->em->persist($promotion);
 
             $htmlAdmin = $this->renderView('emails/promo_affaire_admin_notif.html.twig', [
@@ -1818,17 +2006,14 @@ class TraitementsDS extends AbstractController
         }
 
         if ($transactionFor === 're_boost_affaire') {
-            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($myTransaction->getAnnotherInfo()['formulBoostId']);
-            $inProgrammeRecompense  = $myTransaction->getAnnotherInfo()['inProgrammeRecompense']  ?? false;
-            $publishOnDressurStatus = $myTransaction->getAnnotherInfo()['publishOnDressurStatus'] ?? false;
-            $promotion              = $this->promotionRepository->find($myTransaction->getAnnotherInfo()['promotionId']);
+            $formulePromoAffaire    = $this->formulePromoAffaireRepository->find($transactionInfo['formulBoostId']);
+            $promotion              = $this->promotionRepository->find($transactionInfo['promotionId']);
             $promotion->setMode("Payant")
                 // dateDebut et dateExp seront fixées par l'admin lors de la validation
                 ->setReferencement($formulePromoAffaire->getReferencement())
                 ->setStatus(1)
-                ->setInProgrammeRecompense($inProgrammeRecompense)
-                ->setPublishOnDressurStatus($publishOnDressurStatus)
-                ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile');
+            ;
+            $this->appliquerOptionsPromotionPaiement($promotion, $transactionInfo);
             $this->addNotification("Solde débité. Votre Promotion Affaire est en attente de validation par notre équipe.", $user);
         }
 
@@ -1874,13 +2059,10 @@ class TraitementsDS extends AbstractController
             $this->em->persist($boost);
 
             $formule      = $boost->getFormulePromoReseau();
-            $formuleLower = mb_strtolower($formule, 'UTF-8');
-            if (((strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'customisés') === false)
-                    OR
-                    (strpos($formuleLower, 'commentaires') === false && strpos($formuleLower, 'likes') === false)
-                ) && !empty($boost->getFormulePromoReseau()->getIdZefame())) {
+            if (!$this->formuleNecessiteCommentaires($formule)
+                    && !empty($formule->getIdZefame())) {
                 $resultZefame = $this->zefameApi->order([
-                    'service'  => $boost->getFormulePromoReseau()->getIdZefame(),
+                    'service'  => $formule->getIdZefame(),
                     'link'     => $boost->getUrl(),
                     'quantity' => $boost->getQteDemander(),
                     'runs'     => 2,
