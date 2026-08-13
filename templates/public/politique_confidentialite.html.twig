@@ -125,6 +125,30 @@ leur traitement." %}
             word-break: break-all;
         }
 
+        .data-table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 620px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #dfe6e9;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .data-table th {
+            background-color: #eef6fa;
+            color: #2c3e50;
+        }
+
         hr {
             border: none;
             border-top: 2px solid #e0e0e0;
@@ -136,158 +160,257 @@ leur traitement." %}
 <body>
     <div class="container">
         <h1>Politique de Confidentialité de Dressur</h1>
-        <p class="date">Date d'entrée en vigueur : 23 février 2026</p>
+        <p class="date">Date d'entrée en vigueur proposée : 13 août 2026 (à valider)</p>
 
-        <p>La présente Politique de Confidentialité décrit comment l'application mobile Dressur (ci-après l'«
-            Application »), fournie par <strong>l'équipe Dressur</strong>, plateforme de marketing digital en Afrique de l'Ouest (ci-après « nous », « notre » ou « nos »),
-            collecte, utilise, partage et protège vos informations personnelles. Nous nous engageons à protéger votre
-            vie privée et à traiter vos données personnelles de manière transparente et sécurisée.</p>
+        <p>La présente Politique de Confidentialité décrit, de façon informative, les données que Dressur traite
+            d'après le site web, l'API et l'application mobile examinés. Elle ne remplace pas une validation juridique
+            et ne constitue pas une garantie sur les traitements qui ne sont pas encore documentés ou confirmés.</p>
 
-        <p>En utilisant l'Application, vous consentez à la collecte et à l'utilisation de vos informations conformément
-            à cette politique.</p>
-
-        <h2>1. Notre engagement pour la protection de vos données</h2>
         <div class="important">
-            <p>Conformément à notre fiche Google Play, Dressur collecte et partage certaines données (coordonnées,
-                photos, contacts) pour assurer le service de mise en relation. <strong>Toutes les données sont chiffrées
-                    pendant la transmission.</strong> Vous pouvez demander leur suppression à tout moment.</p>
+            <p><strong>Informations à compléter avant validation :</strong> l'identité juridique, l'adresse et le pays
+                d'établissement du responsable du traitement, les bases légales, les pays d'hébergement, les éventuels
+                transferts internationaux, les durées de conservation, l'âge minimal et les coordonnées ou délais
+                applicables aux demandes d'exercice des droits. Ces éléments ne sont pas inventés dans cette page.</p>
         </div>
 
-        <h2>2. Informations que nous collectons</h2>
-        <p>Nous collectons différentes catégories d'informations pour fournir et améliorer nos services :</p>
+        <h2>1. Responsable du traitement</h2>
+        <p>Le responsable du traitement est l'exploitant de Dressur. Son nom légal, sa forme juridique, son adresse,
+            son pays d'établissement et ses coordonnées officielles doivent être fournis par le propriétaire du projet
+            et validés juridiquement avant publication définitive. La présente page utilise donc provisoirement une
+            formulation neutre et ne présente pas « l'équipe Dressur » comme une personne morale.</p>
 
-        <h3>2.1. Informations que vous nous fournissez directement</h3>
+        <h2>2. Catégories de données traitées</h2>
+        <p>Les catégories ci-dessous correspondent aux champs et fonctionnalités retrouvés dans le code. Lorsqu'un
+            caractère obligatoire ou facultatif n'est pas identifiable avec certitude, il est indiqué comme devant être
+            vérifié.</p>
 
-        <p><strong>Lors de l'inscription :</strong></p>
+        <h3>2.1. Compte, authentification et profil</h3>
         <ul>
-            <li><strong>Numéro de téléphone (WhatsApp)</strong> : Collecté pour l'identification unique de
-                l'utilisateur, la communication et la facilitation des interactions au sein de l'Application. Il est
-                également utilisé pour la vérification du compte.</li>
-            <li><strong>Adresse e-mail</strong> : Utilisée pour la connexion, la récupération de compte et l'envoi de
-                communications importantes (mises à jour, notifications de sécurité, etc.).</li>
-            <li><strong>Mot de passe</strong> : Stocké sous forme hachée et sécurisée pour protéger l'accès à votre
-                compte.</li>
-        </ul>
-
-        <p><strong>Informations de profil (facultatif) :</strong></p>
-        <ul>
-            <li>Nom complet</li>
-            <li>Pseudo</li>
-            <li>Section « À propos » (biographie)</li>
-        </ul>
-
-        <p><strong>Motif de suppression de compte (facultatif) :</strong> Si vous choisissez de supprimer votre compte,
-            vous avez la possibilité de nous fournir un motif, qui sera utilisé pour améliorer nos services.</p>
-
-        <h3>2.2. Informations collectées automatiquement</h3>
-        <ul>
-            <li><strong>Informations sur l'appareil et l'utilisation</strong> : Nous pouvons collecter des informations
-                sur votre appareil mobile (modèle, système d'exploitation, identifiants uniques de l'appareil) et sur la
-                manière dont vous utilisez l'Application (pages visitées, fonctionnalités utilisées, durée des
-                sessions). Ces données sont généralement anonymisées ou agrégées.</li>
-            <li><strong>Informations de localisation</strong> : Bien que l'Application ne demande pas explicitement une
-                permission de localisation GPS, elle peut déduire votre pays à partir de votre numéro de téléphone ou de
-                vos préférences pour adapter le contenu (par exemple, les publicités ou les contacts suggérés).</li>
-            <li><strong>Données de connexion</strong> : Informations relatives à votre connexion internet (adresse IP,
-                type de connexion) pour des raisons de sécurité et de performance.</li>
-        </ul>
-
-        <h3>2.3. Informations relatives aux contacts</h3>
-        <p>Si vous nous accordez l'autorisation d'accéder à vos contacts :</p>
-        <ul>
-            <li><strong>Numéros de téléphone de vos contacts locaux</strong> : L'Application lit les numéros de
-                téléphone de votre carnet d'adresses pour identifier les utilisateurs de Dressur parmi vos contacts. Ces
-                numéros sont traités de manière sécurisée et ne sont pas stockés sur nos serveurs de manière
-                persistante, sauf pour la comparaison avec notre base de données d'utilisateurs Dressur.</li>
-            <li><strong>Contacts Dressur identifiés</strong> : Les numéros de téléphone des contacts qui sont également
-                des utilisateurs de Dressur sont stockés localement dans une base de données SQLite sur votre appareil
-                pour faciliter les interactions au sein de l'Application (par exemple, affichage des contacts Dressur,
-                messagerie).</li>
-        </ul>
-
-        <h2>3. Comment nous utilisons vos informations</h2>
-        <p>Nous utilisons les informations collectées pour les finalités suivantes :</p>
-        <ul>
-            <li><strong>Fournir et maintenir l'Application</strong> : Création et gestion de votre compte,
-                authentification, fourniture des fonctionnalités de l'Application.</li>
-            <li><strong>Améliorer et personnaliser l'expérience utilisateur</strong> : Adapter le contenu, les
-                publicités et les fonctionnalités en fonction de vos préférences et de votre utilisation.</li>
-            <li><strong>Communication</strong> : Vous envoyer des notifications importantes, des mises à jour, des
-                alertes de sécurité et des messages de support.</li>
-            <li><strong>Sécurité et prévention de la fraude</strong> : Protéger l'Application et nos utilisateurs contre
-                les activités frauduleuses ou malveillantes.</li>
-            <li><strong>Analyse et recherche</strong> : Comprendre comment l'Application est utilisée pour l'améliorer
-                et développer de nouvelles fonctionnalités. Ces analyses sont généralement basées sur des données
-                agrégées et anonymisées.</li>
-            <li><strong>Conformité légale</strong> : Respecter les obligations légales et réglementaires applicables.
+            <li><strong>Compte :</strong> identifiant technique, adresse e-mail, numéro de téléphone utilisé notamment
+                pour WhatsApp, mot de passe et source d'inscription. L'adresse e-mail et le numéro de téléphone disposent
+                de leurs propres états de vérification.</li>
+            <li><strong>Profil :</strong> nom, pseudo, présentation ou biographie, pays, langue, liens de réseaux
+                sociaux, code ou relation partenaire et préférences utilisateur. Les champs de profil et les préférences
+                sont facultatifs lorsqu'ils sont présentés comme tels par le parcours concerné ; le détail de chaque
+                caractère obligatoire doit être confirmé.</li>
+            <li><strong>Activité du compte :</strong> dates de création et de dernière connexion, source de dernière
+                connexion, état de blocage et informations nécessaires à la gestion du compte.</li>
+            <li><strong>Suppression :</strong> motif communiqué lors d'une demande de suppression, s'il est renseigné.
             </li>
         </ul>
 
-        <h2>4. Partage de vos informations</h2>
-        <p>Nous ne vendons ni ne louons vos informations personnelles à des tiers. Nous pouvons partager vos
-            informations dans les cas suivants :</p>
+        <h3>2.2. Contenus et fonctionnalités</h3>
         <ul>
-            <li><strong>Avec votre consentement</strong> : Nous pouvons partager vos informations avec des tiers si vous
-                nous donnez votre consentement explicite.</li>
-            <li><strong>Fournisseurs de services tiers</strong> : Nous pouvons faire appel à des entreprises tierces
-                pour nous aider à exploiter l'Application (par exemple, hébergement, analyse de données, services de
-                notification). Ces fournisseurs n'ont accès à vos informations que dans la mesure nécessaire pour
-                exécuter leurs fonctions et sont tenus de maintenir la confidentialité de vos informations.</li>
-            <li><strong>Exigences légales</strong> : Nous pouvons divulguer vos informations si la loi l'exige ou si
-                nous pensons de bonne foi qu'une telle action est nécessaire pour se conformer à une obligation légale,
-                protéger nos droits ou notre propriété, prévenir une fraude ou assurer la sécurité de nos utilisateurs.
+            <li>Promotions : textes, images, liens, informations de contact ou WhatsApp, dates, statut et informations
+                nécessaires aux options de visibilité.</li>
+            <li>Relations et réseau : relations partenaires, affiliations, suggestions, contacts Dressur et liens de
+                réseaux sociaux ajoutés au profil.</li>
+            <li>Messagerie et assistant : messages échangés et historique de conversation avec l'assistant Dressur
+                lorsque ces fonctionnalités sont utilisées. Le fournisseur technique de l'assistant n'est pas identifié
+                dans le code examiné.</li>
+            <li>Récompense : historique de participation, vues, partages, montant ou statut de récompense, référence de
+                participation, dates d'expiration et captures ou preuves transmises.</li>
+            <li>Sécurité et support : signalements, motifs associés, notifications et informations transmises au support.
             </li>
-            <li><strong>Transferts d'entreprise</strong> : En cas de fusion, acquisition, vente d'actifs ou faillite,
-                vos informations peuvent être transférées à la partie tierce concernée.</li>
+            <li>Paiements : transactions, méthode et informations nécessaires au suivi des services payants. Le code
+                intègre la bibliothèque FedaPay ; les données de paiement effectivement conservées par Dressur et celles
+                traitées directement par le prestataire doivent être confirmées.</li>
         </ul>
 
-        <h2>5. Stockage et Sécurité des Données</h2>
-        <p>Nous mettons en œuvre des mesures de sécurité techniques et organisationnelles appropriées pour protéger vos
-            informations personnelles contre l'accès non autorisé, la divulgation, l'altération ou la destruction.
-            <strong>Toutes les données sont chiffrées pendant la transmission</strong> entre votre appareil et nos
-            serveurs. Cependant, aucune méthode de transmission sur Internet ou de stockage électronique n'est
-            totalement sécurisée. Par conséquent, nous ne pouvons garantir une sécurité absolue de vos informations.
-        </p>
-
-        <p>Vos données sont stockées sur des serveurs sécurisés et, pour certaines données sensibles (comme les mots de
-            passe), elles sont chiffrées.</p>
-
-        <h2>6. Vos Droits</h2>
-        <p>Conformément aux lois applicables en matière de protection des données, vous disposez des droits suivants
-            concernant vos informations personnelles :</p>
+        <h3>2.3. Données techniques et permissions</h3>
         <ul>
-            <li><strong>Droit d'accès</strong> : Vous pouvez demander à accéder aux informations personnelles que nous
-                détenons à votre sujet.</li>
-            <li><strong>Droit de rectification</strong> : Vous pouvez demander la correction de toute information
-                personnelle inexacte ou incomplète.</li>
-            <li><strong>Droit à l'effacement (droit à l'oubli)</strong> : Vous pouvez demander la suppression de vos
-                informations personnelles, sous certaines conditions (voir section 7 des CGU concernant la suppression
-                de compte).</li>
-            <li><strong>Droit à la limitation du traitement</strong> : Vous pouvez demander la limitation du traitement
-                de vos informations personnelles.</li>
-            <li><strong>Droit d'opposition</strong> : Vous pouvez vous opposer au traitement de vos informations
-                personnelles dans certaines situations.</li>
-            <li><strong>Droit à la portabilité des données</strong> : Vous pouvez demander à recevoir vos informations
-                personnelles dans un format structuré, couramment utilisé et lisible par machine.</li>
+            <li>Le code mobile déclare ou utilise des permissions liées à Internet, aux contacts, aux images ou photos,
+                aux notifications, à la vibration et à certaines fonctions système. La permission de localisation GPS
+                n'a pas été retrouvée dans les déclarations examinées.</li>
+            <li>Les journaux techniques, adresses IP, identifiants d'appareil, mesures d'audience et données de
+                géolocalisation ne sont pas décrits comme collectés ici sans confirmation d'une implémentation ou d'une
+                configuration de production correspondante.</li>
         </ul>
 
-        <p>Pour exercer ces droits, veuillez nous contacter à l'adresse indiquée dans la section « Contact ».</p>
+        <h3>2.4. Carnet de contacts</h3>
+        <p>Avec l'autorisation de l'utilisateur, l'application mobile lit les contacts locaux et leurs numéros afin
+            d'identifier et d'afficher des utilisateurs Dressur. Les numéros normalisés et les utilisateurs Dressur
+            identifiés sont enregistrés dans la base SQLite locale de l'appareil pour les fonctions de contacts.</p>
+        <p>Le code examiné montre des appels API qui envoient l'identifiant de l'utilisateur et la langue et récupèrent
+            des utilisateurs Dressur correspondants. Il ne montre pas l'envoi de l'intégralité du carnet à l'API dans le
+            parcours de synchronisation vérifié. Le périmètre exact des données transmises au serveur doit néanmoins
+            être confirmé avant validation juridique.</p>
+        <p>La permission peut être refusée ou révoquée dans les réglages du système. Dans ce cas, les fonctions de
+            synchronisation et d'affichage des contacts Dressur peuvent être indisponibles, sans empêcher les autres
+            fonctions qui n'en dépendent pas.</p>
 
-        <h2>7. Conservation des Données</h2>
-        <p>Nous conservons vos informations personnelles aussi longtemps que nécessaire pour les finalités décrites dans
-            cette Politique de Confidentialité, sauf si une période de conservation plus longue est requise ou permise
-            par la loi. Lorsque vos informations ne sont plus nécessaires, nous les supprimons ou les anonymisons de
-            manière sécurisée.</p>
+        <h2>3. Finalités et bases légales à valider</h2>
+        <p>Les traitements sont mis en œuvre, selon les fonctionnalités utilisées, pour :</p>
+        <ul>
+            <li>créer, authentifier et sécuriser le compte, vérifier l'e-mail et le numéro de téléphone ;</li>
+            <li>gérer le profil, les préférences, les relations partenaires et l'affiliation ;</li>
+            <li>mettre les utilisateurs en relation et synchroniser les contacts Dressur lorsque la permission est
+                accordée ;</li>
+            <li>afficher et gérer les promotions, les services de visibilité, les boosts et les services payants ;</li>
+            <li>gérer les transactions, le programme de récompense, les preuves et les contrôles anti-abus ;</li>
+            <li>permettre la messagerie, les notifications et l'assistant Dressur lorsqu'ils sont activés ;</li>
+            <li>traiter les signalements, assurer la sécurité, répondre au support et respecter les obligations légales.
+            </li>
+        </ul>
+        <p>La base légale précise de chaque finalité — exécution du service, consentement, obligation légale, intérêt
+            légitime ou sécurité — doit être déterminée et validée juridiquement. Cette page ne présente donc pas tous
+            les traitements comme fondés sur le consentement.</p>
 
-        <h2>8. Modifications de cette Politique de Confidentialité</h2>
-        <p>Nous pouvons mettre à jour notre Politique de Confidentialité de temps à autre. Nous vous informerons de tout
-            changement en publiant la nouvelle Politique de Confidentialité sur cette page et en mettant à jour la «
-            Date d'entrée en vigueur » en haut de cette politique. Nous vous encourageons à consulter régulièrement
-            cette Politique de Confidentialité pour prendre connaissance des éventuelles modifications.</p>
+        <h2>4. Destinataires et partage</h2>
+        <p>Les données peuvent être accessibles aux personnes et services nécessaires au fonctionnement des
+            fonctionnalités utilisées, dans la limite de leurs besoins :</p>
+        <ul>
+            <li>l'infrastructure et l'hébergeur utilisés pour le site, l'API et les bases de données ; leurs noms et
+                conditions contractuelles doivent être confirmés ;</li>
+            <li>les fournisseurs de messagerie électronique configurés par le projet, via des serveurs SMTP ; le
+                fournisseur final n'est pas identifiable de façon certaine dans le code ;</li>
+            <li>FedaPay pour les opérations de paiement lorsque ce service est utilisé ;</li>
+            <li>Zefame pour certaines opérations de visibilité ou de promotion lorsque la fonctionnalité concernée est
+                utilisée ;</li>
+            <li>les services externes ouverts par l'utilisateur, notamment WhatsApp ou les réseaux sociaux, lorsque
+                celui-ci choisit de suivre un lien ou de partager un contact ;</li>
+            <li>les autorités compétentes lorsque la loi l'impose.</li>
+        </ul>
+        <p>Aucun fournisseur d'intelligence artificielle, outil d'analyse, régie publicitaire ou service SMS n'est nommé
+            ici sans confirmation de la configuration et des contrats. Les catégories de données effectivement
+            transmises à chaque prestataire doivent être documentées avant validation définitive.</p>
 
-        <h2>9. Contact</h2>
-        <p>Pour toute question concernant cette Politique de Confidentialité ou nos pratiques en matière de données,
-            veuillez nous contacter à <a href="mailto:dressur.ds@gmail.com">dressur.ds@gmail.com</a>.</p>
+        <h2>5. Hébergement et transferts internationaux</h2>
+        <p>Le code ne permet pas de confirmer le pays d'hébergement des données, ni l'emplacement des serveurs des
+            prestataires. Les éventuels transferts hors du pays de l'utilisateur, hors d'Afrique ou hors de l'espace
+            juridique applicable, ainsi que les garanties contractuelles ou mécanismes de transfert correspondants,
+            doivent être vérifiés et ajoutés après validation.</p>
+
+        <h2>6. Durées de conservation</h2>
+        <p>Aucune durée chiffrée ne doit être inventée. Les durées précises par catégorie doivent être fixées par le
+            responsable du traitement et validées juridiquement.</p>
+        <div class="data-table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Constat technique</th>
+                        <th>Durée</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Compte, profil et préférences</td>
+                        <td>Conservés dans les données du compte jusqu'à la suppression ou une autre opération prévue par
+                            le service.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                    <tr>
+                        <td>Promotions, relations et réseaux sociaux</td>
+                        <td>La purge du compte supprime les données rattachées au compte, notamment promotions, relations
+                            concernées et réseaux sociaux.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                    <tr>
+                        <td>Messages, conversations et notifications</td>
+                        <td>La purge supprime les messages, conversations de l'assistant lorsqu'elles sont persistées et
+                            notifications liées au compte.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                    <tr>
+                        <td>Transactions et récompenses</td>
+                        <td>La purge supprime les transactions, l'historique du programme de récompense et les preuves
+                            liées au compte.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                    <tr>
+                        <td>Signalements et support</td>
+                        <td>Les signalements liés à l'utilisateur sont ciblés par la purge. Les échanges de support et
+                            leurs sauvegardes éventuelles doivent être inventoriés.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                    <tr>
+                        <td>Trace de suppression</td>
+                        <td>Une trace conserve l'adresse e-mail, le numéro de téléphone, le motif et la date de
+                            suppression.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                    <tr>
+                        <td>Contacts locaux</td>
+                        <td>Les numéros et contacts Dressur identifiés peuvent rester dans la base SQLite de l'appareil
+                            jusqu'à suppression locale, désinstallation ou nettoyage prévu.</td>
+                        <td>À définir et valider.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>La suppression du compte ne doit donc pas être présentée comme l'effacement immédiat de toute trace : la
+            trace de suppression décrite ci-dessus est conservée dans le cadre de la purge et sa durée reste à valider.</p>
+
+        <h2>7. Sécurité</h2>
+        <ul>
+            <li>Le code prévoit le stockage des mots de passe sous une forme hachée pour les comptes concernés.</li>
+            <li>L'application mobile utilise l'URL HTTPS du site pour son API dans la configuration examinée. La
+                couverture effective de tous les environnements et flux doit être vérifiée.</li>
+            <li>Le projet comporte des contrôles d'accès, des vérifications de session et des permissions mobiles
+                limitées aux fonctionnalités concernées, selon les parcours examinés.</li>
+        </ul>
+        <p>Ces mesures ne constituent pas une garantie de sécurité absolue. Les protections effectivement activées en
+            production, la journalisation et la surveillance doivent être confirmées.</p>
+
+        <h2>8. Droits des utilisateurs</h2>
+        <p>Sous réserve de la loi applicable et de la validation juridique, vous pouvez demander l'accès, la
+            rectification, la suppression, la limitation du traitement, vous opposer à certains traitements, retirer un
+            consentement lorsque le traitement repose sur celui-ci, et demander la portabilité lorsque ce droit est
+            applicable. Vous pouvez également adresser une réclamation à l'autorité compétente.</p>
+        <p>Pour exercer un droit ou poser une question, écrivez à <a
+                href="mailto:dressur.ds@gmail.com">dressur.ds@gmail.com</a> ou utilisez la <a
+                href="{{ path('app_contactez_nous') }}">page de contact</a>. La procédure, les informations nécessaires
+            pour vérifier l'identité et le délai de réponse doivent être confirmés par le responsable du traitement.</p>
+
+        <h2>9. Suppression du compte</h2>
+        <p>La demande de suppression est disponible depuis l'application lorsque la fonctionnalité est accessible. Un
+            motif peut être demandé. La purge du compte supprime notamment le compte, les promotions, les historiques de
+            récompense, les preuves, les motifs de refus, les boosts, les transactions, les messages, les
+            conversations de l'assistant, les signalements, les notifications et les réseaux sociaux rattachés.</p>
+        <p>La relation partenaire vers le compte supprimé est retirée, sans supprimer les autres utilisateurs
+            partenaires. La trace de suppression qui conserve l'adresse e-mail, le numéro de téléphone, le motif et la
+            date doit être conservée et utilisée selon une durée à valider. Des données peuvent également être
+            conservées lorsque la loi, la sécurité ou un litige le justifie.</p>
+
+        <h2>10. Cookies et stockage local</h2>
+        <p>Le site peut utiliser les mécanismes techniques nécessaires à la session, à l'authentification, à la sécurité
+            ou aux préférences de navigation. Le projet contient un service de gestion de cookies, mais la liste exacte
+            des cookies, leurs durées et leurs finalités doivent être inventoriées avant validation. Aucun outil de
+            mesure d'audience ou de publicité personnalisée n'est déclaré dans cette page sans confirmation.</p>
+        <p>L'application mobile utilise notamment une base SQLite et des préférences locales pour certaines fonctions,
+            dont la synchronisation des contacts et l'état de l'application.</p>
+
+        <h2>11. Mineurs</h2>
+        <p>L'âge minimal applicable à l'utilisation de Dressur n'est pas confirmé dans les éléments examinés. Il doit
+            être fixé par le propriétaire et validé juridiquement avant d'être mentionné comme une règle définitive.</p>
+
+        <h2>12. Modifications et contact</h2>
+        <p>Cette politique peut être mise à jour pour refléter l'évolution du site, de l'API, de l'application ou des
+            exigences applicables. La date d'entrée en vigueur devra être mise à jour après validation et les
+            modifications importantes devront être annoncées par un moyen approprié.</p>
+        <p>Consultez également les <a href="{{ path('app_conditions_utilisation') }}">Conditions Générales
+                d'Utilisation</a>. Pour toute question, utilisez l'adresse <a
+                href="mailto:dressur.ds@gmail.com">dressur.ds@gmail.com</a> ou la <a
+                href="{{ path('app_contactez_nous') }}">page de contact</a>, sous réserve de confirmation de ces
+            coordonnées par le propriétaire.</p>
+
+        <h2>13. Points à valider avant publication définitive</h2>
+        <div class="references">
+            <h3>Réponses attendues du propriétaire et validation juridique</h3>
+            <ol>
+                <li>Nom légal, forme juridique, adresse, pays d'établissement et coordonnées du responsable du
+                    traitement.</li>
+                <li>Bases légales par finalité, âge minimal et autorité compétente à mentionner.</li>
+                <li>Pays d'hébergement, transferts internationaux et garanties applicables.</li>
+                <li>Durées de conservation pour chaque catégorie, notamment la trace <code>DeletedDS</code>.</li>
+                <li>Prestataires réellement utilisés, contrats applicables et données transmises à chacun.</li>
+                <li>Procédure et délai de réponse aux demandes d'exercice des droits.</li>
+                <li>Confirmation de la portée exacte de la synchronisation des contacts, des notifications, du stockage
+                    local et de l'assistant Dressur.</li>
+                <li>Confirmation de l'adresse <a href="mailto:dressur.ds@gmail.com">dressur.ds@gmail.com</a>.</li>
+            </ol>
+        </div>
     </div>
 </body>
 
