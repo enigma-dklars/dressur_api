@@ -104,7 +104,7 @@ class User
     private ?string $codePartenaire = null;
 
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'accompagnes')]
-    #[ORM\JoinColumn(nullable: true)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $partenaire = null;
 
     #[ORM\OneToMany(mappedBy: 'partenaire', targetEntity: self::class)]

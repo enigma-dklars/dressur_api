@@ -1817,6 +1817,7 @@ class TraitementsDS extends AbstractController
             $deleteByField($entity, $field, $user);
         }
 
+        // Fallback applicatif si la migration SQL n'est pas encore appliquée :
         // User::$partenaire est une relation vers d'autres utilisateurs.
         // On retire uniquement cette référence : les autres utilisateurs ne
         // doivent pas être supprimés avec l'utilisateur purgé.
