@@ -176,6 +176,7 @@ $(document).ready(function () {
         let inputEmail = $("#inputEmail").val();
         let inputMotPasse = $("#inputMotPasse").val();
         let inputConfirmerMotPasse = $("#inputConfirmerMotPasse").val();
+        let acceptPolicies = $("#acceptPolicies").is(":checked");
 
         $(".getInfo").each(function() {
             let titre = $(this).prev().text();
@@ -202,8 +203,17 @@ $(document).ready(function () {
             }
         }
 
+        if (!acceptPolicies) {
+            const policyMessage = "Vous devez accepter les Conditions d'utilisation, la Politique de confidentialité et les Conditions Générales de Vente.";
+            if(msgError == "Veuillez renseigner :") {
+                msgError = policyMessage;
+            } else {
+                msgError += "<br>" + policyMessage;
+            }
+        }
+
         if(msgError != "Veuillez renseigner :"){
-            if(!msgErrorHtml){
+            if(!msgErrorHtml || !acceptPolicies){
                 $("#msgError").html(`
                     <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
                     <div class="d-flex align-items-center">
@@ -231,6 +241,7 @@ $(document).ready(function () {
                 mail : inputEmail,
                 password : inputMotPasse,
                 confirmPassword : inputConfirmerMotPasse,
+                acceptPolicies : acceptPolicies ? 1 : 0,
                 source : 'web',
             },
             success: function (response) {

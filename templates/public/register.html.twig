@@ -211,6 +211,44 @@
 
     #msgError { border-radius: 10px; font-size: 0.87rem; }
 
+    .legal-consent {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 22px;
+        padding: 13px 14px;
+        border: 1px solid #dfe4ee;
+        border-radius: 12px;
+        background: #f8f9ff;
+    }
+    .legal-consent input {
+        flex: 0 0 auto;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        accent-color: #1a3a8f;
+    }
+    .legal-consent label {
+        color: #4b5563;
+        font-size: 0.79rem;
+        line-height: 1.55;
+        cursor: pointer;
+    }
+    .legal-consent a {
+        color: #1a3a8f;
+        font-weight: 700;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+    .legal-consent a:hover { color: #0f2460; }
+    html.dark-theme .legal-consent {
+        border-color: #2e3a55;
+        background: #111827;
+    }
+    html.dark-theme .legal-consent label { color: #c8cdd4; }
+    html.dark-theme .legal-consent a { color: #4fc3f7; }
+    html.dark-theme .legal-consent a:hover { color: #81d4fa; }
+
     @media (max-width: 700px) {
         .auth-panel { display: none; }
         .auth-card { max-width: 480px; }
@@ -285,6 +323,16 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="legal-consent">
+                    <input type="checkbox" id="acceptPolicies" required aria-describedby="acceptPoliciesHelp">
+                    <label for="acceptPolicies" id="acceptPoliciesHelp">
+                        J'accepte les
+                        <a href="{{ path('app_conditions_utilisation') }}" target="_blank" rel="noopener">Conditions d'utilisation</a>,
+                        la <a href="{{ path('politique_confidentialite') }}" target="_blank" rel="noopener">Politique de confidentialité</a>
+                        et les <a href="{{ path('app_conditions_generales_vente') }}" target="_blank" rel="noopener">Conditions Générales de Vente</a>.
+                    </label>
                 </div>
 
                 <div class="mt-4">
