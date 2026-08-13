@@ -134,6 +134,16 @@ class PublicController extends AbstractController
         ]);
     }
 
+    #[Route('/conditions-generales-vente', name: 'app_conditions_generales_vente')]
+    public function conditionsGeneralesVente(): Response
+    {
+        return $this->render('public/conditions_generales_vente.html.twig', [
+            'controller_name' => 'PublicController',
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+        ]);
+    }
+
     #[Route('/tarifs', name: 'app_tarifs')]
     public function tarifs(
         FormuleBoostRepository        $formuleBoostRepository,
