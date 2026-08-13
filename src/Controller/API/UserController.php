@@ -707,6 +707,15 @@ class UserController extends AbstractController
         try {
         $datas = $request->request;
 
+        $acceptPolicies = $datas->get('acceptPolicies');
+        if ($acceptPolicies === null || $acceptPolicies === false || $acceptPolicies === 0 || $acceptPolicies === '0') {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => "Vous devez accepter les Conditions d'utilisation, la Politique de confidentialité et les Conditions Générales de Vente.",
+            ]);
+        }
+
                 
         
         $tel = str_replace(" ", "", $datas->get('tel'));
