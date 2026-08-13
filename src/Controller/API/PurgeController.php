@@ -9,16 +9,19 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 
 #[Route('/api', name: 'api_')]
 
 class PurgeController extends AbstractController
 {
     private $traitementsDS;
+    private $logger;
 
-    public function __construct(TraitementsDS $traitementsDS)
+    public function __construct(TraitementsDS $traitementsDS, LoggerInterface $logger)
     {
         $this->traitementsDS = $traitementsDS;
+        $this->logger = $logger;
     }
 
     #[Route('/purge_ds_by_user_id/{id}', name: 'purge_ds_by_user_id')]
@@ -29,7 +32,7 @@ class PurgeController extends AbstractController
         try {
             $this->traitementsDS->execPurge($user);
         } catch (\Throwable $th) {
-            return $this->purgeErrorResponse();
+            return $this->purgeErrorResponse('purge_ds_by_user_id', $th);
         }
         
         return new Response("ok");
@@ -66,7 +69,7 @@ class PurgeController extends AbstractController
                 $this->traitementsDS->execPurge($usernotelhavemail);
             }
         } catch (\Throwable $th) {
-            return $this->purgeErrorResponse();
+            return $this->purgeErrorResponse('purge_ds', $th);
         }
         
         return new Response("ok");
@@ -102,14 +105,19 @@ class PurgeController extends AbstractController
                 }
             }
         } catch (\Throwable $th) {
-            return $this->purgeErrorResponse();
+            return $this->purgeErrorResponse('del_user_qui_bouge_pas', $th);
         }
         
         return new Response("ok");
     }
 
-    private function purgeErrorResponse(): JsonResponse
+    private function purgeErrorResponse(string $operation, \Throwable $exception): JsonResponse
     {
+        $this->logger->error('Échec d’une purge utilisateur via API admin.', [
+            'operation' => $operation,
+            'exception' => $exception,
+        ]);
+
         return new JsonResponse([
             'error' => true,
             'message' => 'La suppression du compte a échoué. Veuillez réessayer.',

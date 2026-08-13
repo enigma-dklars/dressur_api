@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
+use Psr\Log\LoggerInterface;
 
 #[Route('/api', name: 'api_')]
 class UserController extends AbstractController
@@ -39,14 +40,16 @@ class UserController extends AbstractController
     private $traitementsDS;
     private $cookieDS;
     private $sendMail;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS, CookieDS $cookieDS, SendMail $sendMail)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, TraitementsDS $traitementsDS, CookieDS $cookieDS, SendMail $sendMail, LoggerInterface $logger)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->traitementsDS = $traitementsDS;
         $this->cookieDS = $cookieDS;
         $this->sendMail = $sendMail;
+        $this->logger = $logger;
     }
 
     #[Route('/getVersionApp', name: 'getVersionApp', methods: ['POST', 'GET'])]
@@ -900,43 +903,43 @@ class UserController extends AbstractController
     {
         set_time_limit(10000);
 
-        $datas = $request->request;
-        
-                
-
-        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
-        $motifDeleted = $datas->get('motifDeleted');
-
-        $user = $userRepository->findOneBy(['uid' => $uid]);
-
-        if(!$user) {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => "Utilisateur introuvable... Contactez l'assistance Dressur sur WhatsApp.",
-            ]);
-        }
-
-        if(!$motifDeleted){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => 'Le motif de suppresion du compte est indispensable...',
-            ]);
-        }
-
-        if(strlen($motifDeleted) < 100){
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Attention!',
-                'message' => 'Le motif doit contenir au minimum 100 caractères.',
-            ]);
-        }
-
         try {
+            $datas = $request->request;
+            $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
+            $motifDeleted = $datas->get('motifDeleted');
+            $user = $userRepository->findOneBy(['uid' => $uid]);
+
+            if (!$user) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => "Utilisateur introuvable... Contactez l'assistance Dressur sur WhatsApp.",
+                ]);
+            }
+
+            if (!$motifDeleted) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'Le motif de suppression du compte est indispensable.',
+                ]);
+            }
+
+            if (strlen($motifDeleted) < 100) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'Le motif doit contenir au minimum 100 caractères.',
+                ]);
+            }
+
             // Le motif et la suppression sont traités dans une transaction unique.
             $traitementsDS->execPurge($user, true, $motifDeleted);
         } catch (\Throwable $th) {
+            $this->logger->error('Échec de la suppression de compte via API.', [
+                'exception' => $th,
+            ]);
+
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',

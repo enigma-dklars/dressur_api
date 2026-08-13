@@ -25,13 +25,15 @@ class CrudUserController extends AbstractController
     private $theme;
     private $cookieDS;
     private $traitementsDS;
+    private $logger;
 
-    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, EnvRepository $env)
+    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, EnvRepository $env, LoggerInterface $logger)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
+        $this->logger = $logger;
         if($this->cookieDS->check("theme")) {
             if($this->cookieDS->get("theme") == "dark-theme") {
                 $this->theme = "dark-theme";
@@ -515,7 +517,7 @@ class CrudUserController extends AbstractController
                 $user = array_values($found)[0];
                 if (!$this->purgeUserSafely($traitementsDS, $user)) {
                     $this->addFlash('danger', 'La suppression du compte a échoué. Veuillez réessayer.');
-                    return $this->redirectToRoute('app_crud_user_check');
+                    return $this->redirectToRoute('app_crud_user_purge');
                 }
 
                 $this->addFlash('success', 'User and all related information have been deleted.');
@@ -558,7 +560,7 @@ class CrudUserController extends AbstractController
                 $this->em->flush();
                 if (!$this->purgeUserSafely($traitementsDS, $user)) {
                     $this->addFlash('danger', 'La suppression du compte a échoué. Veuillez réessayer.');
-                    return $this->redirectToRoute('app_crud_user_check');
+                    return $this->redirectToRoute('app_crud_user_banned');
                 }
 
                 $this->addFlash('success', 'User is Banned.');
@@ -691,6 +693,11 @@ class CrudUserController extends AbstractController
 
             return true;
         } catch (\Throwable $th) {
+            $this->logger->error('Échec de la suppression de compte depuis l’espace admin.', [
+                'user_id' => $user->getId(),
+                'exception' => $th,
+            ]);
+
             return false;
         }
     }
