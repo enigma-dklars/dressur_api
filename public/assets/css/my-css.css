@@ -434,6 +434,7 @@ html.dark-theme .web-feature-hero,
 html.semi-dark .web-feature-hero,
 html[data-bs-theme="dark"] .web-feature-hero {
     background: linear-gradient(135deg, #1c3971 0%, #2b579e 100%);
+    color: #f1f5fb;
 }
 
 html.dark-theme .web-feature-btn-primary,
