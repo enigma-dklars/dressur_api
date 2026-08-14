@@ -235,11 +235,15 @@ class VendeurController extends AbstractController
         }
         $user = $verificationUser["user"];
 
-        if ($user->isVendeur() == false) {
+        if (
+            !$user->isVendeur()
+            && !$user->getEstPartenaire()
+            && !$user->getIsInscritProgrammeRecompense()
+        ) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Non autorisé',
-                'message' => 'Vous devez être vendeur pour recharger votre solde.',
+                'message' => 'Vous devez être vendeur, partenaire ou inscrit au programme de récompenses pour recharger votre solde.',
             ]);
         }
 

@@ -64,7 +64,7 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
     <div class="ds-solde-card">
         <div class="ds-solde-card-top">
             <span class="ds-solde-label"><i class="fas fa-wallet me-1"></i>Solde Dressur</span>
-            {% if user.vendeur %}
+            {% if user.vendeur or user.estPartenaire or user.isInscritProgrammeRecompense %}
                 <a href="/vendeur/recharge" class="ds-solde-recharge-btn">Recharger</a>
             {% endif %}
         </div>
