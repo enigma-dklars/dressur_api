@@ -71,11 +71,14 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <div class="ds-solde-amount">{{ user.soldeProgrammeRecompense ?? 0 }} FCFA</div>
         <hr class="ds-solde-divider">
         <div class="ds-solde-chips">
+            <span class="ds-chip {% if user.estPartenaire %}ds-chip-active{% endif %}">
+                <i class="fas fa-handshake"></i> Partenaire
+            </span>
             <span class="ds-chip {% if user.vendeur %}ds-chip-active{% endif %}">
                 <i class="fas fa-store"></i> Vendeur
             </span>
             <span class="ds-chip {% if user.isInscritProgrammeRecompense %}ds-chip-active{% endif %}">
-                <i class="fas fa-trophy"></i> Récompenses
+                <i class="fas fa-trophy"></i> Récompense
             </span>
         </div>
     </div>
