@@ -26,6 +26,7 @@ use App\Repository\MethodePaiementRepository;
 use App\Repository\PromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Services\CookieDS;
+use App\Services\PromotionReseauPricing;
 use App\Utilities\SendMail;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -66,19 +67,27 @@ class PromotionReseauController extends AbstractController
     }
 
     #[Route('/newPromoReseau', name: 'newPromoReseau', methods: ['POST', 'GET'])]
-    public function newPromoReseau(Request $request, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository, MethodePaiementRepository $methodePaiementRepository): Response
+    public function newPromoReseau(Request $request, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromoReseauRepository $promoReseauRepository, MethodePaiementRepository $methodePaiementRepository, PromotionReseauPricing $pricing): Response
     {
         $datas = $request->request;        
         $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
         
         $idFormulePromoReseau = $datas->get('idFormulePromoReseau');
         $qteDemander = $datas->get('qteDemander');
-        $prixQteDemander = $datas->get('prixQteDemander');
+        $prixQteDemanderClient = $datas->get('prixQteDemander');
         $lien = $datas->get('lien');
         $valueMethodePaiement = $datas->get('valueMethodePaiement'); // mon_argent
         $tel = $datas->get('tel');
         
-        if(!$idFormulePromoReseau || !$qteDemander || !$prixQteDemander || !$lien || !$valueMethodePaiement || !$tel){
+        if (
+            !$idFormulePromoReseau
+            || $qteDemander === null
+            || !is_scalar($qteDemander)
+            || trim((string) $qteDemander) === ''
+            || !$lien
+            || !$valueMethodePaiement
+            || !$tel
+        ) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Attention!',
@@ -108,6 +117,38 @@ class PromotionReseauController extends AbstractController
             ]);
         }
 
+        $qteDemanderString = trim((string) $qteDemander);
+        if (!preg_match('/^[1-9]\d*$/', $qteDemanderString)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'La quantité demandée doit être un entier positif.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+        $qteDemander = (int) $qteDemanderString;
+
+        try {
+            $montantRecalcule = $pricing->calculateAmount(
+                $formulePromoReseau,
+                $qteDemander,
+                $user?->isVendeur() ?? false
+            );
+        } catch (\InvalidArgumentException $exception) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (!$pricing->clientAmountMatches($prixQteDemanderClient, $montantRecalcule)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Attention!',
+                'message' => 'Le montant de la promotion est invalide. Veuillez actualiser le prix et réessayer.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
@@ -130,31 +171,33 @@ class PromotionReseauController extends AbstractController
             ]);
         }
 
+        $annotherInfo = [
+            'userId'               => $user->getId(),
+            'userUid'              => $user->getUid(),
+            'idFormulePromoReseau' => $idFormulePromoReseau,
+            'qteDemander'          => $qteDemander,
+            'prixQteDemander'      => $montantRecalcule,
+            'lien'                 => $lien,
+            'tel'                  => $tel,
+            'source'               => ($datas->get('source') === 'web') ? 'web' : 'mobile',
+        ];
+
         // ── Paiement via solde ────────────────────────────────────────────────
-        if ($user->getSoldeProgrammeRecompense() >= (int)$prixQteDemander) {
+        if ($user->getSoldeProgrammeRecompense() >= $montantRecalcule) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("boost_reseau_sociaux")
-                ->setAmount((int)$prixQteDemander)
-                ->setAnnotherInfo([
-                    'userId'               => $user->getId(),
-                    'userUid'              => $user->getUid(),
-                    'idFormulePromoReseau' => $idFormulePromoReseau,
-                    'qteDemander'          => $qteDemander,
-                    'prixQteDemander'      => $prixQteDemander,
-                    'lien'                 => $lien,
-                    'tel'                  => $tel,
-                    'source'               => ($datas->get('source') === 'web') ? 'web' : 'mobile',
-                ]);
+                ->setAmount($montantRecalcule)
+                ->setAnnotherInfo($annotherInfo);
             $this->em->persist($myTransaction);
-            $traitementsDS->payerViaSolde($myTransaction, $user, (int)$prixQteDemander);
+            $traitementsDS->payerViaSolde($myTransaction, $user, $montantRecalcule);
             $this->em->flush();
             return new JsonResponse([
                 'error'      => false,
                 'direct'     => true,
                 'solde_used' => true,
                 'titre'      => 'Succès',
-                'message'    => 'Solde débité de '.(int)$prixQteDemander.' FCFA. Promotion Réseau enregistrée et démarrée.',
+                'message'    => 'Solde débité de '.$montantRecalcule.' FCFA. Promotion Réseau enregistrée et démarrée.',
             ]);
         }
         // ─────────────────────────────────────────────────────────────────────
@@ -173,8 +216,8 @@ class PromotionReseauController extends AbstractController
             FedaPay::setEnvironment($envPaiementApi->getEnvironment());
 
             $array_create_transaction = [
-                "description" => "Dressur :  Boost Réseau Sociaux : ". $formulePromoReseau->getTitre() ." - ". $prixQteDemander ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
-                "amount" => $prixQteDemander,
+                "description" => "Dressur :  Boost Réseau Sociaux : ". $formulePromoReseau->getTitre() ." - ". $montantRecalcule ."FCFA : Transaction for ". $user->getPseudo() ." ".$user->getMail(),
+                "amount" => $montantRecalcule,
                 "currency" => ["iso" => "XOF"],
                 "customer" => [
                     "firstname" => "Dressur : ".$user->getPseudo(),
@@ -196,20 +239,11 @@ class PromotionReseauController extends AbstractController
                     ->setTransactionFor("boost_reseau_sociaux")
                     ->setIdTransaction($transaction["id"])
                     ->setReference($transaction["reference"])
-                    ->setAmount($transaction["amount"])
+                    ->setAmount($montantRecalcule)
                     ->setStatus($transaction["status"])
                     ->setCustomerId($transaction["customer_id"])
                     ->setCurrencyId($transaction["currency_id"])
-                    ->setAnnotherInfo([
-                        'userId' => $user->getId(),
-                        'userUid' => $user->getUid(),
-                        'idFormulePromoReseau' => $idFormulePromoReseau,
-                        'qteDemander' => $qteDemander,
-                        'prixQteDemander' => $prixQteDemander,
-                        'lien' => $lien,
-                        'tel' => $tel,
-                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
-                    ])
+                    ->setAnnotherInfo($annotherInfo)
                 ;
                 $this->em->persist($myTransaction);
                 $this->em->flush();
@@ -240,21 +274,12 @@ class PromotionReseauController extends AbstractController
                 $resultat = $traitementsDS->startPaiementKPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $prixQteDemander,
+                    $montantRecalcule,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
                     "boost_reseau_sociaux",
-                    [
-                        'userId' => $user->getId(),
-                        'userUid' => $user->getUid(),
-                        'idFormulePromoReseau' => $idFormulePromoReseau,
-                        'qteDemander' => $qteDemander,
-                        'prixQteDemander' => $prixQteDemander,
-                        'lien' => $lien,
-                        'tel' => $tel,
-                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
-                    ],
+                    $annotherInfo,
                     $user,
                     $request->getSchemeAndHttpHost()
                 );
@@ -283,21 +308,12 @@ class PromotionReseauController extends AbstractController
                 $resultat = $traitementsDS->startPaiementFeexPay(
                     $envPaiementApi, 
                     $methodePaiementEntity, 
-                    $prixQteDemander,
+                    $montantRecalcule,
                     $tel,
                     $user->getPseudo(),
                     $user->getMail(),
                     "boost_reseau_sociaux",
-                    [
-                        'userId' => $user->getId(),
-                        'userUid' => $user->getUid(),
-                        'idFormulePromoReseau' => $idFormulePromoReseau,
-                        'qteDemander' => $qteDemander,
-                        'prixQteDemander' => $prixQteDemander,
-                        'lien' => $lien,
-                        'tel' => $tel,
-                        'source' => ($datas->get('source') === 'web') ? 'web' : 'mobile',
-                    ],
+                    $annotherInfo,
                     $user,
                     $request->getSchemeAndHttpHost()
                 );
