@@ -71,7 +71,27 @@
                     <label for="link" class="">Lien</label>
                     <input type="url" class="form-control getInfo" id="link">
                 </div>
-        
+
+                <div id="promoReseauSummary" class="border rounded p-3 mb-3 bg-light" aria-live="polite">
+                    <h5 class="mb-3">Récapitulatif</h5>
+                    <dl class="row mb-0">
+                        <dt class="col-7">Réseau social</dt>
+                        <dd class="col-5 text-end" id="summarySocialNetwork">—</dd>
+
+                        <dt class="col-7">Service</dt>
+                        <dd class="col-5 text-end" id="summaryService">—</dd>
+
+                        <dt class="col-7">Quantité</dt>
+                        <dd class="col-5 text-end" id="summaryQuantity">—</dd>
+
+                        <dt class="col-7">Prix calculé</dt>
+                        <dd class="col-5 text-end" id="summaryCalculatedPrice">—</dd>
+
+                        <dt class="col-7 fw-bold">Total à payer</dt>
+                        <dd class="col-5 text-end fw-bold" id="summaryTotal">—</dd>
+                    </dl>
+                </div>
+
                 <div class="mb-3">
                     <label for="paymentMethod" class="">Moyen de paiement mobile ou par carte</label>
                     <select id="paymentMethod" class="form-select getInfo">

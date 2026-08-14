@@ -47,6 +47,31 @@ $(document).ready(function () {
     let network_id;
     let service_network_id;
 
+    let formatPromoReseauAmount = function (value) {
+        if (value === null || value === undefined || value === "" || !Number.isFinite(Number(value))) {
+            return "—";
+        }
+
+        return new Intl.NumberFormat("fr-FR").format(Number(value)) + " FCFA";
+    };
+
+    let updatePromoReseauSummary = function () {
+        let selectedNetwork = $("#socialNetwork option:selected");
+        let selectedService = service_network_id
+            ? $("#select-fils-" + network_id + " option:selected")
+            : $();
+        let quantity = $("#quantity").val();
+        let calculatedPrice = $("#price").val();
+        let networkLabel = selectedNetwork.val() ? selectedNetwork.text() : "—";
+        let serviceLabel = selectedService.val() ? selectedService.text() : "—";
+
+        $("#summarySocialNetwork").text(networkLabel);
+        $("#summaryService").text(serviceLabel);
+        $("#summaryQuantity").text(quantity === "" ? "—" : quantity);
+        $("#summaryCalculatedPrice").text(formatPromoReseauAmount(calculatedPrice));
+        $("#summaryTotal").text(formatPromoReseauAmount(calculatedPrice));
+    };
+
     let setUidCookie = function (uid) {
         var d = new Date();
         d.setTime(d.getTime() + (365*24*60*60*1000)); // 365 jours en millisecondes
@@ -857,40 +882,53 @@ $(document).ready(function () {
 
     $(document).on("change", "#socialNetwork", function (){
         network_id = $(this).val();
+        service_network_id = null;
         $(".lesFormulesFils").attr("hidden", "");
+        $(".select-service-network").val("");
         $("#fils-"+network_id).removeAttr("hidden");
         $('#quantity').val(0);
         $('#price').val(0);
+        updatePromoReseauSummary();
     });
 
     $(document).on("change", ".select-service-network", function () {
-        service_network_id = $(this).val();
+        service_network_id = $(this).val() || null;
         $(".unfils").attr("hidden", "");
         $("#unfils-"+service_network_id).removeAttr("hidden");
         $('#quantity').val(0);
         $('#price').val(0);
+        updatePromoReseauSummary();
     });
 
     $(document).on('input', '#quantity', function () {
         let unfils = $("#unfils-"+service_network_id);
+        let rawQuantity = $(this).val();
+        let qteDemander = parseInt(rawQuantity, 10);
+
+        if (!unfils.length || !Number.isInteger(qteDemander)) {
+            $('#price').val(0);
+            $('#message').addClass('d-none');
+            updatePromoReseauSummary();
+            return;
+        }
 
         let prix = unfils.attr("unfils-prix");
         let qte = unfils.attr("unfils-qte");
         let qteMin = unfils.attr("unfils-qteMin");
         let qteMax = unfils.attr("unfils-qteMax");
 
-        let qteDemander = parseInt($(this).val());
         $(this).val(qteDemander);
         
         if (qteDemander >= qteMin && qteDemander <= qteMax) {
             let prixQteDemander = ((prix * qteDemander) / qte).toFixed(0);
             $('#price').val(prixQteDemander);
             $('#message').addClass('d-none');
-            console.log("pas error qte");
         } else {
-            console.log("error qte");
+            $('#price').val(0);
             $('#message').text(`La quantité doit être comprise entre ${qteMin} et ${qteMax}.`).removeClass('d-none');
         }
+
+        updatePromoReseauSummary();
     });
 
     $(document).on("click", "#newPromoReseau", function () {
@@ -952,6 +990,7 @@ $(document).ready(function () {
                         </div>
                     `);
                     $(".getInfo").val("");
+                    updatePromoReseauSummary();
                     $("#msgError").show();
                 }
                 traitementContact("newPromoReseau", "fin", "Payer et Démarrer")
