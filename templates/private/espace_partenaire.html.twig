@@ -1,52 +1,42 @@
 {% extends 'basePrivate.html.twig' %}
 {% block title %}Espace Partenaire{% endblock %}
 {% block body %}
-<style>
-.ep-wrap{max-width:620px;margin:0 auto}
-.ep-cond-list{list-style:none;padding:0;margin:0 0 20px}
-.ep-cond-list li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bs-border-color,rgba(0,0,0,.07));font-size:14px}
-.ep-cond-list li:last-child{border-bottom:none}
-.ep-cond-list .ep-ok{color:#198754;font-size:16px}
-.ep-cond-list .ep-nok{color:#dc3545;font-size:16px}
-.ep-code-box{background:var(--bs-secondary-bg,#f8f9fa);border-radius:12px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
-.ep-code-val{font-size:1.6rem;font-weight:700;letter-spacing:4px;font-family:monospace}
-html.dark-theme .ep-cond-list li,html.semi-dark .ep-cond-list li{border-color:rgba(255,255,255,.08)}
-html.dark-theme .ep-code-box,html.semi-dark .ep-code-box{background:rgba(255,255,255,.06)}
-.ep-accompagne-card{background:var(--bs-body-bg,#fff);border:1px solid var(--bs-border-color,rgba(0,0,0,.08));border-radius:12px;padding:14px 16px;margin-bottom:10px}
-html.dark-theme .ep-accompagne-card,html.semi-dark .ep-accompagne-card{background:#202a40;border-color:rgba(255,255,255,.08)}
-</style>
-<div class="ep-wrap mt-3">
+<div class="container-fluid px-0 pb-4">
+<div class="web-feature-hero mt-3">
+    <i class="fas fa-handshake d-block fs-1 mb-3" aria-hidden="true"></i>
+    <h1 class="web-feature-hero-title">Espace Partenaire</h1>
+    <p class="web-feature-hero-subtitle">Accompagnez les utilisateurs Dressur et développez votre réseau grâce à votre code partenaire.</p>
+</div>
 {% if user.estPartenaire %}
     {# ══════════════════════════════════════════════════════════════ #}
     {#  VUE PARTENAIRE ACTIF                                         #}
     {# ══════════════════════════════════════════════════════════════ #}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="mb-3"><i class="fas fa-star text-warning me-2"></i>Votre Espace Partenaire</h5>
+    <div class="web-feature-card mt-4 mb-3">
+            <h2 class="web-feature-card-title mb-3"><i class="fas fa-star text-warning me-2"></i>Votre Espace Partenaire</h2>
             {# ── Code partenaire ─────────────────────────────────── #}
-            <p class="fw-semibold mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px">Votre Code Partenaire</p>
-            <div class="ep-code-box">
-                <span class="ep-code-val" id="epCodeVal">{{ user.codePartenaire }}</span>
-                <button class="btn btn-outline-primary btn-sm" id="btnCopierCode">
+            <p class="web-feature-section-title text-uppercase fs-6 mb-2">Votre Code Partenaire</p>
+            <div class="web-feature-card d-flex align-items-center justify-content-between gap-3 mb-3 p-3">
+                <span class="font-monospace fs-4 fw-bold text-primary text-break" id="epCodeVal">{{ user.codePartenaire }}</span>
+                <button class="web-feature-btn-primary btn-outline-primary btn-sm flex-shrink-0" id="btnCopierCode">
                     <i class="fas fa-copy me-1"></i>Copier
                 </button>
             </div>
-            <p class="text-muted mb-4" style="font-size:12px">Partagez ce code à vos contacts pour les affilier. Il change automatiquement après chaque utilisation.</p>
+            <p class="web-feature-card-text small mb-4">Partagez ce code à vos contacts pour les affilier. Il change automatiquement après chaque utilisation.</p>
             {# ── Accompagnés ─────────────────────────────────────── #}
-            <p class="fw-semibold mb-2" style="font-size:13px;text-transform:uppercase;letter-spacing:.5px">
+            <p class="web-feature-section-title text-uppercase fs-6 mb-2">
                 Mes Accompagnés
-                <span class="badge bg-primary ms-1">{{ accompagnes|length }}</span>
+                <span class="web-feature-badge ms-1">{{ accompagnes|length }}</span>
             </p>
             {% if accompagnes|length == 0 %}
-                <p class="text-muted text-center py-3" style="font-size:13px">Aucun accompagné pour l'instant. Partagez votre code !</p>
+                <p class="web-feature-card-text text-center py-3 small">Aucun accompagné pour l'instant. Partagez votre code !</p>
             {% else %}
                 {% for acc in accompagnes %}
-                <div class="ep-accompagne-card">
+                <div class="web-feature-card mb-2 p-3">
                     <div class="d-flex align-items-center gap-2 mb-1">
                         <span class="fw-semibold">{{ acc.getNom() ?: '—' }}</span>
-                        <span class="text-muted ms-2" style="font-size:12px">@{{ acc.getPseudo() }}</span>
+                        <span class="text-muted ms-2 small text-break">@{{ acc.getPseudo() }}</span>
                     </div>
-                    <div style="font-size:12px;color:var(--bs-secondary-color,#6c757d)">
+                    <div class="web-feature-card-text small">
                         <i class="fab fa-whatsapp text-success me-1"></i>{{ acc.getTel() ?: '—' }}
                         &nbsp;·&nbsp;
                         <i class="fas fa-envelope me-1"></i>{{ acc.getMail() ?: '—' }}
@@ -57,12 +47,11 @@ html.dark-theme .ep-accompagne-card,html.semi-dark .ep-accompagne-card{backgroun
                 {% endfor %}
             {% endif %}
             {# ── Lien vers la présentation ───────────────────────── #}
-            <div class="mt-4 pt-2 border-top">
-                <a href="#presentationSection" class="text-muted" style="font-size:13px">
+            <div class="mt-4 pt-3 border-top">
+                <a href="#presentationSection" class="web-feature-btn-primary d-inline-flex">
                     <i class="fas fa-info-circle me-1"></i>Revoir la présentation de l'Espace Partenaire
                 </a>
             </div>
-        </div>
     </div>
     {# ── Présentation (accessible via ancre) ─────────────────────── #}
     <div id="presentationSection">
@@ -70,65 +59,60 @@ html.dark-theme .ep-accompagne-card,html.semi-dark .ep-accompagne-card{backgroun
     {# ══════════════════════════════════════════════════════════════ #}
     {#  PRÉSENTATION & CONDITIONS (toujours visible)                  #}
     {# ══════════════════════════════════════════════════════════════ #}
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="mb-1"><i class="fas fa-handshake text-primary me-2"></i>Qu'est-ce que l'Espace Partenaire ?</h5>
-            <p class="text-muted mt-2 mb-0" style="font-size:14px;line-height:1.7">
+    <div class="web-feature-card mb-3">
+            <h2 class="web-feature-card-title"><i class="fas fa-handshake text-primary me-2"></i>Qu'est-ce que l'Espace Partenaire ?</h2>
+            <p class="web-feature-card-text mt-2 mb-0">
                 Le Partenaire Dressur est un utilisateur confirmé qui <strong>maîtrise la plateforme</strong> et s'engage à
                 <strong>accompagner, aider et expliquer</strong> Dressur aux personnes qui utilisent son code d'affiliation.
                 C'est un rôle actif, pas seulement un statut.
             </p>
-        </div>
     </div>
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="mb-1"><i class="fas fa-gift text-success me-2"></i>Vos avantages en tant que Partenaire</h5>
-            <ul class="mt-3 mb-0" style="font-size:14px;line-height:2">
+    <div class="web-feature-card mb-3">
+            <h2 class="web-feature-card-title"><i class="fas fa-gift text-success me-2"></i>Vos avantages en tant que Partenaire</h2>
+            <ul class="web-feature-card-text mt-3 mb-0 ps-3 lh-lg">
                 <li><strong>2 % de commission</strong> sur chaque transaction payante de vos accompagnés, crédités automatiquement sur votre solde Dressur</li>
                 <li>Le solde accumulé est utilisable sur tous les services payants de la plateforme (boost contact, promos…)</li>
                 <li>Accès à votre tableau de bord dédié avec la liste de vos accompagnés</li>
             </ul>
-        </div>
     </div>
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="mb-3"><i class="fas fa-list-check text-warning me-2"></i>Conditions pour devenir Partenaire</h5>
+    <div class="web-feature-card mb-3">
+            <h2 class="web-feature-card-title mb-3"><i class="fas fa-list-check text-warning me-2"></i>Conditions pour devenir Partenaire</h2>
             {% set condNom = user.nom and user.nom != '' %}
             {% set condTel = user.telIsVerified %}
             {% set condMail = user.mailIsVerified %}
             {% set condAnciennete = joursInscrit >= 7 %}
             {% set condCumul = cumulFcfa >= 2000 %}
-            <ul class="ep-cond-list">
-                <li>
-                    {% if condNom %}<i class="fas fa-check-circle ep-ok"></i>{% else %}<i class="fas fa-times-circle ep-nok"></i>{% endif %}
+            <ul class="list-unstyled mb-3">
+                <li class="d-flex align-items-start gap-2 py-2 border-bottom">
+                    {% if condNom %}<i class="fas fa-check-circle text-success fs-5 flex-shrink-0"></i>{% else %}<i class="fas fa-times-circle text-danger fs-5 flex-shrink-0"></i>{% endif %}
                     <span>Nom complet renseigné dans le profil</span>
                 </li>
-                <li>
-                    {% if condTel %}<i class="fas fa-check-circle ep-ok"></i>{% else %}<i class="fas fa-times-circle ep-nok"></i>{% endif %}
+                <li class="d-flex align-items-start gap-2 py-2 border-bottom">
+                    {% if condTel %}<i class="fas fa-check-circle text-success fs-5 flex-shrink-0"></i>{% else %}<i class="fas fa-times-circle text-danger fs-5 flex-shrink-0"></i>{% endif %}
                     <span>Numéro WhatsApp confirmé</span>
                 </li>
-                <li>
-                    {% if condMail %}<i class="fas fa-check-circle ep-ok"></i>{% else %}<i class="fas fa-times-circle ep-nok"></i>{% endif %}
+                <li class="d-flex align-items-start gap-2 py-2 border-bottom">
+                    {% if condMail %}<i class="fas fa-check-circle text-success fs-5 flex-shrink-0"></i>{% else %}<i class="fas fa-times-circle text-danger fs-5 flex-shrink-0"></i>{% endif %}
                     <span>Adresse e-mail confirmée</span>
                 </li>
-                <li>
-                    {% if condAnciennete %}<i class="fas fa-check-circle ep-ok"></i>{% else %}<i class="fas fa-times-circle ep-nok"></i>{% endif %}
+                <li class="d-flex align-items-start gap-2 py-2 border-bottom">
+                    {% if condAnciennete %}<i class="fas fa-check-circle text-success fs-5 flex-shrink-0"></i>{% else %}<i class="fas fa-times-circle text-danger fs-5 flex-shrink-0"></i>{% endif %}
                     <span>
                         Inscrit depuis au moins 7 jours
                         {% if not condAnciennete %}
-                            <span class="text-muted ms-1" style="font-size:11px">({{ joursInscrit }}j / 7j)</span>
+                            <span class="text-muted ms-1 small">({{ joursInscrit }}j / 7j)</span>
                         {% endif %}
                     </span>
                 </li>
-                <li>
-                    {% if condCumul %}<i class="fas fa-check-circle ep-ok"></i>{% else %}<i class="fas fa-times-circle ep-nok"></i>{% endif %}
+                <li class="d-flex align-items-start gap-2 py-2 border-bottom">
+                    {% if condCumul %}<i class="fas fa-check-circle text-success fs-5 flex-shrink-0"></i>{% else %}<i class="fas fa-times-circle text-danger fs-5 flex-shrink-0"></i>{% endif %}
                     <span>
                         Au moins 2 000 FCFA cumulés en services payants
-                        <span class="text-muted ms-1" style="font-size:11px">({{ cumulFcfa|number_format(0, ',', ' ') }} / 2 000 FCFA)</span>
+                        <span class="text-muted ms-1 small">({{ cumulFcfa|number_format(0, ',', ' ') }} / 2 000 FCFA)</span>
                     </span>
                 </li>
-                <li>
-                    <i class="fab fa-whatsapp text-success" style="font-size:16px"></i>
+                <li class="d-flex align-items-start gap-2 py-2">
+                    <i class="fab fa-whatsapp text-success fs-5 flex-shrink-0"></i>
                     <span>Entretien de validation avec l'équipe Dressur sur WhatsApp (dernière étape)</span>
                 </li>
             </ul>
@@ -139,23 +123,22 @@ html.dark-theme .ep-accompagne-card,html.semi-dark .ep-accompagne-card{backgroun
                 {% if condNom and condTel and condMail and condAnciennete and condCumul %}
                     <a href="https://wa.me/22964044294?text={{ "Bonjour, j'aimerais passer l'entretien pour devenir Partenaire Dressur. Mon pseudo est : " ~ user.pseudo | url_encode }}"
                        target="_blank" rel="noopener noreferrer"
-                       class="btn btn-success w-100 mt-2">
+                       class="web-feature-btn-primary w-100 mt-2">
                         <i class="fab fa-whatsapp me-2"></i>Demander l'entretien WhatsApp
                     </a>
-                    <p class="text-muted text-center mt-2" style="font-size:12px">
+                    <p class="web-feature-card-text text-center mt-2 small">
                         Toutes vos conditions sont remplies. Contactez l'équipe Dressur pour planifier votre entretien.
                         Après validation, votre statut Partenaire sera activé.
                     </p>
                 {% else %}
-                    <button class="btn btn-secondary w-100 mt-2" disabled>
+                    <button class="web-feature-btn-primary w-100 mt-2" disabled>
                         Demander l'entretien WhatsApp
                     </button>
-                    <p class="text-danger text-center mt-2" style="font-size:12px">
+                    <p class="text-danger text-center mt-2 small">
                         Complétez toutes les conditions ci-dessus pour débloquer l'entretien.
                     </p>
                 {% endif %}
             {% endif %}
-        </div>
     </div>
 {% if user.estPartenaire %}
     </div>{# fin #presentationSection #}
