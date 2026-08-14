@@ -346,7 +346,21 @@ final class UserSocialNetworkControllerTest extends TestCase
 
         $verification = $this->verificationForUid('mobile-get-uid', $user);
         $response = $this->createControllerWithRealCookie($repository)->list(
-            $this->mobileRequest('GET', '/api/user/social-networks', 'mobile-get-uid'),
+            Request::create(
+                '/api/user/social-networks',
+                'GET',
+                [],
+                [],
+                [],
+                [
+                    'HTTP_X_DRESSUR_UID' => 'mobile-get-uid',
+                    'CONTENT_TYPE' => 'application/json',
+                ],
+                json_encode(
+                    ['uid' => 'legacy-get-body-uid'],
+                    JSON_THROW_ON_ERROR
+                )
+            ),
             $verification
         );
 
