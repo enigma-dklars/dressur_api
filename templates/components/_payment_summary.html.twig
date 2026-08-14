@@ -1,0 +1,65 @@
+{#
+    Reusable payment summary.
+
+    Optional variables:
+      - paymentSummaryId: unique DOM id
+      - paymentSummaryTitle: heading text
+      - paymentSummaryLines: [{ label: string, amount: number, key?: string }]
+      - paymentSummaryTotal: number
+      - paymentSummaryTotalLabel: final total label
+
+    The summary is presentation-only. It does not create or modify form fields.
+#}
+{% set summaryId = paymentSummaryId|default('payment-summary') %}
+{% set summaryTitle = paymentSummaryTitle|default('Récapitulatif des frais') %}
+{% set summaryLines = paymentSummaryLines|default([]) %}
+{% set summaryTotal = paymentSummaryTotal|default(0) %}
+{% set summaryTotalLabel = paymentSummaryTotalLabel|default('Total') %}
+
+<section
+    id="{{ summaryId|e('html_attr') }}"
+    class="payment-summary"
+    data-payment-summary
+    aria-label="{{ summaryTitle|e('html_attr') }}"
+>
+    {% if summaryTitle is not empty %}
+        <h2 class="payment-summary__title">{{ summaryTitle }}</h2>
+    {% endif %}
+
+    <div class="payment-summary__lines" data-payment-summary-lines>
+        {% for line in summaryLines %}
+            {% set lineAmount = line.amount|default(0) %}
+            <div
+                class="payment-summary__line"
+                data-payment-summary-line
+                {% if line.key is defined %}data-key="{{ line.key|e('html_attr') }}"{% endif %}
+            >
+                <span class="payment-summary__label" data-payment-summary-label>
+                    {{ line.label|default('') }}
+                </span>
+                <span
+                    class="payment-summary__amount"
+                    data-payment-summary-amount
+                    data-amount="{{ lineAmount }}"
+                >
+                    {{ lineAmount|number_format(0, ',', ' ') }} FCFA
+                </span>
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr class="payment-summary__divider" data-payment-summary-divider>
+
+    <div class="payment-summary__total">
+        <span class="payment-summary__total-label" data-payment-summary-total-label>
+            {{ summaryTotalLabel }}
+        </span>
+        <strong
+            class="payment-summary__total-amount"
+            data-payment-summary-total
+            data-amount="{{ summaryTotal }}"
+        >
+            {{ summaryTotal|number_format(0, ',', ' ') }} FCFA
+        </strong>
+    </div>
+</section>
