@@ -1056,11 +1056,47 @@ $(document).ready(function () {
         $('#boostDescription').text(txt);
     };
 
+    var updateBoostPaidSummary = function () {
+        var summary = $('#boostContactSummary');
+        if (!summary.length) { return; }
+
+        var isPaid = ($('#boostContactPayant').length > 0 && !$('#boostContactPayant').prop('hidden'));
+        summary.prop('hidden', !isPaid);
+        if (!isPaid) { return; }
+
+        var selected = $('#formule-boost-payant option:selected');
+        var hasFormula = !!selected.val();
+        var type = getTypeBoostActif();
+        var durationOrQuota = '—';
+        var formulaPrice = '—';
+
+        if (hasFormula) {
+            if (type === 'quota') {
+                var contacts = selected.data('contacts');
+                durationOrQuota = contacts ? contacts + ' contact(s)' : '—';
+            } else {
+                var jours = selected.data('jours');
+                durationOrQuota = jours ? jours + ' jour(s)' : '—';
+            }
+
+            var prix = selected.data('prix');
+            formulaPrice = (prix === undefined || prix === null || prix === '')
+                ? '—'
+                : prix + ' FCFA';
+        }
+
+        $('#summaryBoostFormula').text(hasFormula ? selected.text() : '—');
+        $('#summaryBoostDurationQuota').text(durationOrQuota);
+        $('#summaryBoostFormulaPrice').text(formulaPrice);
+        $('#summaryBoostTotal').text(formulaPrice);
+    };
+
     var chargerFormuleBoost = function () {
         if (!$('#formule-boost-payant').length) { return; }
         var type = getTypeBoostActif();
         $('#formule-boost-payant').html('<option value="" disabled selected>Chargement...</option>');
         $('#paymentMethod').html('<option value="" disabled selected>Chargement...</option>');
+        updateBoostPaidSummary();
         $.post('/api/listeFormuleBoost', { typeBoost: type }, function (data) {
             if (data.error === false) {
                 var optF = '<option value="" disabled selected>Veuillez choisir une formule...</option>';
@@ -1074,6 +1110,7 @@ $(document).ready(function () {
                 });
                 $('#paymentMethod').html(optM);
                 $('#description-boost-payant').text('Veuillez choisir une formule payante...').removeClass('bg-success').addClass('bg-info');
+                updateBoostPaidSummary();
             }
         });
     };
@@ -1110,6 +1147,7 @@ $(document).ready(function () {
         $('#boostContactPayant').prop('hidden', true);
         $('#boostContactGratuit').prop('hidden', false);
         updateBoostDescription();
+        updateBoostPaidSummary();
     });
 
     $(document).on('click', '#modeBoostPayant', function () {
@@ -1119,6 +1157,7 @@ $(document).ready(function () {
         $('#boostContactPayant').prop('hidden', false);
         chargerFormuleBoost();
         updateBoostDescription();
+        updateBoostPaidSummary();
     });
 
     $(document).on('change', '#flexSwitchCheckCheckedDanger', function () {
@@ -2415,6 +2454,7 @@ $(document).ready(function () {
             msg = 'Cette formule vous offre un boost de ' + jours + ' jour(s) pour ' + prix + ' FCFA.';
         }
         $('#description-boost-payant').text(msg).removeClass('bg-info').addClass('bg-success');
+        updateBoostPaidSummary();
     });
 
     $(document).on("change", "#formule-promo-page-new-affaire", function () {

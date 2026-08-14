@@ -93,6 +93,23 @@
                         Veuillez choisir une formule payante...
                     </div>
 
+                    <div id="boostContactSummary" class="border rounded p-3 bg-light mb-3" hidden aria-live="polite">
+                        <h6 class="mb-3">Récapitulatif</h6>
+                        <dl class="row mb-0 small">
+                            <dt class="col-7">Formule choisie</dt>
+                            <dd class="col-5 text-end" id="summaryBoostFormula">—</dd>
+
+                            <dt class="col-7">Durée ou quota</dt>
+                            <dd class="col-5 text-end" id="summaryBoostDurationQuota">—</dd>
+
+                            <dt class="col-7">Prix de la formule</dt>
+                            <dd class="col-5 text-end" id="summaryBoostFormulaPrice">—</dd>
+
+                            <dt class="col-7 fw-bold">Total à payer</dt>
+                            <dd class="col-5 text-end fw-bold" id="summaryBoostTotal">—</dd>
+                        </dl>
+                    </div>
+
                     <div class="mb-3">
                         <label for="paymentMethod" class="form-label small fw-semibold">Moyen de paiement mobile ou par carte</label>
                         <select id="paymentMethod" class="form-select getInfoPayant">
