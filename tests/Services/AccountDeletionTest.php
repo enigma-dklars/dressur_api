@@ -214,44 +214,22 @@ final class AccountDeletionTest extends TestCase
         self::assertSame(count($deleteQueries) - 1, $userDelete);
     }
 
-    public function testCompleteAccountDeletionRollsBackEveryChangeWhenALateStepFails(): void
+    public function testCompleteAccountDeletionSucceedsWhenLegacyBonusHistoryTableIsAbsent(): void
     {
         $fixture = $this->persistCompleteAccountFixture();
         $ownerId = $fixture['owner']->getId();
-        $partnerId = $fixture['partner']->getId();
 
         $this->entityManager->getConnection()->executeStatement('DROP TABLE dsbonus_historique');
 
-        try {
-            $this->traitementsDS->execPurge($fixture['owner'], true, 'Motif de test suffisamment long.');
-            self::fail('La purge aurait dû échouer lorsque la table finale est indisponible.');
-        } catch (\RuntimeException $exception) {
-            self::assertSame('La suppression du compte a échoué.', $exception->getMessage());
-        }
+        $this->traitementsDS->execPurge($fixture['owner'], true, 'Motif de test suffisamment long.');
+        $this->entityManager->clear();
 
-        self::assertInstanceOf(
-            User::class,
+        self::assertSame(
+            null,
             $this->findUser($ownerId)
         );
-        self::assertSame(1, $this->countByField(Promotion::class, 'user', $fixture['owner']));
-        self::assertSame(1, $this->countByField(Preuve::class, 'user', $fixture['owner']));
         self::assertSame(
             1,
-            $this->countByField(HistoriqueProgrammeRecompense::class, 'user', $fixture['owner'])
-        );
-        self::assertSame(1, $this->countByField(Notification::class, 'user', $fixture['owner']));
-        self::assertSame(1, $this->countByField(Boost::class, 'user', $fixture['owner']));
-        self::assertSame(1, $this->countByField(Transaction::class, 'user', $fixture['owner']));
-        self::assertSame(1, $this->countByField(Message::class, 'emetteur', $fixture['owner']));
-        self::assertSame(1, $this->countByField(Signalement::class, 'signaler', $fixture['owner']));
-        self::assertSame(1, $this->countByField(UserSocialNetwork::class, 'user', $fixture['owner']));
-        self::assertSame(1, $this->countByPromotionMotif($fixture['promotion']));
-
-        $partner = $this->findUser($partnerId);
-        self::assertInstanceOf(User::class, $partner);
-        self::assertSame($ownerId, $partner->getPartenaire()?->getId());
-        self::assertSame(
-            0,
             (int) $this->entityManager->createQuery(
                 'SELECT COUNT(d.id) FROM App\Entity\DeletedDS d WHERE d.mail = :mail'
             )

@@ -1850,10 +1850,15 @@ class TraitementsDS extends AbstractController
             // 6. Supprimer les promotions en dernier parmi leurs dépendances.
             $deleteByField('App\Entity\Promotion', 'user', $user);
 
-            $this->em->getConnection()->executeStatement(
-                'DELETE FROM dsbonus_historique WHERE user_id = :id',
-                ['id' => $user->getId()]
-            );
+            // Cette table provient d'un ancien module et n'est pas présente dans
+            // toutes les installations. Elle doit être nettoyée lorsqu'elle
+            // existe, sans rendre la suppression du compte impossible ailleurs.
+            if ($connection->createSchemaManager()->tablesExist(['dsbonus_historique'])) {
+                $connection->executeStatement(
+                    'DELETE FROM dsbonus_historique WHERE user_id = :id',
+                    ['id' => $user->getId()]
+                );
+            }
 
             if ($deleteUser) {
                 // 7. L'utilisateur est supprimé en dernier.
