@@ -130,19 +130,26 @@ $(document).ready(function () {
         return re.test(email);
     }
 
-    function isImageSquare(imageFile) {
+    function isPromotionImageRatioSupported(imageFile) {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.src = URL.createObjectURL(imageFile);
-            
+            const objectUrl = URL.createObjectURL(imageFile);
+            img.src = objectUrl;
+
             img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
                 const width = img.width;
                 const height = img.height;
                 const aspectRatio = width / height;
-                resolve(aspectRatio >= 0.8 && aspectRatio <= 1.2);
+                const acceptedRatios = [1, 4 / 3, 3 / 4];
+                const isSupported = acceptedRatios.some(
+                    ratio => Math.abs(aspectRatio - ratio) <= 0.02
+                );
+                resolve(isSupported);
             };
-            
+
             img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
                 reject(new Error("Erreur lors du chargement de l'image. Assurez-vous que l'image est valide."));
             };
         });
@@ -1208,11 +1215,11 @@ $(document).ready(function () {
         }
         
         // Utilisation
-        isImageSquare(imageInput)
+        isPromotionImageRatioSupported(imageInput)
         .then(isSquare => {
             let message = "";
             if (!isSquare) {
-                message = "Attention !!! L'image doit être proche d'un carré.";
+                message = "Attention !!! Le ratio de l'image doit être 1:1, 4:3 ou 3:4.";
                 Swal.fire({icon: "error", title: "Oops...", text: message,});
                 traitementContact("btn-promotionForm", "fin", "Envoyer");
                 return 0;
@@ -1345,7 +1352,7 @@ $(document).ready(function () {
         });
     });
 
-    $(document).on("click", ".modifierpromoaffaire", function (event) {
+    $(document).on("click", ".modifierpromoaffaire", async function (event) {
         event.preventDefault();
         let id_promo_affaire = $(this).attr("id_promo_affaire");
 
@@ -1366,32 +1373,16 @@ $(document).ready(function () {
 
             if (fileSizeInMB > 1) {
                 message = "Attention !!! La taille de l'image ne peut pas dépasser 1 Mo.";
-            }
-
-            isImageSquare(imageInput)
-            .then(isSquare => {
-                let message = "";
-                if (!isSquare) {
-                    message = "Attention !!! L'image doit être proche d'un carré.";
+            } else {
+                try {
+                    const isSupported = await isPromotionImageRatioSupported(imageInput);
+                    if (!isSupported) {
+                        message = "Attention !!! Le ratio de l'image doit être 1:1, 4:3 ou 3:4.";
+                    }
+                } catch (error) {
+                    message = "Attention !!! Erreur lors de la vérification de l'image : " + error.message;
                 }
-            })
-            .catch(error => {
-                const message = "Attention !!! Erreur lors de la vérification de l'image : " + error.message;
-                $("#msgError").html(`
-                    <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                            <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i></div>
-                            <div class="ms-3">
-                                <div class="text-danger">` + message + `</div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                `);
-                $('html, body').animate({ scrollTop: 0 }, 1000);
-                $("#msgError").toggle(800);
-                traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
-            });
+            }
         }
 
         if (message) {
@@ -1430,7 +1421,10 @@ $(document).ready(function () {
                 }
             },
             error: function (error) {
-                let messageErrorNow = "Attention !!! Erreur : " + error.status;
+                const response = error.responseJSON || {};
+                const messageErrorNow = response.message
+                    ? (response.titre ? response.titre + " " : "") + response.message
+                    : "Attention !!! Erreur : " + error.status;
                 Swal.fire({icon: "error", title: "Oops...", text: messageErrorNow,});
                 traitementContact("modifierpromoaffaire-"+id_promo_affaire, "fin", "Modifier");
             }
