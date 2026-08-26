@@ -37,7 +37,9 @@ $(function() {
 
 
 	$(function() {
-		$("#menu").metisMenu()
+		if ($.fn.metisMenu && $("#menu").length) {
+			$("#menu").metisMenu()
+		}
 	})
 
 

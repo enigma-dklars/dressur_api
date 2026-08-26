@@ -29,9 +29,7 @@
     <meta name="googlebot" content="noindex, nofollow">
     <link rel="icon" href="/assets/images/dressur_logo_blanc.png" type="image/png" />
     <!--plugins-->
-    <link href="/assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
     <link href="/assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet" />
-    <link href="/assets/plugins/metismenu/css/metisMenu.min.css" rel="stylesheet" />
     <link href="/assets/plugins/vectormap/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
     <link href="/assets/plugins/datatable/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
     <link href="/assets/plugins/select2/css/select2.min.css" rel="stylesheet" />
@@ -61,16 +59,12 @@
     /* ── Navigation utilisateur unifiée : mobile, tablette et desktop ── */
     @media screen {
 
-        /* Masquer le bouton hamburger (remplacé par la barre du bas) */
-        .mobile-toggle-icon { display: none !important; }
-
-        /* Annuler le margin-top desktop (navbar fixe masquée sur mobile) */
+        /* Le contenu utilisateur ne dépend plus d’une sidebar desktop. */
         .page-content { margin-top: 0 !important; }
 
         /* Espace pour la barre de navigation fixe en bas */
         .page-content { padding-bottom: 76px !important; }
         .page-content { margin-left: 0 !important; }
-        .sidebar-wrapper { display: none !important; }
 
         /* ── Barre de navigation en bas ─────────── */
         .ds-mobile-bottomnav {
@@ -171,20 +165,13 @@
             <button class="ds-banner-close" id="ds-banner-close" aria-label="Fermer">×</button>
         </div>
 
-        {% include "private/_includes/sidebar_wrapper.html.twig" %}
-
-
-        <!--start content-->
+                <!--start content-->
             <main class="page-content p-3">
                 {% block body %}{% endblock %}
             </main>
         <!--end page main-->
 
-        <!--start overlay-->
-            <div class="overlay nav-toggle-icon"></div>
-        <!--end overlay-->
-
-        {# ── Barre de navigation mobile en bas (visibles ≤ 1024px) ──── #}
+                {# ── Barre de navigation utilisateur permanente ──────────────── #}
         <nav class="ds-mobile-bottomnav">
             <a href="/services"      class="ds-nav-item {{ _services_active ? 'active' : '' }}">
                 <i class="fas fa-briefcase"></i><span>Services</span>
@@ -209,8 +196,6 @@
     <!--plugins-->
     <script src="/assets/js/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
-    <script src="/assets/plugins/simplebar/js/simplebar.min.js"></script>
-    <script src="/assets/plugins/metismenu/js/metisMenu.min.js"></script>
     <script src="/assets/plugins/easyPieChart/jquery.easypiechart.js"></script>
     <script src="/assets/plugins/peity/jquery.peity.min.js"></script>
     <script src="/assets/plugins/perfect-scrollbar/js/perfect-scrollbar.js"></script>

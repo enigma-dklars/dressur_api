@@ -189,94 +189,13 @@ html.semi-dark .ds-appbar-btn { color: #fcfcfc; }
         </div>
     </div>
 
-    {# ── Navbar desktop (> 1024px) ── #}
-    <nav class="navbar navbar-expand">
-        <div class="mobile-toggle-icon d-xl-none">
-            <i class="bi bi-list"></i>
-        </div>
-        <div class="top-navbar d-none d-xl-block">
-            <ul class="navbar-nav align-items-center">
-                {% if user.admin == true %}
-                    <li class="nav-item">
-                        <a class="nav-link badge bg-danger" href="{{path('app_admin')}}">Admin Dash</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-        <div class="d-xl-none ms-auto">
-        </div>
-        <form class="searchbar d-none d-xl-flex ms-auto">
-        </form>
-        <div class="top-navbar-right ms-3">
-            <ul class="navbar-nav align-items-center">
-                <li class="nav-item dropdown dropdown-large">
-                    <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" href="javascript:;" data-bs-toggle="dropdown">
-                    <div class="user-setting d-flex align-items-center gap-1">
-                        <div class="ds-avatar-sm" data-name="{{ (user.nom is not empty ? user.nom : user.pseudo)|trim }}"></div>
-                        <div class="user-name ">{{user.pseudo}}</div>
-                    </div>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <a class="dropdown-item" href="javascript:;">
-                            <div class="d-flex align-items-center">
-                                <div class="ds-avatar-lg" data-name="{{ (user.nom is not empty ? user.nom : user.pseudo)|trim }}"></div>
-                                <div class="ms-3">
-                                    <h6 class="mb-0 dropdown-user-name">{{user.nom}}</h6>
-                                    <small class="mb-0 dropdown-user-designation text-secondary">@{{user.pseudo}}</small>
-                                </div>
-                            </div>
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a href="/editprofil" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                <div class="setting-icon"><i class="bi bi-person-fill"></i></div>
-                                <div class="setting-text ms-3"><span>Profile</span></div>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/editPassword" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                <div class="setting-icon"><i class="bi bi-gear-fill"></i></div>
-                                <div class="setting-text ms-3"><span>Modifier le mot de passe</span></div>
-                                </div>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#seDeconnecter">
-                                <div class="d-flex align-items-center">
-                                    <div class="setting-icon"><i class="bi bi-lock-fill"></i></div>
-                                    <div class="setting-text ms-3"><span>Se déconnecter</span></div>
-                                </div>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <div class="notifications change-theme">
-                    <i class="fas {% if theme == "dark-theme" %}fa-moon{% else %}fa-sun{% endif %} ici-theme"></i>
-                </div>
-                <li class="nav-item d-none d-sm-block">
-                    <a href="{{ path('app_notifications') }}" class="nav-link">
-                    <div class="notifications ds-notif-badge-wrap">
-                        <i class="bi bi-bell-fill"></i>
-                        <span class="ds-notif-badge" id="dsNotifBadgeDesktop"></span>
-                    </div>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
 </header>
 
 <script>
 (function(){
     const LAST_SEEN_KEY = 'ds_notif_last_seen_total';
     const badges = [
-        document.getElementById('dsNotifBadgeMobile'),
-        document.getElementById('dsNotifBadgeDesktop')
+        document.getElementById('dsNotifBadgeMobile')
     ].filter(Boolean);
 
     function updateBadge(count){
@@ -304,19 +223,6 @@ html.semi-dark .ds-appbar-btn { color: #fcfcfc; }
 })();
 </script>
 
-<style>
-.ds-avatar-sm,.ds-avatar-lg{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;letter-spacing:.5px;}
-.ds-avatar-sm{width:36px;height:36px;font-size:14px;}
-.ds-avatar-lg{width:60px;height:60px;font-size:22px;}
-</style>
-<script>
-(function(){
-    var COLORS=['#1565C0','#2E7D32','#6A1B9A','#C62828','#00838F','#E65100','#4527A0','#00695C','#558B2F','#283593','#880E4F','#37474F'];
-    function hashColor(name){var k=(name||'').toLowerCase(),h=0;for(var i=0;i<k.length;i++)h=(h*31+k.charCodeAt(i))&0x7FFFFFFF;return COLORS[h%COLORS.length];}
-    function initials(name){var p=(name||'').trim().split(/\s+/).filter(function(x){return x.length>0;});if(!p.length)return'?';if(p.length===1)return p[0][0].toUpperCase();return(p[0][0]+p[1][0]).toUpperCase();}
-    document.querySelectorAll('.ds-avatar-sm,.ds-avatar-lg').forEach(function(el){var n=el.getAttribute('data-name')||'';el.style.backgroundColor=hashColor(n);el.textContent=initials(n);});
-})();
-</script>
 
 <div class="modal fade" id="seDeconnecter" tabindex="-1" aria-labelledby="seDeconnecterLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
