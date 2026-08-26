@@ -1,0 +1,44 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Promotions à partager{% endblock %}
+
+{% block body %}
+<style>
+.pr-page{max-width:1100px;margin:0 auto}.pr-hero{background:linear-gradient(135deg,#1565c0,#4f46e5);color:#fff;border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:0 12px 28px rgba(21,101,192,.2)}.pr-promo{background:var(--bs-body-bg,#fff);border:1px solid var(--bs-border-color,rgba(0,0,0,.08));border-radius:16px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.05)}.pr-promo img{width:100%;height:230px;object-fit:contain;background:#f1f3f5}.pr-promo-body{padding:16px}.pr-promo-title{font-size:.98rem;font-weight:700;color:var(--bs-body-color,#212529);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}.pr-meta{font-size:.78rem;color:var(--bs-secondary-color,#6c757d)}.pr-tag{display:inline-block;font-size:.7rem;padding:4px 8px;border-radius:999px;background:rgba(13,110,253,.12);color:#0d6efd;font-weight:600}.pr-empty{background:var(--bs-body-bg,#fff);border:1px dashed var(--bs-border-color,rgba(0,0,0,.16));border-radius:16px;padding:42px 20px;text-align:center;color:var(--bs-secondary-color,#6c757d)}html.dark-theme .pr-promo,html.semi-dark .pr-promo{box-shadow:0 3px 12px rgba(0,0,0,.25)}
+@media(min-width:768px){.pr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pr-promo{height:100%}}
+</style>
+<div class="pr-page">
+  <section class="pr-hero d-flex align-items-center justify-content-between gap-3 flex-wrap"><div><h1 class="h5 mb-1 fw-bold"><i class="fas fa-briefcase me-2"></i>Promotions à partager</h1><p class="mb-0" style="color:rgba(255,255,255,.86)">Choisissez une promotion et partagez-la directement sur votre statut WhatsApp.</p></div><a href="{{ path('app_programme_recompense_dashboard') }}" class="btn btn-light btn-sm"><i class="fas fa-arrow-left me-1"></i>Mon programme</a></section>
+  {% for type, messages in app.flashes %}{% for message in messages %}<div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endfor %}
+  <div id="prShareAlert"></div>
+  {% if promotions is empty %}
+    <div class="pr-empty"><i class="fas fa-inbox fa-2x mb-3"></i><h2 class="h6">Aucune promotion disponible</h2><p class="mb-0">Les promotions sont proposées selon votre pays et leur période de disponibilité. Revenez plus tard.</p></div>
+  {% else %}
+    <div class="pr-grid">
+      {% for promotion in promotions %}
+        <article class="pr-promo"><img src="/promotion/{{ promotion.image }}" alt="Promotion Dressur" loading="lazy"><div class="pr-promo-body"><div class="d-flex justify-content-between align-items-center gap-2 mb-2"><span class="pr-tag">Programme récompenses</span><span class="pr-meta"><i class="fas fa-eye me-1"></i>{{ promotion.nombreDeVues|default('0') }}</span></div><div class="pr-promo-title">{{ promotion.description }}</div><div class="pr-meta mt-3"><i class="fas fa-user me-1"></i>{{ promotion.pseudoAnnonceur|default('Annonceur Dressur') }}{% if promotion.whatsappNumber is defined and promotion.whatsappNumber %}<span class="mx-1">·</span><i class="fab fa-whatsapp me-1 text-success"></i>{{ promotion.whatsappNumber }}{% endif %}</div><button type="button" class="btn btn-primary w-100 mt-3 pr-share-btn" data-url="{{ path('app_programme_recompense_partager', {'id': promotion.id}) }}" data-token="{{ csrf_token('programme_recompense_partager_' ~ promotion.id) }}" data-description="{{ promotion.description|e('html_attr') }}" data-image="/promotion/{{ promotion.image|e('html_attr') }}"><i class="fas fa-share-nodes me-1"></i>Partager sur mon statut</button></div></article>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+<script>
+(function(){
+  const alertBox=document.getElementById('prShareAlert');
+  function showAlert(message,type){alertBox.innerHTML='<div class="alert alert-'+type+' alert-dismissible fade show" role="alert">'+message+'<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';}
+  async function shareWithImage(data){
+    const absoluteImage=new URL(data.imageUrl,window.location.origin).href;
+    if(navigator.share){
+      try{
+        const response=await fetch(absoluteImage,{credentials:'same-origin'});
+        const blob=await response.blob();
+        const file=new File([blob],'promotion.'+(blob.type.split('/')[1]||'jpg'),{type:blob.type});
+        if(!navigator.canShare || navigator.canShare({files:[file]})){await navigator.share({title:'Promotion Dressur',text:data.shareText,files:[file]});return;}
+        await navigator.share({title:'Promotion Dressur',text:data.shareText,url:absoluteImage});return;
+      }catch(error){if(error && error.name==='AbortError')return;}
+    }
+    window.open('https://wa.me/?text='+encodeURIComponent(data.shareText+'\n'+absoluteImage),'_blank','noopener');
+  }
+  document.querySelectorAll('.pr-share-btn').forEach(function(button){button.addEventListener('click',async function(){if(button.disabled)return;button.disabled=true;const original=button.innerHTML;button.innerHTML='<i class="fas fa-spinner fa-spin me-1"></i>Préparation…';try{const form=new FormData();form.append('_token',button.dataset.token);const response=await fetch(button.dataset.url,{method:'POST',body:form,credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'}});const data=await response.json();if(!response.ok||data.error)throw new Error(data.message||'Le partage n’a pas pu être préparé.');await shareWithImage(data);showAlert('Participation enregistrée. Le contenu officiel a été préparé pour votre statut WhatsApp.','success');}catch(error){showAlert(error.message||'Une erreur est survenue pendant le partage.','danger');}finally{button.disabled=false;button.innerHTML=original;}});});
+})();
+</script>
+{% endblock %}

@@ -152,14 +152,14 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
     </a>
 
     {# -- Développer son compte -- #}
-    <div class="ds-nav-card ds-soon">
+    <a href="{{ path('app_programme_recompense') }}" class="ds-nav-card">
         <div class="ds-nav-card-icon"><i class="fas fa-trophy"></i></div>
         <div class="ds-nav-card-body">
-            <p class="ds-title">Espace Récompense <span class="badge bg-secondary ms-1" style="font-size:10px;vertical-align:middle">Bientôt</span></p>
+            <p class="ds-title">Espace Récompense{% if user.isInscritProgrammeRecompense %} <span class="badge bg-success ms-1" style="font-size:10px;vertical-align:middle">Actif</span>{% endif %}</p>
             <p class="ds-sub">Gagnez et suivez vos récompenses</p>
         </div>
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
-    </div>
+    </a>
 
     {% if not user.vendeur %}
     <a href="/vendeur/adhesion" class="ds-nav-card">
