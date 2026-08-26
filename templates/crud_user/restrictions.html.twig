@@ -62,9 +62,15 @@
                     </div>
 
                     <div class="mb-3">
+                        <label for="restriction_expires_at" class="form-label">Date de fin</label>
+                        <input id="restriction_expires_at" type="date" name="expires_at" class="form-control" value="{{ formData.expires_at|default('') }}">
+                        <div class="form-text">Laisser vide pour une restriction jusqu’à sa désactivation manuelle.</div>
+                    </div>
+
+                    <div class="mb-3">
                         <label for="restriction_reason" class="form-label">Motif <span class="text-danger">*</span></label>
                         <textarea id="restriction_reason" name="reason" class="form-control" rows="4" maxlength="2000" required>{{ formData.reason|default('') }}</textarea>
-                        <div class="form-text">Le motif sera conservé avec la restriction et pourra être communiqué dans le message de refus.</div>
+                        <div class="form-text">Le motif sera conservé avec la restriction et apparaîtra dans la notification envoyée à l’utilisateur.</div>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save me-2"></i>Enregistrer la restriction</button>
@@ -108,7 +114,14 @@
                                     <td>{% if restriction.type == 'minimum_transaction_amount' %}{{ restriction.minimumTransactionAmount|number_format(0, ',', ' ') }} FCFA{% else %}Tous les Boost Contacts gratuits{% endif %}</td>
                                     <td class="small" style="max-width:220px;white-space:normal">{{ restriction.reason|default('—') }}</td>
                                     <td>
-                                        {% if restriction.active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Désactivée</span>{% endif %}
+                                        {% if restriction.currentlyActive %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% elseif restriction.active %}
+                                            <span class="badge bg-secondary">Expirée</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Désactivée</span>
+                                        {% endif %}
+                                        {% if restriction.expiresAt %}<small class="d-block text-muted">jusqu’au {{ restriction.expiresAt|date('d/m/Y') }}</small>{% endif %}
                                     </td>
                                     <td class="text-end">
                                         <form method="post" action="{{ path('app_crud_user_restriction_toggle', {id: restriction.id}) }}">

@@ -41,6 +41,9 @@ class UserRestriction
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $expiresAt = null;
+
     public function __construct()
     {
         $now = new \DateTime();
@@ -129,5 +132,21 @@ class UserRestriction
     {
         $this->updatedAt = $updatedAt;
         return $this;
+    }
+
+    public function getExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(?\DateTimeInterface $expiresAt): static
+    {
+        $this->expiresAt = $expiresAt;
+        return $this;
+    }
+
+    public function isCurrentlyActive(): bool
+    {
+        return $this->active && ($this->expiresAt === null || $this->expiresAt > new \DateTime());
     }
 }

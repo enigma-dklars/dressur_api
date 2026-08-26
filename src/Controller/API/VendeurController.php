@@ -83,14 +83,6 @@ class VendeurController extends AbstractController
         }
 
         $montant = $fraisAdhesion + $montantRecharge;
-        $restrictionMessage = $traitementsDS->validateUserTransaction($user, $montant);
-        if ($restrictionMessage !== null) {
-            return new JsonResponse([
-                'error' => true,
-                'titre' => 'Montant minimum requis',
-                'message' => $restrictionMessage,
-            ]);
-        }
 
         $methodePaiementId = $request->request->get('methodePaiementId');
         $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);

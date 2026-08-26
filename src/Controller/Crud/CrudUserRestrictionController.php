@@ -2,6 +2,7 @@
 
 namespace App\Controller\Crud;
 
+use App\Entity\Notification;
 use App\Entity\UserRestriction;
 use App\Repository\UserRepository;
 use App\Repository\UserRestrictionRepository;
@@ -46,6 +47,7 @@ class CrudUserRestrictionController extends AbstractController
             $type = (string) $request->request->get('type', '');
             $reason = trim((string) $request->request->get('reason', ''));
             $amountValue = trim((string) $request->request->get('minimum_transaction_amount', ''));
+            $expiresValue = trim((string) $request->request->get('expires_at', ''));
             $targetUser = $userId ? $userRepository->find($userId) : null;
 
             if (!$targetUser) {
@@ -66,6 +68,22 @@ class CrudUserRestrictionController extends AbstractController
                 }
             }
 
+            $expiresAt = null;
+            if ($expiresValue !== '') {
+                $expiresAt = DateTime::createFromFormat('!Y-m-d', $expiresValue);
+                $dateErrors = DateTime::getLastErrors();
+                if ($expiresAt === false || ($dateErrors !== false && ($dateErrors['warning_count'] > 0 || $dateErrors['error_count'] > 0))) {
+                    $errors[] = 'La date de fin est invalide.';
+                    $expiresAt = null;
+                } else {
+                    $expiresAt->setTime(23, 59, 59);
+                    if ($expiresAt < new DateTime()) {
+                        $errors[] = 'La date de fin doit être aujourd’hui ou une date future.';
+                        $expiresAt = null;
+                    }
+                }
+            }
+
             if (!$errors) {
                 $restriction = $restrictionRepository->findOneForUserAndType($targetUser, $type);
                 if (!$restriction) {
@@ -78,9 +96,15 @@ class CrudUserRestrictionController extends AbstractController
                 $restriction
                     ->setMinimumTransactionAmount($type === UserRestriction::TYPE_MINIMUM_TRANSACTION ? $amount : null)
                     ->setReason($reason)
+                    ->setExpiresAt($expiresAt)
                     ->setActive(true)
                     ->setUpdatedAt(new DateTime());
 
+                $notification = (new Notification())
+                    ->setUser($targetUser)
+                    ->setText($this->buildRestrictionNotification($restriction))
+                    ->setCreatedAt(new DateTime());
+                $entityManager->persist($notification);
                 $entityManager->flush();
                 $this->addFlash('success', 'Restriction enregistrée pour ' . ($targetUser->getPseudo() ?: 'cet utilisateur') . '.');
 
@@ -113,6 +137,15 @@ class CrudUserRestrictionController extends AbstractController
         $restriction
             ->setActive(!$restriction->isActive())
             ->setUpdatedAt(new DateTime());
+
+        if ($restriction->isCurrentlyActive()) {
+            $notification = (new Notification())
+                ->setUser($restriction->getUser())
+                ->setText($this->buildRestrictionNotification($restriction))
+                ->setCreatedAt(new DateTime());
+            $entityManager->persist($notification);
+        }
+
         $entityManager->flush();
 
         $this->addFlash(
@@ -121,6 +154,19 @@ class CrudUserRestrictionController extends AbstractController
         );
 
         return $this->redirectToRoute('app_crud_user_restrictions', [], Response::HTTP_SEE_OTHER);
+    }
+
+    private function buildRestrictionNotification(UserRestriction $restriction): string
+    {
+        $until = $restriction->getExpiresAt()
+            ? ' jusqu’au ' . $restriction->getExpiresAt()->format('d/m/Y')
+            : ' jusqu’à la levée de la restriction';
+
+        $description = $restriction->getType() === UserRestriction::TYPE_BLOCK_FREE_BOOST
+            ? 'Vous ne pouvez plus effectuer de Boost Contact gratuit'
+            : 'Un montant minimum de ' . number_format((int) $restriction->getMinimumTransactionAmount(), 0, ',', ' ') . ' FCFA est applicable à vos transactions payantes';
+
+        return "Compte restreint.\nRestriction appliquée : " . $description . $until . ".\nMotif : " . $restriction->getReason();
     }
 
     private function theme(): string

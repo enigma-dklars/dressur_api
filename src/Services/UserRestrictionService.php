@@ -14,22 +14,13 @@ class UserRestrictionService
 
     public function blocksFreeBoost(User $user): bool
     {
-        $restriction = $this->repository->findOneForUserAndType(
-            $user,
-            UserRestriction::TYPE_BLOCK_FREE_BOOST
-        );
-
-        return $restriction?->isActive() === true;
+        return $this->findEffectiveRestriction($user, UserRestriction::TYPE_BLOCK_FREE_BOOST) !== null;
     }
 
     public function getMinimumTransactionAmount(User $user): int
     {
-        $restriction = $this->repository->findOneForUserAndType(
-            $user,
-            UserRestriction::TYPE_MINIMUM_TRANSACTION
-        );
-
-        if (!$restriction || !$restriction->isActive()) {
+        $restriction = $this->findEffectiveRestriction($user, UserRestriction::TYPE_MINIMUM_TRANSACTION);
+        if (!$restriction) {
             return 0;
         }
 
@@ -38,29 +29,43 @@ class UserRestrictionService
 
     public function validateTransactionAmount(User $user, int $amount): ?string
     {
-        $minimum = $this->getMinimumTransactionAmount($user);
-        if ($minimum <= 0 || $amount >= $minimum) {
+        $restriction = $this->findEffectiveRestriction($user, UserRestriction::TYPE_MINIMUM_TRANSACTION);
+        $minimum = max(0, (int) ($restriction?->getMinimumTransactionAmount() ?? 0));
+        if (!$restriction || $minimum <= 0 || $amount >= $minimum) {
             return null;
         }
 
         return sprintf(
-            'Cette transaction est inférieure au montant minimum de %s FCFA imposé à votre compte.%s',
+            'Compte restreint. Un montant minimum de %s FCFA est applicable à vos transactions payantes%s.',
             number_format($minimum, 0, ',', ' '),
-            $this->formatReason($user, UserRestriction::TYPE_MINIMUM_TRANSACTION)
+            $this->formatUntil($restriction)
         );
     }
 
     public function freeBoostDenialMessage(User $user): string
     {
-        return 'Le Boost Contact gratuit est temporairement indisponible pour votre compte.'
-            . $this->formatReason($user, UserRestriction::TYPE_BLOCK_FREE_BOOST);
+        $restriction = $this->findEffectiveRestriction($user, UserRestriction::TYPE_BLOCK_FREE_BOOST);
+        return 'Compte restreint. Vous ne pouvez plus effectuer de Boost Contact gratuit'
+            . $this->formatUntil($restriction) . '.';
     }
 
-    private function formatReason(User $user, string $type): string
+    private function findEffectiveRestriction(User $user, string $type): ?UserRestriction
     {
         $restriction = $this->repository->findOneForUserAndType($user, $type);
-        $reason = trim((string) ($restriction?->getReason() ?? ''));
+        if (!$restriction || !$restriction->isCurrentlyActive()) {
+            return null;
+        }
 
-        return $reason !== '' ? ' Motif : ' . $reason : '';
+        return $restriction;
+    }
+
+    private function formatUntil(?UserRestriction $restriction): string
+    {
+        $expiresAt = $restriction?->getExpiresAt();
+        if (!$expiresAt) {
+            return ' jusqu’à la levée de la restriction';
+        }
+
+        return ' jusqu’au ' . $expiresAt->format('d/m/Y');
     }
 }
