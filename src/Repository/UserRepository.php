@@ -421,7 +421,7 @@ class UserRepository extends ServiceEntityRepository
      * Remplace 6 count(findAll/findBy) séparés qui chargeaient des entités complètes.
      * Avant : 6 requêtes × hydratation ORM. Après : 1 seule requête SELECT COUNT/SUM.
      *
-     * @return array{nbr_user:int, users_prog_recomp:int, users_vendeur:int, users_inactifs:int}
+     * @return array{nbr_user:int, users_prog_recomp:int, users_vendeur:int, users_partenaire:int, users_inactifs:int}
      */
     public function getAdminUserStats(): array
     {
@@ -431,6 +431,7 @@ class UserRepository extends ServiceEntityRepository
                 COUNT(*)                                            AS nbr_user,
                 SUM(is_inscrit_programme_recompense = 1)           AS users_prog_recomp,
                 SUM(vendeur = 1)                                   AS users_vendeur,
+                SUM(est_partenaire = 1)                              AS users_partenaire,
                 SUM(
                     NOT EXISTS (SELECT 1 FROM boost       WHERE boost.user_id       = u.id)
                 AND NOT EXISTS (SELECT 1 FROM promotion   WHERE promotion.user_id   = u.id)
@@ -470,20 +471,20 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
-     * Retourne le top 5 des pays (indicatif téléphonique) avec le plus d'utilisateurs.
+     * Retourne tous les pays (indicatif téléphonique) avec le nombre d'utilisateurs,
+     * triés du plus représenté au moins représenté.
      */
-    public function getTopPaysByUserCount(int $limit = 5): array
+    public function getAllPaysByUserCount(): array
     {
         $conn = $this->getEntityManager()->getConnection();
-        $sql  = sprintf(
-            'SELECT pays, COUNT(*) AS nbr
-             FROM `user`
-             WHERE pays IS NOT NULL
-             GROUP BY pays
-             ORDER BY nbr DESC
-             LIMIT %d',
-            $limit
-        );
+        $sql  = '
+            SELECT pays, COUNT(*) AS nbr
+            FROM `user`
+            WHERE pays IS NOT NULL AND pays != \'\'
+            GROUP BY pays
+            ORDER BY nbr DESC, pays ASC
+        ';
+
         return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 

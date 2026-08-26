@@ -278,7 +278,7 @@ class PrivateController extends AbstractController
                 ];
                 
                 // Option 1+3 — 14 count(findAll/findBy) → 5 requêtes COUNT(*) agrégées + cache 5 min
-                $s = $cache->get('admin_dashboard_stats_v1', function (ItemInterface $item) use (
+                $s = $cache->get('admin_dashboard_stats_v2', function (ItemInterface $item) use (
                     $userRepository, $promotionRepository, $promoReseauRepository,
                     $userBotRepository, $deletedDSRepository
                 ) {
@@ -289,6 +289,7 @@ class PrivateController extends AbstractController
                         'nbr_user'               => (int) $u['nbr_user'],
                         'users_prog_recomp'      => (int) $u['users_prog_recomp'],
                         'users_vendeur'          => (int) $u['users_vendeur'],
+                        'users_partenaire'       => (int) $u['users_partenaire'],
                         'users_inactifs'         => (int) $u['users_inactifs'],
                         'valid_promo_affaire'    => (int) $p['valid_promo_affaire'],
                         'affaire_valider_sans_payer' => (int) $p['affaire_valider_sans_payer'],
@@ -317,6 +318,7 @@ class PrivateController extends AbstractController
                     'encour_affaire'             => $s['encour_affaire'],
                     'users_prog_recomp'          => $s['users_prog_recomp'],
                     'users_vendeur'              => $s['users_vendeur'],
+                    'users_partenaire'           => $s['users_partenaire'],
                     'users_inactifs'             => $s['users_inactifs'],
                     'p_aff_recomp'               => $s['p_aff_recomp'],
                     'p_aff_ds_statut'            => $s['p_aff_ds_statut'],
@@ -334,7 +336,7 @@ class PrivateController extends AbstractController
                     'chartPromoAff' => $chartPromoAff,
                     'chartPromoRes' => $chartPromoRes,
                     'chartSummary'  => $chartSummary,
-                    'topPays'       => $userRepository->getTopPaysByUserCount(7),
+                    'topPays'       => $userRepository->getAllPaysByUserCount(),
                     'revenueByService'        => $transactionRepository->getRevenueByService(),
                     'weeklyTransactions'      => $transactionRepository->getWeeklyTransactionStats(),
                     'monthlyTransactions'     => $transactionRepository->getMonthlyTransactionComparison(),
