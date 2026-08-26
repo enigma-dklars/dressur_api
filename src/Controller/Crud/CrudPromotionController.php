@@ -303,12 +303,23 @@ class CrudPromotionController extends AbstractController
       ): Response {
           $users = $userRepository->findBy([], ['pseudo' => 'ASC']);
           $formules = $formulePromoAffaireRepository->findBy(['activated' => true], ['titre' => 'ASC']);
+          $currentFormula = $promotion->getFormulePromoAffaire();
+          if ($currentFormula && !array_filter(
+              $formules,
+              static fn ($formule) => $formule->getId() === $currentFormula->getId()
+          )) {
+              // Une ancienne formule peut avoir été désactivée : elle doit malgré tout
+              // rester disponible pour que la valeur enregistrée soit préselectionnée.
+              array_unshift($formules, $currentFormula);
+          }
           $errors = [];
           $allowedTypes = ['produit_service', 'sites_applications', 'offre_emploi', 'dmd_emploi'];
           $allowedSubtypes = ['site_web', 'app_mobile', 'logiciel_desktop'];
-          $allowedStatuses = [0, 1, 2, 3];
-          $allowedModes = ['Admin', 'Web', 'Mobile'];
-          $allowedSources = ['admin', 'web', 'mobile'];
+          $allowedStatuses = [0, 1, 2, 3, 4];
+          // Les promotions historiques utilisent aussi Gratuit/Payant pour le mode.
+          // Les conserver évite de remplacer la valeur existante lors d'une édition admin.
+          $allowedModes = ['Admin', 'Web', 'Mobile', 'Gratuit', 'Payant'];
+          $allowedSources = ['', 'admin', 'web', 'mobile'];
           $currentInfo = $promotion->getAnnotherInfo() ?? [];
 
           if ($request->isMethod('POST')) {
@@ -334,23 +345,43 @@ class CrudPromotionController extends AbstractController
               $sousTypeSiteApp = (string) $request->request->get('sous_type_site_app', '');
 
               $user = $userId ? $userRepository->find($userId) : null;
-              $formule = $formuleId ? $formulePromoAffaireRepository->find($formuleId) : null;
+              $formule = (!$isSiteApp && $formuleId)
+                  ? $formulePromoAffaireRepository->find($formuleId)
+                  : null;
+              $oldFormulaId = $promotion->getFormulePromoAffaire()?->getId();
+              $formulaChanged = !$isSiteApp
+                  && $formule !== null
+                  && $oldFormulaId !== $formule->getId();
               if (!$user) $errors[] = 'Utilisateur invalide.';
               if (!in_array($type, $allowedTypes, true)) $errors[] = 'Type de promotion invalide.';
               if (!$isSiteApp && !$formule) $errors[] = 'Formule invalide.';
-              if ($isSiteApp && $formuleId && !$formule) $errors[] = 'Formule invalide.';
               if ($description === '') $errors[] = 'La description est obligatoire.';
               if (!in_array($status, $allowedStatuses, true)) $errors[] = 'Statut invalide.';
               if (!in_array($mode, $allowedModes, true)) $errors[] = 'Mode invalide.';
               if (!in_array($source, $allowedSources, true)) $errors[] = 'Source invalide.';
 
-              $dateDebut = DateTime::createFromFormat('Y-m-d\TH:i', $dateDebutValue)
-                  ?: DateTime::createFromFormat('Y-m-d', $dateDebutValue);
-              $dateExp = DateTime::createFromFormat('Y-m-d\TH:i', $dateExpValue)
-                  ?: DateTime::createFromFormat('Y-m-d', $dateExpValue);
-              if (!$dateDebut) $errors[] = 'Date de début invalide.';
-              if (!$dateExp) $errors[] = 'Date d’expiration invalide.';
-              if ($dateDebut && $dateExp && $dateExp < $dateDebut) $errors[] = 'La date d’expiration doit être postérieure à la date de début.';
+              // Les deux dates sont facultatives : une promotion en attente n'en possède
+              // normalement pas encore. Elles seront recalculées si la formule change.
+              $dateDebut = null;
+              $dateExp = null;
+              if ($dateDebutValue !== '') {
+                  $dateDebut = DateTime::createFromFormat('Y-m-d\TH:i', $dateDebutValue)
+                      ?: DateTime::createFromFormat('Y-m-d', $dateDebutValue);
+                  if (!$dateDebut) $errors[] = 'Date de début invalide.';
+              }
+              if ($dateExpValue !== '') {
+                  $dateExp = DateTime::createFromFormat('Y-m-d\TH:i', $dateExpValue)
+                      ?: DateTime::createFromFormat('Y-m-d', $dateExpValue);
+                  if (!$dateExp) $errors[] = 'Date d’expiration invalide.';
+              }
+              if ($dateDebut && $dateExp && $dateExp < $dateDebut) {
+                  $errors[] = 'La date d’expiration doit être postérieure à la date de début.';
+              }
+
+              if ($formulaChanged) {
+                  $dateDebut = new DateTime();
+                  $dateExp = (clone $dateDebut)->modify('+' . $formule->getNbrJour() . ' days');
+              }
 
               if ($isSiteApp) {
                   if ($nomSiteApp === '') $errors[] = 'Le nom du site / de l’application est obligatoire.';
@@ -398,7 +429,7 @@ class CrudPromotionController extends AbstractController
                       ->setDateDebut($dateDebut)
                       ->setDateExp($dateExp)
                       ->setMode($mode)
-                      ->setSource($source)
+                      ->setSource($source !== '' ? $source : null)
                       ->setMotif($motif !== '' ? $motif : null)
                       ->setWhatsappContact($whatsappContact !== '' ? $whatsappContact : null)
                       ->setReferencement($request->request->has('referencement'))
