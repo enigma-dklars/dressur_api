@@ -147,7 +147,7 @@ class PromoReseauRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
                 FROM promo_reseau pr
                 INNER JOIN `user` u ON pr.user_id = u.id
                 WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";

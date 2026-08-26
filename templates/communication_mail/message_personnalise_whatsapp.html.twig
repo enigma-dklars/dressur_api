@@ -47,8 +47,13 @@
                                 <option value="{{ key }}">{{ a.emoji }} {{ a.label }}</option>
                             {% endfor %}
                         </select>
+                        <div id="audience-count" class="alert alert-info d-none py-2 px-3 mt-2 mb-0" role="status" aria-live="polite">
+                            <i class="fas fa-users me-1"></i>
+                            <strong id="audience-count-value">0</strong>
+                            <span id="audience-count-label">utilisateur correspondant</span>
+                        </div>
                         <div class="form-text">
-                            Sélectionnez le groupe d'utilisateurs qui recevront ce message. Seuls les utilisateurs avec un numéro WhatsApp confirmé sont inclus.
+                            Sélectionnez le groupe d'utilisateurs qui recevront ce message. Seuls les utilisateurs avec un numéro WhatsApp confirmé sont inclus. Chaque utilisateur ne sera compté et programmé qu'une seule fois.
                         </div>
                     </div>
 
@@ -151,6 +156,29 @@
 </div>
 
 <script>
+const AUDIENCE_COUNTS = {{ audienceCounts|json_encode|raw }};
+
+function updateAudienceCount() {
+    const audienceSelect = document.getElementById('audience');
+    const countBox = document.getElementById('audience-count');
+    const countValue = document.getElementById('audience-count-value');
+    const countLabel = document.getElementById('audience-count-label');
+    const count = AUDIENCE_COUNTS[audienceSelect.value];
+
+    if (count === undefined) {
+        countBox.classList.add('d-none');
+        return;
+    }
+
+    countValue.textContent = new Intl.NumberFormat('fr-FR').format(count);
+    countLabel.textContent = count === 1
+        ? 'utilisateur correspond à cette audience.'
+        : 'utilisateurs correspondent à cette audience.';
+    countBox.classList.remove('d-none');
+}
+
+document.getElementById('audience').addEventListener('change', updateAudienceCount);
+
 const FAKE_DATA = {
     '{pseudo}': 'jean_dupont',
     '{nom}':    'Jean Dupont',

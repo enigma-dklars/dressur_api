@@ -143,7 +143,7 @@ class BoostRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
                 FROM boost b
                 INNER JOIN `user` u ON b.user_id = u.id
                 WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
@@ -160,7 +160,7 @@ class BoostRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
                 FROM boost b
                 INNER JOIN `user` u ON b.user_id = u.id
                 WHERE b.`mode` = :mode
@@ -188,7 +188,7 @@ class BoostRepository extends ServiceEntityRepository
         $conn = $this->getEntityManager()->getConnection();
         $cutoff = (new \DateTime("-{$days} days"))->format('Y-m-d H:i:s');
 
-        $sql = "SELECT u.tel, u.uid, u.pseudo, u.nom, u.mail
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
                 FROM boost b
                 INNER JOIN `user` u ON b.user_id = u.id
                 WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
@@ -207,7 +207,7 @@ class BoostRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
                 FROM boost b
                 INNER JOIN `user` u ON b.user_id = u.id
                 WHERE b.`mode` = 'Gratuit'

@@ -837,6 +837,53 @@ class CommunicationMailController extends AbstractController
         ];
     }
 
+    /**
+     * Retourne les utilisateurs correspondant à une audience WhatsApp.
+     */
+    private function getMessagePersonnaliseAudienceUsers(
+        string $audienceKey,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository
+    ): array {
+        return match ($audienceKey) {
+            'boost_all'            => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
+            'boost_gratuit'        => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Gratuit', 'Payant'),
+            'boost_payant'         => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Payant', 'Gratuit'),
+            'boost_mixte'          => $boostRepository->findUsersWhoEverUsedBoostWithBothModesAndTelWithDetails(),
+            'boost_dernier_ancien' => $boostRepository->findUsersWhoseLastBoostIsAtLeastDaysAgoWithDetails(7),
+            'promo_all'            => $promotionRepository->findUsersWhoEverUsedPromoAndTelWithDetails(),
+            'reseau_all'           => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTelWithDetails(),
+            default                => [],
+        };
+    }
+
+    /**
+     * Conserve une seule ligne par utilisateur. Le numéro est un repli pour
+     * rester robuste si une ancienne requête ne fournit pas encore user_id.
+     */
+    private function uniqueMessagePersonnaliseAudienceUsers(array $users): array
+    {
+        $uniqueUsers = [];
+
+        foreach ($users as $user) {
+            $tel = trim((string) ($user['tel'] ?? ''));
+            if ($tel === '') {
+                continue;
+            }
+
+            $userId = trim((string) ($user['user_id'] ?? ''));
+            $uniqueKey = $userId !== '' ? 'id:' . $userId : 'tel:' . $tel;
+            if (isset($uniqueUsers[$uniqueKey])) {
+                continue;
+            }
+
+            $uniqueUsers[$uniqueKey] = $user;
+        }
+
+        return array_values($uniqueUsers);
+    }
+
     #[Route('/message-personnalise-whatsapp', name: 'app_communication_mail_message_personnalise_whatsapp', methods: ['GET', 'POST'])]
     public function messagePersonnaliseWhatsapp(
         Request $request,
@@ -869,16 +916,14 @@ class CommunicationMailController extends AbstractController
             $audienceConfig = $audiences[$audienceKey];
             $titre = $audienceConfig['titre'];
 
-            $users = match ($audienceKey) {
-                'boost_all'            => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
-                'boost_gratuit'        => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Gratuit', 'Payant'),
-                'boost_payant'         => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Payant', 'Gratuit'),
-                'boost_mixte'          => $boostRepository->findUsersWhoEverUsedBoostWithBothModesAndTelWithDetails(),
-                'boost_dernier_ancien' => $boostRepository->findUsersWhoseLastBoostIsAtLeastDaysAgoWithDetails(7),
-                'promo_all'            => $promotionRepository->findUsersWhoEverUsedPromoAndTelWithDetails(),
-                'reseau_all'           => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTelWithDetails(),
-                default                => [],
-            };
+            $users = $this->uniqueMessagePersonnaliseAudienceUsers(
+                $this->getMessagePersonnaliseAudienceUsers(
+                    $audienceKey,
+                    $boostRepository,
+                    $promotionRepository,
+                    $promoReseauRepository
+                )
+            );
 
             $added = 0;
             foreach ($users as $u) {
@@ -914,10 +959,25 @@ class CommunicationMailController extends AbstractController
             return $this->redirectToRoute('app_communication_mail_message_personnalise_whatsapp');
         }
 
+        $audienceCounts = [];
+        foreach (array_keys($audiences) as $audienceKey) {
+            $audienceCounts[$audienceKey] = count(
+                $this->uniqueMessagePersonnaliseAudienceUsers(
+                    $this->getMessagePersonnaliseAudienceUsers(
+                        $audienceKey,
+                        $boostRepository,
+                        $promotionRepository,
+                        $promoReseauRepository
+                    )
+                )
+            );
+        }
+
         return $this->render('communication_mail/message_personnalise_whatsapp.html.twig', [
-            'theme'     => $this->theme,
-            'user'      => $this->traitementsDS->getUserByUidInCookies(),
-            'audiences' => $audiences,
+            'theme'           => $this->theme,
+            'user'            => $this->traitementsDS->getUserByUidInCookies(),
+            'audiences'       => $audiences,
+            'audienceCounts'  => $audienceCounts,
         ]);
     }
 
