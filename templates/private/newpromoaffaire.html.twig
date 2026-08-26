@@ -503,8 +503,6 @@
 </div>
 
 <!-- Alert Container -->
-<div id="alertContainer" class="position-fixed top-0 start-50 translate-middle-x mt-3" style="z-index: 1050;"></div>
-
 <div id="promotionImageCropper" class="promotion-cropper" hidden>
     <div class="promotion-cropper__dialog" role="dialog" aria-modal="true" aria-labelledby="promotionImageCropperTitle">
         <div class="promotion-cropper__header">
@@ -1269,18 +1267,6 @@ if (siteAppForm) {
     });
 }
 
-function showAlert(type, message) {
-    if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
-        const titles = { danger: 'Erreur', warning: 'Attention', info: 'Information', success: 'Succès' };
-        return window.DressurMessages.show({
-            type: type,
-            title: titles[type] || 'Information',
-            message: message
-        });
-    }
-    window.alert(message);
-    return Promise.resolve(false);
-}
 </script>
 
 {% endblock %}

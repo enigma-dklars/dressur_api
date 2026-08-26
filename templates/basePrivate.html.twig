@@ -482,6 +482,15 @@
      * La signature historique (title, message, type) est conservée.
      */
     function showAlert(title, message, type = 'danger') {
+        const knownTypes = ['danger', 'warning', 'info', 'success', 'question'];
+        if (arguments.length === 2 && knownTypes.includes(title)) {
+            type = title;
+            title = type === 'danger' ? 'Erreur' : (type === 'warning' ? 'Attention' : (type === 'success' ? 'Succès' : 'Information'));
+        } else if (arguments.length === 2 && knownTypes.includes(message)) {
+            type = message;
+            message = title;
+            title = type === 'danger' ? 'Erreur' : (type === 'warning' ? 'Attention' : (type === 'success' ? 'Succès' : 'Information'));
+        }
         if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
             return window.DressurMessages.show({
                 type: type,

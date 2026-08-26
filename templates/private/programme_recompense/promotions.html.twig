@@ -21,17 +21,6 @@
 </div>
 <script>
 (function(){
-  function showAlert(message,type){
-    if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
-      return window.DressurMessages.show({
-        type: type,
-        title: type === 'success' ? 'Succès' : (type === 'danger' ? 'Erreur' : 'Information'),
-        message: message
-      });
-    }
-    window.alert(message);
-    return Promise.resolve(false);
-  }
   async function shareWithImage(data){
     const absoluteImage=new URL(data.imageUrl,window.location.origin).href;
     if(navigator.share){

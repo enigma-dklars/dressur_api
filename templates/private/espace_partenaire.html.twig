@@ -149,8 +149,6 @@
                     <span>Entretien de validation avec l'équipe Dressur sur WhatsApp (dernière étape)</span>
                 </li>
             </ul>
-            {# ── Feedback ─────────────────────────────────────────── #}
-            <div id="epFeedback" class="alert" style="display:none"></div>
             {# ── Bouton entretien (conditions 1-5 remplies, pas encore partenaire) ── #}
             {% if not user.estPartenaire %}
                 {% if condNom and condTel and condMail and condAnciennete and condCumul %}

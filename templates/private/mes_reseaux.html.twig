@@ -68,14 +68,6 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
         Chargement de vos réseaux…
     </div>
 
-    <div id="dsNetworksError" class="alert alert-danger ds-networks-state d-none" role="alert">
-        <div class="d-flex align-items-center justify-content-between gap-3">
-            <span id="dsNetworksErrorMessage">Impossible de charger vos réseaux.</span>
-            <button type="button" class="btn btn-sm btn-outline-danger" id="dsNetworksRetry">Réessayer</button>
-        </div>
-    </div>
-
-    <div id="dsNetworksSuccess" class="alert alert-success ds-networks-state d-none" role="status"></div>
 
     <div id="dsNetworksEmpty" class="ds-networks-empty d-none">
         <div class="ds-networks-empty-icon"><i class="fas fa-share-nodes"></i></div>
@@ -142,14 +134,10 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     const networksEndpoint = '/api/user/social-networks';
     const catalogEndpoint = networksEndpoint + '/catalog';
     const loading = document.getElementById('dsNetworksLoading');
-    const error = document.getElementById('dsNetworksError');
-    const errorMessage = document.getElementById('dsNetworksErrorMessage');
-    const success = document.getElementById('dsNetworksSuccess');
     const empty = document.getElementById('dsNetworksEmpty');
     const list = document.getElementById('dsNetworksList');
     const addButton = document.getElementById('dsAddNetworkButton');
     const addFirstButton = document.getElementById('dsAddFirstNetworkButton');
-    const retryButton = document.getElementById('dsNetworksRetry');
     const addForm = document.getElementById('dsAddNetworkForm');
     const addError = document.getElementById('dsAddNetworkError');
     const networkType = document.getElementById('dsNetworkType');
@@ -173,17 +161,21 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
         element.classList.toggle('d-none', !visible);
     }
 
-    function showError(message) {
-        setVisible(error, false);
+    function showError(message, canRetry) {
+        const options = { type: 'danger', title: canRetry ? 'Chargement impossible' : 'Erreur', message: message };
+        if (canRetry) {
+            options.confirmLabel = 'Réessayer';
+            options.cancelLabel = 'Fermer';
+            options.onConfirm = function () { return loadNetworks(); };
+        }
         if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
-            return window.DressurMessages.show({ type: 'danger', title: 'Erreur', message: message });
+            return window.DressurMessages.show(options);
         }
         window.alert(message);
         return Promise.resolve(false);
     }
 
     function showSuccess(message) {
-        setVisible(success, false);
         if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
             return window.DressurMessages.show({ type: 'success', title: 'Succès', message: message });
         }
@@ -360,8 +352,6 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
 
     async function loadNetworks() {
         setVisible(loading, true);
-        setVisible(error, false);
-        setVisible(success, false);
         setVisible(empty, false);
         setVisible(list, false);
         addButton.disabled = true;
@@ -379,7 +369,7 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
             setVisible(loading, false);
         } catch (requestError) {
             setVisible(loading, false);
-            showError(requestError.message);
+            showError(requestError.message, true);
         }
     }
 
@@ -495,7 +485,6 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
         }
     });
 
-    retryButton.addEventListener('click', loadNetworks);
     setCreateMode();
     loadNetworks();
 }());
