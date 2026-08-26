@@ -6,6 +6,7 @@ use App\Entity\Story;
 use App\Entity\User;
 use App\Services\CookieDS;
 use App\Entity\Promotion;
+use App\Entity\PromotionMotifRefus;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
@@ -86,6 +87,113 @@ class AdminController extends AbstractController
         }
     }
 
+    private function formatPromotionDate(?\DateTimeInterface $date): ?string
+    {
+        return $date?->format('d/m/Y H:i');
+    }
+
+    private function dateAfterDays(?int $days): \DateTime
+    {
+        if ($days === null || $days < 1) {
+            throw new \RuntimeException('Le nombre de jours de la formule est invalide.');
+        }
+
+        $date = (new \DateTime())->modify('+' . $days . ' days');
+        if ($date === false) {
+            throw new \RuntimeException('Impossible de calculer la date d’expiration.');
+        }
+
+        return $date;
+    }
+
+    private function encodePromotionToken(int $id): ?string
+    {
+        if (!function_exists('openssl_encrypt')) {
+            return null;
+        }
+
+        $key = substr(hash('sha256', $this->getParameter('kernel.secret'), true), 0, 16);
+        $encrypted = openssl_encrypt((string) $id, 'AES-128-ECB', $key, OPENSSL_RAW_DATA);
+
+        if ($encrypted === false) {
+            return null;
+        }
+
+        return rtrim(strtr(base64_encode($encrypted), '+/', '-_'), '=');
+    }
+
+    private function serializePendingPromotion(Promotion $promotion): array
+    {
+        $promotionUser = $promotion->getUser();
+        $formule = $promotion->getFormulePromoAffaire();
+        $additionalInfo = $promotion->getAnnotherInfo();
+        $refusalHistory = [];
+
+        foreach ($promotion->getMotifsRefus() as $refusal) {
+            if (!$refusal instanceof PromotionMotifRefus) {
+                continue;
+            }
+
+            $refusalHistory[] = [
+                'motif' => $refusal->getMotif(),
+                'dateRefus' => $this->formatPromotionDate($refusal->getDateRefus()),
+            ];
+        }
+
+        return [
+            'id' => $promotion->getId(),
+            'type' => $promotion->getTypePromotionAffaire(),
+            'description' => $promotion->getDescription(),
+            'image' => $promotion->getImage(),
+            'publicUrl' => $promotion->getId() !== null
+                ? 'https://dressur.site/actualite/pub/' . $this->encodePromotionToken($promotion->getId())
+                : null,
+            'source' => $promotion->getSource(),
+            'mode' => $promotion->getMode(),
+            'motif' => $promotion->getMotif(),
+            'status' => $promotion->getStatus(),
+            'statusLabel' => match ($promotion->getStatus()) {
+                0 => 'Rejetée',
+                1 => 'En attente',
+                2 => 'En attente de paiement',
+                3 => 'En cours',
+                4 => 'Terminée',
+                default => 'Inconnu',
+            },
+            'createdAt' => $this->formatPromotionDate($promotion->getCreatedAt()),
+            'dateDebut' => $this->formatPromotionDate($promotion->getDateDebut()),
+            'dateExp' => $this->formatPromotionDate($promotion->getDateExp()),
+            'nombreDeVue' => $promotion->getNombreDeVue(),
+            'nombreImpression' => $promotion->getNombreImpression(),
+            'whoSawCount' => count($promotion->getWhoSaw() ?? []),
+            'limited' => $promotion->isLimited(),
+            'isFakeVue' => $promotion->getIsFakeVue(),
+            'referencement' => $promotion->getReferencement(),
+            'publishOnDressurStatus' => $promotion->isPublishOnDressurStatus(),
+            'inProgrammeRecompense' => $promotion->isInProgrammeRecompense(),
+            'boostFacebook' => $promotion->isBoostFacebook(),
+            'montantBoostFacebook' => $promotion->getMontantBoostFacebook(),
+            'whatsappContact' => $promotion->getWhatsappContact(),
+            'nomSiteApp' => $promotion->getNomSiteApp(),
+            'urlSiteApp' => $promotion->getUrlSiteApp(),
+            'sousTypeSiteApp' => $promotion->getSousTypeSiteApp(),
+            'formule' => $formule ? [
+                'id' => $formule->getId(),
+                'titre' => $formule->getTitre(),
+                'prix' => $formule->getPrix(),
+                'nbrJour' => $formule->getNbrJour(),
+            ] : null,
+            'annotherInfo' => is_array($additionalInfo) ? $additionalInfo : [],
+            'motifsRefus' => $refusalHistory,
+            'user' => $promotionUser ? [
+                'pseudo' => $promotionUser->getPseudo(),
+                'nom' => $promotionUser->getNom(),
+                'mail' => $promotionUser->getMail(),
+                'tel' => $promotionUser->getTel(),
+            ] : null,
+        ];
+    }
+
     /**
      * Retourne la liste des promotions en attente de validation (status = 1).
      * Réservé aux administrateurs.
@@ -118,26 +226,10 @@ class AdminController extends AbstractController
 
         $promotions = $promotionRepository->findBy(['status' => 1], ['id' => 'DESC']);
 
-        $data = [];
-        foreach ($promotions as $promo) {
-            $promoUser = $promo->getUser();
-            $data[] = [
-                'id'          => $promo->getId(),
-                'type'        => $promo->getTypePromotionAffaire(),
-                'description' => $promo->getDescription(),
-                'image'       => $promo->getImage(),
-                'source'      => $promo->getSource(),
-                'createdAt'   => $promo->getCreatedAt()
-                    ? $promo->getCreatedAt()->format('d/m/Y H:i')
-                    : null,
-                'user' => $promoUser ? [
-                    'pseudo' => $promoUser->getPseudo(),
-                    'nom'    => $promoUser->getNom(),
-                    'mail'   => $promoUser->getMail(),
-                    'tel'    => $promoUser->getTel(),
-                ] : null,
-            ];
-        }
+        $data = array_map(
+            fn (Promotion $promotion): array => $this->serializePendingPromotion($promotion),
+            $promotions
+        );
 
         return new JsonResponse(['error' => false, 'promotions' => $data]);
     }
@@ -183,25 +275,35 @@ class AdminController extends AbstractController
             ]);
         }
 
+        if ($promotion->getStatus() !== 1) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Cette promotion n’est plus en attente de validation.',
+            ]);
+        }
+
         try {
-            if ($promotion->getTypePromotionAffaire() === 'produit_service') {
-                $promotion->setDateExp(
-                    new \DateTime('+ ' . $promotion->getFormulePromoAffaire()->getNbrJour() . ' days')
-                );
+            $type = $promotion->getTypePromotionAffaire();
+            if ($type === 'produit_service') {
+                $formule = $promotion->getFormulePromoAffaire();
+                if (!$formule) {
+                    throw new \RuntimeException('La formule de cette promotion est introuvable ou invalide.');
+                }
+                $promotion->setDateExp($this->dateAfterDays($formule->getNbrJour()));
             }
 
-            if ($promotion->getTypePromotionAffaire() === 'dmd_emploi') {
+            if (in_array($type, ['dmd_emploi', 'offre_emploi'], true)) {
                 $formule = $formulePromoAffaireRepository->find(4);
+                if (!$formule) {
+                    throw new \RuntimeException('La formule par défaut des emplois est introuvable ou invalide.');
+                }
                 $promotion
                     ->setFormulePromoAffaire($formule)
-                    ->setDateExp(new \DateTime('+ ' . $formule->getNbrJour() . ' days'));
+                    ->setDateExp($this->dateAfterDays($formule->getNbrJour()));
             }
 
-            if ($promotion->getTypePromotionAffaire() === 'offre_emploi') {
-                $formule = $formulePromoAffaireRepository->find(4);
-                $promotion
-                    ->setFormulePromoAffaire($formule)
-                    ->setDateExp(new \DateTime('+ ' . $formule->getNbrJour() . ' days'));
+            if ($type === 'sites_applications') {
+                $promotion->setDateExp($this->dateAfterDays(365));
             }
 
             $promotion->setMotif('')->setStatus(3)->setDateDebut(new \DateTime());
@@ -257,7 +359,7 @@ class AdminController extends AbstractController
             $sendMail->sendReport('Error accepterPromo : AdminController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error'   => true,
-                'message' => 'Erreur : ' . $th->getMessage(),
+                'message' => 'Une erreur est survenue lors du traitement de la promotion. Veuillez réessayer.',
             ]);
         }
     }
@@ -302,10 +404,26 @@ class AdminController extends AbstractController
             ]);
         }
 
+        if ($promotion->getStatus() !== 1) {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Cette promotion n’est plus en attente de validation.',
+            ]);
+        }
+
         $motif = trim((string) $request->request->get('motif', ''));
+        if ($motif === '') {
+            return new JsonResponse([
+                'error'   => true,
+                'message' => 'Un motif de refus est obligatoire.',
+            ]);
+        }
 
         try {
+            $motifRefus = (new PromotionMotifRefus())->setMotif($motif);
+            $promotion->addMotifRefus($motifRefus);
             $promotion->setMotif($motif)->setStatus(0);
+            $this->em->persist($motifRefus);
             $user = $promotion->getUser();
             $traitementsDS->addNotification("Votre promotion a été refusée.", $user);
             $this->em->flush();
@@ -327,7 +445,7 @@ class AdminController extends AbstractController
             $sendMail->sendReport('Error refuserPromo : AdminController', $th . '<br><br><br>');
             return new JsonResponse([
                 'error'   => true,
-                'message' => 'Erreur : ' . $th->getMessage(),
+                'message' => 'Une erreur est survenue lors du traitement de la promotion. Veuillez réessayer.',
             ]);
         }
     }
