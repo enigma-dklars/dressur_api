@@ -319,7 +319,9 @@ class CrudUserController extends AbstractController
 
         if ($user->getTelIsVerified() === true) {
             return new Response(
-                "Le compte WhatsApp associé est déjà confirmé. Aucune action n'est nécessaire. ✅",
+                "Ce numéro WhatsApp est déjà confirmé. ✅\n\n"
+                . "Si l'application affiche encore qu'il n'est pas confirmé, actualisez l'application.\n"
+                . "Si le problème persiste, déconnectez-vous puis reconnectez-vous.",
             );
         }
 
