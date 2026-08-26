@@ -312,7 +312,12 @@ class TraitementsDS extends AbstractController
         $dirty = false;
         foreach ($promos as $promo) {
             if ($promo->getDateExp() && (new DateTime()) > $promo->getDateExp() && $promo->getStatus() == 3) {
-                $promo->setStatus(4)->setInProgrammeRecompense(false)->setPublishOnDressurStatus(false);
+                $promo
+                    ->setStatus(4)
+                    ->setInProgrammeRecompense(false)
+                    ->setPublishOnDressurStatus(false)
+                    ->setBoostFacebook(false)
+                    ->setMontantBoostFacebook(0);
                 $this->finishParticipationProgrammeRecompense($promo);
                 $dirty = true;
             }
@@ -1922,19 +1927,27 @@ class TraitementsDS extends AbstractController
         bool $setWhatsappContact = false
     ): Promotion {
         $promotionInfo = $promotion->getAnnotherInfo() ?? [];
-        $rewardBudget = array_key_exists('rewardBudget', $transactionInfo)
-            ? (int) $transactionInfo['rewardBudget']
+        $inProgrammeRecompense = (bool) ($transactionInfo['inProgrammeRecompense'] ?? false);
+        $publishOnDressurStatus = (bool) ($transactionInfo['publishOnDressurStatus'] ?? false);
+        $boostFacebook = (bool) ($transactionInfo['boostFacebook'] ?? false);
+        $rewardBudget = $inProgrammeRecompense && array_key_exists('rewardBudget', $transactionInfo)
+            ? max(0, (int) $transactionInfo['rewardBudget'])
             : null;
+        $montantBoostFacebook = $boostFacebook
+            ? max(0, (int) ($transactionInfo['montantBoostFacebook'] ?? 0))
+            : 0;
 
         if ($rewardBudget !== null) {
             $promotionInfo['rewardBudget'] = $rewardBudget;
+        } else {
+            unset($promotionInfo['rewardBudget']);
         }
 
         $promotion
-            ->setInProgrammeRecompense($transactionInfo['inProgrammeRecompense'] ?? false)
-            ->setPublishOnDressurStatus($transactionInfo['publishOnDressurStatus'] ?? false)
-            ->setBoostFacebook($transactionInfo['boostFacebook'] ?? false)
-            ->setMontantBoostFacebook($transactionInfo['montantBoostFacebook'] ?? 0)
+            ->setInProgrammeRecompense($inProgrammeRecompense)
+            ->setPublishOnDressurStatus($publishOnDressurStatus)
+            ->setBoostFacebook($boostFacebook)
+            ->setMontantBoostFacebook($montantBoostFacebook)
             ->setSource($transactionInfo['source'] ?? 'mobile')
             ->setAnnotherInfo($promotionInfo ?: null);
 
