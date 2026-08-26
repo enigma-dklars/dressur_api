@@ -51,9 +51,11 @@ class CrudUserController extends AbstractController
         $page = $request->query->getInt('page', 1);
         $search = $request->query->get('search', '');
         $sourceFilter = $request->query->get('source', '');
+        $segmentFilter = $request->query->get('segment', '');
+        $segmentFilter = in_array($segmentFilter, ['rewards', 'sellers', 'partners'], true) ? $segmentFilter : '';
         $limit = 100; // Nombre d'utilisateurs par page
 
-        $usersPaginator = $userRepository->findAllPaginatedFiltered($search, $sourceFilter, $page, $limit);
+        $usersPaginator = $userRepository->findAllPaginatedFiltered($search, $sourceFilter, $segmentFilter, $page, $limit);
         
         $totalItems = $usersPaginator->count();
         $totalPages = ceil($totalItems / $limit);
@@ -62,13 +64,19 @@ class CrudUserController extends AbstractController
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'users' => $usersPaginator,
-            'option' => "All",
+            'option' => match ($segmentFilter) {
+                'rewards' => 'Programme des récompenses',
+                'sellers' => 'Vendeurs',
+                'partners' => 'Partenaires',
+                default => 'All',
+            },
             'currentPage' => $page,
             'totalPages' => $totalPages,
             'totalItems' => $totalItems,
             'search' => $search,
             'limit' => $limit,
             'sourceFilter' => $sourceFilter,
+            'segmentFilter' => $segmentFilter,
             'sourceCounts' => $userRepository->getRegisterSourceCounts()
         ]);
     }

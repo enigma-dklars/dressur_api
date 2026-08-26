@@ -10,13 +10,15 @@
         <div class="col-md-6">
             <!-- Barre de recherche -->
             <form method="get" class="d-flex">
+                <input type="hidden" name="source" value="{{ sourceFilter ?? '' }}">
+                <input type="hidden" name="segment" value="{{ segmentFilter ?? '' }}">
                 <input type="text" name="search" class="form-control me-2" 
                        placeholder="Rechercher..." value="{{ search ?? '' }}">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i>
                 </button>
                 {% if search %}
-                    <a href="{{ path('app_crud_user_index') }}" class="btn btn-secondary ms-2">
+                    <a href="{{ path('app_crud_user_index', {'source': sourceFilter ?? '', 'segment': segmentFilter ?? ''}) }}" class="btn btn-secondary ms-2">
                         <i class="fas fa-times"></i>
                     </a>
                 {% endif %}
@@ -27,10 +29,19 @@
     <!-- Filtre Source -->
     <div class="mb-3 d-flex align-items-center gap-2">
         <span class="fw-semibold me-1">Source :</span>
-        <a href="{{ path('app_crud_user_index', {'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
-        <a href="{{ path('app_crud_user_index', {'source': 'mobile', 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
-        <a href="{{ path('app_crud_user_index', {'source': 'web', 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
-        <a href="{{ path('app_crud_user_index', {'source': 'none', 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+        <a href="{{ path('app_crud_user_index', {'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'mobile', 'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'web', 'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'none', 'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+    </div>
+
+    <!-- Filtre Segment -->
+    <div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+        <span class="fw-semibold me-1">Segment :</span>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit, 'segment': 'rewards'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'rewards' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Récompenses</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit, 'segment': 'sellers'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'sellers' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Vendeurs</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit, 'segment': 'partners'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'partners' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Partenaires</a>
     </div>
 
     <!-- Informations sur les résultats -->
@@ -156,7 +167,7 @@
             <!-- Premier -->
             <li class="page-item {% if currentPage == 1 %}disabled{% endif %}">
                 <a class="page-link" 
-                   href="{{ path('app_crud_user_index', {'page': 1, 'search': search}) }}">
+                   href="{{ path('app_crud_user_index', {'page': 1, 'search': search, 'source': sourceFilter, 'segment': segmentFilter ?? ''}) }}">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
             </li>
@@ -164,7 +175,7 @@
             <!-- Précédent -->
             <li class="page-item {% if currentPage == 1 %}disabled{% endif %}">
                 <a class="page-link" 
-                   href="{{ path('app_crud_user_index', {'page': currentPage - 1, 'search': search}) }}">
+                   href="{{ path('app_crud_user_index', {'page': currentPage - 1, 'search': search, 'source': sourceFilter, 'segment': segmentFilter ?? ''}) }}">
                     <i class="fas fa-angle-left"></i>
                 </a>
             </li>
@@ -177,7 +188,7 @@
             {% for i in startPage..endPage %}
                 <li class="page-item {% if i == currentPage %}active{% endif %}">
                     <a class="page-link" 
-                       href="{{ path('app_crud_user_index', {'page': i, 'search': search}) }}">
+                       href="{{ path('app_crud_user_index', {'page': i, 'search': search, 'source': sourceFilter, 'segment': segmentFilter ?? ''}) }}">
                         {{ i }}
                     </a>
                 </li>
@@ -186,7 +197,7 @@
             <!-- Suivant -->
             <li class="page-item {% if currentPage == totalPages %}disabled{% endif %}">
                 <a class="page-link" 
-                   href="{{ path('app_crud_user_index', {'page': currentPage + 1, 'search': search}) }}">
+                   href="{{ path('app_crud_user_index', {'page': currentPage + 1, 'search': search, 'source': sourceFilter, 'segment': segmentFilter ?? ''}) }}">
                     <i class="fas fa-angle-right"></i>
                 </a>
             </li>
@@ -194,7 +205,7 @@
             <!-- Dernier -->
             <li class="page-item {% if currentPage == totalPages %}disabled{% endif %}">
                 <a class="page-link" 
-                   href="{{ path('app_crud_user_index', {'page': totalPages, 'search': search}) }}">
+                   href="{{ path('app_crud_user_index', {'page': totalPages, 'search': search, 'source': sourceFilter, 'segment': segmentFilter ?? ''}) }}">
                     <i class="fas fa-angle-double-right"></i>
                 </a>
             </li>

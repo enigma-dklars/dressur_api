@@ -18,11 +18,18 @@
     <!-- Filtre Source -->
     <div class="mb-3 d-flex align-items-center gap-2">
         <span class="fw-semibold me-1">Source :</span>
-        <a href="{{ path('app_crud_promotion_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
-        <a href="{{ path('app_crud_promotion_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
-        <a href="{{ path('app_crud_promotion_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
-        <a href="{{ path('app_crud_promotion_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
-    </div>
+        <a href="{{ path('app_crud_promotion_index', {'status': statusFilter ?? '', 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'mobile', 'status': statusFilter ?? '', 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_promotion_index', {'source': 'web', 'status': statusFilter ?? '', 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+    <a href="{{ path('app_crud_promotion_index', {'source': 'none', 'status': statusFilter ?? '', 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+</div>
+<div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+    <span class="fw-semibold me-1">Vue :</span>
+    <a href="{{ path('app_crud_promotion_index', {'source': sourceFilter, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ (statusFilter ?? '') == '' and (segmentFilter ?? '') == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Toutes</a>
+    <a href="{{ path('app_crud_promotion_index', {'source': sourceFilter, 'status': 'active', 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ statusFilter == 'active' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">En cours</a>
+    <a href="{{ path('app_crud_promotion_index', {'source': sourceFilter, 'segment': 'rewards', 'status': statusFilter ?? ''}) }}" class="badge text-decoration-none {{ segmentFilter == 'rewards' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Programme récompenses</a>
+    <a href="{{ path('app_crud_promotion_index', {'source': sourceFilter, 'segment': 'publish_status', 'status': statusFilter ?? ''}) }}" class="badge text-decoration-none {{ segmentFilter == 'publish_status' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">DS Statut</a>
+</div>
 
     <div class="table-responsive">
         <table class="data-table table table-bordered table-striped">

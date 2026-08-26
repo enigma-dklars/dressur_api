@@ -135,7 +135,7 @@
                             <p class="mb-0 font-13 text-secondary">Boost Contact</p>
                         </div>
                         <div class="widget-icon-large bg-primary text-white ms-auto">
-                            <i class="fas fa-bolt"></i>
+                            <a href="{{ path('app_crud_boost_index', {'status': 'active'}) }}" class="text-white" title="Voir les Boost Contact en cours"><i class="fas fa-bolt"></i></a>
                         </div>
                     </div>
                 </div>
@@ -153,7 +153,7 @@
                             <p class="mb-0 font-13 text-secondary">Boost Contact</p>
                         </div>
                         <div class="widget-icon-large bg-info text-white ms-auto">
-                            <i class="fas fa-calendar-check"></i>
+                            <a href="{{ path('app_crud_boost_index', {'status': 'scheduled'}) }}" class="text-white" title="Voir les Boost Contact programmés"><i class="fas fa-calendar-check"></i></a>
                         </div>
                     </div>
                 </div>
@@ -171,7 +171,7 @@
                             <p class="mb-0 font-13 text-secondary">Promo Affaire</p>
                         </div>
                         <div class="widget-icon-large bg-info text-white ms-auto">
-                            <i class="fas fa-briefcase"></i>
+                            <a href="{{ path('app_crud_promotion_index', {'status': 'active'}) }}" class="text-white" title="Voir les Promotions Affaire en cours"><i class="fas fa-briefcase"></i></a>
                         </div>
                     </div>
                 </div>
@@ -189,7 +189,7 @@
                             <p class="mb-0 font-13 text-secondary">Récompenses</p>
                         </div>
                         <div class="widget-icon-large bg-success text-white ms-auto">
-                            <i class="fas fa-trophy"></i>
+                            <a href="{{ path('app_crud_user_index', {'segment': 'rewards'}) }}" class="text-white" title="Voir les utilisateurs du Programme des récompenses"><i class="fas fa-trophy"></i></a>
                         </div>
                     </div>
                 </div>
@@ -207,7 +207,7 @@
                             <p class="mb-0 font-13 text-secondary">Compte vendeur</p>
                         </div>
                         <div class="widget-icon-large bg-secondary text-white ms-auto">
-                            <i class="fas fa-store"></i>
+                            <a href="{{ path('app_crud_user_index', {'segment': 'sellers'}) }}" class="text-white" title="Voir les utilisateurs vendeurs"><i class="fas fa-store"></i></a>
                         </div>
                     </div>
                 </div>
@@ -225,7 +225,7 @@
                             <p class="mb-0 font-13 text-secondary">Compte partenaire</p>
                         </div>
                         <div class="widget-icon-large bg-primary text-white ms-auto">
-                            <i class="fas fa-handshake"></i>
+                            <a href="{{ path('app_crud_user_index', {'segment': 'partners'}) }}" class="text-white" title="Voir les utilisateurs partenaires"><i class="fas fa-handshake"></i></a>
                         </div>
                     </div>
                 </div>
@@ -243,7 +243,7 @@
                             <p class="mb-0 font-13 text-secondary">Prog. Récompenses</p>
                         </div>
                         <div class="widget-icon-large bg-success text-white ms-auto">
-                            <i class="fas fa-trophy"></i>
+                            <a href="{{ path('app_crud_promotion_index', {'segment': 'rewards'}) }}" class="text-white" title="Voir les Promotions Affaire du Programme des récompenses"><i class="fas fa-trophy"></i></a>
                         </div>
                     </div>
                 </div>
@@ -261,7 +261,7 @@
                             <p class="mb-0 font-13 text-secondary">DS Statut</p>
                         </div>
                         <div class="widget-icon-large bg-success text-white ms-auto">
-                            <i class="fas fa-circle-check"></i>
+                            <a href="{{ path('app_crud_promotion_index', {'segment': 'publish_status'}) }}" class="text-white" title="Voir les Promotions Affaire DS Statut"><i class="fas fa-circle-check"></i></a>
                         </div>
                     </div>
                 </div>

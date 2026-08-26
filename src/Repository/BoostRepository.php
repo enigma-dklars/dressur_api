@@ -308,7 +308,7 @@ class BoostRepository extends ServiceEntityRepository
      *   4. Terminé            (tout le reste)
      * À statut égal, tri par id DESC (le plus récent en premier).
      */
-    public function findAllOrderedByStatus(string $sourceFilter = ''): array
+    public function findAllOrderedByStatus(string $sourceFilter = '', string $statusFilter = ''): array
     {
         $qb = $this->createQueryBuilder('b')
             ->addSelect('
@@ -323,10 +323,20 @@ class BoostRepository extends ServiceEntityRepository
             ->addOrderBy('b.id', 'DESC');
 
         if ($sourceFilter === 'none') {
-            $qb->where('b.source IS NULL');
+            $qb->andWhere('b.source IS NULL');
         } elseif (in_array($sourceFilter, ['web', 'mobile', 'admin'], true)) {
-            $qb->where('b.source = :source')
+            $qb->andWhere('b.source = :source')
                ->setParameter('source', $sourceFilter);
+        }
+
+        if ($statusFilter === 'active') {
+            $qb->andWhere('(b.dateDebut <= CURRENT_TIMESTAMP())')
+               ->andWhere('(
+                    (b.typeBoost = \'quota\' AND b.dateExp IS NULL)
+                    OR (b.typeBoost <> \'quota\' AND b.dateExp IS NOT NULL AND b.dateExp > CURRENT_TIMESTAMP())
+               )');
+        } elseif ($statusFilter === 'scheduled') {
+            $qb->andWhere('b.dateDebut > CURRENT_TIMESTAMP()');
         }
 
         return $qb->getQuery()->getResult();

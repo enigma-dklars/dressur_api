@@ -42,13 +42,16 @@ class CrudBoostController extends AbstractController
     public function index(BoostRepository $boostRepository, Request $request): Response
     {
         $sourceFilter = $request->query->get('source', '');
-        $boosts = $boostRepository->findAllOrderedByStatus($sourceFilter);
+        $statusFilter = $request->query->get('status', '');
+        $statusFilter = in_array($statusFilter, ['active', 'scheduled'], true) ? $statusFilter : '';
+        $boosts = $boostRepository->findAllOrderedByStatus($sourceFilter, $statusFilter);
 
         return $this->render('crud_boost/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'boosts' => $boosts,
             'sourceFilter' => $sourceFilter,
+            'statusFilter' => $statusFilter,
             'sourceCounts' => $boostRepository->getSourceCounts(),
         ]);
     }

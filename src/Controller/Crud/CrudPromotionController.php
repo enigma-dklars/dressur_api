@@ -80,14 +80,27 @@ class CrudPromotionController extends AbstractController
     public function index(PromotionRepository $promotionRepository, Request $request): Response
     {
         $sourceFilter = $request->query->get('source', '');
+        $statusFilter = $request->query->get('status', '');
+        $segmentFilter = $request->query->get('segment', '');
 
+        $criteria = [];
         if ($sourceFilter === 'none') {
-            $promotions = $promotionRepository->findBy(['source' => null], ['id' => 'DESC']);
-        } elseif (in_array($sourceFilter, ['web', 'mobile'])) {
-            $promotions = $promotionRepository->findBy(['source' => $sourceFilter], ['id' => 'DESC']);
-        } else {
-            $promotions = $promotionRepository->findBy([], ['id' => 'DESC']);
+            $criteria['source'] = null;
+        } elseif (in_array($sourceFilter, ['web', 'mobile'], true)) {
+            $criteria['source'] = $sourceFilter;
         }
+
+        if (in_array($statusFilter, ['active'], true)) {
+            $criteria['status'] = 3;
+        }
+
+        if ($segmentFilter === 'rewards') {
+            $criteria['inProgrammeRecompense'] = true;
+        } elseif ($segmentFilter === 'publish_status') {
+            $criteria['publishOnDressurStatus'] = true;
+        }
+
+        $promotions = $promotionRepository->findBy($criteria, ['id' => 'DESC']);
 
         $promotionPublicUrls = $this->buildPublicPromotionUrls($promotions);
 
@@ -97,6 +110,8 @@ class CrudPromotionController extends AbstractController
             'promotions' => $promotions,
             'promotionPublicUrls' => $promotionPublicUrls,
             'sourceFilter' => $sourceFilter,
+            'statusFilter' => $statusFilter,
+            'segmentFilter' => $segmentFilter,
             'sourceCounts' => $promotionRepository->getSourceCounts(),
         ]);
     }
@@ -112,6 +127,8 @@ class CrudPromotionController extends AbstractController
             'promotions'   => $promotions,
             'promotionPublicUrls' => $this->buildPublicPromotionUrls($promotions),
             'sourceFilter' => '',
+            'statusFilter' => '',
+            'segmentFilter' => '',
             'sourceCounts' => $promotionRepository->getSourceCounts(),
         ]);
     }

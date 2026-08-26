@@ -121,7 +121,7 @@ class UserRepository extends ServiceEntityRepository
         return $paginator;
     }
 
-    public function findAllPaginatedFiltered(string $search, string $source, int $page, int $limit): Paginator
+    public function findAllPaginatedFiltered(string $search, string $source, string $segment, int $page, int $limit): Paginator
     {
         $qb = $this->createQueryBuilder('u');
 
@@ -132,9 +132,20 @@ class UserRepository extends ServiceEntityRepository
 
         if ($source === 'none') {
             $qb->andWhere('u.registerSource IS NULL');
-        } elseif (in_array($source, ['web', 'mobile'])) {
+        } elseif (in_array($source, ['web', 'mobile'], true)) {
             $qb->andWhere('u.registerSource = :source')
                ->setParameter('source', $source);
+        }
+
+        if ($segment === 'rewards') {
+            $qb->andWhere('u.isInscritProgrammeRecompense = :rewards')
+               ->setParameter('rewards', true);
+        } elseif ($segment === 'sellers') {
+            $qb->andWhere('u.vendeur = :seller')
+               ->setParameter('seller', true);
+        } elseif ($segment === 'partners') {
+            $qb->andWhere('u.estPartenaire = :partner')
+               ->setParameter('partner', true);
         }
 
         $qb->orderBy('u.id', 'DESC');

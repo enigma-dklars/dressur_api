@@ -14,12 +14,18 @@
     </div>
 {% endfor %}
 <!-- Filtre Source -->
-<div class="mb-3 d-flex align-items-center gap-2">
+<div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
     <span class="small fw-semibold me-1">Source :</span>
-    <a href="{{ path('app_crud_boost_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
-    <a href="{{ path('app_crud_boost_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
-    <a href="{{ path('app_crud_boost_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
-    <a href="{{ path('app_crud_boost_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+    <a href="{{ path('app_crud_boost_index', {'status': statusFilter}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+    <a href="{{ path('app_crud_boost_index', {'source': 'mobile', 'status': statusFilter}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+    <a href="{{ path('app_crud_boost_index', {'source': 'web', 'status': statusFilter}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+    <a href="{{ path('app_crud_boost_index', {'source': 'none', 'status': statusFilter}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+</div>
+<div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+    <span class="small fw-semibold me-1">État :</span>
+    <a href="{{ path('app_crud_boost_index', {'source': sourceFilter}) }}" class="badge text-decoration-none {{ statusFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous</a>
+    <a href="{{ path('app_crud_boost_index', {'source': sourceFilter, 'status': 'active'}) }}" class="badge text-decoration-none {{ statusFilter == 'active' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">En cours</a>
+    <a href="{{ path('app_crud_boost_index', {'source': sourceFilter, 'status': 'scheduled'}) }}" class="badge text-decoration-none {{ statusFilter == 'scheduled' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Programmé</a>
 </div>
 <div class="table-responsive">
     <table class="data-table table table-bordered table-striped">
