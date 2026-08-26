@@ -65,7 +65,7 @@
 {% set _appbar_back  = _appbar_backs[r] ?? null %}
 
 <style>
-/* ── AppBar mobile ── */
+/* ── AppBar utilisateur unifiée ── */
 .ds-appbar {
     display: none;
     align-items: center;
@@ -144,37 +144,41 @@ html.dark-theme .ds-appbar-btn:hover { background: rgba(255,255,255,.08); }
 html.semi-dark .ds-appbar { background: #1a2232; border-bottom: 1px solid rgba(255,255,255,.12); }
 html.semi-dark .ds-appbar-title,
 html.semi-dark .ds-appbar-btn { color: #fcfcfc; }
+.ds-appbar-admin { color: #dc3545 !important; }
 
-@media screen and (max-width: 1024px) {
+/* L’espace utilisateur conserve la navigation type mobile sur toutes les tailles. */
+@media screen {
     .ds-appbar          { display: flex !important; }
     .top-header .navbar { display: none !important; }
-}
-@media screen and (min-width: 1025px) {
-    .ds-appbar { display: none !important; }
 }
 </style>
 
 <header class="top-header">
 
-    {# ── AppBar mobile (≤ 1024px) ── #}
+    {# ── AppBar utilisateur (toutes les tailles) ── #}
     <div class="ds-appbar">
 
-        {# Gauche : flèche retour OU hamburger #}
+        {# Gauche : flèche retour ou accès à l’accueil #}
         {% if _appbar_back %}
             <a href="{{ _appbar_back }}" class="ds-appbar-btn" title="Retour">
                 <i class="fas fa-arrow-left"></i>
             </a>
         {% else %}
-            <button class="ds-appbar-btn mobile-toggle-icon" title="Menu">
-                <i class="bi bi-list" style="font-size:22px"></i>
-            </button>
+            <a href="/private" class="ds-appbar-btn" title="Accueil">
+                <i class="fas fa-house"></i>
+            </a>
         {% endif %}
 
         {# Centre : titre de la page #}
         <span class="ds-appbar-title">{{ _appbar_title }}</span>
 
-        {# Droite : thème + notifications #}
+        {# Droite : administration, thème et notifications #}
         <div class="ds-appbar-right">
+            {% if user.admin == true %}
+                <a href="{{ path('app_admin') }}" class="ds-appbar-btn ds-appbar-admin" title="Administration">
+                    <i class="fas fa-user-shield"></i>
+                </a>
+            {% endif %}
             <button class="ds-appbar-btn change-theme" title="Changer le thème">
                 <i class="fas {% if theme == 'dark-theme' %}fa-moon{% else %}fa-sun{% endif %} ici-theme"></i>
             </button>

@@ -58,8 +58,8 @@
     <title>{% block title %}{% endblock %} | Dressur Web</title>
 
     <style>
-    /* ── Interface mobile / tablette (≤ 1024px) ─────────────────── */
-    @media screen and (max-width: 1024px) {
+    /* ── Navigation utilisateur unifiée : mobile, tablette et desktop ── */
+    @media screen {
 
         /* Masquer le bouton hamburger (remplacé par la barre du bas) */
         .mobile-toggle-icon { display: none !important; }
@@ -69,6 +69,8 @@
 
         /* Espace pour la barre de navigation fixe en bas */
         .page-content { padding-bottom: 76px !important; }
+        .page-content { margin-left: 0 !important; }
+        .sidebar-wrapper { display: none !important; }
 
         /* ── Barre de navigation en bas ─────────── */
         .ds-mobile-bottomnav {
@@ -102,10 +104,7 @@
 
     }
 
-    /* Masqué sur desktop */
-    @media screen and (min-width: 1025px) {
-        .ds-mobile-bottomnav { display: none !important; }
-    }
+    /* La barre utilisateur reste visible sur toutes les tailles d’écran. */
 
     /* ── Bandeau statut boost global ─────────────────────────────────── */
     #ds-status-banner {
