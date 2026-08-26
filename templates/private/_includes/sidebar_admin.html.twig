@@ -1,7 +1,7 @@
 {% set r = app.request.attributes.get('_route') %}
 
 {# ── Groupes actifs : starts-with pour couvrir show/edit/new/delete ─── #}
-{% set user_special = ['app_crud_user_check_and_confirme','app_crud_user_check','app_crud_user_purge','app_crud_user_banned'] %}
+{% set user_special = ['app_crud_user_check_and_confirme','app_crud_user_check','app_crud_user_purge','app_crud_user_banned','app_crud_user_restrictions','app_crud_user_restriction_toggle'] %}
 {% set is_user        = (r starts with 'app_crud_user') and not (r starts with 'app_crud_user_bot') and r not in user_special %}
 {% set is_user_bot    = r starts with 'app_crud_user_bot' %}
 {% set is_boost       = r starts with 'app_crud_boost' %}
@@ -60,6 +60,7 @@
       <li class="my-0 {{ r == 'app_crud_user_check' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_check')}}" class="py-1 small-fort bg-info text-white {{ r == 'app_crud_user_check' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Check User</a></li>
       <li class="my-0 {{ r == 'app_crud_user_purge' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_purge')}}" class="py-1 small-fort bg-danger text-white {{ r == 'app_crud_user_purge' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Purge User</a></li>
       <li class="my-0 {{ r == 'app_crud_user_banned' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_banned')}}" class="py-1 small-fort bg-warning text-dark {{ r == 'app_crud_user_banned' ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Bannir User</a></li>
+      <li class="my-0 {{ r starts with 'app_crud_user_restriction' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_restrictions')}}" class="py-1 small-fort bg-info text-white {{ r starts with 'app_crud_user_restriction' ? 'active' : '' }}"><i class="me-2 fas fa-shield-halved"></i>Restrictions</a></li>
       <li class="my-0 {{ is_user_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_bot_index')}}" class="py-1 small-fort {{ is_user_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Users DS Bot</a></li>
 
       <hr class="my-2">

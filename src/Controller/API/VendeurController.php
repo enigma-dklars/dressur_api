@@ -83,6 +83,14 @@ class VendeurController extends AbstractController
         }
 
         $montant = $fraisAdhesion + $montantRecharge;
+        $restrictionMessage = $traitementsDS->validateUserTransaction($user, $montant);
+        if ($restrictionMessage !== null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant minimum requis',
+                'message' => $restrictionMessage,
+            ]);
+        }
 
         $methodePaiementId = $request->request->get('methodePaiementId');
         $methodePaiementEntity = $methodePaiementRepository->find($methodePaiementId);
@@ -262,6 +270,15 @@ class VendeurController extends AbstractController
                 'error' => true,
                 'titre' => 'Numéro requis',
                 'message' => 'Veuillez renseigner votre numéro de téléphone au format international (ex: +22890000000).',
+            ]);
+        }
+
+        $restrictionMessage = $traitementsDS->validateUserTransaction($user, $montant);
+        if ($restrictionMessage !== null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant minimum requis',
+                'message' => $restrictionMessage,
             ]);
         }
 

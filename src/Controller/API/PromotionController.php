@@ -419,6 +419,15 @@ class PromotionController extends AbstractController
             $boostFacebook,
             $montantBoostFacebook
         );
+        $restrictionMessage = $traitementsDS->validateUserTransaction($user, (int) $montantTotal);
+        if ($restrictionMessage !== null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant minimum requis',
+                'message' => $restrictionMessage,
+            ]);
+        }
+
         // ── Paiement via solde ────────────────────────────────────────────────
         if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
             $myTransaction = (new EntityTransaction())
@@ -729,6 +738,15 @@ class PromotionController extends AbstractController
             'sousType'    => $sousType,
             'source'      => $source,
         ];
+
+        $restrictionMessage = $traitementsDS->validateUserTransaction($user, (int) $montantSolde);
+        if ($restrictionMessage !== null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant minimum requis',
+                'message' => $restrictionMessage,
+            ]);
+        }
 
         // ── Paiement via solde ────────────────────────────────────────────────
         if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
@@ -1176,6 +1194,15 @@ class PromotionController extends AbstractController
                 $boostFacebook,
                 $montantBoostFacebook
             );
+            $restrictionMessage = $traitementsDS->validateUserTransaction($user, (int) $montantTotal);
+            if ($restrictionMessage !== null) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Montant minimum requis',
+                    'message' => $restrictionMessage,
+                ]);
+            }
+
             // ── Paiement via solde ────────────────────────────────────────────────
             if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
                 $myTransaction = (new EntityTransaction())

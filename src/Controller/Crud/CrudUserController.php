@@ -82,7 +82,7 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/notifications', name: 'app_crud_user_notifications', methods: ['GET'])]
+    #[Route('/{id}/notifications', name: 'app_crud_user_notifications', requirements: ['id' => '\\d+'], methods: ['GET'])]
     public function notifications(User $targetUser, NotificationRepository $notificationRepository): Response
     {
         $notifications = $notificationRepository->findForUser($targetUser);
@@ -656,7 +656,7 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_crud_user_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_crud_user_show', requirements: ['id' => '\\d+'], methods: ['GET'])]
     public function show(User $user): Response
     {
         return $this->render('crud_user/show.html.twig', [
@@ -666,7 +666,7 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_crud_user_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_crud_user_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(UserType::class, $user);
@@ -693,7 +693,7 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', methods: ['POST'])]
+    #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', requirements: ['id' => '\\d+'], methods: ['POST'])]
     public function activerMail(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if (!$this->isCsrfTokenValid('activer_mail'.$user->getId(), $request->request->get('_token'))) {
@@ -706,7 +706,7 @@ class CrudUserController extends AbstractController
         return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', methods: ['POST'])]
+    #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', requirements: ['id' => '\\d+'], methods: ['POST'])]
     public function activerTel(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if (!$this->isCsrfTokenValid('activer_tel'.$user->getId(), $request->request->get('_token'))) {
@@ -719,7 +719,7 @@ class CrudUserController extends AbstractController
         return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}', name: 'app_crud_user_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_crud_user_delete', requirements: ['id' => '\\d+'], methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->request->get('_token'))) {

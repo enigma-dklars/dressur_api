@@ -149,6 +149,15 @@ class PromotionReseauController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
+        $restrictionMessage = $traitementsDS->validateUserTransaction($user, (int) $montantRecalcule);
+        if ($restrictionMessage !== null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant minimum requis',
+                'message' => $restrictionMessage,
+            ]);
+        }
+
         $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
         if($verificationNumTel["error"] == true){
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);

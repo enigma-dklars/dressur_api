@@ -11,6 +11,7 @@ use FedaPay\Transaction;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
+use App\Services\UserRestrictionService;
 use App\Repository\UserRepository;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -37,13 +38,15 @@ class BoostController extends AbstractController
     private $env;
     private $sendMail;
     private $cookieDS;
+    private UserRestrictionService $userRestrictionService;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail, CookieDS $cookieDS)
+    public function __construct(EntityManagerInterface $em, EnvRepository $env, SendMail $sendMail, CookieDS $cookieDS, UserRestrictionService $userRestrictionService)
     {
         $this->em = $em;
         $this->env = $env->find(1);
         $this->sendMail = $sendMail;
         $this->cookieDS = $cookieDS;
+        $this->userRestrictionService = $userRestrictionService;
     }
 
     #[Route('/listeFormuleBoost', name: 'listeFormuleBoost', methods: ['POST', 'GET'])]
@@ -110,7 +113,15 @@ class BoostController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez-nous sur WhatsApp.",
+                'message' => "Votre numéro WhatsApp na pas encore été confirmer. S'il s'agit d'une erreur, contactez l'Assistance Dressur par WhatsApp.",
+            ]);
+        }
+
+        if ($this->userRestrictionService->blocksFreeBoost($user)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Boost Contact gratuit indisponible',
+                'message' => $this->userRestrictionService->freeBoostDenialMessage($user),
             ]);
         }
 
@@ -279,6 +290,15 @@ class BoostController extends AbstractController
                 'error' => true,
                 'titre' => 'Attention!',
                 'message' => 'Veuillez choisir une Methode de Paiement valide...',
+            ]);
+        }
+
+        $restrictionMessage = $traitementsDS->validateUserTransaction($user, (int) $formulBoost->getPrix());
+        if ($restrictionMessage !== null) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Montant minimum requis',
+                'message' => $restrictionMessage,
             ]);
         }
 

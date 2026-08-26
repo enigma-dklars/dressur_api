@@ -9,6 +9,7 @@ use App\Entity\Promotion;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
 use App\Services\VerificationsDS;
+use App\Services\UserRestrictionService;
 use App\Repository\BoostRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\FormuleBoostRepository;
@@ -178,7 +179,7 @@ class DressurBotController extends AbstractController
     }
 
     #[Route('/paiementDressurUserBot', name: 'paiementDressurUserBot', methods: ['POST'])]
-    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, FormuleDressurBotRepository $formuleDressurBotRepository, MethodePaiementRepository $methodePaiementRepository): Response
+    public function paiementDressurUserBot(Request $request, FormuleBoostRepository $formuleBoostRepository, BoostRepository $boostRepository, VerificationsDS $verificationsDS, PromotionRepository $promotionRepository, TraitementsDS $traitementsDS, UserBotRepository $userBotRepository, UserRepository $userRepository, UserRestrictionService $userRestrictionService, FormuleDressurBotRepository $formuleDressurBotRepository, MethodePaiementRepository $methodePaiementRepository): Response
     {
         $datas = $request->request;        
         
@@ -239,8 +240,26 @@ class DressurBotController extends AbstractController
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
-                'message' => "Nous avons rencontré un problème, contactez l'Assistance par WhatsApp.",
+                'message' => "Nous avons rencontré un problème, contactez l'Assistance Dressur par WhatsApp.",
             ]);
+        }
+
+        // Dressur Bot n’est pas directement relié à User. Lorsque les deux
+        // identifiants fournis correspondent exactement à un compte User, la
+        // restriction de montant s’applique également à cette activation.
+        $restrictionOwner = $userRepository->findOneBy(['mail' => $email, 'tel' => $tel]);
+        if ($restrictionOwner) {
+            $restrictionMessage = $userRestrictionService->validateTransactionAmount(
+                $restrictionOwner,
+                (int) $formulDressurBot->getPrix()
+            );
+            if ($restrictionMessage !== null) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Montant minimum requis',
+                    'message' => $restrictionMessage,
+                ]);
+            }
         }
 
         if(!$valueMethodePaiement){
