@@ -801,38 +801,136 @@ class CommunicationMailController extends AbstractController
         return [
             'boost_all' => [
                 'label' => 'Utilisateurs Boost Contact',
+                'group' => 'Historique des services',
+                'description' => 'A déjà utilisé Boost Contact au moins une fois.',
                 'emoji' => '📢',
                 'titre' => 'Message Personnalisé — Boost Contact',
             ],
             'boost_gratuit' => [
-                'label' => 'Utilisateurs Boost Contact gratuit uniquement',
+                'label' => 'Boost Contact gratuit uniquement',
+                'group' => 'Historique des services',
+                'description' => 'A utilisé uniquement le mode gratuit.',
                 'emoji' => '🎁',
                 'titre' => 'Message Personnalisé — Boost Contact Gratuit',
             ],
             'boost_payant' => [
-                'label' => 'Utilisateurs Boost Contact payant uniquement',
+                'label' => 'Boost Contact payant uniquement',
+                'group' => 'Historique des services',
+                'description' => 'A utilisé uniquement le mode payant.',
                 'emoji' => '💳',
                 'titre' => 'Message Personnalisé — Boost Contact Payant',
             ],
             'boost_mixte' => [
-                'label' => 'Utilisateurs Boost Contact payant et gratuit',
+                'label' => 'Boost Contact payant et gratuit',
+                'group' => 'Historique des services',
+                'description' => 'A utilisé les modes gratuit et payant.',
                 'emoji' => '🔁',
                 'titre' => 'Message Personnalisé — Boost Contact Payant et Gratuit',
             ],
-            'boost_dernier_ancien' => [
-                'label' => 'Utilisateurs dont le dernier Boost Contact date d’au moins une semaine',
-                'emoji' => '⏳',
-                'titre' => 'Message Personnalisé — Dernier Boost Contact il y a au moins une semaine',
-            ],
             'promo_all' => [
                 'label' => 'Utilisateurs Promotion Affaire',
+                'group' => 'Historique des services',
+                'description' => 'A déjà utilisé Promotion Affaire au moins une fois.',
                 'emoji' => '🎯',
                 'titre' => 'Message Personnalisé — Promotion Affaire',
             ],
             'reseau_all' => [
                 'label' => 'Utilisateurs Promotion Réseaux Sociaux',
+                'group' => 'Historique des services',
+                'description' => 'A déjà utilisé Promotion Réseaux Sociaux au moins une fois.',
                 'emoji' => '📱',
                 'titre' => 'Message Personnalisé — Promotion Réseaux Sociaux',
+            ],
+            'boost_dernier_ancien' => [
+                'label' => 'Dernier Boost Contact il y a au moins 7 jours',
+                'group' => 'Relancer les anciens utilisateurs',
+                'description' => 'Le dernier Boost Contact remonte à au moins une semaine.',
+                'emoji' => '⏳',
+                'titre' => 'Message Personnalisé — Boost Contact ancien',
+            ],
+            'boost_dernier_14' => [
+                'label' => 'Dernier Boost Contact il y a au moins 14 jours',
+                'group' => 'Relancer les anciens utilisateurs',
+                'description' => 'Le dernier Boost Contact remonte à au moins deux semaines.',
+                'emoji' => '🕒',
+                'titre' => 'Message Personnalisé — Boost Contact inactif depuis 14 jours',
+            ],
+            'boost_dernier_30' => [
+                'label' => 'Dernier Boost Contact il y a au moins 30 jours',
+                'group' => 'Relancer les anciens utilisateurs',
+                'description' => 'Le dernier Boost Contact remonte à au moins un mois.',
+                'emoji' => '📅',
+                'titre' => 'Message Personnalisé — Boost Contact inactif depuis 30 jours',
+            ],
+            'boost_sans_promo' => [
+                'label' => 'Boost Contact sans Promotion Affaire',
+                'group' => 'Faire découvrir un autre service',
+                'description' => 'A utilisé Boost Contact mais jamais Promotion Affaire.',
+                'emoji' => '↗️',
+                'titre' => 'Message Personnalisé — Découverte Promotion Affaire',
+            ],
+            'promo_sans_boost' => [
+                'label' => 'Promotion Affaire sans Boost Contact',
+                'group' => 'Faire découvrir un autre service',
+                'description' => 'A utilisé Promotion Affaire mais jamais Boost Contact.',
+                'emoji' => '↗️',
+                'titre' => 'Message Personnalisé — Découverte Boost Contact',
+            ],
+            'reseau_sans_boost' => [
+                'label' => 'Promotion Réseaux Sociaux sans Boost Contact',
+                'group' => 'Faire découvrir un autre service',
+                'description' => 'A utilisé Promotion Réseaux Sociaux mais jamais Boost Contact.',
+                'emoji' => '↗️',
+                'titre' => 'Message Personnalisé — Découverte Boost Contact',
+            ],
+            'promo_terminee' => [
+                'label' => 'Promotion Affaire terminée sans campagne active',
+                'group' => 'Renouveler une campagne',
+                'description' => 'A terminé une promotion et n’en a pas d’active actuellement.',
+                'emoji' => '🔄',
+                'titre' => 'Message Personnalisé — Renouvellement Promotion Affaire',
+            ],
+            'promo_refusee' => [
+                'label' => 'Promotion Affaire refusée',
+                'group' => 'Renouveler une campagne',
+                'description' => 'Possède au moins une promotion refusée à corriger ou relancer.',
+                'emoji' => '🛠️',
+                'titre' => 'Message Personnalisé — Promotion Affaire à corriger',
+            ],
+            'reseau_terminee' => [
+                'label' => 'Promotion Réseaux Sociaux terminée sans campagne active',
+                'group' => 'Renouveler une campagne',
+                'description' => 'A terminé une promotion réseau et n’en a pas d’active actuellement.',
+                'emoji' => '🔄',
+                'titre' => 'Message Personnalisé — Renouvellement Promotion Réseaux Sociaux',
+            ],
+            'sans_service' => [
+                'label' => 'Inscrits n’ayant encore utilisé aucun service',
+                'group' => 'Première activation',
+                'description' => 'Numéro WhatsApp confirmé, mais aucun Boost ou aucune promotion utilisée.',
+                'emoji' => '👋',
+                'titre' => 'Message Personnalisé — Première activation',
+            ],
+            'nouveau_sans_service' => [
+                'label' => 'Nouveaux inscrits sans service depuis 30 jours',
+                'group' => 'Première activation',
+                'description' => 'Compte récent, sans aucun service utilisé depuis l’inscription.',
+                'emoji' => '🌱',
+                'titre' => 'Message Personnalisé — Bienvenue sur Dressur',
+            ],
+            'inactif_30' => [
+                'label' => 'Comptes sans connexion depuis 30 jours',
+                'group' => 'Réactivation du compte',
+                'description' => 'Dernière connexion datant d’au moins 30 jours.',
+                'emoji' => '💬',
+                'titre' => 'Message Personnalisé — Retour sur Dressur',
+            ],
+            'inactif_90' => [
+                'label' => 'Comptes sans connexion depuis 90 jours',
+                'group' => 'Réactivation du compte',
+                'description' => 'Dernière connexion datant d’au moins 90 jours.',
+                'emoji' => '📣',
+                'titre' => 'Message Personnalisé — Vous nous manquez',
             ],
         ];
     }
@@ -844,7 +942,8 @@ class CommunicationMailController extends AbstractController
         string $audienceKey,
         BoostRepository $boostRepository,
         PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository
+        PromoReseauRepository $promoReseauRepository,
+        UserRepository $userRepository
     ): array {
         return match ($audienceKey) {
             'boost_all'            => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
@@ -852,9 +951,21 @@ class CommunicationMailController extends AbstractController
             'boost_payant'         => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Payant', 'Gratuit'),
             'boost_mixte'          => $boostRepository->findUsersWhoEverUsedBoostWithBothModesAndTelWithDetails(),
             'boost_dernier_ancien' => $boostRepository->findUsersWhoseLastBoostIsAtLeastDaysAgoWithDetails(7),
+            'boost_dernier_14'     => $boostRepository->findUsersWhoseLastBoostIsAtLeastDaysAgoWithDetails(14),
+            'boost_dernier_30'     => $boostRepository->findUsersWhoseLastBoostIsAtLeastDaysAgoWithDetails(30),
             'promo_all'            => $promotionRepository->findUsersWhoEverUsedPromoAndTelWithDetails(),
             'reseau_all'           => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTelWithDetails(),
-            default                => [],
+            'boost_sans_promo'     => $userRepository->findUsersWithBoostAndWithoutPromotionAndTelWithDetails(),
+            'promo_sans_boost'     => $userRepository->findUsersWithPromotionAndWithoutBoostAndTelWithDetails(),
+            'reseau_sans_boost'    => $userRepository->findUsersWithPromoReseauAndWithoutBoostAndTelWithDetails(),
+            'promo_terminee'      => $promotionRepository->findUsersWithFinishedPromoAndNoActiveAndTelWithDetails(),
+            'promo_refusee'       => $promotionRepository->findUsersWithRefusedPromoAndTelWithDetails(),
+            'reseau_terminee'     => $promoReseauRepository->findUsersWithFinishedPromoReseauAndNoActiveAndTelWithDetails(),
+            'sans_service'       => $userRepository->findUsersWithoutServiceAndTelWithDetails(),
+            'nouveau_sans_service' => $userRepository->findNewUsersWithoutServiceAndTelWithDetails(30),
+            'inactif_30'         => $userRepository->findInactiveUsersWithTelWithDetails(30),
+            'inactif_90'         => $userRepository->findInactiveUsersWithTelWithDetails(90),
+            default              => [],
         };
     }
 
@@ -890,6 +1001,7 @@ class CommunicationMailController extends AbstractController
         BoostRepository $boostRepository,
         PromotionRepository $promotionRepository,
         PromoReseauRepository $promoReseauRepository,
+        UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): Response {
         $audiences = self::getMessagePersonnaliseAudiences();
@@ -921,7 +1033,8 @@ class CommunicationMailController extends AbstractController
                     $audienceKey,
                     $boostRepository,
                     $promotionRepository,
-                    $promoReseauRepository
+                    $promoReseauRepository,
+                    $userRepository
                 )
             );
 
@@ -967,17 +1080,24 @@ class CommunicationMailController extends AbstractController
                         $audienceKey,
                         $boostRepository,
                         $promotionRepository,
-                        $promoReseauRepository
+                        $promoReseauRepository,
+                        $userRepository
                     )
                 )
             );
         }
 
+        $audiencesByGroup = [];
+        foreach ($audiences as $key => $audience) {
+            $audiencesByGroup[$audience['group']][$key] = $audience;
+        }
+
         return $this->render('communication_mail/message_personnalise_whatsapp.html.twig', [
-            'theme'           => $this->theme,
-            'user'            => $this->traitementsDS->getUserByUidInCookies(),
-            'audiences'       => $audiences,
-            'audienceCounts'  => $audienceCounts,
+            'theme'            => $this->theme,
+            'user'             => $this->traitementsDS->getUserByUidInCookies(),
+            'audiences'        => $audiences,
+            'audiencesByGroup' => $audiencesByGroup,
+            'audienceCounts'   => $audienceCounts,
         ]);
     }
 

@@ -171,6 +171,113 @@ class UserRepository extends ServiceEntityRepository
             ->getScalarResult();
     }
 
+    /**
+     * Utilisateurs joignables n’ayant encore utilisé aucun service Dressur.
+     *
+     * @return array<int, array{user_id: int, tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWithoutServiceAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM `user` u
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND NOT EXISTS (SELECT 1 FROM boost b WHERE b.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM promotion p WHERE p.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM promo_reseau pr WHERE pr.user_id = u.id)";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
+    /**
+     * Nouveaux utilisateurs joignables sans aucun service utilisé depuis leur inscription.
+     *
+     * @return array<int, array{user_id: int, tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findNewUsersWithoutServiceAndTelWithDetails(int $days = 30): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $cutoff = (new \DateTime("-{$days} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM `user` u
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND u.created_at >= :cutoff
+                  AND NOT EXISTS (SELECT 1 FROM boost b WHERE b.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM promotion p WHERE p.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM promo_reseau pr WHERE pr.user_id = u.id)";
+
+        return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff])->fetchAllAssociative();
+    }
+
+    /**
+     * Utilisateurs joignables dont la dernière connexion remonte au moins à $days jours.
+     *
+     * @return array<int, array{user_id: int, tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findInactiveUsersWithTelWithDetails(int $days = 30): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $cutoff = (new \DateTime("-{$days} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM `user` u
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND u.last_login_to IS NOT NULL
+                  AND u.last_login_to <= :cutoff";
+
+        return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff])->fetchAllAssociative();
+    }
+
+    /**
+     * Utilisateurs ayant utilisé Boost Contact mais jamais Promotion Affaire.
+     */
+    public function findUsersWithBoostAndWithoutPromotionAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM `user` u
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND EXISTS (SELECT 1 FROM boost b WHERE b.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM promotion p WHERE p.user_id = u.id)";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
+    /**
+     * Utilisateurs ayant utilisé Promotion Affaire mais jamais Boost Contact.
+     */
+    public function findUsersWithPromotionAndWithoutBoostAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM `user` u
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND EXISTS (SELECT 1 FROM promotion p WHERE p.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM boost b WHERE b.user_id = u.id)";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
+    /**
+     * Utilisateurs ayant utilisé Promotion Réseaux Sociaux mais jamais Boost Contact.
+     */
+    public function findUsersWithPromoReseauAndWithoutBoostAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM `user` u
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND EXISTS (SELECT 1 FROM promo_reseau pr WHERE pr.user_id = u.id)
+                  AND NOT EXISTS (SELECT 1 FROM boost b WHERE b.user_id = u.id)";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
     public function countByDateRange(\DateTime $from, \DateTime $to): int
     {
         $conn = $this->getEntityManager()->getConnection();

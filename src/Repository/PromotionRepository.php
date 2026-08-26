@@ -223,6 +223,42 @@ class PromotionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Utilisateurs dont une Promotion Affaire est terminée et qui n’en ont pas d’active.
+     */
+    public function findUsersWithFinishedPromoAndNoActiveAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM promotion p
+                INNER JOIN `user` u ON p.user_id = u.id
+                WHERE p.status = 4
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM promotion p_active
+                      WHERE p_active.user_id = u.id AND p_active.status IN (1, 2, 3)
+                  )";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
+    /**
+     * Utilisateurs ayant une Promotion Affaire refusée.
+     */
+    public function findUsersWithRefusedPromoAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM promotion p
+                INNER JOIN `user` u ON p.user_id = u.id
+                WHERE p.status = 0
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
+    /**
      * Retourne les promotions référençables pour le sitemap :
      * - statut 3 (accepter et en cours) OU 4 (terminer)
      * - isFakeVue != true

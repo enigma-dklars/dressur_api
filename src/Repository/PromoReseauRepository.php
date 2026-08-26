@@ -155,6 +155,26 @@ class PromoReseauRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 
+    /**
+     * Utilisateurs dont une Promotion Réseaux Sociaux est terminée et sans campagne active.
+     */
+    public function findUsersWithFinishedPromoReseauAndNoActiveAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM promo_reseau pr
+                INNER JOIN `user` u ON pr.user_id = u.id
+                WHERE pr.status = 3
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                  AND NOT EXISTS (
+                      SELECT 1 FROM promo_reseau pr_active
+                      WHERE pr_active.user_id = u.id AND pr_active.status IN (1, 2)
+                  )";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
     public function getSourceCounts(): array
     {
         $rows = $this->createQueryBuilder('p')
