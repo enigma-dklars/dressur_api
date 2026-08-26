@@ -97,6 +97,46 @@
         .ds-nav-item.active { color: var(--bs-primary, #0d6efd); }
         .ds-nav-item.active i { font-weight: 900; }
 
+        /* Contraste commun des composants utilisateur en thème sombre. */
+        html.dark-theme .ds-user-content .text-muted,
+        html.dark-theme .ds-user-content .text-secondary,
+        html.semi-dark .ds-user-content .text-muted,
+        html.semi-dark .ds-user-content .text-secondary { color: #c5cfdb !important; }
+        html.dark-theme .ds-user-content .card,
+        html.semi-dark .ds-user-content .card { color: #f8f9fa; background-color: #202a40; border-color: rgba(255,255,255,.12); }
+        html.dark-theme .ds-user-content .bg-light,
+        html.dark-theme .ds-user-content .bg-white,
+        html.semi-dark .ds-user-content .bg-light,
+        html.semi-dark .ds-user-content .bg-white { color: #f8f9fa !important; background-color: #202a40 !important; }
+        html.dark-theme .ds-user-content .form-control,
+        html.dark-theme .ds-user-content .form-select,
+        html.semi-dark .ds-user-content .form-control,
+        html.semi-dark .ds-user-content .form-select { color: #f8f9fa; background-color: #202a40; border-color: rgba(255,255,255,.2); }
+        html.dark-theme .ds-user-content .form-control::placeholder,
+        html.semi-dark .ds-user-content .form-control::placeholder { color: #aeb8c5; opacity: 1; }
+        html.dark-theme .ds-user-content .table,
+        html.semi-dark .ds-user-content .table { --bs-table-color: #f8f9fa; --bs-table-bg: transparent; --bs-table-border-color: rgba(255,255,255,.12); }
+        html.dark-theme .ds-user-content .ds-chat-empty,
+        html.dark-theme .ds-user-content .ds-notif-state p,
+        html.dark-theme .ds-user-content .ds-tuto-state p,
+        html.semi-dark .ds-user-content .ds-chat-empty,
+        html.semi-dark .ds-user-content .ds-notif-state p,
+        html.semi-dark .ds-user-content .ds-tuto-state p { color: #c5cfdb !important; }
+        html.dark-theme .ds-user-content .ds-nav-card-chevron,
+        html.semi-dark .ds-user-content .ds-nav-card-chevron { color: #c5cfdb !important; }
+        html.dark-theme .ds-user-content .pr-stat span,
+        html.dark-theme .ds-user-content .pr-history-meta,
+        html.dark-theme .ds-user-content .pr-meta,
+        html.dark-theme .ds-user-content .pr-empty,
+        html.semi-dark .ds-user-content .pr-stat span,
+        html.semi-dark .ds-user-content .pr-history-meta,
+        html.semi-dark .ds-user-content .pr-meta,
+        html.semi-dark .ds-user-content .pr-empty { color: #c5cfdb !important; }
+        html.dark-theme .ds-user-content .pr-status-gray,
+        html.semi-dark .ds-user-content .pr-status-gray { color: #c5cfdb; }
+        html.dark-theme .ds-user-content .pr-status-orange,
+        html.semi-dark .ds-user-content .pr-status-orange { color: #ffd65a; }
+
     }
 
     /* La barre utilisateur reste visible sur toutes les tailles d’écran. */
