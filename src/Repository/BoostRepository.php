@@ -151,6 +151,57 @@ class BoostRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
     }
 
+    /**
+     * Utilisateurs ayant utilisé un mode de boost, sans jamais utiliser l’autre.
+     *
+     * @return array<int, array{tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails(string $mode, string $excludedMode): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE b.`mode` = :mode
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM boost b_excluded
+                      WHERE b_excluded.user_id = b.user_id
+                        AND b_excluded.`mode` = :excluded_mode
+                  )
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery([
+            'mode' => $mode,
+            'excluded_mode' => $excludedMode,
+        ])->fetchAllAssociative();
+    }
+
+    /**
+     * Utilisateurs ayant déjà utilisé au moins un boost gratuit et un boost payant.
+     *
+     * @return array<int, array{tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWhoEverUsedBoostWithBothModesAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE b.`mode` = 'Gratuit'
+                  AND EXISTS (
+                      SELECT 1
+                      FROM boost b_payant
+                      WHERE b_payant.user_id = b.user_id
+                        AND b_payant.`mode` = 'Payant'
+                  )
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
+    }
+
     // -------------------------------------------------------------------------
     // Option 1 — JOIN FETCH : résout le N+1 dans getAddDisponible()
     // -------------------------------------------------------------------------

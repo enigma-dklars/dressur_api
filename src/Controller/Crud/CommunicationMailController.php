@@ -804,6 +804,21 @@ class CommunicationMailController extends AbstractController
                 'emoji' => '📢',
                 'titre' => 'Message Personnalisé — Boost Contact',
             ],
+            'boost_gratuit' => [
+                'label' => 'Utilisateurs Boost Contact gratuit uniquement',
+                'emoji' => '🎁',
+                'titre' => 'Message Personnalisé — Boost Contact Gratuit',
+            ],
+            'boost_payant' => [
+                'label' => 'Utilisateurs Boost Contact payant uniquement',
+                'emoji' => '💳',
+                'titre' => 'Message Personnalisé — Boost Contact Payant',
+            ],
+            'boost_mixte' => [
+                'label' => 'Utilisateurs Boost Contact payant et gratuit',
+                'emoji' => '🔁',
+                'titre' => 'Message Personnalisé — Boost Contact Payant et Gratuit',
+            ],
             'promo_all' => [
                 'label' => 'Utilisateurs Promotion Affaire',
                 'emoji' => '🎯',
@@ -850,10 +865,13 @@ class CommunicationMailController extends AbstractController
             $titre = $audienceConfig['titre'];
 
             $users = match ($audienceKey) {
-                'boost_all'  => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
-                'promo_all'  => $promotionRepository->findUsersWhoEverUsedPromoAndTelWithDetails(),
-                'reseau_all' => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTelWithDetails(),
-                default      => [],
+                'boost_all'     => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
+                'boost_gratuit' => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Gratuit', 'Payant'),
+                'boost_payant'  => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Payant', 'Gratuit'),
+                'boost_mixte'   => $boostRepository->findUsersWhoEverUsedBoostWithBothModesAndTelWithDetails(),
+                'promo_all'     => $promotionRepository->findUsersWhoEverUsedPromoAndTelWithDetails(),
+                'reseau_all'    => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTelWithDetails(),
+                default         => [],
             };
 
             $added = 0;
