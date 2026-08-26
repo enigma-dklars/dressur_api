@@ -7,6 +7,7 @@ use App\Form\UserType;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Repository\EnvRepository;
+use App\Repository\NotificationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -78,6 +79,37 @@ class CrudUserController extends AbstractController
             'sourceFilter' => $sourceFilter,
             'segmentFilter' => $segmentFilter,
             'sourceCounts' => $userRepository->getRegisterSourceCounts()
+        ]);
+    }
+
+    #[Route('/{id}/notifications', name: 'app_crud_user_notifications', methods: ['GET'])]
+    public function notifications(User $targetUser, NotificationRepository $notificationRepository): Response
+    {
+        $notifications = $notificationRepository->findForUser($targetUser);
+        $notificationData = [];
+
+        foreach ($notifications as $notification) {
+            $notificationData[] = [
+                'id' => $notification->getId(),
+                'text' => $notification->getText() ?? '',
+                'createdAt' => $notification->getCreatedAt()?->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        $notificationsJson = json_encode(
+            $notificationData,
+            JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+        );
+        if ($notificationsJson === false) {
+            $notificationsJson = '[]';
+        }
+
+        return $this->render('crud_user/notifications.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'targetUser' => $targetUser,
+            'notificationsJson' => $notificationsJson,
+            'chaine_whatsapp' => 'https://whatsapp.com/channel/0029Vag8B6cCBtxMRvCqaA3t',
         ]);
     }
 

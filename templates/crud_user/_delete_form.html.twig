@@ -2,5 +2,6 @@
     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
     <a href="{{ path('app_crud_user_show', {'id': user.id}) }}" class="btn btn-sm btn-info">Show</a>
     <a href="{{ path('app_crud_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-success">Edit</a>
+    <a href="{{ path('app_crud_user_notifications', {'id': user.id}) }}" class="btn btn-sm btn-warning">Notif</a>
     <button class="btn btn-sm btn-danger">Purge</button>
 </form>

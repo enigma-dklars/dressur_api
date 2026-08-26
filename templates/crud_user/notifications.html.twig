@@ -1,0 +1,138 @@
+{% extends 'basePrivate.html.twig' %}
+
+{% block title %}Notifications de {{ targetUser.pseudo }}{% endblock %}
+
+{% block body %}
+<style>
+.ds-admin-notif-wrap{max-width:720px;margin:0 auto}
+.ds-admin-notif-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.ds-admin-notif-target{font-size:12px;color:var(--bs-secondary-color,#6c757d);margin:3px 0 0}
+.ds-notif-wa-banner{display:flex;align-items:center;gap:14px;margin-bottom:16px;padding:14px 16px;border-radius:16px;background:linear-gradient(135deg,#128C7E,#25D366);box-shadow:0 5px 14px rgba(37,211,102,.30);text-decoration:none;color:#fff}
+.ds-notif-wa-banner:hover{color:#fff}
+.ds-notif-wa-icon{width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ds-notif-wa-icon i{font-size:22px;color:#fff}
+.ds-notif-wa-body{flex:1}
+.ds-notif-wa-title{font-weight:700;font-size:14px;margin:0 0 3px}
+.ds-notif-wa-sub{font-size:12px;margin:0;opacity:.9;line-height:1.4}
+.ds-notif-wa-follow{padding:6px 14px;border-radius:20px;background:#fff;color:#128C7E;font-weight:700;font-size:12px;flex-shrink:0}
+.ds-notif-day-sep{display:flex;align-items:center;gap:10px;margin:18px 0 10px}
+.ds-notif-day-sep:first-of-type{margin-top:10px}
+.ds-notif-day-sep hr{flex:1;margin:0;border-color:var(--bs-border-color,rgba(0,0,0,.12))}
+.ds-notif-day-badge{padding:4px 12px;border-radius:20px;background:rgba(13,110,253,.10);border:1px solid rgba(13,110,253,.25);color:var(--bs-primary,#0d6efd);font-size:12px;font-weight:600;white-space:nowrap}
+.ds-notif-card{display:flex;align-items:flex-start;gap:12px;background:var(--bs-body-bg,#fff);border:1px solid var(--bs-border-color,rgba(0,0,0,.08));border-radius:14px;box-shadow:0 3px 8px rgba(0,0,0,.07);padding:13px 14px;margin-bottom:8px}
+.ds-notif-card-icon{width:38px;height:38px;border-radius:10px;background:rgba(13,110,253,.10);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ds-notif-card-icon i{font-size:16px;color:var(--bs-primary,#0d6efd)}
+.ds-notif-card-text{font-size:14px;font-weight:500;color:var(--bs-body-color,#212529);line-height:1.45;margin:0}
+.ds-notif-card-time{font-size:11px;color:var(--bs-secondary-color,#adb5bd);margin:5px 0 0}
+.ds-notif-state{text-align:center;padding:60px 20px}
+.ds-notif-state i{font-size:40px;color:#ced4da;margin-bottom:14px;display:block}
+.ds-notif-state p{color:#8a8f98;font-size:14px;margin:0 0 16px}
+html.dark-theme .ds-notif-card,html.semi-dark .ds-notif-card{background:#202a40;border-color:rgba(255,255,255,.08);box-shadow:0 3px 8px rgba(0,0,0,.3)}
+html.dark-theme .ds-notif-card-text,html.semi-dark .ds-notif-card-text{color:#fcfcfc}
+html.dark-theme .ds-notif-day-sep hr,html.semi-dark .ds-notif-day-sep hr{border-color:rgba(255,255,255,.12)}
+</style>
+
+<div class="ds-admin-notif-wrap">
+    <div class="ds-admin-notif-head">
+        <div>
+            <h5 class="ds-hub-title mb-0" style="font-weight:700;font-size:1.1rem">
+                <i class="fas fa-bell text-primary"></i> Notifications
+            </h5>
+            <p class="ds-admin-notif-target">
+                Utilisateur : <strong>{{ targetUser.pseudo|default('Sans pseudo') }}</strong>
+                {% if targetUser.tel %} · {{ targetUser.tel }}{% endif %}
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('app_crud_user_index') }}" class="btn btn-sm btn-outline-secondary" title="Retour à la liste des utilisateurs">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <button type="button" class="btn btn-sm btn-light" title="Actualiser" onclick="window.location.reload()">
+                <i class="fas fa-arrows-rotate"></i>
+            </button>
+        </div>
+    </div>
+
+    <a href="{{ chaine_whatsapp }}" target="_blank" rel="noopener" class="ds-notif-wa-banner">
+        <div class="ds-notif-wa-icon"><i class="fab fa-whatsapp"></i></div>
+        <div class="ds-notif-wa-body">
+            <p class="ds-notif-wa-title">Chaîne WhatsApp Dressur</p>
+            <p class="ds-notif-wa-sub">Offres flash, promos immédiates et actus en temps réel</p>
+        </div>
+        <div class="ds-notif-wa-follow">Suivre</div>
+    </a>
+
+    <div id="dsAdminNotifList"></div>
+    <div id="dsAdminNotifEmpty" class="ds-notif-state" {% if notificationsJson != '[]' %}style="display:none"{% endif %}>
+        <i class="fas fa-bell-slash"></i>
+        <p>Aucune notification reçue</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+(function () {
+    const listEl = document.getElementById('dsAdminNotifList');
+    const emptyEl = document.getElementById('dsAdminNotifEmpty');
+    const notifications = {{ notificationsJson|default('[]')|raw }};
+    const months = ['', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+
+    function escapeHtml(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
+    }
+
+    function parseDate(value) {
+        if (!value) return null;
+        const date = new Date(String(value).replace(' ', 'T'));
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function dayKey(date) {
+        return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+    }
+
+    function dayLabel(date) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const currentDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const diff = Math.round((today - currentDay) / 86400000);
+        if (diff === 0) return "Aujourd'hui";
+        if (diff === 1) return 'Hier';
+        if (date.getFullYear() === now.getFullYear()) return date.getDate() + ' ' + months[date.getMonth() + 1];
+        return date.getDate() + ' ' + months[date.getMonth() + 1] + ' ' + date.getFullYear();
+    }
+
+    function timeLabel(date) {
+        return String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+    }
+
+    let html = '';
+    let currentDay = null;
+    let renderedCount = 0;
+
+    notifications.forEach(function (notification) {
+        const date = parseDate(notification.createdAt);
+        if (!date) return;
+        const key = dayKey(date);
+        if (key !== currentDay) {
+            html += '<div class="ds-notif-day-sep"><hr><span class="ds-notif-day-badge">' + dayLabel(date) + '</span><hr></div>';
+            currentDay = key;
+        }
+        html += '<div class="ds-notif-card">' +
+            '<div class="ds-notif-card-icon"><i class="fas fa-bell"></i></div>' +
+            '<div><p class="ds-notif-card-text">' + escapeHtml(notification.text) + '</p>' +
+            '<p class="ds-notif-card-time">' + timeLabel(date) + '</p></div>' +
+            '</div>';
+        renderedCount++;
+    });
+
+    if (renderedCount > 0) {
+        listEl.innerHTML = html;
+        emptyEl.style.display = 'none';
+    }
+})();
+</script>
+{% endblock %}
