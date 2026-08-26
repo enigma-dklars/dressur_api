@@ -32,14 +32,15 @@
 
                     <div class="mb-3">
                         <label for="restriction_user" class="form-label">Utilisateur <span class="text-danger">*</span></label>
-                        <select id="restriction_user" name="user_id" class="form-select" required>
-                            <option value="">— Choisir un utilisateur —</option>
+                        <select id="restriction_user" name="user_id" class="form-select" required data-placeholder="Rechercher par pseudo, nom, téléphone ou e-mail">
+                            <option value=""></option>
                             {% for candidate in users %}
                                 <option value="{{ candidate.id }}"{% if selectedUserId == candidate.id %} selected{% endif %}>
-                                    {{ candidate.pseudo|default('Sans pseudo') }}{% if candidate.nom %} — {{ candidate.nom }}{% endif %}{% if candidate.tel %} ({{ candidate.tel }}){% endif %}
+                                    {{ candidate.pseudo|default('Sans pseudo') }}{% if candidate.nom %} — {{ candidate.nom }}{% endif %}{% if candidate.tel %} — {{ candidate.tel }}{% endif %}{% if candidate.mail %} — {{ candidate.mail }}{% endif %}
                                 </option>
                             {% endfor %}
                         </select>
+                        <div class="form-text">Saisissez un pseudo, un nom/prénom, un numéro de téléphone ou une adresse e-mail.</div>
                     </div>
 
                     <div class="mb-3">
@@ -148,6 +149,20 @@
 {% block script %}
 <script>
 (function () {
+    if (window.jQuery && jQuery.fn.select2) {
+        jQuery('#restriction_user').select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: jQuery('#restriction_user').data('placeholder'),
+            allowClear: true,
+            matcher: function (params, data) {
+                if (jQuery.trim(params.term || '') === '') return data;
+                if (!data.text) return null;
+                return data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ? data : null;
+            }
+        });
+    }
+
     var typeSelect = document.getElementById('restriction_type');
     var amountGroup = document.getElementById('minimum_amount_group');
     var amountInput = document.getElementById('minimum_transaction_amount');
