@@ -179,6 +179,26 @@ class BoostRepository extends ServiceEntityRepository
     }
 
     /**
+     * Utilisateurs dont le dernier Boost Contact remonte au moins à $days jours.
+     *
+     * @return array<int, array{tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWhoseLastBoostIsAtLeastDaysAgoWithDetails(int $days = 7): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $cutoff = (new \DateTime("-{$days} days"))->format('Y-m-d H:i:s');
+
+        $sql = "SELECT u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0
+                GROUP BY u.id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                HAVING MAX(b.date_debut) <= :cutoff";
+
+        return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff])->fetchAllAssociative();
+    }
+
+    /**
      * Utilisateurs ayant déjà utilisé au moins un boost gratuit et un boost payant.
      *
      * @return array<int, array{tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
