@@ -39,6 +39,7 @@
                     <th>DS Statut</th>
                     <th>Boost FB</th>
                     <th>WhatsApp</th>
+                    <th>URL pub</th>
                     <th>Limited</th>
                     <th>Fake</th>
                     <th>Ref.</th>
@@ -47,7 +48,6 @@
                     <th>DateExp</th>
                     <th>Nbr.Vue</th>
                     <th>Nbr.Imprs</th>
-                    <th>URL pub</th>
                 </tr>
             </thead>
             <tbody>
@@ -123,21 +123,13 @@
                             <span class="badge bg-secondary" title="Fallback : numéro utilisateur">{{ promotion.user.tel }}</span>
                         {% endif %}
                     </td>
-                    <td class="text-center">{{ (promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
-                    <td class="text-center">{{ (promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
-                    <td class="text-center">{{ (promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
-                    <td>{{ promotion.formulePromoAffaire }}</td>
-                    <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
-                    <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
-                    <td>{{ promotion.nombreDeVue }}</td>
-                    <td>{{ promotion.nombreImpression }}</td>
-                    <td>
+                    <td class="text-center">
                         {% set advertisingUrl = promotionPublicUrls[promotion.id] ?? null %}
                         {% if advertisingUrl %}
-                            <span class="small text-break d-block mb-1">{{ advertisingUrl }}</span>
                             <button
                                 type="button"
-                                class="btn btn-sm btn-outline-primary js-copy-advertising-url"
+                                class="badge bg-primary border-0 js-copy-advertising-url"
+                                style="cursor: pointer; font-size: .75rem;"
                                 data-advertising-url="{{ advertisingUrl|e('html_attr') }}"
                                 aria-label="Copier l'URL publicitaire"
                             >
@@ -146,6 +138,15 @@
                             </button>
                         {% endif %}
                     </td>
+                    <td class="text-center">{{ (promotion.limited ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{{ (promotion.isFakeVue ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td class="text-center">{{ (promotion.referencement ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>')|raw }}</td>
+                    <td>{{ promotion.formulePromoAffaire }}</td>
+                    <td>{{ promotion.dateDebut ? promotion.dateDebut|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.dateExp ? promotion.dateExp|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ promotion.nombreDeVue }}</td>
+                    <td>{{ promotion.nombreImpression }}</td>
+
                 </tr>
             {% else %}
                 <tr>
@@ -213,20 +214,20 @@ document.querySelectorAll('.js-copy-advertising-url').forEach(function (button) 
             copied = fallbackCopyAdvertisingUrl(url);
         }
 
-        button.classList.remove('btn-outline-primary', 'btn-success', 'btn-danger');
+        button.classList.remove('bg-primary', 'bg-success', 'bg-danger');
         if (copied) {
-            button.classList.add('btn-success');
+            button.classList.add('bg-success');
             icon.className = 'fas fa-check me-1';
             label.textContent = 'Copié !';
         } else {
-            button.classList.add('btn-danger');
+            button.classList.add('bg-danger');
             icon.className = 'fas fa-exclamation-triangle me-1';
             label.textContent = 'Copie impossible';
         }
 
         resetTimer = window.setTimeout(function () {
-            button.classList.remove('btn-success', 'btn-danger');
-            button.classList.add('btn-outline-primary');
+            button.classList.remove('bg-success', 'bg-danger');
+            button.classList.add('bg-primary');
             icon.className = defaultIconClass;
             label.textContent = defaultLabel;
         }, copied ? 2000 : 3000);
