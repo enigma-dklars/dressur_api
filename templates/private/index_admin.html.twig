@@ -16,29 +16,28 @@
         Ordre : Pays · Solde · Users totaux
                 Validation PA · Validation PR
                 En cours boost · Programmé boost · En cours affaire
-                Prog Recomp users · Vendeurs
+                Prog Recomp users · Vendeurs · Partenaires
                 PA Prog Recomp · PA DS Statut
                 Supprimés · Bannis · Sans service
     ═══════════════════════════════════════════════════ #}
     <div class="row g-2 mb-2 row-cols-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 row-cols-xxl-5">
 
         {# ── Répartition complète par pays ───────────────────── #}
-        <div class="col-12">
+        <div class="col-12" style="flex:0 0 100%;max-width:100%;width:100%;">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
-                        <div>
-                            <p class="mb-0 text-secondary">Utilisateurs par pays</p>
-                            <p class="mb-0 font-13 text-secondary">Indicatif · nombre d’inscrits</p>
-                        </div>
-                        <span class="badge bg-primary">{{ topPays|length }} pays</span>
+                    <div class="mb-2">
+                        <p class="mb-0 text-secondary">Utilisateurs par pays</p>
+                        <p class="mb-0 font-13 text-secondary">Indicatif · nombre d’inscrits</p>
                     </div>
                     {% if topPays is not empty %}
+                        {% set countryColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
                         <div class="d-flex flex-wrap gap-2">
                             {% for row in topPays %}
-                                <span class="badge bg-light text-dark border" style="font-size:.82rem;font-weight:500;padding:.5rem .65rem;">
-                                    <span class="text-primary">+{{ row.pays }}</span>
-                                    <span class="ms-1">{{ row.nbr }} utilisateur{% if row.nbr != 1 %}s{% endif %}</span>
+                                {% set countryColor = loop.index0 < 5 ? countryColors[loop.index0] : 'bg-secondary' %}
+                                {% set countryTextColor = loop.index0 == 2 ? 'text-dark' : 'text-white' %}
+                                <span class="badge {{ countryColor }} {{ countryTextColor }}" style="font-size:.82rem;font-weight:500;padding:.5rem .65rem;">
+                                    +{{ row.pays }} &middot; {{ row.nbr }}
                                 </span>
                             {% endfor %}
                         </div>
