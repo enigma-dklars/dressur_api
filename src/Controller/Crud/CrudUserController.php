@@ -283,50 +283,83 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/find_whatsapp_is_activatable/{lid}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['GET', 'POST'])]
+    #[Route('/find_whatsapp_is_activatable/{lid}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['POST'])]
     public function find_whatsapp_is_activatable(Request $request, string $lid, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
         $lid = trim($lid);
 
-        if ($lid === '') {
-            return new Response("Pour confirmer votre numéro WhatsApp, utilisez le même numéro que celui enregistré sur votre compte Dressur.");
+        if ($lid === '' || strlen($lid) > 255 || preg_match('/\s/', $lid) === 1) {
+            return new Response(
+                "LID invalide. Veuillez envoyer la demande depuis le compte WhatsApp concerné.",
+                Response::HTTP_BAD_REQUEST,
+            );
+        }
+
+        $signature = trim((string) $request->headers->get('X-WhatsApp-Signature'));
+        $secret = (string) $this->getParameter('kernel.secret');
+        $expectedSignature = hash_hmac('sha256', $lid, $secret);
+        $isSignedWhatsAppRequest = $signature !== ''
+            && hash_equals($expectedSignature, $signature);
+
+        $currentUser = $this->traitementsDS->getUserByUidInCookies();
+        $isAdminRequest = $currentUser !== false
+            && $currentUser->getAdmin() === true;
+
+        if (!$isSignedWhatsAppRequest && !$isAdminRequest) {
+            return new Response(
+                "Accès non autorisé.",
+                Response::HTTP_FORBIDDEN,
+            );
         }
 
         $matches = $userRepository->findBy(['lid' => $lid]);
 
         if (count($matches) > 1) {
-            return new Response("Il semble que plusieurs comptes Dressur soient associés à ce numéro.\nVeuillez envoyer COMPTE EN MULTIPLE pour obtenir l'aide d'un assistant.");
+            return new Response(
+                "Il semble que plusieurs comptes Dressur soient associés à ce LID.\n"
+                . "Veuillez envoyer COMPTE EN MULTIPLE pour obtenir l'aide d'un assistant.",
+                Response::HTTP_CONFLICT,
+            );
         }
 
         if (count($matches) === 0) {
-            return new Response("⚠️ Faites la demande de confirmation avec le numéro WhatsApp enregistré sur votre compte Dressur.\n\n"
-                . "Il n'est pas nécessaire de nous envoyer votre numéro.\n\n"
-                . "Si le numéro enregistré est incorrect, modifiez-le dans *Paramètres > Profil*, puis faites à nouveau la demande de confirmation."
+            return new Response(
+                "⚠️ Aucun compte Dressur ne correspond à ce LID.\n\n"
+                . "Faites la demande de confirmation depuis le compte WhatsApp enregistré sur Dressur.\n\n"
+                . "Si le numéro enregistré est incorrect, modifiez-le dans *Paramètres > Profil*, "
+                . "puis faites à nouveau la demande de confirmation.",
+                Response::HTTP_NOT_FOUND,
             );
         }
 
         $user = $matches[0];
 
-        if ($user->getTelIsVerified() == true) {
-            return new Response("Le compte associé à ce numéro est déjà confirmé. Aucune action n'est nécessaire. ✅");
+        if ($user->getTelIsVerified() === true) {
+            return new Response(
+                "Le compte associé à ce LID est déjà confirmé. Aucune action n'est nécessaire. ✅",
+            );
         }
 
-        $message = "";
-
-        if ($message == "") {
+        try {
             $user->setTelIsVerified(true);
             $em->flush();
-            return new Response("✅ Votre numéro WhatsApp a été confirmé avec succès.\n\n"
-                . "Vous pouvez désormais profiter pleinement de toutes les fonctionnalités de Dressur.\n\n"
-                . "📚 Consultez les tutoriels disponibles dans *Paramètres > Tutoriels* pour bien démarrer.\n\n"
-                . "Nous vous souhaitons une excellente expérience sur Dressur."
+        } catch (\Throwable $exception) {
+            $this->logger->error('Échec de la confirmation WhatsApp par LID.', [
+                'lid_hash' => hash('sha256', $lid),
+                'exception' => $exception,
+            ]);
+
+            return new Response(
+                "La confirmation n'a pas pu être enregistrée pour le moment. Veuillez réessayer plus tard.",
+                Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
 
         return new Response(
-            "$message\n"
-            . "Une nouvelle demande de confirmation pourra être effectuée une fois les conditions remplies.\n\n"
-            . "👉 Pour relancer la confirmation, envoyez : WhatsApp Confirmation"
+            "✅ Votre numéro WhatsApp a été confirmé avec succès.\n\n"
+            . "Vous pouvez désormais profiter pleinement de toutes les fonctionnalités de Dressur.\n\n"
+            . "📚 Consultez les tutoriels disponibles dans *Paramètres > Tutoriels* pour bien démarrer.\n\n"
+            . "Nous vous souhaitons une excellente expérience sur Dressur."
         );
     }
 
