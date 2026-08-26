@@ -59,8 +59,9 @@
     /* ── Navigation utilisateur unifiée : mobile, tablette et desktop ── */
     @media screen {
 
-        /* Le contenu utilisateur ne dépend plus d’une sidebar desktop. */
+        /* Le contenu utilisateur reste mobile-first et centré sur les grands écrans. */
         .page-content { margin-top: 0 !important; }
+        .ds-user-content { width: min(100%, 1100px); margin-left: auto; margin-right: auto; }
 
         /* Espace pour la barre de navigation fixe en bas */
         .page-content { padding-bottom: 76px !important; }
@@ -167,7 +168,9 @@
 
                 <!--start content-->
             <main class="page-content p-3">
-                {% block body %}{% endblock %}
+                <div class="ds-user-content">
+                    {% block body %}{% endblock %}
+                </div>
             </main>
         <!--end page main-->
 
