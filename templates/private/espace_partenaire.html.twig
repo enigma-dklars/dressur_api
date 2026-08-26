@@ -4,8 +4,16 @@
 <div class="container-fluid px-0 pb-4">
 <div class="web-feature-hero mt-3">
     <i class="fas fa-handshake d-block fs-1 mb-3" aria-hidden="true"></i>
-    <h1 class="web-feature-hero-title">Espace Partenaire</h1>
-    <p class="web-feature-hero-subtitle">Accompagnez les utilisateurs Dressur et développez votre réseau grâce à votre code partenaire.</p>
+    <h1 class="web-feature-hero-title">
+        {% if user.estPartenaire %}Votre Espace Partenaire{% else %}Devenez Partenaire Dressur{% endif %}
+    </h1>
+    <p class="web-feature-hero-subtitle">
+        {% if user.estPartenaire %}
+            Gérez votre code partenaire et suivez les utilisateurs que vous accompagnez.
+        {% else %}
+            Accompagnez les utilisateurs Dressur et développez votre réseau grâce à votre code partenaire.
+        {% endif %}
+    </p>
 </div>
 {% if user.estPartenaire %}
     {# ══════════════════════════════════════════════════════════════ #}
@@ -75,6 +83,31 @@
                 <li>Accès à votre tableau de bord dédié avec la liste de vos accompagnés</li>
             </ul>
     </div>
+    {% if not user.estPartenaire %}
+    <div class="web-feature-card mb-3">
+            <h2 class="web-feature-card-title"><i class="fas fa-route text-primary me-2"></i>Comment devenir Partenaire ?</h2>
+            <div class="row g-3 mt-2">
+                <div class="col-md-4">
+                    <div class="d-flex gap-2 align-items-start">
+                        <span class="web-feature-badge">1</span>
+                        <div><strong>Préparez votre profil</strong><p class="web-feature-card-text small mb-0 mt-1">Renseignez et confirmez vos informations personnelles.</p></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2 align-items-start">
+                        <span class="web-feature-badge">2</span>
+                        <div><strong>Utilisez Dressur</strong><p class="web-feature-card-text small mb-0 mt-1">Découvrez la plateforme et atteignez les conditions d’accès.</p></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex gap-2 align-items-start">
+                        <span class="web-feature-badge">3</span>
+                        <div><strong>Passez l’entretien</strong><p class="web-feature-card-text small mb-0 mt-1">Contactez l’équipe Dressur sur WhatsApp pour la validation finale.</p></div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    {% endif %}
     <div class="web-feature-card mb-3">
             <h2 class="web-feature-card-title mb-3"><i class="fas fa-list-check text-warning me-2"></i>Conditions pour devenir Partenaire</h2>
             {% set condNom = user.nom and user.nom != '' %}
