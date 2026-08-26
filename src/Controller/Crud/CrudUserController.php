@@ -283,32 +283,15 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/find_whatsapp_is_activatable/{lid}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['POST'])]
-    public function find_whatsapp_is_activatable(Request $request, string $lid, UserRepository $userRepository, EntityManagerInterface $em): Response
+    #[Route('/find_whatsapp_is_activatable/{lid}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['GET', 'POST'])]
+    public function find_whatsapp_is_activatable(string $lid, UserRepository $userRepository, EntityManagerInterface $em): Response
     {
         $lid = trim($lid);
 
         if ($lid === '' || strlen($lid) > 255 || preg_match('/\s/', $lid) === 1) {
             return new Response(
-                "LID invalide. Veuillez envoyer la demande depuis le compte WhatsApp concerné.",
+                "Demande invalide. Veuillez envoyer la demande depuis le compte WhatsApp concerné.",
                 Response::HTTP_BAD_REQUEST,
-            );
-        }
-
-        $signature = trim((string) $request->headers->get('X-WhatsApp-Signature'));
-        $secret = (string) $this->getParameter('kernel.secret');
-        $expectedSignature = hash_hmac('sha256', $lid, $secret);
-        $isSignedWhatsAppRequest = $signature !== ''
-            && hash_equals($expectedSignature, $signature);
-
-        $currentUser = $this->traitementsDS->getUserByUidInCookies();
-        $isAdminRequest = $currentUser !== false
-            && $currentUser->getAdmin() === true;
-
-        if (!$isSignedWhatsAppRequest && !$isAdminRequest) {
-            return new Response(
-                "Accès non autorisé.",
-                Response::HTTP_FORBIDDEN,
             );
         }
 
@@ -316,7 +299,7 @@ class CrudUserController extends AbstractController
 
         if (count($matches) > 1) {
             return new Response(
-                "Il semble que plusieurs comptes Dressur soient associés à ce LID.\n"
+                "Plusieurs comptes WhatsApp correspondent à cette demande.\n"
                 . "Veuillez envoyer COMPTE EN MULTIPLE pour obtenir l'aide d'un assistant.",
                 Response::HTTP_CONFLICT,
             );
@@ -324,8 +307,8 @@ class CrudUserController extends AbstractController
 
         if (count($matches) === 0) {
             return new Response(
-                "⚠️ Aucun compte Dressur ne correspond à ce LID.\n\n"
-                . "Faites la demande de confirmation depuis le compte WhatsApp enregistré sur Dressur.\n\n"
+                "⚠️ Aucun compte WhatsApp ne correspond à cette demande.\n\n"
+                . "Faites la demande depuis le numéro WhatsApp enregistré sur votre compte Dressur.\n\n"
                 . "Si le numéro enregistré est incorrect, modifiez-le dans *Paramètres > Profil*, "
                 . "puis faites à nouveau la demande de confirmation.",
                 Response::HTTP_NOT_FOUND,
@@ -336,7 +319,7 @@ class CrudUserController extends AbstractController
 
         if ($user->getTelIsVerified() === true) {
             return new Response(
-                "Le compte associé à ce LID est déjà confirmé. Aucune action n'est nécessaire. ✅",
+                "Le compte WhatsApp associé est déjà confirmé. Aucune action n'est nécessaire. ✅",
             );
         }
 
@@ -344,13 +327,13 @@ class CrudUserController extends AbstractController
             $user->setTelIsVerified(true);
             $em->flush();
         } catch (\Throwable $exception) {
-            $this->logger->error('Échec de la confirmation WhatsApp par LID.', [
+            $this->logger->error('Échec de la confirmation WhatsApp.', [
                 'lid_hash' => hash('sha256', $lid),
                 'exception' => $exception,
             ]);
 
             return new Response(
-                "La confirmation n'a pas pu être enregistrée pour le moment. Veuillez réessayer plus tard.",
+                "La confirmation du numéro WhatsApp n'a pas pu être enregistrée pour le moment. Veuillez réessayer plus tard.",
                 Response::HTTP_INTERNAL_SERVER_ERROR,
             );
         }
