@@ -45,10 +45,6 @@
                            placeholder="supprimer" autocomplete="off">
                 </div>
 
-                {# Feedback #}
-                <div id="msgDeleteError" class="alert alert-danger py-2 small" style="display:none;"></div>
-                <div id="msgDeleteSuccess" class="alert alert-success py-2 small" style="display:none;"></div>
-
                 {# Boutons #}
                 <div class="d-flex gap-2">
                     <a href="/private" class="btn btn-outline-secondary flex-fill">
@@ -74,16 +70,16 @@
     const btnDelete    = document.getElementById('btnDeleteCompte');
     const inputMotif   = document.getElementById('inputMotif');
     const inputConfirm = document.getElementById('inputConfirm');
-    const msgError     = document.getElementById('msgDeleteError');
-    const msgSuccess   = document.getElementById('msgDeleteSuccess');
     const btnLabel     = document.getElementById('btnDeleteLabel');
     const btnSpinner   = document.getElementById('btnDeleteSpinner');
     let requestInFlight = false;
 
     function showError(msg) {
-        msgError.textContent = msg;
-        msgError.style.display = 'block';
-        msgSuccess.style.display = 'none';
+        if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+            return window.DressurMessages.show({ type: 'danger', title: 'Suppression impossible', message: msg });
+        }
+        window.alert(msg);
+        return Promise.resolve(false);
     }
 
     function setLoading(loading) {
@@ -96,9 +92,6 @@
         if (requestInFlight) {
             return;
         }
-
-        msgError.style.display   = 'none';
-        msgSuccess.style.display = 'none';
 
         const motif   = inputMotif.value.trim();
         const confirm = inputConfirm.value.trim().toLowerCase();
@@ -127,8 +120,13 @@
             const data = await response.json();
 
             if (response.ok && data.error === false) {
-                msgSuccess.textContent = "Votre compte a été supprimé. Vous allez être déconnecté…";
-                msgSuccess.style.display = 'block';
+                if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+                    window.DressurMessages.show({
+                        type: 'success',
+                        title: 'Compte supprimé',
+                        message: 'Votre compte a été supprimé. Vous allez être déconnecté…'
+                    });
+                }
                 setTimeout(function () {
                     window.location.href = '/logout';
                 }, 2500);

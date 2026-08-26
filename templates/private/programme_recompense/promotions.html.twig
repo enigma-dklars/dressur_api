@@ -9,8 +9,6 @@
 </style>
 <div class="pr-page">
   <section class="pr-hero d-flex align-items-center justify-content-between gap-3 flex-wrap"><div><h1 class="h5 mb-1 fw-bold"><i class="fas fa-briefcase me-2"></i>Promotions à partager</h1><p class="mb-0" style="color:rgba(255,255,255,.86)">Choisissez une promotion et partagez-la directement sur votre statut WhatsApp.</p></div><a href="{{ path('app_programme_recompense_dashboard') }}" class="btn btn-light btn-sm"><i class="fas fa-arrow-left me-1"></i>Mon programme</a></section>
-  {% for type, messages in app.flashes %}{% for message in messages %}<div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}{% endfor %}
-  <div id="prShareAlert"></div>
   {% if promotions is empty %}
     <div class="pr-empty"><i class="fas fa-inbox fa-2x mb-3"></i><h2 class="h6">Aucune promotion disponible</h2><p class="mb-0">Les promotions sont proposées selon votre pays et leur période de disponibilité. Revenez plus tard.</p></div>
   {% else %}
@@ -23,8 +21,17 @@
 </div>
 <script>
 (function(){
-  const alertBox=document.getElementById('prShareAlert');
-  function showAlert(message,type){alertBox.innerHTML='<div class="alert alert-'+type+' alert-dismissible fade show" role="alert">'+message+'<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';}
+  function showAlert(message,type){
+    if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+      return window.DressurMessages.show({
+        type: type,
+        title: type === 'success' ? 'Succès' : (type === 'danger' ? 'Erreur' : 'Information'),
+        message: message
+      });
+    }
+    window.alert(message);
+    return Promise.resolve(false);
+  }
   async function shareWithImage(data){
     const absoluteImage=new URL(data.imageUrl,window.location.origin).href;
     if(navigator.share){

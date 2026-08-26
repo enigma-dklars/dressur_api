@@ -174,13 +174,21 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     }
 
     function showError(message) {
-        errorMessage.textContent = message;
-        setVisible(error, true);
+        setVisible(error, false);
+        if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+            return window.DressurMessages.show({ type: 'danger', title: 'Erreur', message: message });
+        }
+        window.alert(message);
+        return Promise.resolve(false);
     }
 
     function showSuccess(message) {
-        success.textContent = message;
-        setVisible(success, true);
+        setVisible(success, false);
+        if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+            return window.DressurMessages.show({ type: 'success', title: 'Succès', message: message });
+        }
+        window.alert(message);
+        return Promise.resolve(false);
     }
 
     function getNetworkLabel(networkTypeValue) {
@@ -378,12 +386,21 @@ html.dark-theme .ds-networks-back,html.semi-dark .ds-networks-back{color:#9ea4aa
     async function deleteNetwork(event) {
         const button = event.currentTarget;
         const type = button.dataset.networkType;
-        if (
-            !type
-            || button.disabled
-            || deletingNetworkType !== null
-            || !window.confirm('Supprimer ' + getNetworkLabel(type) + ' de votre profil ?')
-        ) {
+        if (!type || button.disabled || deletingNetworkType !== null) {
+            return;
+        }
+
+        const confirmed = window.DressurMessages
+            ? await window.DressurMessages.show({
+                type: 'question',
+                title: 'Supprimer ce réseau ?',
+                message: 'Le réseau ' + getNetworkLabel(type) + ' sera retiré de votre profil.',
+                confirmLabel: 'Supprimer',
+                cancelLabel: 'Annuler',
+                onConfirm: function () { return true; }
+            })
+            : window.confirm('Supprimer ' + getNetworkLabel(type) + ' de votre profil ?');
+        if (!confirmed) {
             return;
         }
 

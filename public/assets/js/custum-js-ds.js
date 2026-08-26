@@ -674,7 +674,15 @@ $(document).ready(function () {
             });
         } else {
             console.warn('API Web Share non supportée sur ce navigateur.');
-            alert('API Web Share non supportée sur ce navigateur.');
+            if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+                window.DressurMessages.show({
+                    type: 'warning',
+                    title: 'Partage indisponible',
+                    message: 'L’API de partage n’est pas supportée sur ce navigateur.'
+                });
+            } else {
+                alert('API Web Share non supportée sur ce navigateur.');
+            }
         }
     });
     
@@ -966,39 +974,29 @@ $(document).ready(function () {
             },
             success: function (response) {
                 if(response.error == true){
-                    $("#msgError").html(`
-                        <div class="alert border-0 border-danger border-start border-4 bg-light-danger alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-danger"><i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-danger">`+response.message+`</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
-                    $("#msgError").toggle(800)
+                    if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+                        window.DressurMessages.show({
+                            type: 'danger',
+                            title: response.titre || 'Erreur',
+                            message: response.message || 'Une erreur est survenue.'
+                        });
+                    } else {
+                        window.alert(response.message || 'Une erreur est survenue.');
+                    }
                 } else {
                     if (response.direct == false) {
                         window.open(response.url, '_blank');
                     }
-                    msgError = "Confirmer le paiement pour démarrer votre promotion réseau."
-                    $("#msgError").html(`
-                        <div class="alert border-0 border-success border-start border-4 bg-light-success alert-dismissible fade show py-2">
-                        <div class="d-flex align-items-center">
-                        <div class="fs-3 text-success"><i class="bi bi-x-circle-fill"></i>
-                        </div>
-                        <div class="ms-3">
-                            <div class="text-success">`+msgError+`</div>
-                        </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    `);
+                    msgError = "Confirmer le paiement pour démarrer votre promotion réseau.";
+                    if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+                        window.DressurMessages.show({
+                            type: 'success',
+                            title: 'Demande enregistrée',
+                            message: msgError
+                        });
+                    }
                     $(".getInfo").val("");
                     updatePromoReseauSummary();
-                    $("#msgError").show();
                 }
                 traitementContact("newPromoReseau", "fin", "Payer et Démarrer")
             }
@@ -2803,7 +2801,15 @@ $(document).ready(function () {
             method: 'POST',
             success: function (response) {
                 if(response.error == true){
-                    alert("Erreur, Envoyez une capture a l'assistance...")
+                    if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+                        window.DressurMessages.show({
+                            type: 'danger',
+                            title: 'Erreur',
+                            message: 'Une erreur est survenue. Veuillez contacter l’assistance Dressur.'
+                        });
+                    } else {
+                        alert("Erreur, Envoyez une capture a l'assistance...");
+                    }
                 } else {
                     $(".savedPaysCgoisie").text("Modification effectuée").removeClass("btn-primary").addClass("btn-success");
                 }

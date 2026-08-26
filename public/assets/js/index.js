@@ -349,10 +349,14 @@ var options = {
 		selectedColor: '#c9dfaf',
 		selectedRegions: [],
 		showTooltip: true,
-		onRegionClick: function (element, code, region) {
-			var message = 'You clicked "' + region + '" which has the code: ' + code.toUpperCase();
-			alert(message);
-		}
+			onRegionClick: function (element, code, region) {
+				var message = 'You clicked "' + region + '" which has the code: ' + code.toUpperCase();
+				if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+					window.DressurMessages.show({ type: 'info', title: 'Zone sélectionnée', message: message });
+				} else {
+					alert(message);
+				}
+			}
 	});
 
 

@@ -65,7 +65,6 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
                 </li>
             </ul>
             {# ── Feedback ─────────────────────────────────── #}
-            <div id="cpFeedback" class="alert" style="display:none"></div>
             {# ── Formulaire ───────────────────────────────── #}
             {% set canSubmit = user.nom and user.telIsVerified and user.mailIsVerified and inscritDepuis24h %}
             <div class="mb-3">
@@ -95,14 +94,14 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
     <script>
     document.getElementById('btnValider')?.addEventListener('click', async function () {
         const code = document.getElementById('inputCode').value.trim().toUpperCase();
-        const feedback = document.getElementById('cpFeedback');
         const spinner = document.getElementById('btnSpinner');
         const btn = this;
-        feedback.style.display = 'none';
         if (code.length !== 8) {
-            feedback.className = 'alert alert-danger';
-            feedback.textContent = 'Le code doit contenir exactement 8 caractères.';
-            feedback.style.display = 'block';
+            window.DressurMessages?.show({
+                type: 'danger',
+                title: 'Code invalide',
+                message: 'Le code doit contenir exactement 8 caractères.'
+            });
             return;
         }
         btn.disabled = true;
@@ -116,23 +115,29 @@ html.dark-theme .cp-cond-list li,html.semi-dark .cp-cond-list li{border-color:rg
             });
             const data = await response.json();
             if (data.error === false) {
-                feedback.className = 'alert alert-success';
-                feedback.textContent = data.message || 'Partenaire associé avec succès !';
-                feedback.style.display = 'block';
+                window.DressurMessages?.show({
+                    type: 'success',
+                    title: 'Code accepté',
+                    message: data.message || 'Partenaire associé avec succès !'
+                });
                 document.getElementById('inputCode').disabled = true;
                 btn.disabled = true;
                 // Redirige vers les paramètres après 2 secondes
                 setTimeout(() => { window.location.href = '/parametres'; }, 2000);
             } else {
-                feedback.className = 'alert alert-danger';
-                feedback.textContent = data.message || 'Une erreur est survenue.';
-                feedback.style.display = 'block';
+                window.DressurMessages?.show({
+                    type: 'danger',
+                    title: data.titre || 'Erreur',
+                    message: data.message || 'Une erreur est survenue.'
+                });
                 btn.disabled = false;
             }
         } catch (e) {
-            feedback.className = 'alert alert-danger';
-            feedback.textContent = 'Erreur réseau. Veuillez réessayer.';
-            feedback.style.display = 'block';
+            window.DressurMessages?.show({
+                type: 'danger',
+                title: 'Erreur réseau',
+                message: 'Impossible de contacter le serveur. Veuillez réessayer.'
+            });
             btn.disabled = false;
         } finally {
             spinner.style.display = 'none';

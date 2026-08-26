@@ -184,6 +184,42 @@
     #ds-status-banner.ds-banner-green  .ds-banner-btn-main { color: #16a34a; }
     #ds-status-banner.ds-banner-blue   .ds-banner-btn-main { color: #2563eb; }
     #ds-status-banner.ds-banner-orange .ds-banner-btn-main { color: #ea580c; }
+
+    /* ── Modal commun des messages utilisateur ───────────────────────── */
+    .ds-message-modal { border: 0; border-radius: 20px; overflow: hidden; }
+    .ds-message-modal .modal-body { max-height: min(60vh, 420px); overflow-y: auto; }
+    .ds-message-modal-body { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .ds-message-modal-icon {
+        width: 48px; height: 48px; border-radius: 50%; flex: 0 0 48px;
+        display: inline-flex; align-items: center; justify-content: center; font-size: 22px;
+    }
+    .ds-message-modal-icon--danger { color: #b42318; background: #fef3f2; }
+    .ds-message-modal-icon--warning { color: #8a5700; background: #fff4ce; }
+    .ds-message-modal-icon--info { color: #075985; background: #e0f2fe; }
+    .ds-message-modal-icon--success { color: #166534; background: #dcfce7; }
+    .ds-message-modal-icon--question { color: #6b21a8; background: #f3e8ff; }
+    html.dark-theme .ds-message-modal,
+    html.semi-dark .ds-message-modal { color: #f8f9fa; background: #202a40; }
+    html.dark-theme .ds-message-modal .modal-header,
+    html.dark-theme .ds-message-modal .modal-footer,
+    html.semi-dark .ds-message-modal .modal-header,
+    html.semi-dark .ds-message-modal .modal-footer { border-color: rgba(255,255,255,.12) !important; }
+    html.dark-theme .ds-message-modal .btn-close,
+    html.semi-dark .ds-message-modal .btn-close { filter: invert(1) grayscale(1); }
+    html.dark-theme .ds-message-modal-icon--danger,
+    html.semi-dark .ds-message-modal-icon--danger { color: #fda4af; background: rgba(220,53,69,.2); }
+    html.dark-theme .ds-message-modal-icon--warning,
+    html.semi-dark .ds-message-modal-icon--warning { color: #ffd65a; background: rgba(255,193,7,.18); }
+    html.dark-theme .ds-message-modal-icon--info,
+    html.semi-dark .ds-message-modal-icon--info { color: #7dd3fc; background: rgba(13,110,253,.2); }
+    html.dark-theme .ds-message-modal-icon--success,
+    html.semi-dark .ds-message-modal-icon--success { color: #86efac; background: rgba(25,135,84,.2); }
+    html.dark-theme .ds-message-modal-icon--question,
+    html.semi-dark .ds-message-modal-icon--question { color: #d8b4fe; background: rgba(111,66,193,.2); }
+    @media (max-width: 575.98px) {
+        .ds-message-modal .modal-dialog { margin: .75rem; }
+        .ds-message-modal .modal-content { border-radius: 18px; }
+    }
     </style>
 </head>
 
@@ -204,6 +240,36 @@
             <span class="ds-banner-text" id="ds-banner-text"></span>
             <div class="ds-banner-actions" id="ds-banner-actions"></div>
             <button class="ds-banner-close" id="ds-banner-close" aria-label="Fermer">×</button>
+        </div>
+
+        {# Les flash messages utilisateur sont centralisés dans le modal commun. #}
+        <div id="ds-initial-messages" hidden aria-hidden="true">
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div data-type="{{ type|e('html_attr') }}">{{ message }}</div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="modal fade" id="dsMessageModal" tabindex="-1" aria-labelledby="dsMessageModalTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content ds-message-modal">
+                    <div class="modal-header align-items-start gap-3">
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+                            <div id="dsMessageModalIcon" class="ds-message-modal-icon" aria-hidden="true"></div>
+                            <h2 id="dsMessageModalTitle" class="modal-title fs-5 fw-bold mb-0"></h2>
+                        </div>
+                        <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="dsMessageModalBody" class="ds-message-modal-body"></div>
+                    </div>
+                    <div class="modal-footer gap-2">
+                        <button type="button" id="dsMessageModalCancel" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+                        <button type="button" id="dsMessageModalConfirm" class="btn btn-primary d-none"></button>
+                    </div>
+                </div>
+            </div>
         </div>
 
                 <!--start content-->
@@ -256,6 +322,106 @@
     <!--app-->
     <script src="/assets/js/app.js"></script>
     <script src="/assets/js/index.js"></script>
+
+    <script>
+        /**
+         * Système commun de messages utilisateur, inspiré du composant mobile.
+         * Les valeurs sont injectées avec textContent pour éviter toute interprétation HTML.
+         */
+        (function () {
+            const modalElement = document.getElementById('dsMessageModal');
+            const typeConfig = {
+                danger: { title: 'Erreur', icon: 'fa-circle-exclamation', iconClass: 'danger', buttonClass: 'btn-danger' },
+                warning: { title: 'Attention', icon: 'fa-triangle-exclamation', iconClass: 'warning', buttonClass: 'btn-warning' },
+                info: { title: 'Information', icon: 'fa-circle-info', iconClass: 'info', buttonClass: 'btn-primary' },
+                success: { title: 'Succès', icon: 'fa-circle-check', iconClass: 'success', buttonClass: 'btn-success' },
+                question: { title: 'Confirmation', icon: 'fa-circle-question', iconClass: 'question', buttonClass: 'btn-primary' }
+            };
+
+            function fallbackAlert(title, message) {
+                window.alert((title ? title + '\\n\\n' : '') + (message || ''));
+                return Promise.resolve(false);
+            }
+
+            function showMessage(options) {
+                options = options || {};
+                const type = typeConfig[options.type] ? options.type : 'info';
+                const config = typeConfig[type];
+                const title = options.title || config.title;
+                const message = options.message || '';
+                const needsConfirmation = typeof options.onConfirm === 'function';
+
+                if (!modalElement || !window.bootstrap || !window.bootstrap.Modal) {
+                    return fallbackAlert(title, message);
+                }
+
+                const iconElement = document.getElementById('dsMessageModalIcon');
+                const titleElement = document.getElementById('dsMessageModalTitle');
+                const bodyElement = document.getElementById('dsMessageModalBody');
+                const cancelButton = document.getElementById('dsMessageModalCancel');
+                const confirmButton = document.getElementById('dsMessageModalConfirm');
+                const modal = window.bootstrap.Modal.getOrCreateInstance(modalElement);
+
+                iconElement.className = 'ds-message-modal-icon ds-message-modal-icon--' + config.iconClass;
+                iconElement.innerHTML = '<i class="fas ' + config.icon + '" aria-hidden="true"></i>';
+                titleElement.textContent = title;
+                bodyElement.textContent = message;
+                cancelButton.textContent = options.cancelLabel || (needsConfirmation ? 'Annuler' : 'Fermer');
+                confirmButton.className = 'btn ' + config.buttonClass + (needsConfirmation ? '' : ' d-none');
+                confirmButton.textContent = options.confirmLabel || 'Confirmer';
+
+                return new Promise(function (resolve) {
+                    let settled = false;
+                    function settle(value) {
+                        if (settled) return;
+                        settled = true;
+                        resolve(value);
+                    }
+                    function closeWith(value) {
+                        settle(value);
+                        modal.hide();
+                    }
+
+                    cancelButton.onclick = function () { closeWith(false); };
+                    confirmButton.onclick = function () {
+                        if (!needsConfirmation) return;
+                        closeWith(true);
+                    };
+                    modalElement.addEventListener('hidden.bs.modal', function () {
+                        settle(false);
+                    }, { once: true });
+                    modal.show();
+
+                    if (needsConfirmation) {
+                        confirmButton.focus();
+                    } else {
+                        cancelButton.focus();
+                    }
+                }).then(function (confirmed) {
+                    if (confirmed && needsConfirmation) {
+                        return Promise.resolve(options.onConfirm()).then(function () { return true; });
+                    }
+                    return confirmed;
+                });
+            }
+
+            window.DressurMessages = { show: showMessage };
+
+            const initialMessages = document.querySelectorAll('#ds-initial-messages [data-type]');
+            if (initialMessages.length) {
+                (async function () {
+                    for (const element of initialMessages) {
+                        await showMessage({
+                            type: element.dataset.type,
+                            message: element.textContent.trim()
+                        });
+                    }
+                    const container = document.getElementById('ds-initial-messages');
+                    if (container) container.remove();
+                }());
+            }
+        }());
+    </script>
     
     <script>
         // new PerfectScrollbar(".wrapper")
@@ -311,31 +477,19 @@
     // UTILITAIRES
     // ==========================================
     
-    /**
-     * Affiche une alerte Bootstrap
+        /**
+     * Affiche un message utilisateur dans le modal commun.
+     * La signature historique (title, message, type) est conservée.
      */
     function showAlert(title, message, type = 'danger') {
-        const alertId = 'alert-' + Date.now();
-        const alertHTML = `
-            <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
-                <strong>${title}</strong><br>${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-        
-        const $container = $('#alertContainer');
-        if ($container.length) {
-            $container.html(alertHTML);
-            
-            // Auto-close après 5 secondes
-            setTimeout(() => {
-                const $alert = $(`#${alertId}`);
-                if ($alert.length) {
-                    const bsAlert = new bootstrap.Alert($alert[0]);
-                    bsAlert.close();
-                }
-            }, 5000);
+        if (window.DressurMessages && typeof window.DressurMessages.show === 'function') {
+            return window.DressurMessages.show({
+                type: type,
+                title: title,
+                message: message
+            });
         }
+        return Promise.resolve(false);
     }
 
     /**
@@ -866,7 +1020,7 @@
 
         const errors = validateProduitServiceForm();
         if (errors.length > 0) {
-            showAlert('Attention !!!', errors.join('<br>'), 'warning');
+            showAlert('Attention !!!', errors.join('\n'), 'warning');
             return;
         }
 

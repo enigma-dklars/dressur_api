@@ -29,9 +29,6 @@ html.dark-theme .pr-condition,html.dark-theme .pr-condition span,html.dark-theme
     <p class="mb-0" style="color:rgba(255,255,255,.88)">Partagez des promotions d’affaires sur votre statut WhatsApp et soyez récompensé.</p>
   </section>
 
-  {% for type, messages in app.flashes %}
-    {% for message in messages %}<div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}
-  {% endfor %}
 
   <div class="pr-grid">
     <section class="pr-card">
