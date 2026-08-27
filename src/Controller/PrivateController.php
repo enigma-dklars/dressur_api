@@ -213,7 +213,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/admin', name: 'app_admin')]
-    public function admin(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository, CacheInterface $cache): Response
+    public function admin(CookieDS $cookieDS, UserRepository $userRepository, UserBannedRepository $userBannedRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, TransactionRepository $transactionRepository, CacheInterface $cache): Response
     {
         $traitementsDS->majServicesZefame();
 
