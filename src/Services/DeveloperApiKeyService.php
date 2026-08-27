@@ -73,6 +73,11 @@ class DeveloperApiKeyService
             return null;
         }
 
+        $user = $key->getDeveloperProfile()?->getUser();
+        if (!$user || ($user->getBlocked() ?? false)) {
+            return null;
+        }
+
         $key->setLastUsedAt(new DateTime());
 
         return $key;

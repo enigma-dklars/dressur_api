@@ -31,6 +31,12 @@ class DeveloperIdempotency
     #[ORM\Column(type: Types::JSON)]
     private array $responseBody = [];
 
+    #[ORM\Column(length: 40, nullable: true)]
+    private ?string $orderReference = null;
+
+    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    private ?int $balanceAfter = null;
+
     #[ORM\Column(type: Types::INTEGER)]
     private int $responseStatus = 200;
 
@@ -95,6 +101,30 @@ class DeveloperIdempotency
     public function setResponseBody(array $responseBody): static
     {
         $this->responseBody = $responseBody;
+
+        return $this;
+    }
+
+    public function getOrderReference(): ?string
+    {
+        return $this->orderReference;
+    }
+
+    public function setOrderReference(?string $orderReference): static
+    {
+        $this->orderReference = $orderReference;
+
+        return $this;
+    }
+
+    public function getBalanceAfter(): ?int
+    {
+        return $this->balanceAfter;
+    }
+
+    public function setBalanceAfter(?int $balanceAfter): static
+    {
+        $this->balanceAfter = $balanceAfter;
 
         return $this;
     }

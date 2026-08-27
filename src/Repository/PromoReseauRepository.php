@@ -79,9 +79,9 @@ class PromoReseauRepository extends ServiceEntityRepository
             ->getQuery()
             ->getScalarResult();
 
-        $result = ['web' => 0, 'mobile' => 0, 'none' => 0, 'total' => 0];
+        $result = ['web' => 0, 'mobile' => 0, 'api' => 0, 'none' => 0, 'total' => 0];
         foreach ($rows as $row) {
-            $key = isset($row['source']) && in_array($row['source'], ['web', 'mobile']) ? $row['source'] : 'none';
+            $key = isset($row['source']) && in_array($row['source'], ['web', 'mobile', 'api'], true) ? $row['source'] : 'none';
             $result[$key] += (int) $row['cnt'];
             $result['total'] += (int) $row['cnt'];
         }

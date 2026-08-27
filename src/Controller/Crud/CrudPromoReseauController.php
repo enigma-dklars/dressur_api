@@ -46,7 +46,7 @@ class CrudPromoReseauController extends AbstractController
 
         if ($sourceFilter === 'none') {
             $promo_reseaus = $promoReseauRepository->findBy(['source' => null], ['id' => 'DESC']);
-        } elseif (in_array($sourceFilter, ['web', 'mobile'])) {
+        } elseif (in_array($sourceFilter, ['web', 'mobile', 'api'], true)) {
             $promo_reseaus = $promoReseauRepository->findBy(['source' => $sourceFilter], ['id' => 'DESC']);
         } else {
             $promo_reseaus = $promoReseauRepository->findBy([], ['id' => 'DESC']);

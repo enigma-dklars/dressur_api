@@ -570,7 +570,7 @@ class TraitementsDS extends AbstractController
                 "qteDemander" => $this->separateurMillier($promo->getQteDemander()),
                 "prixFixer" => $this->separateurMillier($promo->getPrixFixer())." FCFA",
                 "url" => $promo->getUrl(),
-                "reference" => $promo->getIdZefame(),
+                "reference" => $promo->getReference(),
                 "statusNumber" => $promo->getStatus(),
                 "status" => $statut,
                 "compteurDebut" => $this->separateurMillier($promo->getCompteurDebut()),

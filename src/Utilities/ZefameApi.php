@@ -4,10 +4,16 @@ namespace App\Utilities;
 
 class ZefameApi {
     /** API URL */
-    public $api_url = 'https://zefame.com/api/v2';
+    private string $api_url;
 
-    /** Your API key */
-    public $api_key = '034a547e50099c8e09cb880dd018d0c1';
+    /** Provider credential, supplied only by the server environment. */
+    private string $api_key;
+
+    public function __construct()
+    {
+        $this->api_url = rtrim((string)(getenv('ZEFAME_API_URL') ?: 'https://zefame.com/api/v2'), '/');
+        $this->api_key = (string)(getenv('ZEFAME_API_KEY') ?: '');
+    }
 
     /** Add order */
     public function order($data)
@@ -138,8 +144,8 @@ class ZefameApi {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);

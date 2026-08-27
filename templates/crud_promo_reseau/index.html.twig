@@ -23,6 +23,7 @@
         <a href="{{ path('app_crud_promo_reseau_index') }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
         <a href="{{ path('app_crud_promo_reseau_index', {'source': 'mobile'}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
         <a href="{{ path('app_crud_promo_reseau_index', {'source': 'web'}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_promo_reseau_index', {'source': 'api'}) }}" class="badge text-decoration-none {{ sourceFilter == 'api' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">api ({{ sourceCounts.api }})</a>
         <a href="{{ path('app_crud_promo_reseau_index', {'source': 'none'}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
     </div>
 
@@ -38,6 +39,7 @@
                     <th>Prix</th>
                     <th>Prix.Zef</th>
                     <th>Status</th>
+                    <th>Ref.Dressur</th>
                     <th>Id.Zef</th>
                     <th>C.Debut</th>
                     <th>C.Restant</th>
@@ -56,6 +58,8 @@
                             <span class="badge bg-primary">web</span>
                         {% elseif promo_reseau.source == 'mobile' %}
                             <span class="badge bg-warning text-dark">mobile</span>
+                        {% elseif promo_reseau.source == 'api' %}
+                            <span class="badge bg-success text-white">api</span>
                         {% else %}
                             <span class="badge bg-secondary">none</span>
                         {% endif %}
@@ -94,6 +98,7 @@
                         {% if promo_reseau.status == 2 %} <span class="badge bg-danger text-white fw-normal">En.Cours</span> {% endif %}
                         {% if promo_reseau.status == 3 %} <span class="badge bg-success text-white fw-normal">Terminer</span> {% endif %}
                     </td>
+                    <td><code>{{ promo_reseau.reference }}</code></td>
                     <td>{{ promo_reseau.idZefame }}</td>
                     <td>{{ promo_reseau.compteurDebut }}</td>
                     <td>{{ promo_reseau.compteurRestant }}</td>
@@ -108,7 +113,7 @@
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="11">no records found</td>
+                    <td colspan="16">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>

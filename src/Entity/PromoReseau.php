@@ -38,6 +38,9 @@ class PromoReseau
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $idZefame = null;
 
+    #[ORM\Column(length: 40, unique: true)]
+    private string $reference;
+
     #[ORM\Column(nullable: true)]
     private ?int $compteurDebut = null;
 
@@ -63,6 +66,7 @@ class PromoReseau
     {
         $this->status = 1;
         $this->idZefame = "*****";
+        $this->reference = 'pr_' . bin2hex(random_bytes(12));
         $this->compteurDebut = 0;
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
@@ -149,6 +153,18 @@ class PromoReseau
     public function setStatus(int $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getReference(): string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(string $reference): self
+    {
+        $this->reference = $reference;
 
         return $this;
     }
