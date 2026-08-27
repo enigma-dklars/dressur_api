@@ -39,5 +39,53 @@ class FormuleBoostRepository extends ServiceEntityRepository
         }
     }
 
+    public function findReplacementForDeletion(FormuleBoost $formula): ?FormuleBoost
+    {
+        $candidates = $this->findBy([
+            'activated' => true,
+            'typeBoost' => $formula->getTypeBoost(),
+        ], [
+            'prix' => 'ASC',
+            'id' => 'ASC',
+        ]);
+
+        $sourcePrice = (float) ($formula->getPrix() ?? 0);
+        $eligibleCandidates = array_values(array_filter(
+            $candidates,
+            static function (FormuleBoost $candidate) use ($formula, $sourcePrice): bool {
+                if ($candidate->getId() === $formula->getId()) {
+                    return false;
+                }
+
+                return $sourcePrice <= 0
+                    ? $candidate->getPrix() <= 0
+                    : $candidate->getPrix() > 0;
+            }
+        ));
+
+        if ($eligibleCandidates === []) {
+            return null;
+        }
+
+        usort($eligibleCandidates, static function (FormuleBoost $left, FormuleBoost $right) use ($sourcePrice): int {
+            $leftPrice = (float) ($left->getPrix() ?? 0);
+            $rightPrice = (float) ($right->getPrix() ?? 0);
+            $leftDistance = abs($leftPrice - $sourcePrice);
+            $rightDistance = abs($rightPrice - $sourcePrice);
+
+            if ($leftDistance !== $rightDistance) {
+                return $leftDistance <=> $rightDistance;
+            }
+
+            if ($leftPrice !== $rightPrice) {
+                return $leftPrice <=> $rightPrice;
+            }
+
+            return $left->getId() <=> $right->getId();
+        });
+
+        return $eligibleCandidates[0];
+    }
+
 
 }

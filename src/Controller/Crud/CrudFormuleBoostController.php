@@ -4,6 +4,7 @@ namespace App\Controller\Crud;
 
 use App\Entity\FormuleBoost;
 use App\Form\FormuleBoostType;
+use App\Repository\BoostRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
@@ -98,9 +99,56 @@ class CrudFormuleBoostController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_crud_formule_boost_delete', methods: ['POST'])]
-    public function delete(Request $request, FormuleBoost $formuleBoost, EntityManagerInterface $entityManager): Response
-    {
+    public function delete(
+        Request $request,
+        FormuleBoost $formuleBoost,
+        EntityManagerInterface $entityManager,
+        FormuleBoostRepository $formuleBoostRepository,
+        BoostRepository $boostRepository
+    ): Response {
         if ($this->isCsrfTokenValid('delete'.$formuleBoost->getId(), $request->request->get('_token'))) {
+            $boosts = $boostRepository->findBy(['formuleBoost' => $formuleBoost]);
+            $boostCount = count($boosts);
+            $replacement = $boostCount > 0
+                ? $formuleBoostRepository->findReplacementForDeletion($formuleBoost)
+                : null;
+
+            if ($boostCount > 0 && $replacement === null) {
+                $this->addFlash(
+                    'danger',
+                    sprintf(
+                        'La formule « %s » ne peut pas être supprimée : aucun remplacement actif compatible (%s, %s) n’existe pour ses %d Boost(s).',
+                        $formuleBoost->getTitre(),
+                        $formuleBoost->getTypeBoost(),
+                        $formuleBoost->getPrix() <= 0 ? 'gratuit' : 'payant',
+                        $boostCount
+                    )
+                );
+
+                return $this->redirectToRoute('app_crud_formule_boost_index', [], Response::HTTP_SEE_OTHER);
+            }
+
+            foreach ($boosts as $boost) {
+                $boost->setFormuleBoost($replacement);
+            }
+
+            $admin = $this->traitementsDS->getUserByUidInCookies();
+            if ($admin) {
+                $notification = $boostCount > 0
+                    ? sprintf(
+                        'La formule Boost Contact « %s » a été supprimée et remplacée par « %s » pour %d Boost(s) existant(s).',
+                        $formuleBoost->getTitre(),
+                        $replacement->getTitre(),
+                        $boostCount
+                    )
+                    : sprintf(
+                        'La formule Boost Contact « %s » a été supprimée. Aucun Boost existant n’était lié à cette formule.',
+                        $formuleBoost->getTitre()
+                    );
+
+                $this->traitementsDS->addNotification($notification, $admin);
+            }
+
             $entityManager->remove($formuleBoost);
             $entityManager->flush();
         }
