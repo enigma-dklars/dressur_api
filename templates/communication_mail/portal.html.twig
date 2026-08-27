@@ -3,148 +3,507 @@
 {% block title %}Portail de communication{% endblock %}
 
 {% block body %}
+<style>
+    .communication-portal {
+        --comm-primary: #2563eb;
+        --comm-primary-soft: rgba(37, 99, 235, .10);
+        --comm-success: #16a34a;
+        --comm-success-soft: rgba(22, 163, 74, .11);
+        --comm-warning: #d97706;
+        --comm-warning-soft: rgba(217, 119, 6, .12);
+        --comm-info: #0891b2;
+        --comm-info-soft: rgba(8, 145, 178, .11);
+        --comm-surface: #ffffff;
+        --comm-surface-muted: #f7f9fc;
+        --comm-border: rgba(15, 23, 42, .08);
+        --comm-heading: #172033;
+        --comm-text: #536174;
+        --comm-shadow: 0 12px 32px rgba(15, 23, 42, .07);
+    }
 
-{# ── Campagnes & outils ── #}
-<h5 class="mb-3 fw-semibold">Campagnes</h5>
-<div class="row g-3 mb-4">
+    .communication-portal .portal-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 28px 30px;
+        margin-bottom: 30px;
+        color: #fff;
+        border-radius: 20px;
+        background: linear-gradient(120deg, #172554 0%, #1d4ed8 58%, #0891b2 100%);
+        box-shadow: 0 18px 42px rgba(29, 78, 216, .22);
+    }
 
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-                <div class="mb-3"><span class="fs-1">🚀</span></div>
-                <h5 class="card-title fw-semibold">Attirer de nouveaux utilisateurs</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    Envoyez un mail engageant à des adresses externes pour les inviter à rejoindre Dressur via le web ou l'application mobile.
-                </p>
-                <a href="{{ path('app_communication_mail_campagne_prospect') }}" class="btn btn-primary mt-2">
-                    <i class="fas fa-paper-plane me-1"></i>Lancer la campagne
-                </a>
-            </div>
+    .communication-portal .portal-hero::after {
+        content: '';
+        position: absolute;
+        width: 230px;
+        height: 230px;
+        right: 5%;
+        top: -120px;
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: 50%;
+        box-shadow: 0 0 0 28px rgba(255, 255, 255, .04), 0 0 0 56px rgba(255, 255, 255, .035);
+        pointer-events: none;
+    }
+
+    .communication-portal .hero-copy,
+    .communication-portal .hero-action {
+        position: relative;
+        z-index: 1;
+    }
+
+    .communication-portal .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, .75);
+        font-size: .7rem;
+        font-weight: 700;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .communication-portal .hero-eyebrow::before {
+        content: '';
+        width: 24px;
+        height: 2px;
+        border-radius: 99px;
+        background: #67e8f9;
+    }
+
+    .communication-portal .portal-hero h1 {
+        margin: 0 0 8px;
+        color: #fff;
+        font-size: clamp(1.45rem, 2.4vw, 2.15rem);
+        font-weight: 700;
+        letter-spacing: -.03em;
+    }
+
+    .communication-portal .portal-hero p {
+        max-width: 670px;
+        margin: 0;
+        color: rgba(255, 255, 255, .82);
+        font-size: .94rem;
+        line-height: 1.65;
+    }
+
+    .communication-portal .hero-action {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 11px 16px;
+        color: #172554;
+        border: 0;
+        border-radius: 11px;
+        background: #fff;
+        font-size: .83rem;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, .16);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .communication-portal .hero-action:hover {
+        color: #172554;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(15, 23, 42, .23);
+    }
+
+    .communication-portal .portal-section {
+        margin-bottom: 32px;
+    }
+
+    .communication-portal .section-heading {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+
+    .communication-portal .section-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .communication-portal .section-marker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        color: var(--comm-primary);
+        border-radius: 9px;
+        background: var(--comm-primary-soft);
+        font-size: .8rem;
+    }
+
+    .communication-portal .section-heading h2 {
+        margin: 0;
+        color: var(--comm-heading);
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -.01em;
+    }
+
+    .communication-portal .section-heading p {
+        margin: 3px 0 0;
+        color: var(--comm-text);
+        font-size: .78rem;
+    }
+
+    .communication-portal .portal-card {
+        position: relative;
+        height: 100%;
+        overflow: hidden;
+        border: 1px solid var(--comm-border);
+        border-radius: 16px;
+        background: var(--comm-surface);
+        box-shadow: var(--comm-shadow);
+        transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+    }
+
+    .communication-portal .portal-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(37, 99, 235, .22);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, .12);
+    }
+
+    .communication-portal .portal-card .card-body {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 20px;
+    }
+
+    .communication-portal .card-topline {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .communication-portal .card-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 13px;
+        font-size: 1rem;
+    }
+
+    .communication-portal .icon-primary { color: var(--comm-primary); background: var(--comm-primary-soft); }
+    .communication-portal .icon-success { color: var(--comm-success); background: var(--comm-success-soft); }
+    .communication-portal .icon-warning { color: var(--comm-warning); background: var(--comm-warning-soft); }
+    .communication-portal .icon-info { color: var(--comm-info); background: var(--comm-info-soft); }
+
+    .communication-portal .card-kicker {
+        color: var(--comm-text);
+        font-size: .68rem;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+    }
+
+    .communication-portal .card-title {
+        margin: 0 0 8px;
+        color: var(--comm-heading);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    .communication-portal .card-text {
+        flex-grow: 1;
+        margin-bottom: 18px;
+        color: var(--comm-text) !important;
+        font-size: .82rem;
+        line-height: 1.65;
+    }
+
+    .communication-portal .card-text code {
+        padding: 2px 5px;
+        color: var(--comm-primary);
+        border-radius: 5px;
+        background: var(--comm-primary-soft);
+        font-size: .75rem;
+    }
+
+    .communication-portal .card-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        align-self: flex-start;
+        margin-top: -6px;
+        margin-bottom: 14px;
+        padding: 5px 9px;
+        color: var(--comm-text);
+        border: 1px solid var(--comm-border);
+        border-radius: 999px;
+        background: var(--comm-surface-muted);
+        font-size: .72rem;
+        font-weight: 600;
+    }
+
+    .communication-portal .card-meta strong {
+        color: var(--comm-heading);
+        font-size: .8rem;
+    }
+
+    .communication-portal .portal-card .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 38px;
+        border-radius: 10px;
+        font-size: .78rem;
+        font-weight: 600;
+    }
+
+    .communication-portal .accent-success { border-top: 3px solid var(--comm-success); }
+    .communication-portal .accent-primary { border-top: 3px solid var(--comm-primary); }
+    .communication-portal .accent-info { border-top: 3px solid var(--comm-info); }
+
+    .communication-portal .section-note {
+        color: var(--comm-text);
+        font-size: .74rem;
+    }
+
+    @media (max-width: 767.98px) {
+        .communication-portal .portal-hero {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 22px;
+            margin-bottom: 24px;
+            border-radius: 16px;
+        }
+
+        .communication-portal .hero-action {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .communication-portal .section-heading {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .communication-portal .portal-section {
+            margin-bottom: 26px;
+        }
+    }
+
+    html.dark-theme .communication-portal {
+        --comm-surface: #202a40;
+        --comm-surface-muted: #182236;
+        --comm-border: rgba(255, 255, 255, .11);
+        --comm-heading: #f3f6fb;
+        --comm-text: #b9c6d6;
+        --comm-shadow: 0 14px 34px rgba(0, 0, 0, .18);
+    }
+
+    html.dark-theme .communication-portal .portal-card:hover {
+        border-color: rgba(96, 165, 250, .38);
+        box-shadow: 0 18px 38px rgba(0, 0, 0, .28);
+    }
+
+    html.dark-theme .communication-portal .card-text code {
+        color: #93c5fd;
+    }
+
+    html.dark-theme .communication-portal .section-heading h2,
+    html.dark-theme .communication-portal .card-title,
+    html.dark-theme .communication-portal .card-meta strong {
+        color: var(--comm-heading);
+    }
+</style>
+
+<div class="communication-portal">
+    <section class="portal-hero" aria-labelledby="communication-portal-title">
+        <div class="hero-copy">
+            <div class="hero-eyebrow"><i class="fas fa-sliders"></i> Espace administrateur</div>
+            <h1 id="communication-portal-title">Centre de communication</h1>
+            <p>Centralisez vos campagnes, vos messages ciblés et vos files d’attente dans un espace conçu pour agir rapidement, avec une lecture claire des prochaines actions.</p>
         </div>
-    </div>
+        <a href="{{ path('app_communication_mail_message_personnalise_whatsapp') }}" class="hero-action">
+            <i class="fas fa-bolt"></i>Nouvelle action
+        </a>
+    </section>
 
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-                <div class="mb-3"><span class="fs-1">📋</span></div>
-                <h5 class="card-title fw-semibold">File d'attente mail</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    Consultez et gérez les mails en attente d'envoi, envoyés ou en erreur.
-                    {% if nb_attente > 0 %}
-                        <br><span class="badge bg-warning text-dark mt-1">{{ nb_attente }} en attente</span>
-                    {% endif %}
-                </p>
-                <a href="{{ path('app_communication_mail_file_attente') }}" class="btn btn-outline-secondary mt-2">
-                    <i class="fas fa-list me-1"></i>Voir la file d'attente
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm border-top border-3 border-success">
-            <div class="card-body d-flex flex-column">
-                <div class="mb-3"><span class="fs-1">💬</span></div>
-                <h5 class="card-title fw-semibold">File d'attente WhatsApp</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    Consultez et gérez les messages WhatsApp en attente d'envoi.
-                    {% if nb_whatsapp_attente is defined and nb_whatsapp_attente > 0 %}
-                        <br><span class="badge bg-success mt-1">{{ nb_whatsapp_attente }} en attente</span>
-                    {% endif %}
-                </p>
-                <a href="{{ path('app_communication_mail_file_attente_whatsapp') }}" class="btn btn-outline-success mt-2">
-                    <i class="fab fa-whatsapp me-1"></i>Voir la file WhatsApp
-                </a>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-{# ── Message WhatsApp personnalisé ── #}
-<h5 class="mb-3 fw-semibold">
-    <i class="fab fa-whatsapp me-1 text-success"></i>Message WhatsApp Personnalisé
-</h5>
-<div class="row g-3 mb-4">
-    <div class="col-md-12">
-        <div class="card border-0 shadow-sm border-top border-3 border-success">
-            <div class="card-body d-flex align-items-center gap-4">
-                <div class="fs-1 flex-shrink-0">✍️</div>
-                <div class="flex-grow-1">
-                    <h5 class="card-title fw-semibold mb-1">Envoyer un message libre à vos utilisateurs</h5>
-                    <p class="card-text text-muted small mb-0">
-                        Rédigez un message personnalisé et envoyez-le à tous les utilisateurs d'un service (Boost Contact, Promotion Affaire ou Promotion Réseaux Sociaux).
-                        Le message est personnalisé avec les variables <code>{nom}</code>, <code>{pseudo}</code>, <code>{mail}</code>, <code>{tel}</code>, <code>{uid}</code> pour chaque utilisateur.
-                    </p>
+    <section class="portal-section" aria-labelledby="campaigns-title">
+        <div class="section-heading">
+            <div class="section-title-wrap">
+                <span class="section-marker"><i class="fas fa-paper-plane"></i></span>
+                <div>
+                    <h2 id="campaigns-title">Campagnes &amp; files d’attente</h2>
+                    <p>Préparez vos campagnes et surveillez les messages à traiter.</p>
                 </div>
-                <a href="{{ path('app_communication_mail_message_personnalise_whatsapp') }}" class="btn btn-success flex-shrink-0">
-                    <i class="fab fa-whatsapp me-1"></i>Rédiger un message
-                </a>
+            </div>
+            <span class="section-note">3 parcours disponibles</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-xl-4 col-md-6">
+                <article class="portal-card">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-primary"><i class="fas fa-user-plus"></i></span>
+                            <span class="card-kicker">Acquisition</span>
+                        </div>
+                        <h3 class="card-title">Attirer de nouveaux utilisateurs</h3>
+                        <p class="card-text">Invitez des contacts externes à découvrir Dressur grâce à une campagne mail dédiée.</p>
+                        <a href="{{ path('app_communication_mail_campagne_prospect') }}" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i>Lancer la campagne
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <article class="portal-card">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-warning"><i class="fas fa-envelope-open-text"></i></span>
+                            <span class="card-kicker">E-mail</span>
+                        </div>
+                        <h3 class="card-title">File d’attente mail</h3>
+                        <p class="card-text">Consultez et gérez les mails en attente d’envoi, envoyés ou en erreur.</p>
+                        {% if nb_attente > 0 %}
+                            <span class="card-meta"><i class="fas fa-clock"></i><strong>{{ nb_attente }}</strong> en attente</span>
+                        {% endif %}
+                        <a href="{{ path('app_communication_mail_file_attente') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i>Voir la file mail
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-xl-4 col-md-6">
+                <article class="portal-card accent-success">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-success"><i class="fab fa-whatsapp"></i></span>
+                            <span class="card-kicker">WhatsApp</span>
+                        </div>
+                        <h3 class="card-title">File d’attente WhatsApp</h3>
+                        <p class="card-text">Consultez et gérez les messages WhatsApp en attente d’envoi.</p>
+                        {% if nb_whatsapp_attente is defined and nb_whatsapp_attente > 0 %}
+                            <span class="card-meta"><i class="fas fa-clock"></i><strong>{{ nb_whatsapp_attente }}</strong> en attente</span>
+                        {% endif %}
+                        <a href="{{ path('app_communication_mail_file_attente_whatsapp') }}" class="btn btn-outline-success">
+                            <i class="fab fa-whatsapp"></i>Voir la file WhatsApp
+                        </a>
+                    </div>
+                </article>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-{# ── Message Mail personnalisé ── #}
-<h5 class="mb-3 fw-semibold">
-    <i class="fas fa-envelope me-1 text-primary"></i>Message Mail Personnalisé
-</h5>
-<div class="row g-3 mb-4">
-    <div class="col-md-12">
-        <div class="card border-0 shadow-sm border-top border-3 border-primary">
-            <div class="card-body d-flex align-items-center gap-4">
-                <div class="fs-1 flex-shrink-0">✉️</div>
-                <div class="flex-grow-1">
-                    <h5 class="card-title fw-semibold mb-1">Envoyer un mail personnalisé à vos utilisateurs</h5>
-                    <p class="card-text text-muted small mb-0">
-                        Rédigez un sujet et un message personnalisés, puis ciblez les utilisateurs disposant d’une adresse mail valide.
-                        Les variables <code>{nom}</code>, <code>{pseudo}</code>, <code>{mail}</code>, <code>{tel}</code> et <code>{uid}</code> sont disponibles.
-                    </p>
+    <section class="portal-section" aria-labelledby="personalized-title">
+        <div class="section-heading">
+            <div class="section-title-wrap">
+                <span class="section-marker"><i class="fas fa-wand-magic-sparkles"></i></span>
+                <div>
+                    <h2 id="personalized-title">Messages personnalisés</h2>
+                    <p>Adaptez le contenu et ciblez les utilisateurs selon leur activité.</p>
                 </div>
-                <a href="{{ path('app_communication_mail_message_personnalise_mail') }}" class="btn btn-primary flex-shrink-0">
-                    <i class="fas fa-envelope me-1"></i>Rédiger un mail
-                </a>
+            </div>
+            <span class="section-note">Variables dynamiques disponibles</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-xl-6">
+                <article class="portal-card accent-success">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-success"><i class="fab fa-whatsapp"></i></span>
+                            <span class="card-kicker">Canal WhatsApp</span>
+                        </div>
+                        <h3 class="card-title">Message WhatsApp personnalisé</h3>
+                        <p class="card-text">Rédigez un message libre pour une audience ciblée. Utilisez <code>{nom}</code>, <code>{pseudo}</code>, <code>{mail}</code>, <code>{tel}</code> et <code>{uid}</code> pour personnaliser chaque envoi.</p>
+                        <a href="{{ path('app_communication_mail_message_personnalise_whatsapp') }}" class="btn btn-success">
+                            <i class="fab fa-whatsapp"></i>Rédiger un message
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-xl-6">
+                <article class="portal-card accent-primary">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-primary"><i class="fas fa-envelope"></i></span>
+                            <span class="card-kicker">Canal e-mail</span>
+                        </div>
+                        <h3 class="card-title">Message mail personnalisé</h3>
+                        <p class="card-text">Composez un sujet et un corps de mail pour une audience ciblée. Les variables sont remplacées pour chaque destinataire avant la mise en file.</p>
+                        <a href="{{ path('app_communication_mail_message_personnalise_mail') }}" class="btn btn-primary">
+                            <i class="fas fa-envelope"></i>Rédiger un mail
+                        </a>
+                    </div>
+                </article>
             </div>
         </div>
-    </div>
+    </section>
+
+    <section class="portal-section" aria-labelledby="data-title">
+        <div class="section-heading">
+            <div class="section-title-wrap">
+                <span class="section-marker"><i class="fas fa-layer-group"></i></span>
+                <div>
+                    <h2 id="data-title">Base &amp; suivi</h2>
+                    <p>Retrouvez vos contacts collectés et contrôlez les envois réalisés.</p>
+                </div>
+            </div>
+            <span class="section-note">Pilotage opérationnel</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-xl-6">
+                <article class="portal-card">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-primary"><i class="fas fa-database"></i></span>
+                            <span class="card-kicker">Prospects</span>
+                        </div>
+                        <h3 class="card-title">Adresses en base</h3>
+                        <p class="card-text">Consultez les adresses collectées lors des campagnes et gérez la base de prospects réutilisable.</p>
+                        <span class="card-meta"><i class="fas fa-at"></i><strong>{{ nb_prospects }}</strong> adresse(s)</span>
+                        <a href="{{ path('app_communication_mail_prospects') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-database"></i>Voir la base
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <div class="col-xl-6">
+                <article class="portal-card accent-info">
+                    <div class="card-body">
+                        <div class="card-topline">
+                            <span class="card-icon icon-info"><i class="fas fa-chart-line"></i></span>
+                            <span class="card-kicker">Analyse</span>
+                        </div>
+                        <h3 class="card-title">Historique des envois</h3>
+                        <p class="card-text">Filtrez les envois par raison, compte d’expédition ou période et contrôlez la répartition entre les comptes SMTP.</p>
+                        <span class="card-meta"><i class="fas fa-chart-simple"></i><strong>{{ nb_logs }}</strong> log(s)</span>
+                        <a href="{{ path('app_communication_mail_log') }}" class="btn btn-outline-info">
+                            <i class="fas fa-history"></i>Voir l’historique
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
 </div>
-
-<h5 class="mb-3 fw-semibold">Base de données & historique</h5>
-<div class="row g-3">
-
-    <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-                <div class="mb-3"><span class="fs-1">🗂️</span></div>
-                <h5 class="card-title fw-semibold">Adresses en base</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    Consultez toutes les adresses mail collectées lors des campagnes. Ces adresses sont conservées pour des réutilisations futures.
-                    <br><span class="badge bg-primary mt-1">{{ nb_prospects }} adresse(s)</span>
-                </p>
-                <a href="{{ path('app_communication_mail_prospects') }}" class="btn btn-outline-primary mt-2">
-                    <i class="fas fa-database me-1"></i>Voir la liste
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-                <div class="mb-3"><span class="fs-1">📊</span></div>
-                <h5 class="card-title fw-semibold">Historique des envois</h5>
-                <p class="card-text text-muted small flex-grow-1">
-                    Consultez l'historique complet de tous les mails envoyés par le système. Filtrez par raison, compte sender ou période.
-                    Permet de visualiser la répartition round-robin entre les comptes SMTP.
-                    <br><span class="badge bg-info text-dark mt-1">{{ nb_logs }} log(s)</span>
-                </p>
-                <a href="{{ path('app_communication_mail_log') }}" class="btn btn-outline-info mt-2">
-                    <i class="fas fa-history me-1"></i>Voir l'historique
-                </a>
-            </div>
-        </div>
-    </div>
-
-</div>
-
 {% endblock %}
