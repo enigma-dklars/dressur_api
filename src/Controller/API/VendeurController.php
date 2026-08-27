@@ -62,7 +62,10 @@ class VendeurController extends AbstractController
             ]);
         }
 
-        $fraisAdhesion = 2000;
+        $fraisAdhesion = (int)($this->env?->getFraisAdhesionVendeur() ?? 2000);
+        if ($fraisAdhesion < 0) {
+            $fraisAdhesion = 0;
+        }
 
         $tel = trim((string)$request->request->get('tel', ''));
         if (empty($tel)) {
@@ -94,7 +97,12 @@ class VendeurController extends AbstractController
             ]);
         }
 
-        $anotherInfo = ['userId' => $user->getId(), 'userUid' => $user->getUid(), 'montantRecharge' => $montantRecharge];
+        $anotherInfo = [
+            'userId' => $user->getId(),
+            'userUid' => $user->getUid(),
+            'fraisAdhesion' => $fraisAdhesion,
+            'montantRecharge' => $montantRecharge,
+        ];
 
         if ($methodePaiementEntity->getAggregator() == "FedaPay") {
             $envPaiementApi = $traitementsDS->getEnvPaiementApiFedaPayDisponible();

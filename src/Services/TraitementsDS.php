@@ -1230,6 +1230,7 @@ class TraitementsDS extends AbstractController
             'addPageActu' => $user->getPreference()->getAddPageActu(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
             'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
+            'fraisAdhesionVendeur' => max(0, (int)($this->env?->getFraisAdhesionVendeur() ?? 2000)),
             'vendeur' => $user->isVendeur() ? true : false,
             'aUnPartenaire' => $user->getPartenaire() !== null,
             'codePartenaire' => $user->getCodePartenaire(),

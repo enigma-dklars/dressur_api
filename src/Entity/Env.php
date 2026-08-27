@@ -26,6 +26,9 @@ class Env
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private bool $iaActive = true;
 
+    #[ORM\Column(type: 'integer', nullable: false, options: ['default' => 2000])]
+    private int $fraisAdhesionVendeur = 2000;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -63,6 +66,18 @@ class Env
     public function setVersionDressurBot(?string $versionDressurBot): static
     {
         $this->versionDressurBot = $versionDressurBot;
+
+        return $this;
+    }
+
+    public function getFraisAdhesionVendeur(): int
+    {
+        return $this->fraisAdhesionVendeur;
+    }
+
+    public function setFraisAdhesionVendeur(int $fraisAdhesionVendeur): static
+    {
+        $this->fraisAdhesionVendeur = $fraisAdhesionVendeur;
 
         return $this;
     }

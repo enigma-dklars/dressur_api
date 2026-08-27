@@ -23,6 +23,10 @@
                 <th>ImportantUpdate</th>
                 <td>{{ env.importantUpdate ? 'Yes' : 'No' }}</td>
             </tr>
+            <tr>
+                <th>Frais adhésion vendeur</th>
+                <td>{{ env.fraisAdhesionVendeur|number_format(0, ',', ' ') }} FCFA</td>
+            </tr>
         </tbody>
     </table>
 

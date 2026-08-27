@@ -55,7 +55,7 @@
         </div>
         <div class="d-flex align-items-start gap-2 web-feature-space-xs">
             <div class="web-feature-badge flex-shrink-0">2</div>
-            <span class="web-feature-card-text">Payez les frais d'adhésion de 2 000 FCFA (paiement unique).</span>
+            <span class="web-feature-card-text">Payez les frais d'adhésion de {{ fraisAdhesionVendeur|number_format(0, ',', ' ') }} FCFA (paiement unique).</span>
         </div>
         <div class="d-flex align-items-start gap-2 web-feature-space-xs">
             <div class="web-feature-badge flex-shrink-0">3</div>
@@ -71,7 +71,7 @@
         {# ── Frais d'adhésion ── #}
         <p class="web-feature-section-title">Frais d'adhésion</p>
         <div class="web-feature-card text-center mb-0">
-            <div class="display-6 fw-bold text-primary lh-1">2 000 FCFA</div>
+            <div class="display-6 fw-bold text-primary lh-1">{{ fraisAdhesionVendeur|number_format(0, ',', ' ') }} FCFA</div>
             <div class="small text-muted d-block mt-2">Paiement unique, non répétable.</div>
         </div>
 
@@ -117,11 +117,11 @@
             {# Total dynamique #}
             <div class="web-feature-card d-flex justify-content-between align-items-center py-3 px-3 mb-3">
                 <span class="fw-semibold">Total à payer</span>
-                <strong id="va_total" class="text-primary fs-5">2 500 FCFA</strong>
+                <strong id="va_total" class="text-primary fs-5">{{ (fraisAdhesionVendeur + 500)|number_format(0, ',', ' ') }} FCFA</strong>
             </div>
 
             <button id="va_btn" class="web-feature-btn-primary w-100 mt-1">
-                <span id="va_btnText">Payer <span id="va_btnTotal">2 500</span> FCFA</span>
+                <span id="va_btnText">Payer <span id="va_btnTotal">{{ (fraisAdhesionVendeur + 500)|number_format(0, ',', ' ') }}</span> FCFA</span>
                 <span id="va_spinner" class="spinner-border spinner-border-sm ms-2" style="display:none"></span>
             </button>
         </div>
@@ -136,12 +136,13 @@
     const errEl        = document.getElementById('va_montantError');
     const btn          = document.getElementById('va_btn');
     const spinner      = document.getElementById('va_spinner');
+    const fraisAdhesion = {{ fraisAdhesionVendeur|json_encode|raw }};
 
     function fmt(n){ return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
 
     function updateTotal(){
         const recharge = Math.max(0, parseInt(montantInput.value,10)||0);
-        const total = 2000 + recharge;
+        const total = fraisAdhesion + recharge;
         totalEl.textContent    = fmt(total) + ' FCFA';
         btnTotalEl.textContent = fmt(total);
     }

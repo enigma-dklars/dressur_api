@@ -16,6 +16,7 @@
                     <th>ImportantUpdate</th>
                     <th>V. DS BOT</th>
                     <th>🤖 IA Active</th>
+                    <th>Frais adhésion vendeur</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,10 +36,11 @@
                             <span class="badge bg-danger">🔴 Désactivé</span>
                         {% endif %}
                     </td>
+                    <td>{{ env.fraisAdhesionVendeur|number_format(0, ',', ' ') }} FCFA</td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="7">no records found</td>
+                    <td colspan="8">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>

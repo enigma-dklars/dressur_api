@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\BoostRepository;
 use App\Repository\DeletedDSRepository;
+use App\Repository\EnvRepository;
 use App\Repository\UserBannedRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormulePromoAffaireRepository;
@@ -597,13 +598,16 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/vendeur/adhesion', name: 'app_vendeur_adhesion')]
-    public function vendeurAdhesion(TraitementsDS $traitementsDS): Response
+    public function vendeurAdhesion(TraitementsDS $traitementsDS, EnvRepository $envRepository): Response
     {
         $user = $this->traitementsDS->getUserByUidInCookies();
+        $env = $envRepository->find(1);
+
         return $this->render('private/vendeur_adhesion.html.twig', [
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
             'user'  => $traitementsDS->infosUser($user),
             'theme' => $this->theme,
+            'fraisAdhesionVendeur' => max(0, (int)($env?->getFraisAdhesionVendeur() ?? 2000)),
         ]);
     }
 

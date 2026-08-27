@@ -59,6 +59,7 @@ class BoostController extends AbstractController
             'error' => false,
             'listeFormulBoost' => $traitementsDS->listeFormulBoost($typeBoost),
             'listeMethodePaiements' => $traitementsDS->listeMethodePaiements(),
+            'fraisAdhesionVendeur' => max(0, (int)($this->env?->getFraisAdhesionVendeur() ?? 2000)),
         ]);
     }
 
