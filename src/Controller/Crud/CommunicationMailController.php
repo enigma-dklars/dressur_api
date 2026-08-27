@@ -53,6 +53,7 @@ class CommunicationMailController extends AbstractController
     #[Route('/', name: 'app_communication_mail_portal', methods: ['GET'])]
     public function portal(
         FileAttenteProspectMailRepository $fileAttenteRepo,
+        FileAttenteWhatsappRepository $whatsappRepo,
         MailProspectRepository $prospectRepo,
         LogBoiteMailRepository $logRepo
     ): Response {
@@ -60,6 +61,7 @@ class CommunicationMailController extends AbstractController
             'theme'               => $this->theme,
             'user'                => $this->traitementsDS->getUserByUidInCookies(),
             'nb_attente'          => $fileAttenteRepo->countByStatut('en_attente'),
+            'nb_whatsapp_attente' => $whatsappRepo->countByStatut('en_attente'),
             'nb_prospects'        => $prospectRepo->countAll(),
             'nb_logs'             => $logRepo->countAll(),
         ]);
