@@ -22,6 +22,7 @@ use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
 use App\Repository\PromotionRepository;
 use App\Services\TraitementsDS;
+use App\Services\DeveloperAccessService;
 use App\Utilities\SendMail;
 use App\Utilities\ZefameApi;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,8 +45,10 @@ class WebhookController extends AbstractController
     private $sendMail;
     private $zefameApi;
     private $traitementsDS;
+    private $developerAccessService;
 
-    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi, TraitementsDS $traitementsDS)
+    public function __construct(EntityManagerInterface $em, TransactionRepository $transactionRepository, FormuleBoostRepository $formuleBoostRepository, PromotionRepository $promotionRepository, FormulePromoReseauRepository $formulePromoReseauRepository, VerificationsDS $verificationsDS, BoostRepository $boostRepository, FormuleDressurBotRepository $formuleDressurBotRepository, FormulePromoAffaireRepository $formulePromoAffaireRepository, SendMail $sendMail, ZefameApi $zefameApi,         TraitementsDS $traitementsDS, DeveloperAccessService $developerAccessService)
+
     {
         $this->em = $em;
         $this->transactionRepository = $transactionRepository;
@@ -59,6 +62,7 @@ class WebhookController extends AbstractController
         $this->sendMail = $sendMail;
         $this->zefameApi = $zefameApi;
         $this->traitementsDS = $traitementsDS;
+        $this->developerAccessService = $developerAccessService;
     }
 
     /**
@@ -284,6 +288,25 @@ class WebhookController extends AbstractController
                 "Solde rechargé de {$montant} FCFA. Nouveau solde : {$nouveauSolde} FCFA.",
                 $user
             );
+        }
+
+        if ($myTransaction->getTransactionFor() === 'activation_developpeur') {
+            $user = $myTransaction->getUser();
+            $transactionReference = $myTransaction->getReference() ?: $myTransaction->getIdTransaction();
+            $profile = $user?->getDeveloperProfile();
+            $alreadyActivated = $profile?->isActive()
+                && $profile->getActivationTransactionReference() === $transactionReference;
+
+            if (!$alreadyActivated) {
+                $profile = $this->developerAccessService->activateFromApprovedTransaction($myTransaction);
+                $amount = (int)($myTransaction->getAmount() ?? 0);
+                $newBalance = ($user->getSoldeDressur() ?? 0) + $amount;
+                $user->setSoldeDressur($newBalance);
+                $this->traitementsDS->addNotification(
+                    "Paiement confirmé. Votre statut développeur Dressur est maintenant actif. {$amount} FCFA ont été ajoutés à votre solde Dressur.",
+                    $user
+                );
+            }
         }
 
         // ── Commission partenaire (2% sur transaction approuvée, types éligibles uniquement) ──────────

@@ -119,6 +119,9 @@ class User
     #[ORM\Column(nullable: true)]
     private ?bool $lecteur = null;
 
+    #[ORM\OneToOne(mappedBy: 'user', targetEntity: DeveloperProfile::class, cascade: ['persist', 'remove'])]
+    private ?DeveloperProfile $developerProfile = null;
+
     public function __construct()
     {
         $this->admin = false;
@@ -523,6 +526,27 @@ class User
         $this->soldeDressur += $montant;
 
         return $this;
+    }
+
+    public function getDeveloperProfile(): ?DeveloperProfile
+    {
+        return $this->developerProfile;
+    }
+
+    public function setDeveloperProfile(?DeveloperProfile $developerProfile): static
+    {
+        $this->developerProfile = $developerProfile;
+
+        if ($developerProfile !== null && $developerProfile->getUser() !== $this) {
+            $developerProfile->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function isDeveloper(): bool
+    {
+        return $this->developerProfile?->isActive() ?? false;
     }
 
     public function getLid(): ?string
