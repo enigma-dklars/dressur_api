@@ -299,36 +299,6 @@ class UserRepository extends ServiceEntityRepository
         ])->fetchOne();
     }
 
-    public function countUsersWithUnconfirmedTel(): int
-    {
-        return (int) $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->where('u.tel IS NOT NULL')
-            ->andWhere('u.tel != :empty')
-            ->andWhere('u.blocked = :blocked')
-            ->andWhere('u.telIsVerified IS NULL OR u.telIsVerified = :notVerified')
-            ->setParameter('empty', '')
-            ->setParameter('blocked', false)
-            ->setParameter('notVerified', false)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
-    public function findUsersWithUnconfirmedTel(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->select('u.tel', 'u.pseudo', 'u.uid')
-            ->where('u.tel IS NOT NULL')
-            ->andWhere('u.tel != :empty')
-            ->andWhere('u.blocked = :blocked')
-            ->andWhere('u.telIsVerified IS NULL OR u.telIsVerified = :notVerified')
-            ->setParameter('empty', '')
-            ->setParameter('blocked', false)
-            ->setParameter('notVerified', false)
-            ->getQuery()
-            ->getScalarResult();
-    }
-
     public function countUsersWithUnconfirmedMail(): int
     {
         return (int) $this->createQueryBuilder('u')
