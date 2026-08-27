@@ -8,13 +8,6 @@
     <a class="btn btn-sm btn-primary h4 ms-1" href="{{ path('app_crud_formule_promo_reseau_new') }}">Create new</a>
     <a class="btn btn-sm btn-danger h4 ms-1" href="{{ path('app_crud_formule_promo_reseau_service_description') }}">Service + Description</a>
 
-    {% for label, messages in app.flashes %}
-        <div class="alert alert-{{ label }}">
-            {% for message in messages %}
-                <p>{{ message|raw }}</p>
-            {% endfor %}
-        </div>
-    {% endfor %}
 
 
     <div class="table-responsive">

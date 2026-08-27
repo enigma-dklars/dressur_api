@@ -36,24 +36,20 @@ class CrudTransactionController extends AbstractController
     }
     
     #[Route('/', name: 'app_crud_transaction_index', methods: ['GET'])]
-    public function index(TransactionRepository $transactionRepository, Request $request, EntityManagerInterface $entityManager): Response
+    public function index(TransactionRepository $transactionRepository, Request $request): Response
     {
         $deletedTransactionsCount = $transactionRepository->deleteNonApprovedOlderThan(
             new \DateTimeImmutable('-6 months')
         );
 
         if ($deletedTransactionsCount > 0) {
-            $admin = $this->traitementsDS->getUserByUidInCookies();
-            if ($admin) {
-                $this->traitementsDS->addNotification(
-                    sprintf(
-                        'Nettoyage automatique des transactions : %d transaction(s) non approuvée(s), datant de plus de six mois, ont été supprimée(s).',
-                        $deletedTransactionsCount
-                    ),
-                    $admin
-                );
-                $entityManager->flush();
-            }
+            $this->addFlash(
+                'success',
+                sprintf(
+                    'Nettoyage automatique des transactions : %d transaction(s) non approuvée(s), datant de plus de six mois, ont été supprimée(s).',
+                    $deletedTransactionsCount
+                )
+            );
         }
 
         $sourceFilter = $request->query->get('source', '');

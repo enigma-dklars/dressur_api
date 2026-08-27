@@ -3,14 +3,6 @@
 {% block title %}ADMIN DASHBOARD{% endblock %}
 
 {% block body %}
-    {% for label, messages in app.flashes %}
-        <div class="alert alert-{{ label }} mb-5">
-            {% for message in messages %}
-                <p>{{ message|raw }}</p>
-            {% endfor %}
-        </div>
-    {% endfor %}
-
     {# ═══════════════════════════════════════════════════
         GRILLE DES STATISTIQUES
         Ordre : Pays · Solde · Users totaux

@@ -109,20 +109,17 @@ class CrudFormulePromoAffaireController extends AbstractController
                 $promotion->setFormulePromoAffaire(null);
             }
 
-            $admin = $this->traitementsDS->getUserByUidInCookies();
-            if ($admin) {
-                $this->traitementsDS->addNotification(
-                    sprintf(
-                        'La formule de promotion affaire « %s » a été supprimée. %d promotion(s) affaire ont été conservée(s) et leur formule a été passée à NULL.',
-                        $formulePromoAffaire->getTitre(),
-                        $detachedPromotionCount
-                    ),
-                    $admin
-                );
-            }
-
             $entityManager->remove($formulePromoAffaire);
             $entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                sprintf(
+                    'La formule de promotion affaire « %s » a été supprimée. %d promotion(s) affaire ont été conservée(s) et leur formule a été passée à NULL.',
+                    $formulePromoAffaire->getTitre(),
+                    $detachedPromotionCount
+                )
+            );
         }
 
         return $this->redirectToRoute('app_crud_formule_promo_affaire_index', [], Response::HTTP_SEE_OTHER);

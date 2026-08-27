@@ -11,14 +11,6 @@
     </a>
 </div>
 
-{% for label, messages in app.flashes %}
-    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
-        {% for message in messages %}
-            <p class="mb-0">{{ message|raw }}</p>
-        {% endfor %}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-{% endfor %}
 
 <form action="" method="post" id="form-service-desc">
 <div class="row g-4">

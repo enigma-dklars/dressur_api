@@ -9,11 +9,6 @@
     </div>
 
     {# Display flash messages #}
-    {% for label, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="px-3 py-3 rounded text-white bg-{{ label }}">{{ message }}</div> <br>
-        {% endfor %}
-    {% endfor %}
 
     <form action="{{ path('app_crud_user_check_and_confirme') }}" method="post" class="my-3 py-5 px-3 bg-success rounded">
         <label for="identifier" class="text-white">Enter User Email | Phone Number | Pseudo | Uid | Id :</label>

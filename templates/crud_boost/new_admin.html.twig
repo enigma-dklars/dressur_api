@@ -26,12 +26,6 @@
     </div>
 {% endif %}
 
-{% for label, messages in app.flashes %}
-    <div class="alert alert-{{ label }} alert-dismissible fade show">
-        {% for message in messages %}<p class="mb-0">{{ message|raw }}</p>{% endfor %}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-{% endfor %}
 
 <form method="post" action="{{ path('app_crud_boost_admin_new') }}">
 <div class="row g-3">
