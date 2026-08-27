@@ -195,7 +195,7 @@ class PreuveController extends AbstractController
         $user = $historique->getUser();
 
         if ($user) {
-            $user->addSoldeProgrammeRecompense($gain);
+            $user->addSoldeDressur($gain);
         }
 
         $traitementsDS->addNotification("Preuve approuvée et gain ajouté.", $user);

@@ -86,7 +86,7 @@ class User
     private ?bool $isInscritProgrammeRecompense = null;
 
     #[ORM\Column]
-    private ?int $soldeProgrammeRecompense = null;
+    private ?int $soldeDressur = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $lid = null;
@@ -131,7 +131,7 @@ class User
         $this->mailIsVerified = false;
         $this->blocked = false;
         $this->isInscritProgrammeRecompense = false;
-        $this->soldeProgrammeRecompense = 0;
+        $this->soldeDressur = 0;
         $this->lang = "fr";
         
         $this->promotions = new ArrayCollection();
@@ -502,25 +502,25 @@ class User
         return $this;
     }
 
-    public function getSoldeProgrammeRecompense(): ?int
+    public function getSoldeDressur(): ?int
     {
-        return $this->soldeProgrammeRecompense;
+        return $this->soldeDressur;
     }
 
-    public function setSoldeProgrammeRecompense(int $soldeProgrammeRecompense): static
+    public function setSoldeDressur(int $soldeDressur): static
     {
-        $this->soldeProgrammeRecompense = $soldeProgrammeRecompense;
+        $this->soldeDressur = $soldeDressur;
 
         return $this;
     }
 
-    public function addSoldeProgrammeRecompense(int $montant): self
+    public function addSoldeDressur(int $montant): self
     {
-        if ($this->soldeProgrammeRecompense === null) {
-            $this->soldeProgrammeRecompense = 0;
+        if ($this->soldeDressur === null) {
+            $this->soldeDressur = 0;
         }
 
-        $this->soldeProgrammeRecompense += $montant;
+        $this->soldeDressur += $montant;
 
         return $this;
     }

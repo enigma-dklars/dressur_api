@@ -146,7 +146,7 @@ final class VendeurControllerTest extends TestCase
                 'admin' => false,
                 'lecteur' => false,
                 'aUnPartenaire' => false,
-                'soldeProgrammeRecompense' => 0,
+                'soldeDressur' => 0,
                 'nom' => 'Test User',
                 'pseudo' => 'test-user',
                 'uid' => 'test-uid',

@@ -1249,7 +1249,7 @@ class UserController extends AbstractController
 
             $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
             $user = $userRepository->findOneBy(['uid' => $uid]);
-            $soldeDisponible = $user->getSoldeProgrammeRecompense();
+            $soldeDisponible = $user->getSoldeDressur();
 
             foreach ($historiqueProgrammeRecompenseRepository->findBy(['user' => $user], ['id' => 'DESC']) as $oneHistorique) {
 

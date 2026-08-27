@@ -261,8 +261,8 @@ class WebhookController extends AbstractController
             $user->setVendeur(true);
             $montantRecharge = (int)($myTransaction->getAnnotherInfo()['montantRecharge'] ?? 0);
             if ($montantRecharge > 0) {
-                $nouveauSolde = ($user->getSoldeProgrammeRecompense() ?? 0) + $montantRecharge;
-                $user->setSoldeProgrammeRecompense($nouveauSolde);
+                $nouveauSolde = ($user->getSoldeDressur() ?? 0) + $montantRecharge;
+                $user->setSoldeDressur($nouveauSolde);
                 $this->traitementsDS->addNotification(
                     "Paiement confirmé. Vous êtes maintenant vendeur sur Dressur ! Votre solde a été crédité de {$montantRecharge} FCFA.",
                     $user
@@ -278,8 +278,8 @@ class WebhookController extends AbstractController
         if ($myTransaction->getTransactionFor() == "recharge_vendeur") {
             $user = $myTransaction->getUser();
             $montant = (int)($myTransaction->getAnnotherInfo()['montant'] ?? 0);
-            $nouveauSolde = ($user->getSoldeProgrammeRecompense() ?? 0) + $montant;
-            $user->setSoldeProgrammeRecompense($nouveauSolde);
+            $nouveauSolde = ($user->getSoldeDressur() ?? 0) + $montant;
+            $user->setSoldeDressur($nouveauSolde);
             $this->traitementsDS->addNotification(
                 "Solde rechargé de {$montant} FCFA. Nouveau solde : {$nouveauSolde} FCFA.",
                 $user

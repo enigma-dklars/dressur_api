@@ -1269,7 +1269,7 @@ class TraitementsDS extends AbstractController
             'preferencePays' => $user->getPreference()->getPaysChoisies(),
             'addPageActu' => $user->getPreference()->getAddPageActu(),
             'isInscritProgrammeRecompense' => $user->getIsInscritProgrammeRecompense(),
-            'soldeProgrammeRecompense' => $user->getSoldeProgrammeRecompense() ?? 0,
+            'soldeDressur' => $user->getSoldeDressur() ?? 0,
             'fraisAdhesionVendeur' => max(0, (int)($this->env?->getFraisAdhesionVendeur() ?? 2000)),
             'montantRechargeInitialeDeveloppeur' => max(0, (int)($this->env?->getMontantRechargeInitialeDeveloppeur() ?? 0)),
             'vendeur' => $user->isVendeur() ? true : false,
@@ -2013,7 +2013,7 @@ class TraitementsDS extends AbstractController
     public function payerViaSolde(Transaction $myTransaction, User $user, int $montant): void
     {
         // Débiter le solde
-        $user->setSoldeProgrammeRecompense($user->getSoldeProgrammeRecompense() - $montant);
+        $user->setSoldeDressur($user->getSoldeDressur() - $montant);
         $myTransaction->setStatus('approved');
 
         $transactionFor = $myTransaction->getTransactionFor();
@@ -2186,8 +2186,8 @@ class TraitementsDS extends AbstractController
         if ($commission <= 0) {
             return;
         }
-        $partenaire->setSoldeProgrammeRecompense(
-            ($partenaire->getSoldeProgrammeRecompense() ?? 0) + $commission
+        $partenaire->setSoldeDressur(
+            ($partenaire->getSoldeDressur() ?? 0) + $commission
         );
         $this->addNotification(
             "💰 Commission partenaire : +" . $commission . " FCFA crédités sur votre solde (2% d'une transaction de " . number_format($montant, 0, ',', ' ') . " FCFA d'un de vos accompagnés).",

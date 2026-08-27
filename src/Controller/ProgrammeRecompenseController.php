@@ -107,7 +107,7 @@ class ProgrammeRecompenseController extends AbstractController
             'history' => $history,
             'views' => $views,
             'earnings' => $earnings,
-            'balance' => (int) ($user->getSoldeProgrammeRecompense() ?? 0),
+            'balance' => (int) ($user->getSoldeDressur() ?? 0),
         ]);
     }
 

@@ -429,7 +429,7 @@ class PromotionController extends AbstractController
         }
 
         // ── Paiement via solde ────────────────────────────────────────────────
-        if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
+        if ($user->getSoldeDressur() >= $montantTotal) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("boost_affaire")
@@ -749,7 +749,7 @@ class PromotionController extends AbstractController
         }
 
         // ── Paiement via solde ────────────────────────────────────────────────
-        if ($user->getSoldeProgrammeRecompense() >= $montantSolde) {
+        if ($user->getSoldeDressur() >= $montantSolde) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("promo_site_app")
@@ -1204,7 +1204,7 @@ class PromotionController extends AbstractController
             }
 
             // ── Paiement via solde ────────────────────────────────────────────────
-            if ($user->getSoldeProgrammeRecompense() >= $montantTotal) {
+            if ($user->getSoldeDressur() >= $montantTotal) {
                 $myTransaction = (new EntityTransaction())
                     ->setUser($user)
                     ->setTransactionFor("re_boost_affaire")

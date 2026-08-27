@@ -304,7 +304,7 @@ class BoostController extends AbstractController
         }
 
         // ── Paiement via solde ────────────────────────────────────────────────
-        if ($user->getSoldeProgrammeRecompense() >= $formulBoost->getPrix()) {
+        if ($user->getSoldeDressur() >= $formulBoost->getPrix()) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("boost_contact")

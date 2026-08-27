@@ -68,7 +68,7 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
                 <a href="/vendeur/recharge" class="ds-solde-recharge-btn">Recharger</a>
             {% endif %}
         </div>
-        <div class="ds-solde-amount">{{ user.soldeProgrammeRecompense ?? 0 }} FCFA</div>
+        <div class="ds-solde-amount">{{ user.soldeDressur ?? 0 }} FCFA</div>
         <hr class="ds-solde-divider">
         <div class="ds-solde-chips">
             <span class="ds-chip {% if user.estPartenaire %}ds-chip-active{% endif %}">

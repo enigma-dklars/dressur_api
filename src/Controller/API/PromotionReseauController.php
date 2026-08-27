@@ -220,7 +220,7 @@ class PromotionReseauController extends AbstractController
         }
 
         // ── Paiement via solde ────────────────────────────────────────────────
-        if ($user->getSoldeProgrammeRecompense() >= $montantRecalcule) {
+        if ($user->getSoldeDressur() >= $montantRecalcule) {
             $myTransaction = (new EntityTransaction())
                 ->setUser($user)
                 ->setTransactionFor("boost_reseau_sociaux")

@@ -104,7 +104,7 @@ class UserType extends AbstractType
                 'attr' => ['class' => 'form-check-input ms-2'],
                 'label_attr' => ['class' => 'form-check-label ms-1'],
             ])
-            ->add('soldeProgrammeRecompense', IntegerType::class, [
+            ->add('soldeDressur', IntegerType::class, [
                 'label' => 'Solde programme de récompenses (FCFA)',
                 'required' => false,
                 'attr' => ['class' => 'form-control'],
