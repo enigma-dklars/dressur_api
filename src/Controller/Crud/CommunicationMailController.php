@@ -60,7 +60,6 @@ class CommunicationMailController extends AbstractController
             'theme'               => $this->theme,
             'user'                => $this->traitementsDS->getUserByUidInCookies(),
             'nb_attente'          => $fileAttenteRepo->countByStatut('en_attente'),
-            'nb_envoye'           => $fileAttenteRepo->countByStatut('envoye'),
             'nb_prospects'        => $prospectRepo->countAll(),
             'nb_logs'             => $logRepo->countAll(),
         ]);
