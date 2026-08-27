@@ -9,10 +9,10 @@
     <div class="ms-auto d-flex gap-2">
         {% if prospects|length > 0 %}
             <form method="post" action="{{ path('app_communication_mail_prospects_clear') }}"
-                  onsubmit="return confirm('Vider toute la base des prospects ? Cette action est irréversible. Les mails déjà en file d\'attente seront conservés.')">
+                  onsubmit="return confirm('Supprimer tous les enregistrements de la base des prospects ? Cette action est irréversible. Les mails déjà en file d\'attente seront conservés.')">
                 <input type="hidden" name="_token" value="{{ csrf_token('clear_mail_prospects') }}">
                 <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-trash-can me-1"></i>Vider les prospects
+                    <i class="fas fa-trash-can me-1"></i>Supprimer tous les enregistrements
                 </button>
             </form>
         {% endif %}
