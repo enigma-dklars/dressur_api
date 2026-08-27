@@ -20,40 +20,40 @@ class DeveloperProfile
     private ?int $id = null;
 
     #[ORM\OneToOne(inversedBy: 'developerProfile', targetEntity: User::class)]
-    #[ORM\JoinColumn(nullable: false, unique: true, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'user_id', referencedColumnName: 'id', nullable: false, unique: true, onDelete: 'CASCADE')]
     private ?User $user = null;
 
     #[ORM\Column(length: 20, options: ['default' => 'pending'])]
     private string $status = 'pending';
 
-    #[ORM\Column(length: 30, nullable: true)]
+    #[ORM\Column(name: 'conditions_version', length: 30, nullable: true)]
     private ?string $conditionsVersion = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'conditions_accepted_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $conditionsAcceptedAt = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: 'activation_transaction_reference', length: 255, nullable: true)]
     private ?string $activationTransactionReference = null;
 
-    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[ORM\Column(name: 'activation_amount', type: Types::INTEGER, nullable: true)]
     private ?int $activationAmount = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'activated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $activatedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'suspended_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $suspendedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'revoked_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $revokedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'developerProfile', targetEntity: DeveloperApiKey::class, orphanRemoval: true)]
     private Collection $apiKeys;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $updatedAt;
 
     public function __construct()

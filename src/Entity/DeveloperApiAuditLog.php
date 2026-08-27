@@ -18,10 +18,10 @@ class DeveloperApiAuditLog
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: DeveloperProfile::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'developer_profile_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?DeveloperProfile $developerProfile = null;
 
-    #[ORM\Column(length: 40)]
+    #[ORM\Column(name: 'key_id', length: 40)]
     private string $keyId;
 
     #[ORM\Column(length: 160)]
@@ -30,13 +30,13 @@ class DeveloperApiAuditLog
     #[ORM\Column(length: 10)]
     private string $method;
 
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column(name: 'response_status', type: Types::INTEGER)]
     private int $responseStatus;
 
-    #[ORM\Column(length: 64, nullable: true)]
+    #[ORM\Column(name: 'ip_address', length: 64, nullable: true)]
     private ?string $ipAddress = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
 
     public function __construct()

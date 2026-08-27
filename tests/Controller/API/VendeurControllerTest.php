@@ -68,7 +68,7 @@ final class VendeurControllerTest extends TestCase
             self::assertSame('Montant insuffisant', $payload['titre']);
         } else {
             self::assertSame(
-                'Vous devez être vendeur, partenaire ou inscrit au programme de récompenses pour recharger votre solde.',
+                'Vous devez être vendeur, partenaire, développeur ou inscrit au programme de récompenses pour recharger votre solde.',
                 $payload['message']
             );
         }

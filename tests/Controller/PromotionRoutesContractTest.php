@@ -22,7 +22,7 @@ final class PromotionRoutesContractTest extends TestCase
         self::assertSame(2, substr_count($controller, '$id = $this->decodePromoToken($token);'));
         self::assertSame(2, substr_count($controller, '"token"                => $token,'));
         self::assertStringContainsString(
-            "'https://dressur.site/actualite/pub/' . $this->encodePromoToken($id)",
+            "'https://dressur.site/actualite/pub/' . \$this->encodePromoToken(\$id)",
             $crudController
         );
     }
@@ -56,7 +56,7 @@ final class PromotionRoutesContractTest extends TestCase
         self::assertStringContainsString("path('app_inscription')", $template);
         self::assertStringContainsString("path('app_promotion_affaire')", $template);
         self::assertStringContainsString("path('app_boost_contact')", $template);
-        self::assertStringContainsString("path('app_actualite_pub', { token: promo.token })", $template);
+        self::assertStringContainsString("url('app_actualite_pub', { token: promo.token })", $template);
     }
 
     public function testAdminCopiesOnlyDedicatedAdvertisingUrls(): void

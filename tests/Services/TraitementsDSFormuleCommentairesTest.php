@@ -17,7 +17,9 @@ class TraitementsDSFormuleCommentairesTest extends TestCase
         bool $necessiteCommentaires,
         ?string $titreParent = null
     ): void {
-        $formule = (new FormulePromoReseau())->setTitre($titre);
+        $formule = (new FormulePromoReseau())
+            ->setTitre($titre)
+            ->setCommentairesRequis($necessiteCommentaires);
 
         if ($titreParent !== null) {
             $parent = (new FormulePromoReseau())->setTitre($titreParent);

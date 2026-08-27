@@ -19,31 +19,31 @@ class DeveloperIdempotency
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: DeveloperProfile::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'developer_profile_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?DeveloperProfile $developerProfile = null;
 
-    #[ORM\Column(length: 160)]
+    #[ORM\Column(name: 'idempotency_key', length: 160)]
     private string $idempotencyKey;
 
-    #[ORM\Column(length: 64)]
+    #[ORM\Column(name: 'request_hash', length: 64)]
     private string $requestHash;
 
-    #[ORM\Column(type: Types::JSON)]
+    #[ORM\Column(name: 'response_body', type: Types::JSON)]
     private array $responseBody = [];
 
-    #[ORM\Column(length: 40, nullable: true)]
+    #[ORM\Column(name: 'order_reference', length: 40, nullable: true)]
     private ?string $orderReference = null;
 
-    #[ORM\Column(type: Types::INTEGER, nullable: true)]
+    #[ORM\Column(name: 'balance_after', type: Types::INTEGER, nullable: true)]
     private ?int $balanceAfter = null;
 
-    #[ORM\Column(type: Types::INTEGER)]
+    #[ORM\Column(name: 'response_status', type: Types::INTEGER)]
     private int $responseStatus = 200;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'expires_at', type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $expiresAt;
 
     public function __construct()

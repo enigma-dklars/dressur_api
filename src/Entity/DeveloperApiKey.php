@@ -18,16 +18,16 @@ class DeveloperApiKey
     private ?int $id = null;
 
     #[ORM\ManyToOne(targetEntity: DeveloperProfile::class, inversedBy: 'apiKeys')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'developer_profile_id', referencedColumnName: 'id', nullable: false, onDelete: 'CASCADE')]
     private ?DeveloperProfile $developerProfile = null;
 
-    #[ORM\Column(length: 80, unique: true)]
+    #[ORM\Column(name: 'key_id', length: 80, unique: true)]
     private string $keyId;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'secret_hash', length: 255)]
     private string $secretHash;
 
-    #[ORM\Column(length: 24)]
+    #[ORM\Column(name: 'secret_prefix', length: 24)]
     private string $secretPrefix;
 
     #[ORM\Column(length: 120)]
@@ -36,16 +36,16 @@ class DeveloperApiKey
     #[ORM\Column(type: Types::JSON)]
     private array $scopes = [];
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'last_used_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $lastUsedAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'expires_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $expiresAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'revoked_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $revokedAt = null;
 
     public function __construct()
