@@ -39,6 +39,19 @@ class TransactionRepository extends ServiceEntityRepository
         }
     }
 
+    public function deleteNonApprovedOlderThan(\DateTimeInterface $cutoff): int
+    {
+        return (int) $this->createQueryBuilder('t')
+            ->delete()
+            ->where('t.createdAt IS NOT NULL')
+            ->andWhere('t.createdAt < :cutoff')
+            ->andWhere('(t.status IS NULL OR t.status <> :approvedStatus)')
+            ->setParameter('cutoff', $cutoff)
+            ->setParameter('approvedStatus', 'approved')
+            ->getQuery()
+            ->execute();
+    }
+
     public function getSourceCounts(): array
     {
         $rows = $this->createQueryBuilder('t')
