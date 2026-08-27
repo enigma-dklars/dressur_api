@@ -299,48 +299,6 @@ class UserRepository extends ServiceEntityRepository
         ])->fetchOne();
     }
 
-    public function countInactiveUsersWithEmail(int $minDays, ?int $maxDays = null): int
-    {
-        $qb = $this->createQueryBuilder('u')
-            ->select('COUNT(u.id)')
-            ->where('u.mail IS NOT NULL')
-            ->andWhere('u.mail != :empty')
-            ->andWhere('u.blocked = :blocked')
-            ->andWhere('u.lastLoginTo IS NOT NULL')
-            ->andWhere('u.lastLoginTo < :limitDate')
-            ->setParameter('empty', '')
-            ->setParameter('blocked', false)
-            ->setParameter('limitDate', new \DateTime("-{$minDays} days"));
-
-        if ($maxDays !== null) {
-            $qb->andWhere('u.lastLoginTo >= :maxDate')
-               ->setParameter('maxDate', new \DateTime("-{$maxDays} days"));
-        }
-
-        return (int) $qb->getQuery()->getSingleScalarResult();
-    }
-
-    public function findInactiveUsersWithEmail(int $minDays, ?int $maxDays = null): array
-    {
-        $qb = $this->createQueryBuilder('u')
-            ->select('u.mail', 'u.pseudo')
-            ->where('u.mail IS NOT NULL')
-            ->andWhere('u.mail != :empty')
-            ->andWhere('u.blocked = :blocked')
-            ->andWhere('u.lastLoginTo IS NOT NULL')
-            ->andWhere('u.lastLoginTo < :limitDate')
-            ->setParameter('empty', '')
-            ->setParameter('blocked', false)
-            ->setParameter('limitDate', new \DateTime("-{$minDays} days"));
-
-        if ($maxDays !== null) {
-            $qb->andWhere('u.lastLoginTo >= :maxDate')
-               ->setParameter('maxDate', new \DateTime("-{$maxDays} days"));
-        }
-
-        return $qb->getQuery()->getScalarResult();
-    }
-
     public function countUsersWithUnconfirmedTel(): int
     {
         return (int) $this->createQueryBuilder('u')

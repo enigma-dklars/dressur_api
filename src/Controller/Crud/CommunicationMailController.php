@@ -61,29 +61,19 @@ class CommunicationMailController extends AbstractController
         UserRepository $userRepository,
         CacheInterface $cache
     ): Response {
-        $allTypes        = self::getReactivationTypes();
-        $inactifTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
+        $allTypes        = self::getCampaignTypes();
         $confirmTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
         $confirmWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
 
         // ── Comptages mis en cache 10 minutes ────────────────────────────────────
         $counts = $cache->get('portal_campaign_counts', function (ItemInterface $item) use (
             $userRepository,
-            $inactifTypes,
             $confirmTypes,
             $confirmWaTypes
         ) {
             $item->expiresAfter(600); // 10 minutes
             $data = [];
             $errors = [];
-            foreach ($inactifTypes as $key => $cfg) {
-                try {
-                    $data['inactif'][$key] = $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']);
-                } catch (\Throwable $e) {
-                    $data['inactif'][$key] = 0;
-                    $errors[] = '[' . $key . '] ' . $e->getMessage();
-                }
-            }
             foreach ($confirmTypes as $key => $cfg) {
                 try {
                     $data['confirm'][$key] = $userRepository->countUsersWithUnconfirmedMail();
@@ -105,10 +95,6 @@ class CommunicationMailController extends AbstractController
         });
         // ── Reconstitution des tableaux pour Twig à partir du cache ─────────────
         $sqlErrors = $counts['_errors'] ?? [];
-        $reactivation = [];
-        foreach ($inactifTypes as $key => $cfg) {
-            $reactivation[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['inactif'][$key] ?? 0]);
-        }
         $confirm = [];
         foreach ($confirmTypes as $key => $cfg) {
             $confirm[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['confirm'][$key] ?? 0]);
@@ -131,7 +117,6 @@ class CommunicationMailController extends AbstractController
             'nb_prospects'        => $prospectRepo->countAll(),
             'nb_logs'             => $logRepo->countAll(),
             'nb_whatsapp_attente' => $whatsappRepo->countByStatut('en_attente'),
-            'reactivation'        => $reactivation,
             'confirm'             => $confirm,
             'confirm_wa'          => $confirmWa,
         ]);
@@ -139,46 +124,9 @@ class CommunicationMailController extends AbstractController
 
     // ─── Réactivation : définitions des types ────────────────────────────────
 
-    private static function getReactivationTypes(): array
+    private static function getCampaignTypes(): array
     {
         return [
-            // ── Inactivité générale ──────────────────────────────────────────
-            '30j' => [
-                'label'     => 'Inactifs depuis 30 à 60 jours',
-                'minDays'   => 30,
-                'maxDays'   => 60,
-                'emoji'     => '💤',
-                'color'     => 'warning',
-                'sujet'     => 'Dressur vous attend — des opportunités vous ont manqué !',
-                'titre'     => 'Des opportunités vous attendent sur Dressur',
-                'desc'      => 'Rappel doux pour les utilisateurs récemment moins actifs.',
-                'queryType' => 'inactif',
-                'group'     => 'inactif',
-            ],
-            '60j' => [
-                'label'     => 'Inactifs depuis 60 à 90 jours',
-                'minDays'   => 60,
-                'maxDays'   => 90,
-                'emoji'     => '😴',
-                'color'     => 'orange',
-                'sujet'     => 'Ça fait un moment… Revenez découvrir les nouveautés Dressur !',
-                'titre'     => 'Revenez sur Dressur — il y a du nouveau !',
-                'desc'      => 'Relance avec mise en avant des nouveautés pour les utilisateurs absents.',
-                'queryType' => 'inactif',
-                'group'     => 'inactif',
-            ],
-            '90j' => [
-                'label'     => 'Inactifs depuis plus de 90 jours',
-                'minDays'   => 90,
-                'maxDays'   => null,
-                'emoji'     => '🚨',
-                'color'     => 'danger',
-                'sujet'     => 'Votre compte Dressur vous attend toujours !',
-                'titre'     => 'Votre compte Dressur est toujours actif',
-                'desc'      => 'Dernier rappel pour les utilisateurs très longtemps inactifs.',
-                'queryType' => 'inactif',
-                'group'     => 'inactif',
-            ],
             // ── Confirmation d'adresse mail ──────────────────────────────────
             'mail_non_confirme' => [
                 'label'     => 'Adresse mail non confirmée',
@@ -210,14 +158,7 @@ class CommunicationMailController extends AbstractController
         ];
     }
 
-    private const REACTIVATION_COOLDOWN_DAYS = 5;
-
-    // ─── Helper : tous les titres de réactivation (pour la détection des doublons) ─
-
-    private static function getReactivationTitres(): array
-    {
-        return array_column(self::getReactivationTypes(), 'titre');
-    }
+    private const CAMPAIGN_COOLDOWN_DAYS = 5;
 
     // ─── Helper : sépare les users en deux listes (à envoyer / déjà contactés) ─
 
@@ -250,10 +191,10 @@ class CommunicationMailController extends AbstractController
         array $config,
         UserRepository $userRepository
     ): array {
-        return match ($config['queryType'] ?? 'inactif') {
+        return match ($config['queryType'] ?? '') {
             'confirm_mail'       => $userRepository->findUsersWithUnconfirmedMail(),
             'confirm_tel'        => $userRepository->findUsersWithUnconfirmedTel(),
-            default              => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
+            default              => [],
         };
     }
 
@@ -266,7 +207,7 @@ class CommunicationMailController extends AbstractController
         FileAttenteProspectMailRepository $fileAttenteRepo,
         FileAttenteWhatsappRepository $whatsappRepo
     ): Response {
-        $types = self::getReactivationTypes();
+        $types = self::getCampaignTypes();
         if (!isset($types[$type])) {
             throw $this->createNotFoundException('Type de campagne inconnu.');
         }
@@ -275,7 +216,7 @@ class CommunicationMailController extends AbstractController
         $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
         $users      = $this->fetchCandidateUsers($config, $userRepository);
 
-        $cooldownPreview = self::REACTIVATION_COOLDOWN_DAYS;
+        $cooldownPreview = self::CAMPAIGN_COOLDOWN_DAYS;
 
         if ($isWhatsapp) {
             $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
@@ -331,7 +272,7 @@ class CommunicationMailController extends AbstractController
         FileAttenteWhatsappRepository $whatsappFileRepo,
         EntityManagerInterface $entityManager
     ): Response {
-        $types = self::getReactivationTypes();
+        $types = self::getCampaignTypes();
         if (!isset($types[$type])) {
             throw $this->createNotFoundException('Type de campagne inconnu.');
         }
@@ -347,7 +288,7 @@ class CommunicationMailController extends AbstractController
 
         // ── Canal WhatsApp ────────────────────────────────────────────────────
         if ($isWhatsapp) {
-            $cooldown = self::REACTIVATION_COOLDOWN_DAYS;
+            $cooldown = self::CAMPAIGN_COOLDOWN_DAYS;
 
             $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
             $recentlySent = $whatsappFileRepo->findRecentlyContactedPhones(
@@ -403,7 +344,7 @@ class CommunicationMailController extends AbstractController
         $allEmails    = array_filter(array_map(fn($u) => strtolower(trim((string)($u['mail'] ?? ''))), $users));
         $recentlySent = $fileAttenteRepo->findRecentlyContactedEmails(
             array_values($allEmails),
-            self::REACTIVATION_COOLDOWN_DAYS,
+            self::CAMPAIGN_COOLDOWN_DAYS,
             [$config['titre']]
         );
 
@@ -443,7 +384,7 @@ class CommunicationMailController extends AbstractController
         $skipped = count($users) - $added;
         $msg = $added . ' mail(s) ajouté(s) à la file d\'attente.';
         if ($skipped > 0) {
-            $msg .= ' ' . $skipped . ' ignoré(s) (déjà contacté(s) dans les ' . self::REACTIVATION_COOLDOWN_DAYS . ' derniers jours).';
+            $msg .= ' ' . $skipped . ' ignoré(s) (déjà contacté(s) dans les ' . self::CAMPAIGN_COOLDOWN_DAYS . ' derniers jours).';
         }
 
         $this->addFlash('success', $msg);
@@ -1135,9 +1076,9 @@ class CommunicationMailController extends AbstractController
 
     private static function buildMailContentForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null): string
     {
-        return match ($config['queryType'] ?? 'inactif') {
+        return match ($config['queryType'] ?? '') {
             'confirm_mail'   => self::buildConfirmMailContent($pseudo, $confirmUrl),
-            default          => self::buildReactivationMailContent($config['titre'], $pseudo),
+            default          => throw new \InvalidArgumentException('Type de contenu e-mail non pris en charge.'),
         };
     }
 
@@ -1220,79 +1161,6 @@ class CommunicationMailController extends AbstractController
     </p>
 
   </div>
-</div>
-HTML;
-    }
-
-    // ─── Contenu HTML du mail de réactivation ────────────────────────────────
-
-    private static function buildReactivationMailContent(string $titre, ?string $pseudo = null): string
-    {
-        $salutation = $pseudo ? "Bonjour <strong>" . htmlspecialchars($pseudo) . "</strong>," : "Bonjour,";
-
-        return <<<HTML
-<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
-
-  <div style="background:#0d6efd;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
-    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
-    <h1 style="color:white;margin:0;font-size:24px;">{$titre}</h1>
-  </div>
-
-  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
-
-    <p>{$salutation}</p>
-
-    <p>Nous avons remarqué que vous ne vous êtes plus connecté(e) à <strong>Dressur</strong> depuis un moment. Vous nous manquez !</p>
-
-    <p>Depuis votre dernière visite, voici ce que vous avez peut-être manqué :</p>
-
-    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-      <tr>
-        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
-          <strong style="color:#0d6efd;">📢 Boost Contact</strong><br>
-          <span style="font-size:13px;color:#6c757d;">Soyez visible auprès de nouveaux clients dans votre zone.</span>
-        </td>
-        <td style="padding:10px;width:4%;"></td>
-        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
-          <strong style="color:#0d6efd;">🎯 Promotion Affaire</strong><br>
-          <span style="font-size:13px;color:#6c757d;">Promouvez vos produits et services à toute la communauté.</span>
-        </td>
-      </tr>
-      <tr><td colspan="3" style="height:8px;"></td></tr>
-      <tr>
-        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
-          <strong style="color:#0d6efd;">📱 Réseaux Sociaux</strong><br>
-          <span style="font-size:13px;color:#6c757d;">Boostez vos abonnés sur TikTok, Instagram, YouTube et plus.</span>
-        </td>
-        <td style="padding:10px;width:4%;"></td>
-        <td style="padding:10px;background:#f8f9fa;border-radius:6px;width:48%;vertical-align:top;">
-          <strong style="color:#0d6efd;">🏆 Programme Récompenses</strong><br>
-          <span style="font-size:13px;color:#6c757d;">Vos points vous attendent ! Consultez votre solde de récompenses.</span>
-        </td>
-      </tr>
-    </table>
-
-    <p>Revenez dès maintenant — c'est <strong>100% gratuit</strong> et vos informations sont toujours là !</p>
-
-    <div style="text-align:center;margin:32px 0;">
-      <a href="https://dressur.site"
-         style="display:inline-block;padding:14px 32px;background:#0d6efd;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin:0 8px 12px;">
-        🌐 Revenir sur Dressur
-      </a>
-      <a href="https://play.google.com/store/apps/details?id=com.dressur.ds"
-         style="display:inline-block;padding:14px 32px;background:#198754;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;margin:0 8px 12px;">
-        📱 Ouvrir l'application
-      </a>
-    </div>
-
-    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
-      Cet email vous a été envoyé par l'équipe Dressur car vous êtes inscrit(e) sur notre plateforme.<br>
-      <a href="https://dressur.site" style="color:#0d6efd;">dressur.site</a> — 
-      <a href="mailto:dressur.ds@gmail.com" style="color:#0d6efd;">dressur.ds@gmail.com</a>
-    </p>
-
-  </div>
-
 </div>
 HTML;
     }
