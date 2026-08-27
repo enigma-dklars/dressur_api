@@ -567,6 +567,29 @@ class CommunicationMailController extends AbstractController
         ]);
     }
 
+    #[Route('/prospects/clear', name: 'app_communication_mail_prospects_clear', methods: ['POST'])]
+    public function clearProspects(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        if (!$user || $user->getAdmin() !== true) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('clear_mail_prospects', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide. Les prospects n\'ont pas été supprimés.');
+            return $this->redirectToRoute('app_communication_mail_prospects');
+        }
+
+        $deleted = $entityManager->createQuery(
+            'DELETE FROM App\\Entity\\MailProspect p'
+        )->execute();
+
+        $this->addFlash('success', sprintf('%d prospect(s) supprimé(s). Les mails déjà en file d\'attente sont conservés.', $deleted));
+        return $this->redirectToRoute('app_communication_mail_prospects');
+    }
+
     // ─── Suppression d'une adresse prospect ──────────────────────────────────
 
     #[Route('/prospects/{id}/delete', name: 'app_communication_mail_prospect_delete', methods: ['POST'])]
@@ -740,11 +763,35 @@ class CommunicationMailController extends AbstractController
             'theme'        => $this->theme,
             'user'         => $this->traitementsDS->getUserByUidInCookies(),
             'logs'         => $logs,
+            'total_logs'   => $logRepo->countAll(),
             'stats_sender' => $statsSender,
             'raisons'      => $raisons,
             'senders'      => $senders,
             'filters'      => $filters,
         ]);
+    }
+
+    #[Route('/log-boite-mail/clear', name: 'app_communication_mail_log_clear', methods: ['POST'])]
+    public function clearLogBoiteMail(
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        if (!$user || $user->getAdmin() !== true) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('clear_mail_logs', $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Token CSRF invalide. Les logs n\'ont pas été supprimés.');
+            return $this->redirectToRoute('app_communication_mail_log');
+        }
+
+        $deleted = $entityManager->createQuery(
+            'DELETE FROM App\\Entity\\LogBoiteMail l'
+        )->execute();
+
+        $this->addFlash('success', sprintf('%d log(s) supprimé(s).', $deleted));
+        return $this->redirectToRoute('app_communication_mail_log');
     }
 
     // ─── Contenu HTML du mail prospect ───────────────────────────────────────

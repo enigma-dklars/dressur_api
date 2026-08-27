@@ -6,9 +6,20 @@
 
 <div class="d-flex align-items-center mb-3">
     <h4 class="mb-0"><i class="fas fa-database me-2 text-primary"></i>Adresses mail en base</h4>
-    <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary ms-auto">
-        <i class="fas fa-arrow-left me-1"></i>Retour au portail
-    </a>
+    <div class="ms-auto d-flex gap-2">
+        {% if prospects|length > 0 %}
+            <form method="post" action="{{ path('app_communication_mail_prospects_clear') }}"
+                  onsubmit="return confirm('Vider toute la base des prospects ? Cette action est irréversible. Les mails déjà en file d\'attente seront conservés.')">
+                <input type="hidden" name="_token" value="{{ csrf_token('clear_mail_prospects') }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-trash-can me-1"></i>Vider les prospects
+                </button>
+            </form>
+        {% endif %}
+        <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Retour au portail
+        </a>
+    </div>
 </div>
 
 
