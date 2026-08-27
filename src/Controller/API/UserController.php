@@ -613,11 +613,11 @@ class UserController extends AbstractController
         $traitementsDS->addNotification("Votre mail a été confirmer.", $user);
         $user->setMailIsVerified(true);
         $restrictionService->restoreForUser($user);
-        $this->em->flush();
 
         foreach ($verifMailRepository->findBy(['user' => $user]) as $element) {
-            $verifMailRepository->remove($element, true);
+            $this->em->remove($element);
         }
+        $this->em->flush();
 
         return new JsonResponse([
             'error' => false,
