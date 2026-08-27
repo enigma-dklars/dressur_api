@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\DeveloperProfileRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -45,6 +47,9 @@ class DeveloperProfile
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?DateTimeInterface $revokedAt = null;
 
+    #[ORM\OneToMany(mappedBy: 'developerProfile', targetEntity: DeveloperApiKey::class, orphanRemoval: true)]
+    private Collection $apiKeys;
+
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTimeInterface $createdAt;
 
@@ -56,6 +61,7 @@ class DeveloperProfile
         $now = new DateTime();
         $this->createdAt = $now;
         $this->updatedAt = $now;
+        $this->apiKeys = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -185,6 +191,31 @@ class DeveloperProfile
     {
         $this->revokedAt = $revokedAt;
         $this->updatedAt = new DateTime();
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DeveloperApiKey>
+     */
+    public function getApiKeys(): Collection
+    {
+        return $this->apiKeys;
+    }
+
+    public function addApiKey(DeveloperApiKey $apiKey): static
+    {
+        if (!$this->apiKeys->contains($apiKey)) {
+            $this->apiKeys->add($apiKey);
+            $apiKey->setDeveloperProfile($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApiKey(DeveloperApiKey $apiKey): static
+    {
+        $this->apiKeys->removeElement($apiKey);
 
         return $this;
     }
