@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Form\UserType;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Services\UserRestrictionService;
 use App\Repository\EnvRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\TransactionRepository;
@@ -255,7 +256,7 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/check-and-confirme', name: 'app_crud_user_check_and_confirme', methods: ['GET', 'POST'])]
-    public function check_and_confirme(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    public function check_and_confirme(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS, UserRestrictionService $restrictionService): Response
     {
         $user      = null;
         $message   = [];
@@ -300,6 +301,7 @@ class CrudUserController extends AbstractController
 
                 if(!$user->getTelIsVerified()) {
                     $user->setTelIsVerified(true);
+                    $restrictionService->restoreForUser($user);
                     $entityManager->flush();
                     $this->addFlash('success', 'Le numéro WhatsApp a été confirmé avec succès.');
                 } else {
@@ -324,7 +326,7 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/find_whatsapp_is_activatable/{lid}', name: 'app_crud_user_find_whatsapp_is_activatable', methods: ['GET', 'POST'])]
-    public function find_whatsapp_is_activatable(string $lid, UserRepository $userRepository, EntityManagerInterface $em): Response
+    public function find_whatsapp_is_activatable(string $lid, UserRepository $userRepository, EntityManagerInterface $em, UserRestrictionService $restrictionService): Response
     {
         $lid = trim($lid);
 
@@ -367,6 +369,7 @@ class CrudUserController extends AbstractController
 
         try {
             $user->setTelIsVerified(true);
+            $restrictionService->restoreForUser($user);
             $em->flush();
         } catch (\Throwable $exception) {
             $this->logger->error('Échec de la confirmation WhatsApp.', [
@@ -694,26 +697,28 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', requirements: ['id' => '\\d+'], methods: ['POST'])]
-    public function activerMail(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function activerMail(Request $request, User $user, EntityManagerInterface $entityManager, UserRestrictionService $restrictionService): Response
     {
         if (!$this->isCsrfTokenValid('activer_mail'.$user->getId(), $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
             return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
         }
         $user->setMailIsVerified(true);
+        $restrictionService->restoreForUser($user);
         $entityManager->flush();
         $this->addFlash('success', 'Adresse mail activée avec succès.');
         return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}/activerTel', name: 'app_crud_user_activerTel', requirements: ['id' => '\\d+'], methods: ['POST'])]
-    public function activerTel(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function activerTel(Request $request, User $user, EntityManagerInterface $entityManager, UserRestrictionService $restrictionService): Response
     {
         if (!$this->isCsrfTokenValid('activer_tel'.$user->getId(), $request->request->get('_token'))) {
             $this->addFlash('danger', 'Token CSRF invalide.');
             return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);
         }
         $user->setTelIsVerified(true);
+        $restrictionService->restoreForUser($user);
         $entityManager->flush();
         $this->addFlash('success', 'Numéro WhatsApp activé avec succès.');
         return $this->redirectToRoute('app_crud_user_check', [], Response::HTTP_SEE_OTHER);

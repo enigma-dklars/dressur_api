@@ -102,8 +102,14 @@
                                 {% set target = restriction.user %}
                                 <tr>
                                     <td>
-                                        <strong>{{ target.pseudo|default('Sans pseudo') }}</strong>
-                                        {% if target.tel %}<small class="d-block text-muted">{{ target.tel }}</small>{% endif %}
+                                        {% if target %}
+                                            <strong>{{ target.pseudo|default('Sans pseudo') }}</strong>
+                                            {% if target.tel %}<small class="d-block text-muted">{{ target.tel }}</small>{% endif %}
+                                        {% else %}
+                                            <strong>Compte supprimé</strong>
+                                            {% if restriction.identityTel %}<small class="d-block text-muted">{{ restriction.identityTel }}</small>{% endif %}
+                                            {% if restriction.identityMail %}<small class="d-block text-muted">{{ restriction.identityMail }}</small>{% endif %}
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if restriction.type == 'block_free_boost' %}

@@ -25,6 +25,50 @@ class UserRestrictionRepository extends ServiceEntityRepository
     /**
      * @return UserRestriction[]
      */
+    public function findOrphanedForIdentity(?string $identityTel, ?string $identityMail): array
+    {
+        $query = $this->createQueryBuilder('restriction')
+            ->andWhere('IDENTITY(restriction.user) IS NULL')
+            ->andWhere('restriction.active = :active')
+            ->andWhere('(restriction.expiresAt IS NULL OR restriction.expiresAt > :now)')
+            ->setParameter('active', true)
+            ->setParameter('now', new \DateTime());
+
+        $identityExpressions = [];
+        if ($identityTel !== null) {
+            $identityExpressions[] = 'restriction.identityTel = :identityTel';
+            $query->setParameter('identityTel', $identityTel);
+        }
+        if ($identityMail !== null) {
+            $identityExpressions[] = 'restriction.identityMail = :identityMail';
+            $query->setParameter('identityMail', $identityMail);
+        }
+
+        if ($identityExpressions === []) {
+            return [];
+        }
+
+        return $query
+            ->andWhere('(' . implode(' OR ', $identityExpressions) . ')')
+            ->orderBy('restriction.updatedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findOrphanedForIdentityAndType(?string $identityTel, ?string $identityMail, string $type): ?UserRestriction
+    {
+        foreach ($this->findOrphanedForIdentity($identityTel, $identityMail) as $restriction) {
+            if ($restriction->getType() === $type) {
+                return $restriction;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return UserRestriction[]
+     */
     public function findForUser(User $user): array
     {
         return $this->findBy(['user' => $user], ['updatedAt' => 'DESC']);

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: UserRestrictionRepository::class)]
 #[ORM\Table(name: 'user_restriction')]
 #[ORM\UniqueConstraint(name: 'UNIQ_USER_RESTRICTION_USER_TYPE', columns: ['user_id', 'type'])]
+
 class UserRestriction
 {
     public const TYPE_BLOCK_FREE_BOOST = 'block_free_boost';
@@ -20,8 +21,14 @@ class UserRestriction
     private ?int $id = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?User $user = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $identityTel = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $identityMail = null;
 
     #[ORM\Column(length: 50)]
     private ?string $type = null;
@@ -62,9 +69,31 @@ class UserRestriction
         return $this->user;
     }
 
-    public function setUser(User $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
+        return $this;
+    }
+
+    public function getIdentityTel(): ?string
+    {
+        return $this->identityTel;
+    }
+
+    public function setIdentityTel(?string $identityTel): static
+    {
+        $this->identityTel = $identityTel;
+        return $this;
+    }
+
+    public function getIdentityMail(): ?string
+    {
+        return $this->identityMail;
+    }
+
+    public function setIdentityMail(?string $identityMail): static
+    {
+        $this->identityMail = $identityMail;
         return $this;
     }
 

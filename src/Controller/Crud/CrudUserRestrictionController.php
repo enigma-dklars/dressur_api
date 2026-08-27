@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Repository\UserRestrictionRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Services\UserRestrictionService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,7 +21,8 @@ class CrudUserRestrictionController extends AbstractController
 {
     public function __construct(
         private CookieDS $cookieDS,
-        private TraitementsDS $traitementsDS
+        private TraitementsDS $traitementsDS,
+        private UserRestrictionService $restrictionService
     ) {
     }
 
@@ -99,6 +101,7 @@ class CrudUserRestrictionController extends AbstractController
                     ->setExpiresAt($expiresAt)
                     ->setActive(true)
                     ->setUpdatedAt(new DateTime());
+                $this->restrictionService->captureIdentity($restriction, $targetUser);
 
                 $notification = (new Notification())
                     ->setUser($targetUser)
@@ -138,7 +141,7 @@ class CrudUserRestrictionController extends AbstractController
             ->setActive(!$restriction->isActive())
             ->setUpdatedAt(new DateTime());
 
-        if ($restriction->isCurrentlyActive()) {
+        if ($restriction->isCurrentlyActive() && $restriction->getUser() !== null) {
             $notification = (new Notification())
                 ->setUser($restriction->getUser())
                 ->setText($this->buildRestrictionNotification($restriction))

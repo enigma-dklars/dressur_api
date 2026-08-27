@@ -25,6 +25,7 @@ use App\Services\CookieDS;
 use App\Utilities\UuidGenerator;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
+use App\Services\UserRestrictionService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -532,7 +533,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/mailVerification', name: 'mailVerification', methods: ['POST'])]
-    public function mailVerification(Request $request, UserRepository $userRepository, VerifMailRepository $verifMailRepository, VerificationsDS $verificationsDS, TraitementsDS $traitementsDS): Response
+    public function mailVerification(Request $request, UserRepository $userRepository, VerifMailRepository $verifMailRepository, VerificationsDS $verificationsDS, TraitementsDS $traitementsDS, UserRestrictionService $restrictionService): Response
     {
         $datas = $request->request;
         
@@ -582,6 +583,7 @@ class UserController extends AbstractController
 
         $traitementsDS->addNotification("Votre mail a été confirmer.", $user);
         $user->setMailIsVerified(true);
+        $restrictionService->restoreForUser($user);
         $this->em->flush();
 
         foreach ($verifMailRepository->findBy(['user' => $user]) as $element) {

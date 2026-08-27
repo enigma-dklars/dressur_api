@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use App\Services\TraitementsDS;
+use App\Services\UserRestrictionService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +18,8 @@ class ConfirmTelController extends AbstractController
         string $token,
         UserRepository $userRepository,
         EntityManagerInterface $em,
-        TraitementsDS $traitementsDS
+        TraitementsDS $traitementsDS,
+        UserRestrictionService $restrictionService
     ): Response {
         $user = $userRepository->findOneBy(['uid' => $uid]);
 
@@ -47,6 +49,7 @@ class ConfirmTelController extends AbstractController
         }
 
         $user->setTelIsVerified(true);
+        $restrictionService->restoreForUser($user);
         $traitementsDS->addNotification("Votre numéro WhatsApp a bien été confirmé !", $user);
         $em->flush();
 
