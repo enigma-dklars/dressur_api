@@ -55,7 +55,32 @@
                         {% endif %}
                     </td>
                     <td>{{ env_mail_sender.mailAdresse }}</td>
-                    <td>{{ env_mail_sender.password }}</td>
+                    <td>
+                        <div class="d-inline-flex align-items-center gap-1">
+                            <code
+                                class="mail-sender-password text-nowrap"
+                                data-password="{{ env_mail_sender.password|default('')|e('html_attr') }}"
+                                data-revealed="false"
+                            >******</code>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary p-1 js-toggle-mail-password"
+                                title="Afficher le mot de passe"
+                                aria-label="Afficher le mot de passe"
+                            >
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary p-1 js-copy-mail-password"
+                                title="Révéler le mot de passe pour le copier"
+                                aria-label="Révéler le mot de passe pour le copier"
+                                disabled
+                            >
+                                <i class="fas fa-copy" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </td>
                     <td>{{ env_mail_sender.smtpServer }}</td>
                     <td>{{ env_mail_sender.smtpPort }}</td>
                     <td>{{ env_mail_sender.smtpSecured }}</td>
@@ -73,6 +98,50 @@
 
 {% block script %}
 <script>
+document.addEventListener('click', async function (event) {
+    const toggleButton = event.target.closest('.js-toggle-mail-password');
+    if (toggleButton) {
+        const container = toggleButton.closest('div');
+        const passwordElement = container.querySelector('.mail-sender-password');
+        const copyButton = container.querySelector('.js-copy-mail-password');
+        const isRevealed = passwordElement.dataset.revealed === 'true';
+        const password = passwordElement.dataset.password || '';
+
+        passwordElement.dataset.revealed = isRevealed ? 'false' : 'true';
+        passwordElement.textContent = isRevealed ? '******' : password;
+        copyButton.disabled = isRevealed;
+        toggleButton.title = isRevealed ? 'Afficher le mot de passe' : 'Masquer le mot de passe';
+        toggleButton.setAttribute('aria-label', toggleButton.title);
+        toggleButton.querySelector('i').classList.toggle('fa-eye', isRevealed);
+        toggleButton.querySelector('i').classList.toggle('fa-eye-slash', !isRevealed);
+        return;
+    }
+
+    const copyButton = event.target.closest('.js-copy-mail-password');
+    if (!copyButton || copyButton.disabled) {
+        return;
+    }
+
+    const container = copyButton.closest('div');
+    const passwordElement = container.querySelector('.mail-sender-password');
+    const password = passwordElement.dataset.password || '';
+
+    try {
+        await navigator.clipboard.writeText(password);
+        const icon = copyButton.querySelector('i');
+        icon.classList.remove('fa-copy');
+        icon.classList.add('fa-check');
+        copyButton.title = 'Mot de passe copié';
+        window.setTimeout(function () {
+            icon.classList.remove('fa-check');
+            icon.classList.add('fa-copy');
+            copyButton.title = 'Copier le mot de passe';
+        }, 1500);
+    } catch (error) {
+        copyButton.title = 'Copie impossible';
+    }
+});
+
 function confirmVerifyAll() {
     Swal.fire({
         title: 'Vérifier tous les senders ?',
