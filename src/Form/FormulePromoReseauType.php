@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\FormulePromoReseau;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -76,6 +77,17 @@ class FormulePromoReseauType extends AbstractType
             ->add('available', null, [
                 'attr' => [
                     'class' => 'ms-2 mb-2'
+                ],
+            ])
+            ->add('commentairesRequis', CheckboxType::class, [
+                'label' => 'Cette formule exige des commentaires personnalisés',
+                'required' => false,
+                'help' => 'La valeur est utilisée pour valider et transmettre les commentaires, indépendamment du titre du service.',
+                'label_attr' => [
+                    'class' => 'fw-semibold',
+                ],
+                'attr' => [
+                    'class' => 'ms-2 mb-2',
                 ],
             ])
         ;

@@ -77,6 +77,17 @@
                     </div>
                 </div>
 
+                <div class="form-check mb-3">
+                    <input type="checkbox"
+                           name="commentaires_requis"
+                           id="field-commentaires-requis"
+                           class="form-check-input">
+                    <label for="field-commentaires-requis" class="form-check-label fw-semibold small">
+                        Cette formule exige des commentaires personnalisés
+                    </label>
+                    <div class="form-text">Ce réglage est indépendant du titre du service.</div>
+                </div>
+
                 <div class="mb-3">
                     <label for="description_service" class="form-label fw-semibold small">Description (FR)</label>
                     <textarea name="description_service"
@@ -194,6 +205,7 @@
     const fPrixZef   = document.getElementById('field-prix-zef');
     const fQteMin    = document.getElementById('field-qte-min');
     const fQteMax    = document.getElementById('field-qte-max');
+    const fCommentaires = document.getElementById('field-commentaires-requis');
     const fDesc      = document.getElementById('description_service');
 
     let debounceTimer = null;
@@ -223,6 +235,7 @@
         fPrixZef.value = '';
         fQteMin.value = '';
         fQteMax.value = '';
+        fCommentaires.checked = false;
         fDesc.value = '';
     }
 
@@ -255,6 +268,7 @@
         fPrixZef.value = data.prixZefame !== null ? data.prixZefame : '';
         fQteMin.value  = data.qteMin     !== null ? data.qteMin     : '';
         fQteMax.value  = data.qteMax     !== null ? data.qteMax     : '';
+        fCommentaires.checked = data.commentairesRequis === true;
         fDesc.value    = data.description || '';
     }
 

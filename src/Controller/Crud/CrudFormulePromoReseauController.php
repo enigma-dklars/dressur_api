@@ -143,6 +143,7 @@ class CrudFormulePromoReseauController extends AbstractController
             'qteMax'      => $f->getQteMax(),
             'prixZefame'  => $f->getPrixZefame(),
             'available'   => $f->isAvailable(),
+            'commentairesRequis' => $f->isCommentairesRequis(),
             'parent'      => $f->getParent() ? [
                 'id'    => $f->getParent()->getId(),
                 'titre' => $f->getParent()->getTitre(),
@@ -169,6 +170,7 @@ class CrudFormulePromoReseauController extends AbstractController
             $qteMinRaw    = $request->request->get('qte_min', '');
             $qteMaxRaw    = $request->request->get('qte_max', '');
             $prixZefRaw   = $request->request->get('prix_zefame', '');
+            $commentairesRequis = $request->request->has('commentaires_requis');
 
             if ($idService) {
                 $service = $formulePromoReseauRepository->findOneBy(['idZefame' => $idService]);
@@ -199,6 +201,7 @@ class CrudFormulePromoReseauController extends AbstractController
                         $service->setPrixZefame((float) str_replace(',', '.', $prixZefRaw));
                     }
 
+                    $service->setCommentairesRequis($commentairesRequis);
                     $entityManager->flush();
 
                     $this->addFlash('success', "Informations mises à jour — service ID : {$idService} · {$service->getTitre()}");

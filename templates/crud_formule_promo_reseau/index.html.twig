@@ -25,6 +25,7 @@
                     <th>QteMax</th>
                     <th>Qte</th>
                     <th>Activ.</th>
+                    <th>Comm.</th>
                     <th>Id</th>
                 </tr>
             </thead>
@@ -53,11 +54,12 @@
                     <td>{{ formule_promo_reseau.qteMax }}</td>
                     <td>{{ formule_promo_reseau.qte }}</td>
                     <td class="text-center">{{ formule_promo_reseau.available ? '<span class="badge bg-success">Yes</span>' : '<span class="badge bg-danger">No</span>' }}</td>
+                    <td class="text-center">{{ formule_promo_reseau.commentairesRequis ? '<span class="badge bg-warning text-dark">Oui</span>' : '<span class="badge bg-secondary">Non</span>' }}</td>
                     <td>{{ formule_promo_reseau.id }}</td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="11">no records found</td>
+                    <td colspan="12">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>

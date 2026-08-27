@@ -52,6 +52,9 @@ class FormulePromoReseau
     #[ORM\Column(nullable: true)]
     private ?float $prixVendeur = null;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $commentairesRequis = false;
+
     public function __construct()
     {
         $this->sonFormulePromoReseaus = new ArrayCollection();
@@ -216,6 +219,23 @@ class FormulePromoReseau
     public function setPrixZefame(?float $prixZefame): static
     {
         $this->prixZefame = $prixZefame;
+
+        return $this;
+    }
+
+    public function getCommentairesRequis(): bool
+    {
+        return $this->commentairesRequis;
+    }
+
+    public function isCommentairesRequis(): bool
+    {
+        return $this->commentairesRequis;
+    }
+
+    public function setCommentairesRequis(bool $commentairesRequis): static
+    {
+        $this->commentairesRequis = $commentairesRequis;
 
         return $this;
     }

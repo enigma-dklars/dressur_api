@@ -138,12 +138,21 @@ class TraitementsDS extends AbstractController
     }
 
     /**
-     * Indique si une formule de promotion réseau nécessite des commentaires personnalisés.
+     * Indique si la formule exige des commentaires personnalisés.
      *
-     * La détection porte sur le titre complet de la formule, en incluant ses parents,
-     * afin de ne pas dépendre du libellé d'une seule déclinaison.
+     * Le titre n’est plus consulté pendant les traitements métier : la valeur
+     * administrable de la formule constitue désormais la source de vérité.
      */
     public function formuleNecessiteCommentaires(FormulePromoReseau $formule): bool
+    {
+        return $formule->isCommentairesRequis();
+    }
+
+    /**
+     * Détection de compatibilité utilisée uniquement lors de l'initialisation
+     * d'une nouvelle formule importée depuis le catalogue fournisseur.
+     */
+    private function detecterCommentairesDepuisTitre(FormulePromoReseau $formule): bool
     {
         $titres = [];
         $formuleCourante = $formule;
@@ -161,7 +170,6 @@ class TraitementsDS extends AbstractController
         }
 
         $titreComplet = mb_strtolower(implode(' ', array_reverse($titres)), 'UTF-8');
-
         if (class_exists(\Normalizer::class)) {
             $titreNormalise = \Normalizer::normalize($titreComplet, \Normalizer::FORM_D);
             if ($titreNormalise !== false) {
@@ -170,13 +178,10 @@ class TraitementsDS extends AbstractController
             $titreComplet = preg_replace('/\p{Mn}+/u', '', $titreComplet) ?? $titreComplet;
         } else {
             $titreComplet = strtr($titreComplet, [
-                'à' => 'a', 'â' => 'a', 'ä' => 'a',
-                'ç' => 'c',
+                'à' => 'a', 'â' => 'a', 'ä' => 'a', 'ç' => 'c',
                 'é' => 'e', 'è' => 'e', 'ê' => 'e', 'ë' => 'e',
-                'î' => 'i', 'ï' => 'i',
-                'ô' => 'o', 'ö' => 'o',
-                'ù' => 'u', 'û' => 'u', 'ü' => 'u',
-                'ÿ' => 'y',
+                'î' => 'i', 'ï' => 'i', 'ô' => 'o', 'ö' => 'o',
+                'ù' => 'u', 'û' => 'u', 'ü' => 'u', 'ÿ' => 'y',
             ]);
         }
 
@@ -537,6 +542,7 @@ class TraitementsDS extends AbstractController
                 "status" => $statut,
                 "compteurDebut" => $this->separateurMillier($promo->getCompteurDebut()),
                 "compteurRestant" => $this->separateurMillier($promo->getCompteurRestant()),
+                "commentairesRequis" => $promo->getFormulePromoReseau()->isCommentairesRequis(),
                 "createdAt" => $promo->getCreatedAt() ? ($promo->getCreatedAt())->format('d-m-Y à H:i') : "",
                 "updatedAt" => $promo->getUpdatedAt() ? ($promo->getUpdatedAt())->format('d-m-Y à H:i') : "",
             ];
@@ -571,6 +577,7 @@ class TraitementsDS extends AbstractController
                     "qte" => $formuleFils->getQte(),
                     "qteMin" => $formuleFils->getQteMin(),
                     "qteMax" => $formuleFils->getQteMax(),
+                    "commentairesRequis" => $formuleFils->isCommentairesRequis(),
                     "description" => $description_service,
                 ]);
             }
@@ -1544,6 +1551,9 @@ class TraitementsDS extends AbstractController
                         break;
                     }
                 }
+                $newFormulePromoReseau->setCommentairesRequis(
+                    $this->detecterCommentairesDepuisTitre($newFormulePromoReseau)
+                );
                 $this->em->persist($newFormulePromoReseau);
                 // dump($newFormulePromoReseau);
                 // dump($unservice);
