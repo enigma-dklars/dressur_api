@@ -1,0 +1,229 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Message Mail Personnalisé{% endblock %}
+
+{% block body %}
+
+<div class="d-flex align-items-center mb-4">
+    <h4 class="mb-0">
+        <i class="fas fa-envelope me-2 text-primary"></i>Message Mail Personnalisé
+    </h4>
+    <a href="{{ path('app_communication_mail_portal') }}" class="btn btn-sm btn-outline-secondary ms-auto">
+        <i class="fas fa-arrow-left me-1"></i>Retour au portail
+    </a>
+</div>
+
+<div class="row g-4">
+
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="fas fa-pen me-1 text-primary"></i>Composer le mail
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('app_communication_mail_message_personnalise_mail') }}"
+                      onsubmit="return confirm('Confirmer l\'ajout des messages mail à la file d\'attente ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('message_personnalise_mail') }}">
+
+                    <div class="mb-4">
+                        <label for="audience" class="form-label fw-semibold">
+                            <i class="fas fa-users me-1 text-primary"></i>Audience cible
+                        </label>
+                        <select class="form-select" id="audience" name="audience" required>
+                            <option value="" disabled selected>— Choisir une audience —</option>
+                            {% for group, groupAudiences in audiencesByGroup %}
+                                <optgroup label="{{ group }}">
+                                    {% for key, a in groupAudiences %}
+                                        <option value="{{ key }}" data-description="{{ a.description|e('html_attr') }}">
+                                            {{ a.emoji }} {{ a.label }} — {{ audienceCounts[key]|default(0) }} adresse(s)
+                                        </option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                        <div id="audience-count" class="alert alert-info d-none py-2 px-3 mt-2 mb-0" role="status" aria-live="polite">
+                            <div>
+                                <i class="fas fa-envelope me-1"></i>
+                                <strong id="audience-count-value">0</strong>
+                                <span id="audience-count-label">adresse correspondante</span>
+                            </div>
+                            <div id="audience-count-description" class="small mt-1"></div>
+                        </div>
+                        <div class="form-text">
+                            Seuls les utilisateurs actifs ayant une adresse mail valide sont inclus. Chaque adresse est programmée une seule fois.
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label fw-semibold">
+                            <i class="fas fa-heading me-1 text-primary"></i>Sujet du mail
+                        </label>
+                        <input type="text" class="form-control" id="subject" name="subject" required
+                               placeholder="Bonjour {pseudo}, découvrez les opportunités de Dressur"
+                               oninput="updatePreview()">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label fw-semibold">
+                            <i class="fas fa-align-left me-1 text-primary"></i>Corps du mail
+                        </label>
+                        <textarea class="form-control font-monospace" id="message" name="message" rows="11" required
+                                  placeholder="Bonjour {pseudo},\n\nNous souhaitons vous présenter une nouvelle opportunité sur Dressur.\n\nÀ bientôt,\nL'équipe Dressur"
+                                  oninput="updatePreview()"></textarea>
+                        <div class="form-text">
+                            Le texte sera envoyé au format HTML avec les retours à la ligne conservés.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="small fw-semibold text-muted mb-2">
+                            <i class="fas fa-tags me-1"></i>Variables disponibles — cliquez pour insérer :
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for var, desc in {
+                                '{pseudo}': 'Pseudo',
+                                '{nom}':    'Nom',
+                                '{mail}':   'Adresse mail',
+                                '{tel}':    'Téléphone',
+                                '{uid}':    'Identifiant unique'
+                            } %}
+                                <button type="button" class="btn btn-sm btn-outline-primary font-monospace"
+                                        onclick="insertVariable('{{ var }}', 'message')">
+                                    {{ var }}
+                                    <span class="text-muted ms-1 fw-normal" style="font-family:sans-serif;font-size:11px;">{{ desc }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                        <div class="form-text mt-2">La variable peut aussi être utilisée dans le sujet.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-envelope me-2"></i>Ajouter à la file d’attente mail
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header fw-semibold">
+                <i class="fas fa-info-circle me-1 text-primary"></i>À propos des audiences
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for group, groupAudiences in audiencesByGroup %}
+                        <li class="list-group-item py-2 px-3 bg-light text-uppercase fw-semibold" style="font-size:10px; letter-spacing:.04em;">
+                            {{ group }}
+                        </li>
+                        {% for key, a in groupAudiences %}
+                        <li class="list-group-item d-flex align-items-start gap-2 small">
+                            <span class="fs-5">{{ a.emoji }}</span>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold">{{ a.label }}</div>
+                                <div class="text-muted" style="font-size:11px;">{{ a.description }}</div>
+                                <span class="badge bg-info text-dark mt-1">{{ audienceCounts[key]|default(0) }} adresse(s)</span>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="fas fa-eye me-1 text-primary"></i>Aperçu du mail
+                <span class="badge bg-secondary ms-2 small fw-normal">exemple avec données fictives</span>
+            </div>
+            <div class="card-body" style="background:#f8f9fa;">
+                <div class="border rounded bg-white shadow-sm overflow-hidden">
+                    <div class="px-3 py-2 border-bottom bg-light">
+                        <div class="small text-muted">Sujet</div>
+                        <div id="preview-subject" class="fw-semibold text-break">Votre sujet apparaîtra ici…</div>
+                    </div>
+                    <div id="preview-message" class="p-3" style="min-height:180px; white-space:pre-wrap; word-break:break-word; color:#212529;">
+                        <span class="text-muted fst-italic">Votre message apparaîtra ici…</span>
+                    </div>
+                </div>
+                <div class="mt-3 p-2 rounded" style="background:#cff4fc;font-size:11px;color:#055160;">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Les variables seront remplacées par les données réelles de chaque destinataire au moment de l’enregistrement.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const AUDIENCE_COUNTS = {{ audienceCounts|json_encode|raw }};
+
+function updateAudienceCount() {
+    const audienceSelect = document.getElementById('audience');
+    const selectedOption = audienceSelect.options[audienceSelect.selectedIndex];
+    const countBox = document.getElementById('audience-count');
+    const countValue = document.getElementById('audience-count-value');
+    const countLabel = document.getElementById('audience-count-label');
+    const countDescription = document.getElementById('audience-count-description');
+    const count = AUDIENCE_COUNTS[audienceSelect.value];
+
+    if (count === undefined) {
+        countBox.classList.add('d-none');
+        return;
+    }
+
+    countValue.textContent = new Intl.NumberFormat('fr-FR').format(count);
+    countLabel.textContent = count === 1
+        ? 'adresse correspond à cette audience.'
+        : 'adresses correspondent à cette audience.';
+    countDescription.textContent = selectedOption.dataset.description || '';
+    countBox.classList.remove('d-none');
+}
+
+document.getElementById('audience').addEventListener('change', updateAudienceCount);
+
+const FAKE_DATA = {
+    '{pseudo}': 'jean_dupont',
+    '{nom}':    'Jean Dupont',
+    '{mail}':   'jean.dupont@example.com',
+    '{tel}':    '+22890123456',
+    '{uid}':    'abc123xyz',
+};
+
+function replaceFakeVariables(value) {
+    return value.replace(/(\{pseudo\}|\{nom\}|\{mail\}|\{tel\}|\{uid\})/g, (variable) => FAKE_DATA[variable] || variable);
+}
+
+function updatePreview() {
+    const subject = document.getElementById('subject').value;
+    const message = document.getElementById('message').value;
+    const subjectPreview = document.getElementById('preview-subject');
+    const messagePreview = document.getElementById('preview-message');
+
+    subjectPreview.textContent = subject.trim() === ''
+        ? 'Votre sujet apparaîtra ici…'
+        : replaceFakeVariables(subject);
+
+    if (message.trim() === '') {
+        messagePreview.innerHTML = '<span class="text-muted fst-italic">Votre message apparaîtra ici…</span>';
+        return;
+    }
+
+    messagePreview.textContent = replaceFakeVariables(message);
+}
+
+function insertVariable(variable, targetId) {
+    const field = document.getElementById(targetId);
+    const start = field.selectionStart;
+    const end = field.selectionEnd;
+    field.value = field.value.substring(0, start) + variable + field.value.substring(end);
+    field.selectionStart = field.selectionEnd = start + variable.length;
+    field.focus();
+    updatePreview();
+}
+</script>
+
+{% endblock %}

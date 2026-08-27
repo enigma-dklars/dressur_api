@@ -365,6 +365,141 @@ class CommunicationMailController extends AbstractController
         return array_values($uniqueUsers);
     }
 
+    /**
+     * Conserve une seule entrée par adresse e-mail valide pour les campagnes mail.
+     */
+    private function uniqueMessagePersonnaliseAudienceMailUsers(array $users): array
+    {
+        $uniqueUsers = [];
+
+        foreach ($users as $user) {
+            $mail = strtolower(trim((string) ($user['mail'] ?? '')));
+            if ($mail === '' || !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+                continue;
+            }
+
+            if (isset($uniqueUsers[$mail])) {
+                continue;
+            }
+
+            $user['mail'] = $mail;
+            $uniqueUsers[$mail] = $user;
+        }
+
+        return array_values($uniqueUsers);
+    }
+
+    #[Route('/message-personnalise-mail', name: 'app_communication_mail_message_personnalise_mail', methods: ['GET', 'POST'])]
+    public function messagePersonnaliseMail(
+        Request $request,
+        BoostRepository $boostRepository,
+        PromotionRepository $promotionRepository,
+        PromoReseauRepository $promoReseauRepository,
+        UserRepository $userRepository,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $audiences = self::getMessagePersonnaliseAudiences();
+        $replyto = 'dressur.ds@gmail.com';
+
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('message_personnalise_mail', $request->request->get('_token'))) {
+                $this->addFlash('danger', 'Token CSRF invalide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_mail');
+            }
+
+            $audienceKey = $request->request->get('audience', '');
+            $subjectTemplate = trim($request->request->get('subject', ''));
+            $messageTemplate = trim($request->request->get('message', ''));
+
+            if (!isset($audiences[$audienceKey])) {
+                $this->addFlash('danger', 'Audience invalide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_mail');
+            }
+
+            if ($subjectTemplate === '') {
+                $this->addFlash('danger', 'Le sujet du mail ne peut pas être vide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_mail');
+            }
+
+            if ($messageTemplate === '') {
+                $this->addFlash('danger', 'Le corps du mail ne peut pas être vide.');
+                return $this->redirectToRoute('app_communication_mail_message_personnalise_mail');
+            }
+
+            $audienceConfig = $audiences[$audienceKey];
+            $titre = $audienceConfig['titre'];
+            $users = $this->uniqueMessagePersonnaliseAudienceMailUsers(
+                $this->getMessagePersonnaliseAudienceUsers(
+                    $audienceKey,
+                    $boostRepository,
+                    $promotionRepository,
+                    $promoReseauRepository,
+                    $userRepository
+                )
+            );
+
+            $variables = ['{nom}', '{pseudo}', '{mail}', '{tel}', '{uid}'];
+            $added = 0;
+
+            foreach ($users as $user) {
+                $values = [
+                    trim((string) ($user['nom'] ?? '')),
+                    trim((string) ($user['pseudo'] ?? '')),
+                    trim((string) ($user['mail'] ?? '')),
+                    trim((string) ($user['tel'] ?? '')),
+                    trim((string) ($user['uid'] ?? '')),
+                ];
+
+                $subject = str_replace($variables, $values, $subjectTemplate);
+                $message = str_replace($variables, $values, $messageTemplate);
+                $message = nl2br(htmlspecialchars($message, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'));
+
+                $entry = (new FileAttenteProspectMail())
+                    ->setSendto($user['mail'])
+                    ->setTitre($titre)
+                    ->setSujet($subject)
+                    ->setReplyto($replyto)
+                    ->setContentmail($message);
+
+                $entityManager->persist($entry);
+                $added++;
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', $added . ' message(s) mail personnalisé(s) ajouté(s) à la file d\'attente.');
+            return $this->redirectToRoute('app_communication_mail_message_personnalise_mail');
+        }
+
+        $audienceCounts = [];
+        foreach (array_keys($audiences) as $audienceKey) {
+            $audienceCounts[$audienceKey] = count(
+                $this->uniqueMessagePersonnaliseAudienceMailUsers(
+                    $this->getMessagePersonnaliseAudienceUsers(
+                        $audienceKey,
+                        $boostRepository,
+                        $promotionRepository,
+                        $promoReseauRepository,
+                        $userRepository
+                    )
+                )
+            );
+        }
+
+        $audiencesByGroup = [];
+        foreach ($audiences as $key => $audience) {
+            $audiencesByGroup[$audience['group']][$key] = $audience;
+        }
+
+        return $this->render('communication_mail/message_personnalise_mail.html.twig', [
+            'theme'            => $this->theme,
+            'user'             => $this->traitementsDS->getUserByUidInCookies(),
+            'audiences'        => $audiences,
+            'audiencesByGroup' => $audiencesByGroup,
+            'audienceCounts'   => $audienceCounts,
+        ]);
+    }
+
     #[Route('/message-personnalise-whatsapp', name: 'app_communication_mail_message_personnalise_whatsapp', methods: ['GET', 'POST'])]
     public function messagePersonnaliseWhatsapp(
         Request $request,
