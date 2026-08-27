@@ -18,6 +18,7 @@
                     <th>🤖 IA Active</th>
                     <th>Frais adhésion vendeur</th>
                     <th>Recharge initiale développeur</th>
+                    <th>Clé fournisseur</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,10 +40,17 @@
                     </td>
                     <td>{{ env.fraisAdhesionVendeur|number_format(0, ',', ' ') }} FCFA</td>
                     <td>{{ env.montantRechargeInitialeDeveloppeur|number_format(0, ',', ' ') }} FCFA</td>
+                    <td>
+                        {% if env.zefameApiKey is not empty %}
+                            <span class="badge bg-success">Configurée</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Non configurée</span>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="9">no records found</td>
+                    <td colspan="10">Aucun enregistrement.</td>
                 </tr>
             {% endfor %}
             </tbody>

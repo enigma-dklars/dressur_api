@@ -32,6 +32,9 @@ class Env
     #[ORM\Column(type: 'integer', nullable: false, options: ['default' => 0])]
     private int $montantRechargeInitialeDeveloppeur = 0;
 
+    #[ORM\Column(name: 'zefame_api_key', length: 255, nullable: true)]
+    private ?string $zefameApiKey = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -86,6 +89,19 @@ class Env
     public function setMontantRechargeInitialeDeveloppeur(int $montantRechargeInitialeDeveloppeur): static
     {
         $this->montantRechargeInitialeDeveloppeur = $montantRechargeInitialeDeveloppeur;
+
+        return $this;
+    }
+
+    public function getZefameApiKey(): ?string
+    {
+        return $this->zefameApiKey;
+    }
+
+    public function setZefameApiKey(?string $zefameApiKey): static
+    {
+        $zefameApiKey = $zefameApiKey !== null ? trim($zefameApiKey) : null;
+        $this->zefameApiKey = $zefameApiKey !== '' ? $zefameApiKey : null;
 
         return $this;
     }

@@ -31,6 +31,16 @@
                 <th>Recharge initiale développeur</th>
                 <td>{{ env.montantRechargeInitialeDeveloppeur|number_format(0, ',', ' ') }} FCFA</td>
             </tr>
+            <tr>
+                <th>Clé fournisseur</th>
+                <td>
+                    {% if env.zefameApiKey is not empty %}
+                        <span class="badge bg-success">Configurée — valeur masquée</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Non configurée</span>
+                    {% endif %}
+                </td>
+            </tr>
         </tbody>
     </table>
 

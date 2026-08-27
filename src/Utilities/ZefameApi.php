@@ -2,17 +2,21 @@
 
 namespace App\Utilities;
 
+use App\Repository\EnvRepository;
+
 class ZefameApi {
     /** API URL */
     private string $api_url;
 
-    /** Provider credential, supplied only by the server environment. */
+    /** Provider credential, configured by an administrator in Env or supplied during bootstrap. */
     private string $api_key;
 
-    public function __construct()
+    public function __construct(?EnvRepository $envRepository = null)
     {
         $this->api_url = rtrim((string)(getenv('ZEFAME_API_URL') ?: 'https://zefame.com/api/v2'), '/');
-        $this->api_key = (string)(getenv('ZEFAME_API_KEY') ?: '');
+        $storedApiKey = $envRepository?->find(1)?->getZefameApiKey();
+        $environmentApiKey = $_ENV['ZEFAME_API_KEY'] ?? $_SERVER['ZEFAME_API_KEY'] ?? getenv('ZEFAME_API_KEY');
+        $this->api_key = trim((string)($storedApiKey ?: $environmentApiKey ?: ''));
     }
 
     /** Add order */

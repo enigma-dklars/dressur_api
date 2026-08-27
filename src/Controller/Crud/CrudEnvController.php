@@ -8,6 +8,7 @@ use App\Repository\EnvRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -53,6 +54,7 @@ class CrudEnvController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->applyZefameApiKey($env, $form);
             $entityManager->persist($env);
             $entityManager->flush();
 
@@ -84,6 +86,7 @@ class CrudEnvController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $this->applyZefameApiKey($env, $form);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_crud_env_index', [], Response::HTTP_SEE_OTHER);
@@ -95,6 +98,19 @@ class CrudEnvController extends AbstractController
             'env' => $env,
             'form' => $form,
         ]);
+    }
+
+    private function applyZefameApiKey(Env $env, FormInterface $form): void
+    {
+        if ($form->get('clearZefameApiKey')->getData() === true) {
+            $env->setZefameApiKey(null);
+            return;
+        }
+
+        $newApiKey = trim((string)($form->get('zefameApiKey')->getData() ?? ''));
+        if ($newApiKey !== '') {
+            $env->setZefameApiKey($newApiKey);
+        }
     }
 
     #[Route('/{id}', name: 'app_crud_env_delete', methods: ['POST'])]
