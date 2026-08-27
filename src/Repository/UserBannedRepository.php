@@ -55,29 +55,9 @@ class UserBannedRepository extends ServiceEntityRepository
         return $this->count(['mail' => $mail]) > 0;
     }
 
-    public function findOneByIdentity(?string $tel, ?string $mail): ?UserBanned
+    public function findOneByExactIdentity(string $tel, string $mail): ?UserBanned
     {
-        $query = $this->createQueryBuilder('banned')
-            ->setMaxResults(1);
-
-        $expressions = [];
-        if ($tel !== null) {
-            $expressions[] = 'banned.tel = :tel';
-            $query->setParameter('tel', $tel);
-        }
-        if ($mail !== null) {
-            $expressions[] = 'banned.mail = :mail';
-            $query->setParameter('mail', $mail);
-        }
-        if ($expressions === []) {
-            return null;
-        }
-
-        return $query
-            ->andWhere('(' . implode(' OR ', $expressions) . ')')
-            ->orderBy('banned.createdAt', 'DESC')
-            ->getQuery()
-            ->getOneOrNullResult();
+        return $this->findOneBy(['tel' => $tel, 'mail' => $mail]);
     }
 
     /**

@@ -615,12 +615,12 @@ class CrudUserController extends AbstractController
                 $user = array_values($found)[0];
                 $tel = $userBannedRepository->normalizeTel($user->getTel());
                 $mail = $userBannedRepository->normalizeMail($user->getMail());
-                if ($tel === null && $mail === null) {
-                    $this->addFlash('danger', 'Impossible de bannir ce compte : aucun numéro ni e-mail exploitable.');
+                if ($tel === null || $mail === null) {
+                    $this->addFlash('danger', 'Impossible de bannir ce compte : le numéro et l’adresse e-mail sont tous les deux obligatoires.');
                     return $this->redirectToRoute('app_crud_user_banned');
                 }
 
-                $banned = $userBannedRepository->findOneByIdentity($tel, $mail) ?? new \App\Entity\UserBanned();
+                $banned = $userBannedRepository->findOneByExactIdentity($tel, $mail) ?? new \App\Entity\UserBanned();
                 $banned
                     ->setTel($tel)
                     ->setMail($mail)
