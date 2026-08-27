@@ -6,6 +6,7 @@ use App\Entity\Transaction as EntityTransaction;
 use App\Repository\DeveloperProfileRepository;
 use App\Repository\EnvRepository;
 use App\Repository\MethodePaiementRepository;
+use App\Repository\PromoReseauRepository;
 use App\Repository\TransactionRepository;
 use App\Services\CookieDS;
 use App\Services\DeveloperAccessService;
@@ -55,6 +56,31 @@ class DeveloperController extends AbstractController
             'activationConfigured' => $developerAccessService->isActivationConfigured(),
             'eligibility' => $developerAccessService->getEligibility($user),
             'conditionsVersion' => DeveloperAccessService::CONDITIONS_VERSION,
+        ]);
+    }
+
+    #[Route('/historique', name: 'historique', methods: ['GET'])]
+    public function historique(Request $request, VerificationsDS $verificationsDS, PromoReseauRepository $promoRepository): JsonResponse
+    {
+        $uid = $this->cookieDS->getWithFallback('uid', $request) ?: null;
+        $verification = $verificationsDS->verifUSer($uid);
+        if (($verification['error'] ?? true) === true) {
+            return new JsonResponse($verification, Response::HTTP_UNAUTHORIZED);
+        }
+
+        $user = $verification['user'];
+        $orders = $promoRepository->findBy(['user' => $user, 'source' => 'api'], ['id' => 'DESC'], 100);
+        return new JsonResponse([
+            'error' => false,
+            'orders' => array_map(static function ($order): array {
+                return [
+                    'reference' => $order->getReference(),
+                    'quantity' => $order->getQteDemander(),
+                    'amount' => $order->getPrixFixer(),
+                    'statusNumber' => $order->getStatus(),
+                    'createdAt' => $order->getCreatedAt()?->format(DATE_ATOM),
+                ];
+            }, $orders),
         ]);
     }
 

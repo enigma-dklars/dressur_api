@@ -1273,6 +1273,8 @@ class TraitementsDS extends AbstractController
             'fraisAdhesionVendeur' => max(0, (int)($this->env?->getFraisAdhesionVendeur() ?? 2000)),
             'montantRechargeInitialeDeveloppeur' => max(0, (int)($this->env?->getMontantRechargeInitialeDeveloppeur() ?? 0)),
             'vendeur' => $user->isVendeur() ? true : false,
+            'developpeur' => $user->getDeveloperProfile()?->isActive() ?? false,
+            'developerProfileStatus' => $user->getDeveloperProfile()?->getStatus() ?? 'inactive',
             'aUnPartenaire' => $user->getPartenaire() !== null,
             'codePartenaire' => $user->getCodePartenaire(),
             'codePartenaireDisponible' => $codePartenaireDisponible,

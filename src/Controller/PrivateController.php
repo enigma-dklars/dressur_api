@@ -15,6 +15,7 @@ use App\Repository\StoryRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserBotRepository;
 use App\Repository\UserRepository;
+use App\Repository\MethodePaiementRepository;
 use App\Services\CookieDS;
 use App\Services\SessionDS;
 use App\Services\TraitementsDS;
@@ -474,6 +475,18 @@ class PrivateController extends AbstractController
         return $this->render('private/hub_parametres.html.twig', [
             'user' => $this->traitementsDS->infosUser($user),
             'theme' => $this->theme,
+        ]);
+    }
+
+    #[Route('/espace-developpeur', name: 'app_espace_developpeur')]
+    public function espaceDeveloppeur(MethodePaiementRepository $methodePaiementRepository): Response
+    {
+        $user = $this->traitementsDS->getUserByUidInCookies();
+        return $this->render('private/espace_developpeur.html.twig', [
+            'user' => $this->traitementsDS->infosUser($user),
+            'theme' => $this->theme,
+            'documentationUrl' => 'https://dressur.site/documentation-api',
+            'paymentMethods' => $methodePaiementRepository->findBy(['activated' => true], ['pays' => 'ASC', 'titre' => 'ASC']),
         ]);
     }
 

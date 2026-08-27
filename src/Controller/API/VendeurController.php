@@ -247,11 +247,12 @@ class VendeurController extends AbstractController
             !$user->isVendeur()
             && !$user->getEstPartenaire()
             && !$user->getIsInscritProgrammeRecompense()
+            && !$user->isDeveloper()
         ) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Non autorisé',
-                'message' => 'Vous devez être vendeur, partenaire ou inscrit au programme de récompenses pour recharger votre solde.',
+                'message' => 'Vous devez être vendeur, partenaire, développeur ou inscrit au programme de récompenses pour recharger votre solde.',
             ]);
         }
 

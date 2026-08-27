@@ -64,7 +64,7 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
     <div class="ds-solde-card">
         <div class="ds-solde-card-top">
             <span class="ds-solde-label"><i class="fas fa-wallet me-1"></i>Solde Dressur</span>
-            {% if user.vendeur or user.estPartenaire or user.isInscritProgrammeRecompense %}
+            {% if user.vendeur or user.estPartenaire or user.isInscritProgrammeRecompense or user.developpeur|default(false) %}
                 <a href="/vendeur/recharge" class="ds-solde-recharge-btn">Recharger</a>
             {% endif %}
         </div>
@@ -79,6 +79,9 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
             </span>
             <span class="ds-chip {% if user.isInscritProgrammeRecompense %}ds-chip-active{% endif %}">
                 <i class="fas fa-trophy"></i> Récompense
+            </span>
+            <span class="ds-chip {% if user.developpeur|default(false) %}ds-chip-active{% endif %}">
+                <i class="fas fa-code"></i> Développeur
             </span>
         </div>
     </div>
@@ -171,6 +174,15 @@ html.semi-dark .ds-section-sep{color:rgba(255,255,255,.45)}
         <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
     </a>
     {% endif %}
+
+    <a href="{{ path('app_espace_developpeur') }}" class="ds-nav-card">
+        <div class="ds-nav-card-icon"><i class="fas fa-code"></i></div>
+        <div class="ds-nav-card-body">
+            <p class="ds-title">Espace développeur{% if user.developpeur|default(false) %} <span class="badge bg-success ms-1" style="font-size:10px;vertical-align:middle">Actif</span>{% endif %}</p>
+            <p class="ds-sub">{% if user.developpeur|default(false) %}Gérez vos clés et commandes API{% else %}Découvrez l’accès API Dressur{% endif %}</p>
+        </div>
+        <i class="fas fa-chevron-right ds-nav-card-chevron"></i>
+    </a>
 
     {# -- Partenariat -- #}
     {% if not user.aUnPartenaire %}
