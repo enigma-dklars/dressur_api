@@ -17,6 +17,7 @@
                     <th>V. DS BOT</th>
                     <th>🤖 IA Active</th>
                     <th>Frais adhésion vendeur</th>
+                    <th>Recharge initiale développeur</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,10 +38,11 @@
                         {% endif %}
                     </td>
                     <td>{{ env.fraisAdhesionVendeur|number_format(0, ',', ' ') }} FCFA</td>
+                    <td>{{ env.montantRechargeInitialeDeveloppeur|number_format(0, ',', ' ') }} FCFA</td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="8">no records found</td>
+                    <td colspan="9">no records found</td>
                 </tr>
             {% endfor %}
             </tbody>

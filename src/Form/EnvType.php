@@ -50,6 +50,18 @@ class EnvType extends AbstractType
                     'min' => 0,
                 ],
             ])
+            ->add('montantRechargeInitialeDeveloppeur', IntegerType::class, [
+                'label' => 'Recharge initiale développeur (FCFA)',
+                'help' => 'Montant requis pour l’activation développeur et crédité intégralement au solde Dressur.',
+                'html5' => true,
+                'constraints' => [
+                    new GreaterThanOrEqual(0),
+                ],
+                'attr' => [
+                    'class' => 'form-control mb-2',
+                    'min' => 0,
+                ],
+            ])
 
         ;
     }

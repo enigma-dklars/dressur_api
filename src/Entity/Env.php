@@ -29,6 +29,9 @@ class Env
     #[ORM\Column(type: 'integer', nullable: false, options: ['default' => 2000])]
     private int $fraisAdhesionVendeur = 2000;
 
+    #[ORM\Column(type: 'integer', nullable: false, options: ['default' => 0])]
+    private int $montantRechargeInitialeDeveloppeur = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +76,18 @@ class Env
     public function getFraisAdhesionVendeur(): int
     {
         return $this->fraisAdhesionVendeur;
+    }
+
+    public function getMontantRechargeInitialeDeveloppeur(): int
+    {
+        return $this->montantRechargeInitialeDeveloppeur;
+    }
+
+    public function setMontantRechargeInitialeDeveloppeur(int $montantRechargeInitialeDeveloppeur): static
+    {
+        $this->montantRechargeInitialeDeveloppeur = $montantRechargeInitialeDeveloppeur;
+
+        return $this;
     }
 
     public function setFraisAdhesionVendeur(int $fraisAdhesionVendeur): static
