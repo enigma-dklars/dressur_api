@@ -26,9 +26,11 @@
         <div class="col-12" style="flex:0 0 100%;max-width:100%;width:100%;">
             <div class="card radius-10 mb-0">
                 <div class="card-body">
-                    <div class="mb-2">
+                    <div class="d-flex align-items-baseline gap-2 flex-nowrap overflow-auto pb-1 mb-2" style="white-space:nowrap;">
                         <p class="mb-0 text-secondary">Utilisateurs par pays</p>
-                        <p class="mb-0 font-13 text-secondary">Indicatif · nombre d’inscrits</p>
+                        <span class="text-secondary" aria-hidden="true">·</span>
+                        <span class="font-13 text-secondary">Indicatif · nombre d’inscrits</span>
+                        <span class="badge bg-primary text-white" style="font-size:.75rem;">{{ topPays|length }} pays</span>
                     </div>
                     {% if topPays is not empty %}
                         {% set countryColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
