@@ -133,7 +133,7 @@ class PublicController extends AbstractController
             'info' => [
                 'title' => 'Dressur Developer API',
                 'version' => '1.0.0',
-                'description' => 'API HTTP/JSON pour les Promotions Réseaux Sociaux Dressur. Les prix sont toujours calculés par Dressur.',
+                'description' => 'API HTTP/JSON pour les Promotions Réseaux Sociaux Dressur. Les prix sont toujours calculés par Dressur et le prix catalogue correspond à une quantité de référence de 1 000 unités. Pour une autre quantité, appliquez : montant = price × quantité souhaitée ÷ 1 000, en respectant les bornes minimumQuantity et maximumQuantity.',
             ],
             'servers' => [['url' => 'https://dressur.site']],
             'security' => [['bearerAuth' => []]],
@@ -143,7 +143,7 @@ class PublicController extends AbstractController
                 ],
             ],
             'paths' => [
-                '/api/v1/developer/catalog' => ['get' => ['summary' => 'Catalogue des formules disponibles', 'responses' => ['200' => ['description' => 'Catalogue JSON'], '401' => ['description' => 'Clé invalide']]]],
+                '/api/v1/developer/catalog' => ['get' => ['summary' => 'Catalogue des formules disponibles', 'responses' => ['200' => ['description' => 'Catalogue JSON. Le champ price correspond à 1 000 unités ; referenceQuantity indique la base tarifaire utilisée.'], '401' => ['description' => 'Clé invalide']]]],
                 '/api/v1/developer/balance' => ['get' => ['summary' => 'Solde Dressur disponible', 'responses' => ['200' => ['description' => 'Solde JSON']]]],
                 '/api/v1/developer/orders' => [
                     'get' => ['summary' => 'Historique des commandes API', 'responses' => ['200' => ['description' => 'Historique JSON']]],

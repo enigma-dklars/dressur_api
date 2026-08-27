@@ -22,6 +22,10 @@ Accept: application/json</code></pre>
     <section class="card shadow-sm border-0 mb-3"><div class="card-body">
         <h2 class="h4">Catalogue</h2>
         <p><code>GET /api/v1/developer/catalog</code> retourne les formules disponibles, les quantités min/max, le prix calculé pour votre profil et si les commentaires sont requis.</p>
+        <div class="alert alert-warning mb-3">
+            <strong>Important — quantité de référence :</strong> le champ <code>price</code> est le montant correspondant à une quantité de référence de <strong>1&nbsp;000 unités</strong>. Pour une autre quantité, appliquez la règle de trois :
+            <code>montant = price × quantité souhaitée ÷ 1&nbsp;000</code>, puis utilisez le montant obtenu en respectant les bornes <code>minimumQuantity</code> et <code>maximumQuantity</code>. Le champ <code>referenceQuantity</code> est renvoyé pour confirmer la base tarifaire utilisée.
+        </div>
         <pre class="bg-dark text-light rounded p-3"><code>GET /api/v1/developer/catalog HTTP/1.1
 Host: dressur.site
 Authorization: Bearer drk_demo_key.demo_secret
@@ -31,8 +35,8 @@ Authorization: Bearer drk_demo_key.demo_secret
   "services": [{
     "id": 12,
     "title": "Instagram : Engagement",
+    "referenceQuantity": 1000,
     "minimumQuantity": 100,
-    "maximumQuantity": 10000,
     "price": 1500,
     "currency": "XOF",
     "commentsRequired": true
@@ -56,6 +60,7 @@ Idempotency-Key: commande-client-2026-0001
   "comments": ["Très bon contenu", "À découvrir"]
 }</code></pre>
         <p>Le serveur recalcule le prix, applique le prix vendeur si votre compte possède ce statut et duplique cycliquement les lignes de commentaires jusqu’à la quantité demandée. Le nombre de commentaires envoyé ne peut pas dépasser la quantité.</p>
+        <p>Pour une commande, <code>quantity</code> représente la quantité réellement souhaitée. Le montant est donc calculé à partir du prix catalogue pour 1&nbsp;000 unités : <code>price × quantity ÷ 1&nbsp;000</code>. Par exemple, un prix de <strong>1&nbsp;500 XOF</strong> pour 1&nbsp;000 unités correspond à <strong>750 XOF</strong> pour 500 unités, avant l’arrondi appliqué par le serveur.</p>
         <p class="mb-0">Une clé réutilisée avec le même contenu rejoue la même réponse. La même clé avec un contenu différent est refusée.</p>
     </div></section>
 

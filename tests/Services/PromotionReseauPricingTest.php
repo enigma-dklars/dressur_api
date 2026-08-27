@@ -17,6 +17,16 @@ final class PromotionReseauPricingTest extends TestCase
         self::assertSame(715, (new PromotionReseauPricing())->calculateAmount($formule, 50));
     }
 
+    public function testPriceUses1000UnitReferenceForProportionalQuantities(): void
+    {
+        $formule = $this->formule(1.0, 1000, 10, 5000);
+        $pricing = new PromotionReseauPricing();
+
+        self::assertSame(1429, $pricing->calculateAmount($formule, 1000));
+        self::assertSame(715, $pricing->calculateAmount($formule, 500));
+        self::assertSame(2858, $pricing->calculateAmount($formule, 2000));
+    }
+
     public function testVendorReferencePriceMatchesTheFormulaList(): void
     {
         $formule = $this->formule(2.0, 100, 10, 1000);
