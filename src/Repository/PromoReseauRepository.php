@@ -39,48 +39,6 @@ class PromoReseauRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * Utilisateurs dont la dernière Promo Réseau est terminée (status=3, updatedAt dans les
-     * $maxDaysAgo derniers jours) et sans commande active (status IN 1,2).
-     */
-    public function countUsersWithTerminatedPromoReseauAndEmail(int $maxDaysAgo = 90): int
-    {
-        $conn   = $this->getEntityManager()->getConnection();
-        $now    = (new \DateTime())->format('Y-m-d H:i:s');
-        $cutoff = (new \DateTime("-{$maxDaysAgo} days"))->format('Y-m-d H:i:s');
-
-        $sql = "SELECT COUNT(DISTINCT u.id)
-                FROM promo_reseau pr
-                INNER JOIN `user` u ON pr.user_id = u.id
-                WHERE u.mail IS NOT NULL AND u.mail != '' AND u.blocked = 0
-                  AND pr.status = 3
-                  AND pr.updated_at BETWEEN :cutoff AND :now
-                  AND NOT EXISTS (
-                    SELECT 1 FROM promo_reseau pr2 WHERE pr2.user_id = u.id AND pr2.status IN (1, 2)
-                  )";
-
-        return (int) $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchOne();
-    }
-
-    public function findUsersWithTerminatedPromoReseauAndEmail(int $maxDaysAgo = 90): array
-    {
-        $conn   = $this->getEntityManager()->getConnection();
-        $now    = (new \DateTime())->format('Y-m-d H:i:s');
-        $cutoff = (new \DateTime("-{$maxDaysAgo} days"))->format('Y-m-d H:i:s');
-
-        $sql = "SELECT DISTINCT u.mail, u.pseudo
-                FROM promo_reseau pr
-                INNER JOIN `user` u ON pr.user_id = u.id
-                WHERE u.mail IS NOT NULL AND u.mail != '' AND u.blocked = 0
-                  AND pr.status = 3
-                  AND pr.updated_at BETWEEN :cutoff AND :now
-                  AND NOT EXISTS (
-                    SELECT 1 FROM promo_reseau pr2 WHERE pr2.user_id = u.id AND pr2.status IN (1, 2)
-                  )";
-
-        return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
-    }
-
     public function findUsersWhoEverUsedPromoReseauAndTelWithDetails(): array
     {
         $conn = $this->getEntityManager()->getConnection();

@@ -59,25 +59,17 @@ class CommunicationMailController extends AbstractController
         MailProspectRepository $prospectRepo,
         LogBoiteMailRepository $logRepo,
         UserRepository $userRepository,
-        BoostRepository $boostRepository,
-        PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository,
         CacheInterface $cache
     ): Response {
         $allTypes        = self::getReactivationTypes();
         $inactifTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'inactif');
-        $serviceTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'service');
         $confirmTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
         $confirmWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
 
         // ── Comptages mis en cache 10 minutes ────────────────────────────────────
         $counts = $cache->get('portal_campaign_counts', function (ItemInterface $item) use (
             $userRepository,
-            $boostRepository,
-            $promotionRepository,
-            $promoReseauRepository,
             $inactifTypes,
-            $serviceTypes,
             $confirmTypes,
             $confirmWaTypes
         ) {
@@ -89,19 +81,6 @@ class CommunicationMailController extends AbstractController
                     $data['inactif'][$key] = $userRepository->countInactiveUsersWithEmail($cfg['minDays'], $cfg['maxDays']);
                 } catch (\Throwable $e) {
                     $data['inactif'][$key] = 0;
-                    $errors[] = '[' . $key . '] ' . $e->getMessage();
-                }
-            }
-            foreach ($serviceTypes as $key => $cfg) {
-                try {
-                    $data['service'][$key] = match ($cfg['queryType'] ?? '') {
-                        'service_boost'  => $boostRepository->countUsersWithExpiredBoostAndEmail($cfg['maxDaysAgo'] ?? 90),
-                        'service_promo'  => $promotionRepository->countUsersWithTerminatedPromoAndEmail($cfg['maxDaysAgo'] ?? 90),
-                        'service_reseau' => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndEmail($cfg['maxDaysAgo'] ?? 90),
-                        default          => 0,
-                    };
-                } catch (\Throwable $e) {
-                    $data['service'][$key] = 0;
                     $errors[] = '[' . $key . '] ' . $e->getMessage();
                 }
             }
@@ -130,10 +109,6 @@ class CommunicationMailController extends AbstractController
         foreach ($inactifTypes as $key => $cfg) {
             $reactivation[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['inactif'][$key] ?? 0]);
         }
-        $services = [];
-        foreach ($serviceTypes as $key => $cfg) {
-            $services[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['service'][$key] ?? 0]);
-        }
         $confirm = [];
         foreach ($confirmTypes as $key => $cfg) {
             $confirm[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['confirm'][$key] ?? 0]);
@@ -157,7 +132,6 @@ class CommunicationMailController extends AbstractController
             'nb_logs'             => $logRepo->countAll(),
             'nb_whatsapp_attente' => $whatsappRepo->countByStatut('en_attente'),
             'reactivation'        => $reactivation,
-            'services'            => $services,
             'confirm'             => $confirm,
             'confirm_wa'          => $confirmWa,
         ]);
@@ -204,46 +178,6 @@ class CommunicationMailController extends AbstractController
                 'desc'      => 'Dernier rappel pour les utilisateurs très longtemps inactifs.',
                 'queryType' => 'inactif',
                 'group'     => 'inactif',
-            ],
-            // ── Relance par service ──────────────────────────────────────────
-            'boost' => [
-                'label'      => 'Boost Contact expiré (7 j)',
-                'minDays'    => null,
-                'maxDays'    => null,
-                'maxDaysAgo' => 7,
-                'emoji'      => '📢',
-                'color'      => 'primary',
-                'sujet'      => 'Votre Boost Contact a expiré — relancez votre visibilité !',
-                'titre'      => 'Renouvelez votre Boost Contact sur Dressur',
-                'desc'       => 'Utilisateurs dont le dernier Boost a expiré, sans Boost actif.',
-                'queryType'  => 'service_boost',
-                'group'      => 'service',
-            ],
-            'promo' => [
-                'label'      => 'Promotion Affaire terminée (7 j)',
-                'minDays'    => null,
-                'maxDays'    => null,
-                'maxDaysAgo' => 7,
-                'emoji'      => '🎯',
-                'color'      => 'success',
-                'sujet'      => 'Votre Promotion Affaire est terminée — remettez-vous en avant !',
-                'titre'      => 'Relancez votre Promotion Affaire sur Dressur',
-                'desc'       => 'Utilisateurs dont la dernière Promo est terminée, sans Promo active.',
-                'queryType'  => 'service_promo',
-                'group'      => 'service',
-            ],
-            'reseau' => [
-                'label'      => 'Promo Réseaux Sociaux terminée (15 j)',
-                'minDays'    => null,
-                'maxDays'    => null,
-                'maxDaysAgo' => 15,
-                'emoji'      => '📱',
-                'color'      => 'info',
-                'sujet'      => 'Boostez à nouveau vos réseaux sociaux avec Dressur !',
-                'titre'      => 'Relancez votre Promotion Réseaux Sociaux',
-                'desc'       => 'Utilisateurs dont la dernière Promo Réseau est terminée, sans commande active.',
-                'queryType'  => 'service_reseau',
-                'group'      => 'service',
             ],
             // ── Confirmation d'adresse mail ──────────────────────────────────
             'mail_non_confirme' => [
@@ -314,46 +248,21 @@ class CommunicationMailController extends AbstractController
 
     public function fetchCandidateUsers(
         array $config,
-        UserRepository $userRepository,
-        BoostRepository $boostRepository,
-        PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository
+        UserRepository $userRepository
     ): array {
         return match ($config['queryType'] ?? 'inactif') {
-            'service_boost'      => $boostRepository->findUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_promo'      => $promotionRepository->findUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_reseau'     => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
             'confirm_mail'       => $userRepository->findUsersWithUnconfirmedMail(),
             'confirm_tel'        => $userRepository->findUsersWithUnconfirmedTel(),
             default              => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
         };
     }
 
-    // ─── Helper : count rapide pour le portail ────────────────────────────────
-
-    public function countServiceCandidates(
-        array $config,
-        BoostRepository $boostRepository,
-        PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository
-    ): int {
-        return match ($config['queryType'] ?? 'inactif') {
-            'service_boost'     => $boostRepository->countUsersWithExpiredBoostAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_promo'     => $promotionRepository->countUsersWithTerminatedPromoAndEmail($config['maxDaysAgo'] ?? 90),
-            'service_reseau'    => $promoReseauRepository->countUsersWithTerminatedPromoReseauAndEmail($config['maxDaysAgo'] ?? 90),
-            default             => 0,
-        };
-    }
-
-    // ─── Réactivation : aperçu ───────────────────────────────────────────────
+    // ─── Campagnes de suivi : aperçu ─────────────────────────────────────────
 
     #[Route('/campagne/reactivation/{type}', name: 'app_communication_mail_campagne_reactivation', methods: ['GET'])]
     public function campagneReactivation(
         string $type,
         UserRepository $userRepository,
-        BoostRepository $boostRepository,
-        PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository,
         FileAttenteProspectMailRepository $fileAttenteRepo,
         FileAttenteWhatsappRepository $whatsappRepo
     ): Response {
@@ -364,7 +273,7 @@ class CommunicationMailController extends AbstractController
 
         $config     = $types[$type];
         $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
-        $users      = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
+        $users      = $this->fetchCandidateUsers($config, $userRepository);
 
         $cooldownPreview = self::REACTIVATION_COOLDOWN_DAYS;
 
@@ -418,9 +327,6 @@ class CommunicationMailController extends AbstractController
         string $type,
         Request $request,
         UserRepository $userRepository,
-        BoostRepository $boostRepository,
-        PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository,
         FileAttenteProspectMailRepository $fileAttenteRepo,
         FileAttenteWhatsappRepository $whatsappFileRepo,
         EntityManagerInterface $entityManager
@@ -437,7 +343,7 @@ class CommunicationMailController extends AbstractController
 
         $config     = $types[$type];
         $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
-        $users      = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
+        $users      = $this->fetchCandidateUsers($config, $userRepository);
 
         // ── Canal WhatsApp ────────────────────────────────────────────────────
         if ($isWhatsapp) {
@@ -468,7 +374,7 @@ class CommunicationMailController extends AbstractController
                     $confirmUrl = 'https://dressur.site/confirmer-tel/' . rawurlencode($uid) . '/' . $token;
                 }
 
-                $message = $this->buildWhatsappMessageForType($config, $pseudo ?: null, $confirmUrl, $nom ?: null);
+                $message = $this->buildWhatsappMessageForType($config, $pseudo ?: null, $confirmUrl);
 
                 $entry = (new FileAttenteWhatsapp())
                     ->setSendto($tel)
@@ -1230,9 +1136,6 @@ class CommunicationMailController extends AbstractController
     private static function buildMailContentForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null): string
     {
         return match ($config['queryType'] ?? 'inactif') {
-            'service_boost'  => self::buildBoostMailContent($pseudo),
-            'service_promo'  => self::buildPromoAffaireMailContent($pseudo),
-            'service_reseau' => self::buildPromoReseauMailContent($pseudo),
             'confirm_mail'   => self::buildConfirmMailContent($pseudo, $confirmUrl),
             default          => self::buildReactivationMailContent($config['titre'], $pseudo),
         };
@@ -1250,7 +1153,7 @@ class CommunicationMailController extends AbstractController
         return substr(hash_hmac('sha256', $uid . ':' . strtolower(trim($tel)), $secret), 0, 40);
     }
 
-    private function buildWhatsappMessageForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null, ?string $nom = null): string
+    private function buildWhatsappMessageForType(array $config, ?string $pseudo = null, ?string $confirmUrl = null): string
     {
         return match ($config['queryType'] ?? 'confirm_tel') {
             default              => $this->buildWhatsappConfirmMessage($pseudo, $confirmUrl),
@@ -1314,156 +1217,6 @@ class CommunicationMailController extends AbstractController
     <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
       <a href="https://dressur.site" style="color:#856404;">dressur.site</a> —
       <a href="mailto:dressur.ds@gmail.com" style="color:#856404;">dressur.ds@gmail.com</a>
-    </p>
-
-  </div>
-</div>
-HTML;
-    }
-
-    // ─── Contenu HTML : Boost Contact ────────────────────────────────────────
-
-    private static function buildBoostMailContent(?string $pseudo = null): string
-    {
-        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
-
-        return <<<HTML
-<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
-
-  <div style="background:#0d6efd;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
-    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
-    <h1 style="color:white;margin:0;font-size:24px;">📢 Renouvelez votre Boost Contact</h1>
-  </div>
-
-  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
-
-    <p>{$salutation}</p>
-
-    <p>Votre <strong>Boost Contact</strong> sur Dressur a expiré. Sans Boost actif, votre profil est moins visible auprès de vos futurs clients et partenaires.</p>
-
-    <div style="background:#e7f3ff;border-left:4px solid #0d6efd;padding:16px;border-radius:0 6px 6px 0;margin:20px 0;">
-      <strong style="color:#0d6efd;">Qu'est-ce que vous perdez sans Boost ?</strong>
-      <ul style="margin:8px 0 0;padding-left:20px;color:#495057;">
-        <li>Votre profil n'apparaît plus en priorité dans les recherches</li>
-        <li>Moins de demandes de contact directes</li>
-        <li>Vos concurrents boostés vous devancent</li>
-      </ul>
-    </div>
-
-    <p>Réactivez votre Boost dès maintenant et retrouvez votre visibilité sur la plateforme !</p>
-
-    <div style="text-align:center;margin:32px 0;">
-      <a href="https://dressur.site/boost"
-         style="display:inline-block;padding:14px 36px;background:#0d6efd;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
-        📢 Renouveler mon Boost Contact
-      </a>
-    </div>
-
-    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
-      <a href="https://dressur.site" style="color:#0d6efd;">dressur.site</a> —
-      <a href="mailto:dressur.ds@gmail.com" style="color:#0d6efd;">dressur.ds@gmail.com</a>
-    </p>
-
-  </div>
-</div>
-HTML;
-    }
-
-    // ─── Contenu HTML : Promotion Affaire ────────────────────────────────────
-
-    private static function buildPromoAffaireMailContent(?string $pseudo = null): string
-    {
-        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
-
-        return <<<HTML
-<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
-
-  <div style="background:#198754;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
-    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
-    <h1 style="color:white;margin:0;font-size:24px;">🎯 Relancez votre Promotion Affaire</h1>
-  </div>
-
-  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
-
-    <p>{$salutation}</p>
-
-    <p>Votre <strong>Promotion Affaire</strong> est arrivée à terme. C'est le moment idéal pour en lancer une nouvelle et remettre votre activité en avant auprès de toute la communauté Dressur !</p>
-
-    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-      <tr>
-        <td style="padding:12px;background:#f0fdf4;border-radius:6px;width:48%;vertical-align:top;border:1px solid #bbf7d0;">
-          <strong style="color:#198754;">📣 Produit ou Service</strong><br>
-          <span style="font-size:13px;color:#6c757d;">Mettez en avant vos offres directement auprès des acheteurs.</span>
-        </td>
-        <td style="width:4%;"></td>
-        <td style="padding:12px;background:#f0fdf4;border-radius:6px;width:48%;vertical-align:top;border:1px solid #bbf7d0;">
-          <strong style="color:#198754;">💼 Offre ou Demande d'emploi</strong><br>
-          <span style="font-size:13px;color:#6c757d;">Recrutez ou trouvez un poste dans votre domaine.</span>
-        </td>
-      </tr>
-    </table>
-
-    <p>Une promotion bien placée peut générer des dizaines de contacts qualifiés. Ne laissez pas vos concurrents occuper cet espace.</p>
-
-    <div style="text-align:center;margin:32px 0;">
-      <a href="https://dressur.site/promotion"
-         style="display:inline-block;padding:14px 36px;background:#198754;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
-        🎯 Lancer une nouvelle Promotion
-      </a>
-    </div>
-
-    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
-      <a href="https://dressur.site" style="color:#198754;">dressur.site</a> —
-      <a href="mailto:dressur.ds@gmail.com" style="color:#198754;">dressur.ds@gmail.com</a>
-    </p>
-
-  </div>
-</div>
-HTML;
-    }
-
-    // ─── Contenu HTML : Promotion Réseaux Sociaux ────────────────────────────
-
-    private static function buildPromoReseauMailContent(?string $pseudo = null): string
-    {
-        $salutation = $pseudo ? 'Bonjour <strong>' . htmlspecialchars($pseudo) . '</strong>,' : 'Bonjour,';
-
-        return <<<HTML
-<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#212529;">
-
-  <div style="background:#0dcaf0;padding:32px 24px;border-radius:8px 8px 0 0;text-align:center;">
-    <img src="https://dressur.site/images/logo.png" alt="Dressur" style="height:48px;margin-bottom:12px;" onerror="this.style.display='none'">
-    <h1 style="color:white;margin:0;font-size:24px;">📱 Boostez à nouveau vos réseaux !</h1>
-  </div>
-
-  <div style="background:#ffffff;padding:32px 24px;border:1px solid #dee2e6;border-top:none;">
-
-    <p>{$salutation}</p>
-
-    <p>Votre dernière <strong>Promotion Réseaux Sociaux</strong> est terminée. Votre compteur d'abonnés a progressé — il est temps de continuer sur cette lancée !</p>
-
-    <div style="background:#e0f9ff;border-left:4px solid #0dcaf0;padding:16px;border-radius:0 6px 6px 0;margin:20px 0;">
-      <strong style="color:#0dcaf0;">Nos services de promotion réseau</strong>
-      <ul style="margin:8px 0 0;padding-left:20px;color:#495057;">
-        <li><strong>TikTok</strong> — vues, likes, abonnés</li>
-        <li><strong>Instagram</strong> — followers, likes, commentaires</li>
-        <li><strong>YouTube</strong> — vues, abonnés, likes</li>
-        <li><strong>Facebook, Twitter et plus…</strong></li>
-      </ul>
-    </div>
-
-    <p>Commandez une nouvelle promotion en quelques clics et boostez votre présence en ligne dès aujourd'hui !</p>
-
-    <div style="text-align:center;margin:32px 0;">
-      <a href="https://dressur.site/promo-reseau"
-         style="display:inline-block;padding:14px 36px;background:#0dcaf0;color:white;text-decoration:none;border-radius:6px;font-weight:bold;font-size:16px;">
-        📱 Lancer une nouvelle Promo Réseau
-      </a>
-    </div>
-
-    <p style="color:#6c757d;font-size:13px;border-top:1px solid #dee2e6;padding-top:16px;margin-top:16px;">
-      <a href="https://dressur.site" style="color:#0dcaf0;">dressur.site</a> —
-      <a href="mailto:dressur.ds@gmail.com" style="color:#0dcaf0;">dressur.ds@gmail.com</a>
     </p>
 
   </div>
