@@ -1,0 +1,51 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Identités utilisées{% endblock %}
+
+{% block body %}
+    <div class="row g-2 mb-2 align-items-center">
+        <div class="col-md-7">
+            <p class="h4 me-3 text-primary mb-0">Identités utilisées</p>
+            <small class="text-muted">Numéros de téléphone et adresses e-mail déjà enregistrés dans Dressur.</small>
+        </div>
+        <div class="col-md-5 text-md-end">
+            <a class="btn btn-sm btn-warning" href="{{ path('app_crud_user_banned_liste') }}">Liste des bannis</a>
+            <a class="btn btn-sm btn-primary" href="{{ path('app_crud_user_index') }}">Retour aux utilisateurs</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Type</th>
+                    <th>Valeur</th>
+                    <th>Première utilisation</th>
+                    <th>Dernière utilisation</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for identity in identities %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            {% if identity.type == 'tel' %}
+                                <span class="badge bg-info text-dark">Téléphone</span>
+                            {% else %}
+                                <span class="badge bg-secondary">E-mail</span>
+                            {% endif %}
+                        </td>
+                        <td class="fw-semibold">{{ identity.value }}</td>
+                        <td>{{ identity.firstUsedAt ? identity.firstUsedAt|date('d/m/Y H:i') : '—' }}</td>
+                        <td>{{ identity.lastUsedAt ? identity.lastUsedAt|date('d/m/Y H:i') : '—' }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">Aucune identité mémorisée.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -8,6 +8,7 @@ use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Services\UserRestrictionService;
 use App\Repository\UserBannedRepository;
+use App\Repository\UserUsedIdentityRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
@@ -650,6 +651,16 @@ class CrudUserController extends AbstractController
     {
         return $this->render('crud_user/banned_user_liste.html.twig', [
             'usersBanned' => $userBannedRepository->findAllOrdered(),
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+        ]);
+    }
+
+    #[Route('/used-identities', name: 'app_crud_user_used_identity_liste', methods: ['GET'])]
+    public function used_identity_liste(UserUsedIdentityRepository $userUsedIdentityRepository): Response
+    {
+        return $this->render('crud_user/used_identity_liste.html.twig', [
+            'identities' => $userUsedIdentityRepository->findAllOrdered(),
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
         ]);

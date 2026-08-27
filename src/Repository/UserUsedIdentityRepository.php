@@ -27,6 +27,14 @@ class UserUsedIdentityRepository extends ServiceEntityRepository
         return $identity !== null && ($currentValue === null || $currentValue !== $value);
     }
 
+    /**
+     * @return UserUsedIdentity[]
+     */
+    public function findAllOrdered(): array
+    {
+        return $this->findBy([], ['type' => 'ASC', 'lastUsedAt' => 'DESC']);
+    }
+
     public function countAll(): int
     {
         return (int) $this->createQueryBuilder('identity')
