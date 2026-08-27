@@ -20,22 +20,11 @@ class Env
     #[ORM\Column(type: 'boolean', nullable: true)]
     private $importantUpdate;
 
-    #[ORM\Column(nullable: true)]
-    private array $usersTel = [];
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $versionDressurBot = null;
 
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private bool $iaActive = true;
-
-    public function addUsersTel($tel_or_mail): self
-    {
-        if (!in_array($tel_or_mail, $this->usersTel)) {
-            array_push($this->usersTel, $tel_or_mail);
-        }
-        return $this;
-    }
 
     public function getId(): ?int
     {
@@ -62,18 +51,6 @@ class Env
     public function setImportantUpdate(?bool $importantUpdate): self
     {
         $this->importantUpdate = $importantUpdate;
-
-        return $this;
-    }
-
-    public function getUsersTel(): array
-    {
-        return $this->usersTel;
-    }
-
-    public function setUsersTel(?array $usersTel): self
-    {
-        $this->usersTel = $usersTel;
 
         return $this;
     }

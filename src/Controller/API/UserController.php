@@ -7,6 +7,7 @@ use Exception;
 use App\Entity\User;
 use App\Entity\VerifMail;
 use App\Entity\Preference;
+use App\Entity\UserUsedIdentity;
 use App\Utilities\SendMail;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
@@ -27,6 +28,7 @@ use App\Utilities\UuidGenerator;
 use App\Services\TraitementsDS;
 use App\Services\VerificationsDS;
 use App\Services\UserRestrictionService;
+use App\Services\UserUsedIdentityService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -174,7 +176,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserInfo', name: 'updateUserInfo', methods: ['POST'])]
-    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, UserBannedRepository $userBannedRepository): Response
+    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, UserBannedRepository $userBannedRepository, UserUsedIdentityService $usedIdentityService): Response
     {
         $datas = $request->request;
 
@@ -249,6 +251,15 @@ class UserController extends AbstractController
             ]);
         }
 
+        $currentMail = $usedIdentityService->normalizeMail($user->getMail());
+        if ($usedIdentityService->isUsedByAnother(UserUsedIdentity::TYPE_MAIL, $mail, $currentMail)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Oups!',
+                'message' => "Cette adresse E-Mail a déjà été utilisée.",
+            ]);
+        }
+
         if(!$user->getAdmin() and !in_array($user->getMail(), ['dressur.ds@gmail.com', 'bluelife.tech@gmail.com', 'dklars.dev@gmail.com'])) {
             $verificationPseudo = $verificationsDS->verifPseudo($pseudo);
             if($verificationPseudo["error"] == true){
@@ -303,6 +314,15 @@ class UserController extends AbstractController
             $tel = $verificationNumTel["e164"];
             $paysTel = $verificationNumTel["country_code"];
 
+            $currentTel = $usedIdentityService->normalizeTel($user->getTel());
+            if ($usedIdentityService->isUsedByAnother(UserUsedIdentity::TYPE_TEL, $tel, $currentTel)) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Accès Refuser!',
+                    'message' => 'Ce numéro a déjà été utilisé.',
+                ]);
+            }
+
             $userTel = $userRepository->findOneBy(['tel' => $tel]);
             if($userTel) {
                 if($userTel->getUid() != $user->getUid()) {
@@ -316,7 +336,7 @@ class UserController extends AbstractController
             $user->setTel($tel)->setPays($paysTel)->setLid(null);
         }
 
-        $this->env->addUsersTel($tel);
+        $usedIdentityService->rememberUser($user);
         $this->em->flush();
 
         if ($user->getId()) {
@@ -713,7 +733,7 @@ class UserController extends AbstractController
     }   
 
     #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
-    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SendMail $sendMail, UserBannedRepository $userBannedRepository): Response
+    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SendMail $sendMail, UserBannedRepository $userBannedRepository, UserUsedIdentityService $usedIdentityService): Response
     {
         try {
         $datas = $request->request;
@@ -786,6 +806,22 @@ class UserController extends AbstractController
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 
         }
 
+        if($usedIdentityService->isUsedByAnother(UserUsedIdentity::TYPE_TEL, $tel)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Accès Refuser!',
+                'message' => 'Ce numéro a déjà été utilisé.',
+            ]);
+        }
+
+        if($usedIdentityService->isUsedByAnother(UserUsedIdentity::TYPE_MAIL, $mail)) {
+            return new JsonResponse([
+                'error' => true,
+                'titre' => 'Oups!',
+                'message' => "Cette adresse E-Mail a déjà été utilisée.",
+            ]);
+        }
+
         $userTel = $userRepository->findOneBy(['tel' => $tel]);
         if($userTel){
             return new JsonResponse([
@@ -850,10 +886,8 @@ class UserController extends AbstractController
             $existingCode = $userRepository->findOneBy(['codePartenaire' => $codePartenaire]);
         } while ($existingCode !== null);
         $user->setCodePartenaire($codePartenaire);
-        if(!in_array($tel, $this->env->getUsersTel())) {
-            $this->env->addUsersTel($tel);
-        }
         $this->em->persist($user);
+        $usedIdentityService->rememberUser($user);
 
         $preference = new Preference();
         $preference->setUser($user)

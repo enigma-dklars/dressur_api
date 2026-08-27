@@ -15,7 +15,7 @@
                     <th>V. App</th>
                     <th>ImportantUpdate</th>
                     <th>V. DS BOT</th>
-                    <th>UsersTel</th>
+                    <th>Identités utilisées</th>
                     <th>🤖 IA Active</th>
                 </tr>
             </thead>
@@ -29,8 +29,7 @@
                     <td>{{ env.versionApp }}</td>
                     <td>{{ env.importantUpdate ? 'Yes' : 'No' }}</td>
                     <td>{{ env.versionDressurBot }}</td>
-                    {# <td>{{ env.usersTel ? env.usersTel|json_encode : '' }}</td> #}
-                    <td>{{env.usersTel|length}}</td>
+                    <td>{{ usedIdentityCount }}</td>
                     <td>
                         {% if env.iaActive %}
                             <span class="badge bg-success">✅ Activé</span>

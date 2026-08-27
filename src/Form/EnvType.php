@@ -37,7 +37,6 @@ class EnvType extends AbstractType
                 ],
             ])
 
-            ->remove('usersTel')
         ;
     }
 

@@ -5,6 +5,7 @@ namespace App\Controller\Crud;
 use App\Entity\Env;
 use App\Form\EnvType;
 use App\Repository\EnvRepository;
+use App\Repository\UserUsedIdentityRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,12 +37,13 @@ class CrudEnvController extends AbstractController
     }
 
     #[Route('/', name: 'app_crud_env_index', methods: ['GET'])]
-    public function index(EnvRepository $envRepository): Response
+    public function index(EnvRepository $envRepository, UserUsedIdentityRepository $userUsedIdentityRepository): Response
     {
         return $this->render('crud_env/index.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'envs' => $envRepository->findAll(),
+            'usedIdentityCount' => $userUsedIdentityRepository->countAll(),
         ]);
     }
 
@@ -68,12 +70,13 @@ class CrudEnvController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_crud_env_show', methods: ['GET'])]
-    public function show(Env $env): Response
+    public function show(Env $env, UserUsedIdentityRepository $userUsedIdentityRepository): Response
     {
         return $this->render('crud_env/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
             'env' => $env,
+            'usedIdentityCount' => $userUsedIdentityRepository->countAll(),
         ]);
     }
 
