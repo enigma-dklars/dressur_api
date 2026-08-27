@@ -88,13 +88,13 @@
                                 '{uid}':    'Identifiant unique'
                             } %}
                                 <button type="button" class="btn btn-sm btn-outline-primary font-monospace"
-                                        onclick="insertVariable('{{ var }}', 'message')">
+                                        onclick="insertVariable('{{ var }}')">
                                     {{ var }}
                                     <span class="text-muted ms-1 fw-normal" style="font-family:sans-serif;font-size:11px;">{{ desc }}</span>
                                 </button>
                             {% endfor %}
                         </div>
-                        <div class="form-text mt-2">La variable peut aussi être utilisée dans le sujet.</div>
+                        <div class="form-text mt-2">La variable est insérée dans le dernier champ sélectionné : sujet ou corps du mail.</div>
                     </div>
 
                     <div class="d-grid">
@@ -185,6 +185,19 @@ function updateAudienceCount() {
 
 document.getElementById('audience').addEventListener('change', updateAudienceCount);
 
+let activeVariableField = null;
+
+function rememberVariableField(field) {
+    activeVariableField = field;
+}
+
+['subject', 'message'].forEach((fieldId) => {
+    const field = document.getElementById(fieldId);
+    ['focus', 'click', 'keyup', 'select'].forEach((eventName) => {
+        field.addEventListener(eventName, () => rememberVariableField(field));
+    });
+});
+
 const FAKE_DATA = {
     '{pseudo}': 'jean_dupont',
     '{nom}':    'Jean Dupont',
@@ -215,8 +228,8 @@ function updatePreview() {
     messagePreview.textContent = replaceFakeVariables(message);
 }
 
-function insertVariable(variable, targetId) {
-    const field = document.getElementById(targetId);
+function insertVariable(variable) {
+    const field = activeVariableField || document.getElementById('message');
     const start = field.selectionStart;
     const end = field.selectionEnd;
     field.value = field.value.substring(0, start) + variable + field.value.substring(end);
