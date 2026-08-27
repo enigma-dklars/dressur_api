@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\FormulePromoAffaireRepository;
+use App\Repository\PromotionRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/crud/formule/promo/affaire')]
@@ -98,9 +99,13 @@ class CrudFormulePromoAffaireController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_crud_formule_promo_affaire_delete', methods: ['POST'])]
-    public function delete(Request $request, FormulePromoAffaire $formulePromoAffaire, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, FormulePromoAffaire $formulePromoAffaire, EntityManagerInterface $entityManager, PromotionRepository $promotionRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$formulePromoAffaire->getId(), $request->request->get('_token'))) {
+            foreach ($promotionRepository->findBy(['formulePromoAffaire' => $formulePromoAffaire]) as $promotion) {
+                $promotion->setFormulePromoAffaire(null);
+            }
+
             $entityManager->remove($formulePromoAffaire);
             $entityManager->flush();
         }
