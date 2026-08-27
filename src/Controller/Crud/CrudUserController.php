@@ -7,7 +7,7 @@ use App\Form\UserType;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
 use App\Services\UserRestrictionService;
-use App\Repository\EnvRepository;
+use App\Repository\UserBannedRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
@@ -23,16 +23,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class CrudUserController extends AbstractController
 {
     private $em;
-    private $env;
     private $theme;
     private $cookieDS;
     private $traitementsDS;
     private $logger;
 
-    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, EnvRepository $env, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $em, CookieDS $cookieDS, TraitementsDS $traitementsDS, LoggerInterface $logger)
     {
         $this->em = $em;
-        $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
         $this->logger = $logger;
@@ -595,7 +593,7 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/banned', name: 'app_crud_user_banned', methods: ['GET', 'POST'])]
-    public function banned(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    public function banned(Request $request, UserRepository $userRepository, UserBannedRepository $userBannedRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
     {
         // Process the form submission
         if ($request->isMethod('POST')) {
@@ -615,10 +613,20 @@ class CrudUserController extends AbstractController
                 $this->addFlash('warning', count($found) . ' comptes trouvés pour "' . $input . '". Veuillez préciser la recherche avant de bannir.');
             } elseif (count($found) === 1) {
                 $user = array_values($found)[0];
-                $this->env->addUserBanned($user->getTel());
-                $this->env->addUserBanned($user->getMail());
-                $this->env->addUserBanned($motif);
-                $this->em->flush();
+                $tel = $userBannedRepository->normalizeTel($user->getTel());
+                $mail = $userBannedRepository->normalizeMail($user->getMail());
+                if ($tel === null && $mail === null) {
+                    $this->addFlash('danger', 'Impossible de bannir ce compte : aucun numéro ni e-mail exploitable.');
+                    return $this->redirectToRoute('app_crud_user_banned');
+                }
+
+                $banned = $userBannedRepository->findOneByIdentity($tel, $mail) ?? new \App\Entity\UserBanned();
+                $banned
+                    ->setTel($tel)
+                    ->setMail($mail)
+                    ->setMotif(trim((string) $motif));
+                $entityManager->persist($banned);
+                $entityManager->flush();
                 if (!$this->purgeUserSafely($traitementsDS, $user)) {
                     $this->addFlash('danger', 'La suppression du compte a échoué. Veuillez réessayer.');
                     return $this->redirectToRoute('app_crud_user_banned');
@@ -638,22 +646,10 @@ class CrudUserController extends AbstractController
     }
 
     #[Route('/banned-liste', name: 'app_crud_user_banned_liste', methods: ['GET', 'POST'])]
-    public function banned_liste(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, TraitementsDS $traitementsDS): Response
+    public function banned_liste(UserBannedRepository $userBannedRepository): Response
     {
-        $indice = count($this->env->getUserBanned()) / 3;
-        $organizedUserBanned = [];
-        for ($i = 0; $i < count($this->env->getUserBanned()); $i += 3) {
-            $bannedInfo = [
-                'indice' => $indice,
-                'tel' => $this->env->getUserBanned()[$i],
-                'mail' => $this->env->getUserBanned()[$i + 1],
-                'motif' => $this->env->getUserBanned()[$i + 2]
-            ];
-            $organizedUserBanned[] = $bannedInfo;
-            $indice--;
-        }
         return $this->render('crud_user/banned_user_liste.html.twig', [
-            'usersBanned' => $organizedUserBanned,
+            'usersBanned' => $userBannedRepository->findAllOrdered(),
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
         ]);

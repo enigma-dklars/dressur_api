@@ -10,6 +10,7 @@ use App\Entity\Preference;
 use App\Utilities\SendMail;
 use App\Repository\EnvRepository;
 use App\Repository\UserRepository;
+use App\Repository\UserBannedRepository;
 use App\Repository\VerifMailRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Contact;
@@ -173,7 +174,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/updateUserInfo', name: 'updateUserInfo', methods: ['POST'])]
-    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS): Response
+    public function updateUserInfo(Request $request, UserRepository $userRepository, VerificationsDS $verificationsDS, UserBannedRepository $userBannedRepository): Response
     {
         $datas = $request->request;
 
@@ -200,7 +201,15 @@ class UserController extends AbstractController
             }
         }
 
-        if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
+        $telForBanCheck = $tel;
+        if ($tel) {
+            $telVerification = $verificationsDS->verifFormatNumTel($tel);
+            if (($telVerification['error'] ?? true) === false) {
+                $telForBanCheck = $telVerification['e164'];
+            }
+        }
+
+        if($tel && ($userBannedRepository->existsByTel($telForBanCheck) || $userBannedRepository->existsByTel($tel))) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -208,7 +217,7 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($mail && $this->env->getUserBanned() && in_array($mail, $this->env->getUserBanned())) {
+        if($mail && $userBannedRepository->existsByMail($mail)) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -704,7 +713,7 @@ class UserController extends AbstractController
     }   
 
     #[Route('/inscriptionDS', name: 'inscriptionDS', methods: ['POST'])]
-    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SendMail $sendMail): Response
+    public function inscriptionDS(Request $request, UserRepository $userRepository, TraitementsDS $traitementsDS, VerificationsDS $verificationsDS, SendMail $sendMail, UserBannedRepository $userBannedRepository): Response
     {
         try {
         $datas = $request->request;
@@ -750,7 +759,14 @@ class UserController extends AbstractController
             ]);
         }
         
-        if($tel && $this->env->getUserBanned() && in_array($tel, $this->env->getUserBanned())) {
+        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
+        if($verificationNumTel["error"] == true){
+            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
+        }
+        $tel = $verificationNumTel["e164"];
+        $paysTel = $verificationNumTel["country_code"];
+
+        if($userBannedRepository->existsByTel($tel)) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
@@ -758,20 +774,13 @@ class UserController extends AbstractController
             ]);
         }
 
-        if($mail && $this->env->getUserBanned() && in_array($mail, $this->env->getUserBanned())) {
+        if($userBannedRepository->existsByMail($mail)) {
             return new JsonResponse([
                 'error' => true,
                 'titre' => 'Erreur!',
                 'message' => "Cette adresse mail a été banni de Dressur. Contactez l'assistance s'il s'agit d'une erreur.",
             ]);
         }
-
-        $verificationNumTel = $verificationsDS->verifFormatNumTel($tel);
-        if($verificationNumTel["error"] == true){
-            return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir un numéro de téléphone valide précédé de son préfix."]);
-        }
-        $tel = $verificationNumTel["e164"];
-        $paysTel = $verificationNumTel["country_code"];
 
         if (!$verificationsDS->verifMail($mail)) {
             return new JsonResponse(['error' => true,'titre' => 'Attention!','message' => "Veuillez saisir une adresse E-Mail valide.",]); 

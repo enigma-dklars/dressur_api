@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Repository\BoostRepository;
 use App\Repository\DeletedDSRepository;
-use App\Repository\EnvRepository;
+use App\Repository\UserBannedRepository;
 use App\Repository\FormuleBoostRepository;
 use App\Repository\FormulePromoAffaireRepository;
 use App\Repository\FormulePromoReseauRepository;
@@ -30,16 +30,14 @@ use Symfony\Contracts\Cache\ItemInterface;
 class PrivateController extends AbstractController
 {
     private $em;
-    private $env;
     private $theme;
     private $cookieDS;
     private $traitementsDS;
     private $userRepository;
 
-    public function __construct(EntityManagerInterface $em, EnvRepository $env, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository)
+    public function __construct(EntityManagerInterface $em, UserRepository $userRepository, CookieDS $cookieDS, TraitementsDS $traitementsDS, FormulePromoReseauRepository $formulePromoReseauRepository)
     {
         $this->em = $em;
-        $this->env = $env->find(1);
         $this->cookieDS = $cookieDS;
         $this->traitementsDS = $traitementsDS;
         $this->userRepository = $userRepository;
@@ -178,7 +176,7 @@ class PrivateController extends AbstractController
     }
 
     #[Route('/private', name: 'app_private')]
-    public function index(CookieDS $cookieDS, UserRepository $userRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, StoryRepository $storyRepository): Response
+    public function index(CookieDS $cookieDS, UserRepository $userRepository, UserBannedRepository $userBannedRepository, TraitementsDS $traitementsDS, PromotionRepository $promotionRepository, PromoReseauRepository $promoReseauRepository, UserBotRepository $userBotRepository, DeletedDSRepository $deletedDSRepository, BoostRepository $boostRepository, StoryRepository $storyRepository): Response
     {
         if($cookieDS->get("uid")){
             $uid = $cookieDS->get("uid");
@@ -312,7 +310,7 @@ class PrivateController extends AbstractController
                     'nbr_user'                   => $s['nbr_user'],
                     'nbr_user_bot'               => $s['nbr_user_bot'],
                     'deleted_users'              => $s['deleted_users'],
-                    'banned_users' => count($this->env->getUserBanned()) / 3,
+                    'banned_users' => $userBannedRepository->countAll(),
                     'encour_boost' => $traitementsDS->getBoostEnCoursCount(),
                     'programmer_boost' => $traitementsDS->getAddProgrammer(),
                     'encour_affaire'             => $s['encour_affaire'],

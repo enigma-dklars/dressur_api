@@ -26,9 +26,6 @@ class Env
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $versionDressurBot = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?array $userBanned = null;
-
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
     private bool $iaActive = true;
 
@@ -36,17 +33,6 @@ class Env
     {
         if (!in_array($tel_or_mail, $this->usersTel)) {
             array_push($this->usersTel, $tel_or_mail);
-        }
-        return $this;
-    }
-
-    public function addUserBanned($tel_or_mail): self
-    {
-        if($this->userBanned == Null) {
-            $this->userBanned = [];
-        }
-        if (!in_array($tel_or_mail, $this->userBanned)) {
-            array_push($this->userBanned, $tel_or_mail);
         }
         return $this;
     }
@@ -100,18 +86,6 @@ class Env
     public function setVersionDressurBot(?string $versionDressurBot): static
     {
         $this->versionDressurBot = $versionDressurBot;
-
-        return $this;
-    }
-
-    public function getUserBanned(): ?array
-    {
-        return $this->userBanned;
-    }
-
-    public function setUserBanned(?array $userBanned): static
-    {
-        $this->userBanned = $userBanned;
 
         return $this;
     }

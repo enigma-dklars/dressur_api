@@ -24,13 +24,12 @@
             <tbody>
                 {% for item in usersBanned %}
                     <tr>
-                        <td>{{item.indice}}</td>
-                        <td>{{item.tel}}</td>
-                        <td>{{item.mail}}</td>
+                        <td>{{ loop.revindex }}</td>
+                        <td>{{ item.tel|default('—') }}</td>
+                        <td>{{ item.mail|default('—') }}</td>
                         <td>
-                            <div>
-                                {{item.motif}}
-                            </div>
+                            <div>{{ item.motif|default('—') }}</div>
+                            {% if item.createdAt %}<small class="text-muted">{{ item.createdAt|date('d/m/Y H:i') }}</small>{% endif %}
                         </td>
                     </tr>
                 {% endfor %}
