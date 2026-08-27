@@ -135,19 +135,7 @@ class CrudFormuleBoostController extends AbstractController
             $entityManager->remove($formuleBoost);
             $entityManager->flush();
 
-            $notification = $boostCount > 0
-                ? sprintf(
-                    'La formule Boost Contact « %s » a été supprimée et remplacée par « %s » pour %d Boost(s) existant(s).',
-                    $formuleBoost->getTitre(),
-                    $replacement->getTitre(),
-                    $boostCount
-                )
-                : sprintf(
-                    'La formule Boost Contact « %s » a été supprimée. Aucun Boost existant n’était lié à cette formule.',
-                    $formuleBoost->getTitre()
-                );
 
-            $this->addFlash('success', $notification);
         }
 
         return $this->redirectToRoute('app_crud_formule_boost_index', [], Response::HTTP_SEE_OTHER);

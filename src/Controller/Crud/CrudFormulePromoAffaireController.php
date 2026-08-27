@@ -103,7 +103,6 @@ class CrudFormulePromoAffaireController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete'.$formulePromoAffaire->getId(), $request->request->get('_token'))) {
             $promotions = $promotionRepository->findBy(['formulePromoAffaire' => $formulePromoAffaire]);
-            $detachedPromotionCount = count($promotions);
 
             foreach ($promotions as $promotion) {
                 $promotion->setFormulePromoAffaire(null);
@@ -111,15 +110,6 @@ class CrudFormulePromoAffaireController extends AbstractController
 
             $entityManager->remove($formulePromoAffaire);
             $entityManager->flush();
-
-            $this->addFlash(
-                'success',
-                sprintf(
-                    'La formule de promotion affaire « %s » a été supprimée. %d promotion(s) affaire ont été conservée(s) et leur formule a été passée à NULL.',
-                    $formulePromoAffaire->getTitre(),
-                    $detachedPromotionCount
-                )
-            );
         }
 
         return $this->redirectToRoute('app_crud_formule_promo_affaire_index', [], Response::HTTP_SEE_OTHER);
