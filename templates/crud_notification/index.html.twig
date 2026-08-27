@@ -1,310 +1,59 @@
 {% extends 'baseAdmin.html.twig' %}
 
-{% block title %}Notifications{% endblock %}
+{% block title %}Notification index{% endblock %}
 
 {% block body %}
-<style>
-    .notification-admin-page .notification-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
-        margin-bottom: 22px;
-    }
-
-    .notification-admin-page .notification-eyebrow {
-        color: #64748b;
-        font-size: .7rem;
-        font-weight: 700;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-    }
-
-    .notification-admin-page h1 {
-        margin: 4px 0 6px;
-        color: #172033;
-        font-size: 1.45rem;
-        font-weight: 700;
-    }
-
-    .notification-admin-page .notification-intro {
-        margin: 0;
-        color: #64748b;
-        font-size: .84rem;
-    }
-
-    .notification-admin-page .notification-retention {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 8px 11px;
-        color: #475569;
-        border: 1px solid rgba(15, 23, 42, .08);
-        border-radius: 10px;
-        background: #f8fafc;
-        font-size: .75rem;
-        white-space: nowrap;
-    }
-
-    .notification-admin-page .notification-card {
-        overflow: hidden;
-        border: 1px solid rgba(15, 23, 42, .08);
-        border-radius: 15px;
-        background: #fff;
-        box-shadow: 0 10px 28px rgba(15, 23, 42, .06);
-    }
-
-    .notification-admin-page .notification-card-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 15px 18px;
-        border-bottom: 1px solid rgba(15, 23, 42, .08);
-    }
-
-    .notification-admin-page .notification-card-header strong {
-        color: #172033;
-        font-size: .88rem;
-    }
-
-    .notification-admin-page .notification-count {
-        color: #2563eb;
-        font-size: .75rem;
-        font-weight: 700;
-    }
-
-    .notification-admin-page .notification-table {
-        margin-bottom: 0;
-        vertical-align: middle;
-    }
-
-    .notification-admin-page .notification-table th {
-        padding: 11px 18px;
-        color: #64748b;
-        border-bottom-width: 1px;
-        font-size: .68rem;
-        font-weight: 700;
-        letter-spacing: .06em;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
-    .notification-admin-page .notification-table td {
-        padding: 14px 18px;
-        color: #334155;
-        font-size: .82rem;
-    }
-
-    .notification-admin-page .notification-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-    .notification-admin-page .notification-message {
-        min-width: 280px;
-        color: #172033;
-        font-weight: 500;
-        line-height: 1.55;
-    }
-
-    .notification-admin-page .notification-user {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        min-width: 180px;
-    }
-
-    .notification-admin-page .notification-user-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        color: #2563eb;
-        border-radius: 9px;
-        background: rgba(37, 99, 235, .1);
-        font-size: .75rem;
-    }
-
-    .notification-admin-page .notification-user-name {
-        color: #172033;
-        font-weight: 600;
-    }
-
-    .notification-admin-page .notification-user-contact {
-        margin-top: 2px;
-        color: #64748b;
-        font-size: .7rem;
-    }
-
-    .notification-admin-page .notification-kind {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 5px 8px;
-        color: #475569;
-        border-radius: 999px;
-        background: #f1f5f9;
-        font-size: .68rem;
-        font-weight: 600;
-        white-space: nowrap;
-    }
-
-    .notification-admin-page .notification-kind.is-global {
-        color: #7c3aed;
-        background: rgba(124, 58, 237, .1);
-    }
-
-    .notification-admin-page .notification-date {
-        color: #64748b;
-        font-size: .75rem;
-        white-space: nowrap;
-    }
-
-    .notification-admin-page .notification-empty {
-        padding: 64px 20px;
-        color: #64748b;
-        text-align: center;
-    }
-
-    .notification-admin-page .notification-empty i {
-        display: block;
-        margin-bottom: 12px;
-        color: #94a3b8;
-        font-size: 2rem;
-    }
-
-    html.dark-theme .notification-admin-page .notification-eyebrow,
-    html.dark-theme .notification-admin-page .notification-intro,
-    html.dark-theme .notification-admin-page .notification-date,
-    html.dark-theme .notification-admin-page .notification-user-contact,
-    html.dark-theme .notification-admin-page .notification-table th {
-        color: #b9c6d6;
-    }
-
-    html.dark-theme .notification-admin-page h1,
-    html.dark-theme .notification-admin-page .notification-card-header strong,
-    html.dark-theme .notification-admin-page .notification-message,
-    html.dark-theme .notification-admin-page .notification-user-name {
-        color: #f3f6fb;
-    }
-
-    html.dark-theme .notification-admin-page .notification-retention,
-    html.dark-theme .notification-admin-page .notification-kind,
-    html.dark-theme .notification-admin-page .notification-card,
-    html.dark-theme .notification-admin-page .notification-user-icon {
-        border-color: rgba(255, 255, 255, .11);
-        background: #202a40;
-    }
-
-    html.dark-theme .notification-admin-page .notification-card-header,
-    html.dark-theme .notification-admin-page .notification-table td,
-    html.dark-theme .notification-admin-page .notification-table th {
-        border-color: rgba(255, 255, 255, .11);
-    }
-
-    html.dark-theme .notification-admin-page .notification-table td {
-        color: #e2e8f0;
-    }
-
-    html.dark-theme .notification-admin-page .notification-kind.is-global {
-        color: #c4b5fd;
-        background: rgba(124, 58, 237, .2);
-    }
-
-    @media (max-width: 767.98px) {
-        .notification-admin-page .notification-header {
-            flex-direction: column;
-        }
-
-        .notification-admin-page .notification-retention {
-            width: 100%;
-            white-space: normal;
-        }
-
-        .notification-admin-page .notification-card {
-            overflow-x: auto;
-        }
-
-        .notification-admin-page .notification-table {
-            min-width: 760px;
-        }
-    }
-</style>
-
-<div class="notification-admin-page">
-    <div class="notification-header">
-        <div>
-            <div class="notification-eyebrow"><i class="fas fa-shield-halved me-1"></i>Administration</div>
-            <h1><i class="fas fa-bell text-primary me-2"></i>Notifications</h1>
-            <p class="notification-intro">Consultez les notifications envoyées aux utilisateurs et les messages globaux de la plateforme.</p>
-        </div>
-        <div class="notification-retention">
-            <i class="fas fa-clock text-primary"></i>
-            Nettoyage automatique : notifications de plus de 6 mois
-        </div>
+    <div class="d-flex align-items-center mb-3">
+        <p class="h4 me-3 mb-0">Notification index</p>
+        <span class="badge bg-secondary">{{ notifications|length }} notification(s)</span>
     </div>
 
-    <div class="notification-card">
-        <div class="notification-card-header">
-            <strong><i class="fas fa-list-ul text-primary me-2"></i>Historique récent</strong>
-            <span class="notification-count">{{ notifications|length }} notification(s)</span>
-        </div>
-
-        {% if notifications|length > 0 %}
-            <div class="table-responsive">
-                <table class="table table-hover notification-table">
-                    <thead>
-                        <tr>
-                            <th>Notification</th>
-                            <th>Destinataire</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for notification in notifications %}
-                        <tr>
-                            <td class="notification-message">{{ notification.text }}</td>
-                            <td>
-                                {% if notification.user %}
-                                    <div class="notification-user">
-                                        <span class="notification-user-icon"><i class="fas fa-user"></i></span>
-                                        <div>
-                                            <div class="notification-user-name">{{ notification.user.pseudo|default('Utilisateur') }}</div>
-                                            {% if notification.user.mail %}
-                                                <div class="notification-user-contact">{{ notification.user.mail }}</div>
-                                            {% elseif notification.user.tel %}
-                                                <div class="notification-user-contact">{{ notification.user.tel }}</div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                {% else %}
-                                    <span class="notification-user-contact">—</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if notification.user %}
-                                    <span class="notification-kind"><i class="fas fa-user"></i>Personnelle</span>
-                                {% else %}
-                                    <span class="notification-kind is-global"><i class="fas fa-globe"></i>Globale</span>
-                                {% endif %}
-                            </td>
-                            <td class="notification-date">
-                                {{ notification.createdAt ? notification.createdAt|date('d/m/Y H:i') : '—' }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        {% else %}
-            <div class="notification-empty">
-                <i class="fas fa-bell-slash"></i>
-                <div>Aucune notification récente.</div>
-            </div>
-        {% endif %}
+    <div class="table-responsive">
+        <table class="data-table table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Notification</th>
+                    <th>User</th>
+                    <th>Type</th>
+                    <th>CreatedAt</th>
+                    <th>Id</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for notification in notifications %}
+                <tr>
+                    <td>{{ notification.text }}</td>
+                    <td>
+                        {% if notification.user %}
+                            {% if notification.user.pseudo %}
+                                {{ notification.user.pseudo }}
+                            {% elseif notification.user.mail %}
+                                {{ notification.user.mail }}
+                            {% elseif notification.user.tel %}
+                                {{ notification.user.tel }}
+                            {% else %}
+                                Utilisateur
+                            {% endif %}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if notification.user %}
+                            <span class="badge bg-primary">personal</span>
+                        {% else %}
+                            <span class="badge bg-secondary">global</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ notification.createdAt ? notification.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    <td>{{ notification.id }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
-</div>
 {% endblock %}
