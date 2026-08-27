@@ -102,8 +102,23 @@ class CrudFormulePromoAffaireController extends AbstractController
     public function delete(Request $request, FormulePromoAffaire $formulePromoAffaire, EntityManagerInterface $entityManager, PromotionRepository $promotionRepository): Response
     {
         if ($this->isCsrfTokenValid('delete'.$formulePromoAffaire->getId(), $request->request->get('_token'))) {
-            foreach ($promotionRepository->findBy(['formulePromoAffaire' => $formulePromoAffaire]) as $promotion) {
+            $promotions = $promotionRepository->findBy(['formulePromoAffaire' => $formulePromoAffaire]);
+            $detachedPromotionCount = count($promotions);
+
+            foreach ($promotions as $promotion) {
                 $promotion->setFormulePromoAffaire(null);
+            }
+
+            $admin = $this->traitementsDS->getUserByUidInCookies();
+            if ($admin) {
+                $this->traitementsDS->addNotification(
+                    sprintf(
+                        'La formule de promotion affaire « %s » a été supprimée. %d promotion(s) affaire ont été conservée(s) et leur formule a été passée à NULL.',
+                        $formulePromoAffaire->getTitre(),
+                        $detachedPromotionCount
+                    ),
+                    $admin
+                );
             }
 
             $entityManager->remove($formulePromoAffaire);
