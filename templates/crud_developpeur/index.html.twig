@@ -1,0 +1,86 @@
+{% block title %}Espace développeur{% endblock %}
+
+{% block body %}
+<div class="container-fluid py-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+        <div>
+            <h1 class="h4 mb-1">Profils développeur</h1>
+            <p class="text-muted mb-0">Suspendre ou révoquer les accès API sans exposer les secrets.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            {% for value, label in {'': 'Tous', 'pending': 'En attente', 'active': 'Actifs', 'suspended': 'Suspendus', 'revoked': 'Révoqués'} %}
+                <a class="badge text-decoration-none {{ statusFilter == value ? 'bg-primary text-white' : 'bg-secondary text-white' }}" href="{{ path('app_crud_developpeur_index', value == '' ? {} : {'status': value}) }}">{{ label }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+            <tr>
+                <th>Utilisateur</th>
+                <th>Statut</th>
+                <th>Activation</th>
+                <th>Clés</th>
+                <th>Dernière mise à jour</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for profile in profiles %}
+                <tr>
+                    <td>
+                        <strong>{{ profile.user.pseudo|default('Utilisateur') }}</strong><br>
+                        <small class="text-muted">{{ profile.user.email|default('') }}</small>
+                    </td>
+                    <td>
+                        {% set statusClass = profile.status == 'active' ? 'success' : (profile.status == 'suspended' ? 'warning' : (profile.status == 'revoked' ? 'danger' : 'secondary')) %}
+                        <span class="badge bg-{{ statusClass }}">{{ profile.status }}</span>
+                    </td>
+                    <td>
+                        {{ profile.activationAmount|default(0) }} FCFA<br>
+                        <small class="text-muted">{{ profile.activationTransactionReference|default('—') }}</small>
+                    </td>
+                    <td>
+                        {% for key in profile.apiKeys %}
+                            <div class="small mb-1">
+                                <code>{{ key.keyId }}</code>
+                                <span class="badge {{ key.revokedAt ? 'bg-secondary' : 'bg-success' }}">{{ key.revokedAt ? 'révoquée' : 'active' }}</span>
+                            </div>
+                        {% else %}
+                            <span class="text-muted">Aucune clé</span>
+                        {% endfor %}
+                    </td>
+                    <td>{{ profile.updatedAt|date('Y-m-d H:i:s') }}</td>
+                    <td>
+                        {% if profile.status != 'suspended' and profile.status != 'revoked' %}
+                            <form method="post" action="{{ path('app_crud_developpeur_status', {'id': profile.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('developer_status_' ~ profile.id) }}">
+                                <input type="hidden" name="status" value="suspended">
+                                <button class="btn btn-sm btn-warning" type="submit">Suspendre</button>
+                            </form>
+                        {% endif %}
+                        {% if profile.status == 'suspended' %}
+                            <form method="post" action="{{ path('app_crud_developpeur_status', {'id': profile.id}) }}" class="d-inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('developer_status_' ~ profile.id) }}">
+                                <input type="hidden" name="status" value="active">
+                                <button class="btn btn-sm btn-success" type="submit">Réactiver</button>
+                            </form>
+                        {% endif %}
+                        {% if profile.status != 'revoked' %}
+                            <form method="post" action="{{ path('app_crud_developpeur_status', {'id': profile.id}) }}" class="d-inline" onsubmit="return confirm('Révoquer le profil et toutes ses clés ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('developer_status_' ~ profile.id) }}">
+                                <input type="hidden" name="status" value="revoked">
+                                <button class="btn btn-sm btn-danger" type="submit">Révoquer</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="text-center text-muted">Aucun profil développeur.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

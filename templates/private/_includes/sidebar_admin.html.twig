@@ -24,6 +24,7 @@
 {% set is_signalement = r starts with 'app_crud_signalement' %}
 {% set is_notification = r starts with 'app_crud_notification' %}
 {% set is_comm_mail   = r starts with 'app_communication_mail' %}
+{% set is_developpeur  = r starts with 'app_crud_developpeur' %}
 {% set is_story       = r starts with 'app_crud_story' %}
 
 <aside class="sidebar-wrapper" data-simplebar="true">
@@ -64,6 +65,7 @@
       <li class="my-0 {{ r == 'app_crud_user_banned_liste' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_banned_liste')}}" class="py-1 small-fort bg-warning text-dark {{ r == 'app_crud_user_banned_liste' ? 'active' : '' }}"><i class="me-2 fas fa-ban"></i>Liste des bannis</a></li>
       <li class="my-0 {{ r == 'app_crud_user_used_identity_liste' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_used_identity_liste')}}" class="py-1 small-fort bg-secondary text-white {{ r == 'app_crud_user_used_identity_liste' ? 'active' : '' }}"><i class="me-2 fas fa-address-book"></i>Identités utilisées</a></li>
       <li class="my-0 {{ r starts with 'app_crud_user_restriction' ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_restrictions')}}" class="py-1 small-fort bg-info text-white {{ r starts with 'app_crud_user_restriction' ? 'active' : '' }}"><i class="me-2 fas fa-shield-halved"></i>Restrictions</a></li>
+      <li class="my-0 {{ is_developpeur ? 'mm-active' : '' }}"> <a href="{{path('app_crud_developpeur_index')}}" class="py-1 small-fort bg-success text-white {{ is_developpeur ? 'active' : '' }}"><i class="me-2 fas fa-code"></i>Espace développeur</a></li>
       <li class="my-0 {{ is_user_bot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_user_bot_index')}}" class="py-1 small-fort {{ is_user_bot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Users DS Bot</a></li>
 
       <hr class="my-2">

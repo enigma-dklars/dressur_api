@@ -12,6 +12,7 @@ use App\Repository\PromoReseauRepository;
 use App\Services\DeveloperApiKeyService;
 use App\Services\DeveloperOrderService;
 use App\Services\DeveloperApiProtectionService;
+use App\Services\DeveloperApiAuditService;
 use App\Services\DeveloperOrderStatusService;
 use App\Services\InsufficientBalanceException;
 use App\Services\ProviderUnavailableException;
@@ -36,6 +37,7 @@ class DeveloperPublicApiController extends AbstractController
         private readonly PromotionReseauPricing $pricing,
         private readonly TraitementsDS $traitementsDS,
         private readonly DeveloperOrderService $orderService,
+        private readonly DeveloperApiAuditService $auditService,
     ) {
     }
 
@@ -75,7 +77,7 @@ class DeveloperPublicApiController extends AbstractController
             ];
         }
 
-        $this->flushKeyUsage($apiKey);
+        $this->flushKeyUsage($apiKey, $request, Response::HTTP_OK);
 
         return new JsonResponse([
             'error' => false,
@@ -92,7 +94,7 @@ class DeveloperPublicApiController extends AbstractController
         }
 
         $user = $apiKey->getDeveloperProfile()->getUser();
-        $this->flushKeyUsage($apiKey);
+        $this->flushKeyUsage($apiKey, $request, Response::HTTP_OK);
 
         return new JsonResponse([
             'error' => false,
@@ -112,7 +114,7 @@ class DeveloperPublicApiController extends AbstractController
         $user = $apiKey->getDeveloperProfile()->getUser();
         $limit = min(100, max(1, (int)$request->query->get('limit', 50)));
         $orders = $this->promoRepository->findBy(['user' => $user, 'source' => 'api'], ['id' => 'DESC'], $limit);
-        $this->flushKeyUsage($apiKey);
+        $this->flushKeyUsage($apiKey, $request, Response::HTTP_OK);
 
         return new JsonResponse([
             'error' => false,
@@ -150,7 +152,7 @@ class DeveloperPublicApiController extends AbstractController
         }
 
         $result = $statusService->getStatuses([$order]);
-        $this->flushKeyUsage($apiKey);
+        $this->flushKeyUsage($apiKey, $request, Response::HTTP_OK);
         $status = $result['statuses'][$reference] ?? null;
 
         return new JsonResponse([
@@ -196,7 +198,7 @@ class DeveloperPublicApiController extends AbstractController
             'source' => 'api',
         ]);
         $result = $statusService->getStatuses($orders);
-        $this->flushKeyUsage($apiKey);
+        $this->flushKeyUsage($apiKey, $request, Response::HTTP_OK);
 
         return new JsonResponse([
             'error' => false,
@@ -223,7 +225,7 @@ class DeveloperPublicApiController extends AbstractController
             return $this->errorResponse('Commande introuvable.', Response::HTTP_NOT_FOUND);
         }
 
-        $this->flushKeyUsage($apiKey);
+        $this->flushKeyUsage($apiKey, $request, Response::HTTP_OK);
         return new JsonResponse([
             'error' => false,
             'order' => $this->serializeOrder($order),
@@ -405,8 +407,9 @@ class DeveloperPublicApiController extends AbstractController
         return $apiKey;
     }
 
-    private function flushKeyUsage($apiKey): void
+    private function flushKeyUsage($apiKey, Request $request, int $responseStatus): void
     {
+        $this->auditService->record($apiKey, $request, $responseStatus);
         $this->entityManager->flush();
     }
 
