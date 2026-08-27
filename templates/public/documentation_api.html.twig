@@ -1,0 +1,106 @@
+{% block title %}Documentation API développeur | Dressur{% endblock %}
+
+{% block body %}
+<div class="container py-4" style="max-width: 1050px">
+    <div class="p-4 p-lg-5 rounded-4 bg-primary text-white mb-4">
+        <span class="badge bg-white text-primary mb-3">Dressur API v1</span>
+        <h1 class="display-6 fw-bold">Documentation développeur</h1>
+        <p class="lead mb-0">Une API HTTP/JSON universelle pour créer et suivre vos Promotions Réseaux Sociaux Dressur.</p>
+    </div>
+
+    <div class="alert alert-info"><strong>Accès privé :</strong> toutes les routes v1 nécessitent un token Bearer créé depuis votre Espace développeur. Aucun prix, statut ou identifiant fournisseur ne peut être envoyé par le client.</div>
+
+    <section class="card shadow-sm border-0 mb-3"><div class="card-body">
+        <h2 class="h4">Base et authentification</h2>
+        <p>Base URL : <code>https://dressur.site</code>. Ajoutez cet en-tête à chaque requête :</p>
+        <pre class="bg-dark text-light rounded p-3"><code>Authorization: Bearer drk_demo_key.demo_secret
+Accept: application/json</code></pre>
+        <p class="mb-0">Le token ci-dessus est fictif. Ne partagez jamais une clé réelle. Le secret complet est affiché uniquement lors de la création de la clé.</p>
+    </div></section>
+
+    <section class="card shadow-sm border-0 mb-3"><div class="card-body">
+        <h2 class="h4">Catalogue</h2>
+        <p><code>GET /api/v1/developer/catalog</code> retourne les formules disponibles, les quantités min/max, le prix calculé pour votre profil et si les commentaires sont requis.</p>
+        <pre class="bg-dark text-light rounded p-3"><code>GET /api/v1/developer/catalog HTTP/1.1
+Host: dressur.site
+Authorization: Bearer drk_demo_key.demo_secret
+
+{
+  "error": false,
+  "services": [{
+    "id": 12,
+    "title": "Instagram : Engagement",
+    "minimumQuantity": 100,
+    "maximumQuantity": 10000,
+    "price": 1500,
+    "currency": "XOF",
+    "commentsRequired": true
+  }]
+}</code></pre>
+    </div></section>
+
+    <section class="card shadow-sm border-0 mb-3"><div class="card-body">
+        <h2 class="h4">Solde et création d’une commande</h2>
+        <p><code>GET /api/v1/developer/balance</code> retourne le solde commun <strong>soldeDressur</strong>. Pour créer une commande, envoyez du JSON à <code>POST /api/v1/developer/orders</code> et rendez l’en-tête <code>Idempotency-Key</code> obligatoire.</p>
+        <pre class="bg-dark text-light rounded p-3"><code>POST /api/v1/developer/orders HTTP/1.1
+Host: dressur.site
+Authorization: Bearer drk_demo_key.demo_secret
+Content-Type: application/json
+Idempotency-Key: commande-client-2026-0001
+
+{
+  "formuleId": 12,
+  "quantity": 500,
+  "link": "https://www.example.com/publication/123",
+  "comments": ["Très bon contenu", "À découvrir"]
+}</code></pre>
+        <p>Le serveur recalcule le prix, applique le prix vendeur si votre compte possède ce statut et duplique cycliquement les lignes de commentaires jusqu’à la quantité demandée. Le nombre de commentaires envoyé ne peut pas dépasser la quantité.</p>
+        <p class="mb-0">Une clé réutilisée avec le même contenu rejoue la même réponse. La même clé avec un contenu différent est refusée.</p>
+    </div></section>
+
+    <section class="card shadow-sm border-0 mb-3"><div class="card-body">
+        <h2 class="h4">Réponses et erreurs</h2>
+        <div class="table-responsive"><table class="table align-middle"><thead><tr><th>HTTP</th><th>Signification</th></tr></thead><tbody>
+            <tr><td><code>201</code></td><td>Commande créée et débitée après confirmation du service.</td></tr>
+            <tr><td><code>402</code></td><td>Solde Dressur insuffisant : aucune commande, aucun débit et aucun appel de service ne sont effectués.</td></tr>
+            <tr><td><code>409</code></td><td>La même clé d’idempotence est déjà en cours de finalisation.</td></tr>
+            <tr><td><code>429</code></td><td>Limite de polling atteinte. Respectez <code>Retry-After</code> et <code>nextCheckAt</code>.</td></tr>
+            <tr><td><code>503</code></td><td>Service momentanément indisponible. Le détail technique n’est jamais exposé.</td></tr>
+        </tbody></table></div>
+    </div></section>
+
+    <section class="card shadow-sm border-0 mb-3"><div class="card-body">
+        <h2 class="h4">Historique et statut</h2>
+        <p><code>GET /api/v1/developer/orders</code> liste vos commandes. <code>GET /api/v1/developer/orders/{reference}</code> retourne une commande précise.</p>
+        <p>Pour le polling, utilisez <code>GET /api/v1/developer/orders/{reference}/status</code>. Dressur met en cache le résultat au moins 15 secondes et renvoie notamment <code>status</code>, <code>nextCheckAt</code> et <code>retryAfter</code>. N’interrogez pas plus souvent que le délai indiqué.</p>
+        <pre class="bg-dark text-light rounded p-3"><code>GET /api/v1/developer/orders/pr_0123456789abcdef01234567/status HTTP/1.1
+Host: dressur.site
+Authorization: Bearer drk_demo_key.demo_secret
+
+{
+  "error": false,
+  "order": {
+    "reference": "pr_0123456789abcdef01234567",
+    "status": "in_progress",
+    "nextCheckAt": "2026-08-27T12:00:15+00:00",
+    "retryAfter": 15,
+    "isFinal": false
+  }
+}</code></pre>
+    </div></section>
+
+    <section class="card shadow-sm border-0 mb-3"><div class="card-body">
+        <h2 class="h4">Statuts groupés</h2>
+        <p><code>POST /api/v1/developer/orders/status-batch</code> accepte au maximum 50 références appartenant à votre compte.</p>
+        <pre class="bg-dark text-light rounded p-3"><code>POST /api/v1/developer/orders/status-batch HTTP/1.1
+Host: dressur.site
+Authorization: Bearer drk_demo_key.demo_secret
+Content-Type: application/json
+
+{"references":["pr_0123456789abcdef01234567","pr_abcdef0123456789abcdef01"]}</code></pre>
+        <p class="mb-0">Le polling est limité par clé, par compte et par adresse IP. En cas de <code>429</code>, attendez avant de réessayer et utilisez de préférence le batch.</p>
+    </div></section>
+
+    <div class="d-flex flex-wrap gap-2"><a class="btn btn-primary" href="{{ openApiUrl }}">Télécharger OpenAPI JSON</a><a class="btn btn-outline-secondary" href="{{ path('app_public') }}">Retour à Dressur</a></div>
+</div>
+{% endblock %}

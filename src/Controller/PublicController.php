@@ -10,6 +10,7 @@ use App\Repository\PromotionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Repository\FormuleDressurBotRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\FormulePromoReseauRepository;
@@ -112,6 +113,47 @@ class PublicController extends AbstractController
             'is_connect' => $this->is_connect,
             'theme' => $this->theme,
         ]);
+    }
+
+    #[Route('/documentation-api', name: 'app_documentation_api', methods: ['GET'])]
+    public function documentationApi(): Response
+    {
+        return $this->render('public/documentation_api.html.twig', [
+            'is_connect' => $this->is_connect,
+            'theme' => $this->theme,
+            'openApiUrl' => '/documentation-api/openapi.json',
+        ]);
+    }
+
+    #[Route('/documentation-api/openapi.json', name: 'app_documentation_api_openapi', methods: ['GET'])]
+    public function documentationApiOpenApi(): JsonResponse
+    {
+        return new JsonResponse([
+            'openapi' => '3.0.3',
+            'info' => [
+                'title' => 'Dressur Developer API',
+                'version' => '1.0.0',
+                'description' => 'API HTTP/JSON pour les Promotions Réseaux Sociaux Dressur. Les prix sont toujours calculés par Dressur.',
+            ],
+            'servers' => [['url' => 'https://dressur.site']],
+            'security' => [['bearerAuth' => []]],
+            'components' => [
+                'securitySchemes' => [
+                    'bearerAuth' => ['type' => 'http', 'scheme' => 'bearer', 'bearerFormat' => 'Dressur API token'],
+                ],
+            ],
+            'paths' => [
+                '/api/v1/developer/catalog' => ['get' => ['summary' => 'Catalogue des formules disponibles', 'responses' => ['200' => ['description' => 'Catalogue JSON'], '401' => ['description' => 'Clé invalide']]]],
+                '/api/v1/developer/balance' => ['get' => ['summary' => 'Solde Dressur disponible', 'responses' => ['200' => ['description' => 'Solde JSON']]]],
+                '/api/v1/developer/orders' => [
+                    'get' => ['summary' => 'Historique des commandes API', 'responses' => ['200' => ['description' => 'Historique JSON']]],
+                    'post' => ['summary' => 'Créer une Promotion Réseaux Sociaux', 'parameters' => [['name' => 'Idempotency-Key', 'in' => 'header', 'required' => true, 'schema' => ['type' => 'string']]], 'responses' => ['201' => ['description' => 'Commande créée'], '402' => ['description' => 'Solde insuffisant'], '503' => ['description' => 'Service momentanément indisponible']]],
+                ],
+                '/api/v1/developer/orders/{reference}' => ['get' => ['summary' => 'Détail d’une commande', 'parameters' => [['name' => 'reference', 'in' => 'path', 'required' => true, 'schema' => ['type' => 'string']]], 'responses' => ['200' => ['description' => 'Commande JSON']]]],
+                '/api/v1/developer/orders/{reference}/status' => ['get' => ['summary' => 'Statut d’une commande avec cache et polling protégé', 'parameters' => [['name' => 'reference', 'in' => 'path', 'required' => true, 'schema' => ['type' => 'string']]], 'responses' => ['200' => ['description' => 'Statut JSON'], '429' => ['description' => 'Limite atteinte']]]],
+                '/api/v1/developer/orders/status-batch' => ['post' => ['summary' => 'Statut groupé de 1 à 50 commandes', 'requestBody' => ['required' => true, 'content' => ['application/json' => ['schema' => ['type' => 'object', 'required' => ['references'], 'properties' => ['references' => ['type' => 'array', 'maxItems' => 50, 'items' => ['type' => 'string']]]]]]], 'responses' => ['200' => ['description' => 'Statuts JSON'], '429' => ['description' => 'Limite atteinte']]]],
+            ],
+        ], Response::HTTP_OK, ['Content-Type' => 'application/json']);
     }
 
     #[Route('/politique-confidentialite', name: 'politique_confidentialite')]

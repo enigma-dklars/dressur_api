@@ -199,6 +199,10 @@ html.dark-theme #ds-header .navbar-toggler { color: #7fa4f7; border-color: rgba(
                         <a class="nav-link {% if app.request.pathInfo == path('app_contactez_nous') %}ds-active{% endif %}"
                            href="{{ path('app_contactez_nous') }}">Contact</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if app.request.pathInfo starts with '/documentation-api' %}ds-active{% endif %}"
+                           href="{{ path('app_documentation_api') }}"><i class="fas fa-code me-1"></i>Documentation API</a>
+                    </li>
                 </ul>
 
                 <div class="d-flex align-items-center gap-2 ds-cta-group">
