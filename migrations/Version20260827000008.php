@@ -16,11 +16,11 @@ final class Version20260827000008 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE "user" RENAME COLUMN solde_programme_recompense TO solde_dressur');
+        $this->addSql('ALTER TABLE `user` CHANGE COLUMN solde_programme_recompense solde_dressur INT DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE "user" RENAME COLUMN solde_dressur TO solde_programme_recompense');
+        $this->addSql('ALTER TABLE `user` CHANGE COLUMN solde_dressur solde_programme_recompense INT DEFAULT NULL');
     }
 }

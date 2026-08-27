@@ -25,15 +25,31 @@ final class Version20260827000003 extends AbstractMigration
             }
         }
 
-        $this->addSql('CREATE TABLE user_used_identity (id SERIAL NOT NULL, type VARCHAR(10) NOT NULL, value VARCHAR(255) NOT NULL, first_used_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, last_used_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql("CREATE TABLE user_used_identity (id INT AUTO_INCREMENT NOT NULL, type VARCHAR(10) NOT NULL, value VARCHAR(255) NOT NULL, first_used_at DATETIME NOT NULL, last_used_at DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB");
         $this->addSql('CREATE UNIQUE INDEX UNIQ_USER_USED_IDENTITY_TYPE_VALUE ON user_used_identity (type, value)');
 
-        $this->addSql("WITH normalized_users AS (SELECT regexp_replace(COALESCE(tel, ''), '[^0-9+]', '', 'g') AS raw_tel, created_at FROM \"user\") INSERT INTO user_used_identity (type, value, first_used_at, last_used_at) SELECT 'tel', CASE WHEN raw_tel LIKE '00%' THEN '+' || substring(raw_tel FROM 3) ELSE raw_tel END, COALESCE(created_at, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP FROM normalized_users WHERE raw_tel <> '' ON CONFLICT (type, value) DO NOTHING");
-        $this->addSql("INSERT INTO user_used_identity (type, value, first_used_at, last_used_at) SELECT 'mail', lower(trim(mail)), COALESCE(created_at, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP FROM \"user\" WHERE mail IS NOT NULL AND trim(mail) <> '' ON CONFLICT (type, value) DO NOTHING");
+        $userRows = $this->connection->fetchAllAssociative('SELECT tel, mail, created_at FROM `user`');
+        foreach ($userRows as $row) {
+            $tel = $this->normalizeTel($row['tel'] ?? null);
+            if ($tel !== null) {
+                $this->addSql(
+                    'INSERT IGNORE INTO user_used_identity (type, value, first_used_at, last_used_at) VALUES (?, ?, COALESCE(?, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP)',
+                    ['tel', $tel, $row['created_at'] ?? null]
+                );
+            }
+
+            $mail = $this->normalizeMail($row['mail'] ?? null);
+            if ($mail !== null) {
+                $this->addSql(
+                    'INSERT IGNORE INTO user_used_identity (type, value, first_used_at, last_used_at) VALUES (?, ?, COALESCE(?, CURRENT_TIMESTAMP), CURRENT_TIMESTAMP)',
+                    ['mail', $mail, $row['created_at'] ?? null]
+                );
+            }
+        }
 
         $seen = [];
         foreach ($legacyValues as $legacyValue) {
-            $value = trim((string) $legacyValue);
+            $value = trim((string)$legacyValue);
             if ($value === '') {
                 continue;
             }
@@ -45,7 +61,7 @@ final class Version20260827000003 extends AbstractMigration
             }
             $seen[$type . ':' . $normalized] = true;
             $this->addSql(
-                'INSERT INTO user_used_identity (type, value, first_used_at, last_used_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) ON CONFLICT (type, value) DO NOTHING',
+                'INSERT IGNORE INTO user_used_identity (type, value, first_used_at, last_used_at) VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)',
                 [$type, $normalized]
             );
         }
@@ -66,12 +82,18 @@ final class Version20260827000003 extends AbstractMigration
         $this->addSql('DROP TABLE user_used_identity');
     }
 
-    private function normalizeTel(string $tel): ?string
+    private function normalizeTel(mixed $tel): ?string
     {
-        $value = preg_replace('/[^0-9+]/', '', trim($tel)) ?? '';
+        $value = preg_replace('/[^0-9+]/', '', trim((string)$tel)) ?? '';
         if (str_starts_with($value, '00')) {
             $value = '+' . substr($value, 2);
         }
         return $value === '' || $value === '+' ? null : $value;
+    }
+
+    private function normalizeMail(mixed $mail): ?string
+    {
+        $value = strtolower(trim((string)$mail));
+        return $value === '' ? null : $value;
     }
 }

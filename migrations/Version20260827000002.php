@@ -25,7 +25,7 @@ final class Version20260827000002 extends AbstractMigration
             }
         }
 
-        $this->addSql('CREATE TABLE user_banned (id SERIAL NOT NULL, tel VARCHAR(255) DEFAULT NULL, mail VARCHAR(255) DEFAULT NULL, motif TEXT NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE user_banned (id INT AUTO_INCREMENT NOT NULL, tel VARCHAR(255) DEFAULT NULL, mail VARCHAR(255) DEFAULT NULL, motif TEXT NOT NULL, created_at DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE INDEX IDX_USER_BANNED_TEL ON user_banned (tel)');
         $this->addSql('CREATE INDEX IDX_USER_BANNED_MAIL ON user_banned (mail)');
 

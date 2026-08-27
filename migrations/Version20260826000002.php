@@ -16,7 +16,7 @@ final class Version20260826000002 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE user_restriction ADD expires_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
+        $this->addSql('ALTER TABLE user_restriction ADD expires_at DATETIME DEFAULT NULL');
     }
 
     public function down(Schema $schema): void

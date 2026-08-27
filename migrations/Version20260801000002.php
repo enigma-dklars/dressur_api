@@ -16,11 +16,11 @@ final class Version20260801000002 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE "user" ADD est_partenaire BOOLEAN NOT NULL DEFAULT FALSE');
+        $this->addSql('ALTER TABLE `user` ADD est_partenaire TINYINT(1) NOT NULL DEFAULT 0');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE "user" DROP COLUMN est_partenaire');
+        $this->addSql('ALTER TABLE `user` DROP COLUMN est_partenaire');
     }
 }

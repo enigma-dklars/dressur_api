@@ -12,7 +12,7 @@ class DeveloperOrderStatusService
 {
     private const CACHE_SECONDS = 15;
     private const CACHE_TTL = 90;
-    private const STATUS_LOCK_KEY = 48192731;
+    private const STATUS_LOCK_KEY = 'dressur_developer_status_refresh';
 
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
@@ -54,13 +54,15 @@ class DeveloperOrderStatusService
         }
 
         $connection = $this->entityManager->getConnection();
-        $connection->beginTransaction();
+        $lockAcquired = false;
         try {
-            $lockAcquired = (bool)$connection->executeQuery(
-                'SELECT pg_try_advisory_xact_lock(' . self::STATUS_LOCK_KEY . ')'
-            )->fetchOne();
+            // MySQL GET_LOCK is connection-scoped and does not keep a database
+            // transaction open while the external status request is running.
+            $lockAcquired = (int)$connection->fetchOne(
+                'SELECT GET_LOCK(?, 0)',
+                [self::STATUS_LOCK_KEY]
+            ) === 1;
             if (!$lockAcquired) {
-                $connection->rollBack();
                 foreach ($staleOrders as $order) {
                     $statuses[$order->getReference()] = $this->localStatus($order, 'database', $now);
                 }
@@ -73,23 +75,26 @@ class DeveloperOrderStatusService
                 $staleOrders
             ));
             if (!$providerResult || isset($providerResult->error)) {
-                $connection->commit();
                 foreach ($staleOrders as $order) {
                     $statuses[$order->getReference()] = $this->localStatus($order, 'database', $now);
                 }
 
                 return ['statuses' => $statuses, 'providerAvailable' => false];
             }
-            $connection->commit();
         } catch (\Throwable) {
-            if ($connection->isTransactionActive()) {
-                $connection->rollBack();
-            }
             foreach ($staleOrders as $order) {
                 $statuses[$order->getReference()] = $this->localStatus($order, 'database', $now);
             }
 
             return ['statuses' => $statuses, 'providerAvailable' => false];
+        } finally {
+            if ($lockAcquired) {
+                try {
+                    $connection->executeStatement('SELECT RELEASE_LOCK(?)', [self::STATUS_LOCK_KEY]);
+                } catch (\Throwable) {
+                    // The status response remains usable; cleanup is best effort.
+                }
+            }
         }
 
         foreach ($staleOrders as $order) {
