@@ -22,6 +22,7 @@
 {% set is_transaction = r starts with 'app_crud_transaction' %}
 {% set is_suggestion  = r starts with 'app_crud_suggestion' %}
 {% set is_signalement = r starts with 'app_crud_signalement' %}
+{% set is_notification = r starts with 'app_crud_notification' %}
 {% set is_comm_mail   = r starts with 'app_communication_mail' %}
 {% set is_story       = r starts with 'app_crud_story' %}
 
@@ -98,6 +99,7 @@
       <li class="my-0 {{ is_mot ? 'mm-active' : '' }}"> <a href="{{path('app_crud_mot_refuser_index')}}" class="py-1 small-fort {{ is_mot ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Mot Refuser</a></li>
       <li class="my-0 {{ is_deleted ? 'mm-active' : '' }}"> <a href="{{path('app_crud_deleted_d_s_index')}}" class="py-1 small-fort {{ is_deleted ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Deleted DS</a></li>
       <li class="my-0 {{ is_transaction ? 'mm-active' : '' }}"> <a href="{{path('app_crud_transaction_index')}}" class="py-1 small-fort {{ is_transaction ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Transaction</a></li>
+      <li class="my-0 {{ is_notification ? 'mm-active' : '' }}"> <a href="{{path('app_crud_notification_index')}}" class="py-1 small-fort {{ is_notification ? 'active' : '' }}"><i class="me-2 fas fa-bell"></i>Notifications</a></li>
       <li class="my-0 {{ is_suggestion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_suggestion_index')}}" class="py-1 small-fort {{ is_suggestion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Suggestion</a></li>
       <li class="my-0 {{ is_signalement ? 'mm-active' : '' }}"> <a href="{{path('app_crud_signalement_index')}}" class="py-1 small-fort {{ is_signalement ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Signalement</a></li>
 

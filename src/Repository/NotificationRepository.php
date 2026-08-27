@@ -39,4 +39,14 @@ class NotificationRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function deleteOlderThan(\DateTimeInterface $cutoff): int
+    {
+        return (int) $this->createQueryBuilder('n')
+            ->delete()
+            ->where('n.createdAt < :cutoff')
+            ->setParameter('cutoff', $cutoff)
+            ->getQuery()
+            ->execute();
+    }
 }
