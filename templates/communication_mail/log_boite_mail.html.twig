@@ -4,15 +4,54 @@
 
 {% block body %}
 
+<style>
+    html.dark-theme .mail-log-page .text-muted {
+        color: #b9c6d6 !important;
+    }
+
+    html.dark-theme .mail-log-page .table {
+        --bs-table-color: #f1f5f9;
+        --bs-table-striped-color: #f1f5f9;
+        --bs-table-hover-color: #ffffff;
+    }
+
+    html.dark-theme .mail-log-page .table th,
+    html.dark-theme .mail-log-page .table td {
+        color: #f1f5f9 !important;
+    }
+
+    html.dark-theme .mail-log-page .mail-log-muted {
+        color: #b9c6d6 !important;
+    }
+
+    html.dark-theme .mail-log-page .mail-log-reason {
+        border: 1px solid rgb(255 255 255 / 35%);
+        color: #ffffff !important;
+    }
+
+    html.dark-theme .mail-log-page .mail-log-reason-general {
+        background-color: #465467 !important;
+    }
+
+    html.dark-theme .mail-log-page .mail-log-reason-info {
+        background-color: #087990 !important;
+    }
+
+    html.dark-theme .mail-log-page .mail-log-reason-prospect {
+        background-color: #0d6efd !important;
+    }
+</style>
+
+<div class="mail-log-page">
 <div class="d-flex align-items-center mb-3">
     <h4 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>Historique des envois</h4>
     <div class="ms-auto d-flex gap-2">
         {% if total_logs > 0 %}
             <form method="post" action="{{ path('app_communication_mail_log_clear') }}"
-                  onsubmit="return confirm('Vider tout l\'historique des envois ? Cette action est irréversible.')">
+                  onsubmit="return confirm('Supprimer tous les enregistrements de l\'historique des envois ? Cette action est irréversible.')">
                 <input type="hidden" name="_token" value="{{ csrf_token('clear_mail_logs') }}">
                 <button type="submit" class="btn btn-sm btn-outline-danger">
-                    <i class="fas fa-trash-can me-1"></i>Vider les logs
+                    <i class="fas fa-trash-can me-1"></i>Supprimer tous les enregistrements
                 </button>
             </form>
         {% endif %}
@@ -155,18 +194,18 @@
                     <td class="text-muted small">{{ log.id }}</td>
                     <td>
                         {% if log.raison == 'campagne_prospect' %}
-                            <span class="badge bg-primary">campagne_prospect</span>
+                            <span class="badge bg-primary mail-log-reason mail-log-reason-prospect">campagne_prospect</span>
                         {% elseif log.raison == 'report' %}
-                            <span class="badge bg-secondary">report</span>
+                            <span class="badge bg-secondary mail-log-reason">report</span>
                         {% elseif log.raison == 'general' %}
-                            <span class="badge bg-light text-dark border">general</span>
+                            <span class="badge bg-light text-dark border mail-log-reason mail-log-reason-general">general</span>
                         {% else %}
-                            <span class="badge bg-info text-dark">{{ log.raison }}</span>
+                            <span class="badge bg-info text-dark mail-log-reason mail-log-reason-info">{{ log.raison }}</span>
                         {% endif %}
                     </td>
-                    <td class="small text-muted">{{ log.emailSender }}</td>
+                    <td class="small mail-log-muted">{{ log.emailSender }}</td>
                     <td class="small">{{ log.emailRecepteur }}</td>
-                    <td class="small text-muted">{{ log.datEnvoi|date('d/m/Y H:i:s') }}</td>
+                    <td class="small mail-log-muted">{{ log.datEnvoi|date('d/m/Y H:i:s') }}</td>
                 </tr>
                 {% endfor %}
             {% endif %}
@@ -181,6 +220,8 @@
         {% endif %}
     </div>
     {% endif %}
+</div>
+
 </div>
 
 {% endblock %}
