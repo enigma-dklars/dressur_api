@@ -56,6 +56,9 @@ class PromoReseau
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $source = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $commentaires = null;
+
     public function __construct()
     {
         $this->status = 1;
@@ -218,6 +221,20 @@ class PromoReseau
     public function setPrixZefame(?float $prixZefame): static
     {
         $this->prixZefame = $prixZefame;
+
+        return $this;
+    }
+
+    public function getCommentaires(): ?string
+    {
+        return $this->commentaires;
+    }
+
+    public function setCommentaires(?string $commentaires): static
+    {
+        $this->commentaires = $commentaires !== null && trim($commentaires) !== ''
+            ? $commentaires
+            : null;
 
         return $this;
     }

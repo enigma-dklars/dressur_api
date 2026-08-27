@@ -127,6 +127,31 @@ class PromotionReseauController extends AbstractController
         }
         $qteDemander = (int) $qteDemanderString;
 
+        $commentairesPourCommande = null;
+        if ($formulePromoReseau->isCommentairesRequis()) {
+            $commentairesBruts = $datas->get('commentaires');
+            if ($commentairesBruts !== null && !is_scalar($commentairesBruts)) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Attention!',
+                    'message' => 'Le format des commentaires est invalide.',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            try {
+                $commentairesPourCommande = $traitementsDS->preparerCommentairesPourQuantite(
+                    $commentairesBruts === null ? null : (string) $commentairesBruts,
+                    $qteDemander
+                );
+            } catch (\InvalidArgumentException $exception) {
+                return new JsonResponse([
+                    'error' => true,
+                    'titre' => 'Commentaires requis',
+                    'message' => $exception->getMessage(),
+                ], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
         try {
             $montantRecalcule = $pricing->calculateAmount(
                 $formulePromoReseau,
@@ -190,6 +215,9 @@ class PromotionReseauController extends AbstractController
             'tel'                  => $tel,
             'source'               => ($datas->get('source') === 'web') ? 'web' : 'mobile',
         ];
+        if ($commentairesPourCommande !== null) {
+            $annotherInfo['commentaires'] = $commentairesPourCommande;
+        }
 
         // ── Paiement via solde ────────────────────────────────────────────────
         if ($user->getSoldeProgrammeRecompense() >= $montantRecalcule) {

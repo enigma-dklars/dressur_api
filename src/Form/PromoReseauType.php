@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\PromoReseau;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -31,6 +32,14 @@ class PromoReseauType extends AbstractType
             ->add('url', TextType::class, [
                 'attr' => [
                     'class' => 'form-control mb-2'
+                ],
+            ])
+            ->add('commentaires', TextareaType::class, [
+                'required' => false,
+                'label' => 'Commentaires (une ligne par commentaire)',
+                'attr' => [
+                    'class' => 'form-control mb-2',
+                    'rows' => 6,
                 ],
             ])
             ->add('idZefame', null, [

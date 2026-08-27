@@ -207,6 +207,7 @@ class WebhookController extends AbstractController
                 ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
                 ->setUrl($myTransaction->getAnnotherInfo()['lien'])
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                ->setCommentaires($myTransaction->getAnnotherInfo()['commentaires'] ?? null)
                 ->setPrixZefame($formulePromoReseau->getPrixZefame() !== null
                     ? round((int)$myTransaction->getAnnotherInfo()['qteDemander'] * $formulePromoReseau->getPrixZefame() / 1000, 5)
                     : null)
@@ -214,15 +215,21 @@ class WebhookController extends AbstractController
             $this->em->persist($boost);
 
             $formule = $boost->getFormulePromoReseau();
-            if (!$this->traitementsDS->formuleNecessiteCommentaires($formule)
-                    && !empty($formule->getIdZefame())) {
-                $resultZefame = $this->zefameApi->order([
+            $commentairesRequis = $this->traitementsDS->formuleNecessiteCommentaires($formule);
+            $commentairesDisponibles = $boost->getCommentaires() !== null;
+            if (!empty($formule->getIdZefame())
+                    && (!$commentairesRequis || $commentairesDisponibles)) {
+                $parametresCommande = [
                     'service'  => $formule->getIdZefame(),
                     'link'     => $boost->getUrl(),
                     'quantity' => $boost->getQteDemander(),
                     'runs'     => 2,
                     'interval' => 5,
-                ]);
+                ];
+                if ($boost->getCommentaires() !== null) {
+                    $parametresCommande['comments'] = $boost->getCommentaires();
+                }
+                $resultZefame = $this->zefameApi->order($parametresCommande);
                 if (isset($resultZefame->order)) {
                     $boost->setIdZefame($resultZefame->order)->setStatus(2);
                 } elseif (isset($resultZefame->error)) {
@@ -231,7 +238,12 @@ class WebhookController extends AbstractController
                     $this->sendMail->sendReport("Error Promo Reseau --- ID = ".$boost->getId(), (string)$resultZefame);
                 }
             } else {
-                $this->sendMail->sendReport("Promo Reseau en attente --- ID = ".$boost->getId(), "Impossible de demarrer la promo reseau directement... surrement une demande de commentaire");
+                $this->sendMail->sendReport(
+                    "Promo Reseau en attente --- ID = ".$boost->getId(),
+                    $commentairesRequis
+                        ? "Impossible de démarrer la promo réseau : commentaires absents."
+                        : "Impossible de démarrer la promo réseau : service fournisseur absent."
+                );
             }
             $this->traitementsDS->addNotification("Paiement confirmer. Promotion Reseau enregistrer et démarrer.", $myTransaction->getUser());
         }

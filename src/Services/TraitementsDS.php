@@ -211,6 +211,39 @@ class TraitementsDS extends AbstractController
     }
 
     /**
+     * Prépare les commentaires pour une commande fournisseur.
+     * Une ligne représente un commentaire ; les lignes sont répétées dans leur
+     * ordre jusqu’à atteindre la quantité demandée.
+     */
+    public function preparerCommentairesPourQuantite(?string $commentaires, int $quantite): string
+    {
+        if ($quantite <= 0) {
+            throw new \InvalidArgumentException('La quantité demandée doit être positive.');
+        }
+
+        $lignes = $this->normaliserCommentaires($commentaires);
+        if ($lignes === []) {
+            throw new \InvalidArgumentException('Veuillez renseigner au moins un commentaire.');
+        }
+
+        if (count($lignes) > $quantite) {
+            throw new \InvalidArgumentException(sprintf(
+                'Le nombre de commentaires (%d) ne peut pas dépasser la quantité demandée (%d).',
+                count($lignes),
+                $quantite
+            ));
+        }
+
+        $commentairesComplets = [];
+        $nombreLignes = count($lignes);
+        for ($index = 0; $index < $quantite; $index++) {
+            $commentairesComplets[] = $lignes[$index % $nombreLignes];
+        }
+
+        return implode("\n", $commentairesComplets);
+    }
+
+    /**
      * Résout l'utilisateur depuis le cookie uid signé HMAC.
      *
      * @web-only — À utiliser exclusivement dans les controllers web (Twig/admin).
@@ -2087,21 +2120,28 @@ class TraitementsDS extends AbstractController
                 ->setPrixFixer($myTransaction->getAnnotherInfo()['prixQteDemander'])
                 ->setUrl($myTransaction->getAnnotherInfo()['lien'])
                 ->setSource($myTransaction->getAnnotherInfo()['source'] ?? 'mobile')
+                ->setCommentaires($myTransaction->getAnnotherInfo()['commentaires'] ?? null)
                 ->setPrixZefame($formulePromoReseau->getPrixZefame() !== null
                     ? round((int)$myTransaction->getAnnotherInfo()['qteDemander'] * $formulePromoReseau->getPrixZefame() / 1000, 5)
                     : null);
             $this->em->persist($boost);
 
-            $formule      = $boost->getFormulePromoReseau();
-            if (!$this->formuleNecessiteCommentaires($formule)
+            $formule = $boost->getFormulePromoReseau();
+            $commentairesRequis = $this->formuleNecessiteCommentaires($formule);
+            $commentairesDisponibles = $boost->getCommentaires() !== null;
+            if ((!$commentairesRequis || $commentairesDisponibles)
                     && !empty($formule->getIdZefame())) {
-                $resultZefame = $this->zefameApi->order([
+                $parametresCommande = [
                     'service'  => $formule->getIdZefame(),
                     'link'     => $boost->getUrl(),
                     'quantity' => $boost->getQteDemander(),
                     'runs'     => 2,
                     'interval' => 5,
-                ]);
+                ];
+                if ($commentairesDisponibles) {
+                    $parametresCommande['comments'] = $boost->getCommentaires();
+                }
+                $resultZefame = $this->zefameApi->order($parametresCommande);
                 if (isset($resultZefame->order)) {
                     $boost->setIdZefame($resultZefame->order)->setStatus(2);
                 } elseif (isset($resultZefame->error)) {
@@ -2110,7 +2150,12 @@ class TraitementsDS extends AbstractController
                     $this->sendMail->sendReport("Error Promo Reseau (solde) --- ID = ".$boost->getId(), (string)$resultZefame);
                 }
             } else {
-                $this->sendMail->sendReport("Promo Reseau en attente (solde) --- ID = ".$boost->getId(), "Impossible de demarrer la promo reseau directement... surrement une demande de commentaire");
+                $this->sendMail->sendReport(
+                    "Promo Reseau en attente (solde) --- ID = ".$boost->getId(),
+                    $commentairesRequis
+                        ? "Impossible de démarrer la promo réseau : commentaires absents."
+                        : "Impossible de démarrer la promo réseau : service fournisseur absent."
+                );
             }
             $this->addNotification("Solde débité de {$montant} FCFA. Promotion Réseau enregistrée et démarrée.", $user);
         }

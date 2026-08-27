@@ -231,33 +231,22 @@ class CrudPromoReseauController extends AbstractController
             ];
 
             if ($formuleNecessiteCommentaires) {
-                $commentaires = $this->traitementsDS->normaliserCommentaires(
-                    $request->request->get('comments')
-                );
-
-                if ($commentaires === []) {
-                    $connection->rollBack();
-                    $this->addFlash('danger', 'Ajoutez au moins un commentaire avant de démarrer la promotion.');
-
-                    return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
-                }
-
-                if (count($commentaires) > $qte) {
-                    $connection->rollBack();
-                    $this->addFlash(
-                        'danger',
-                        sprintf(
-                            'Le nombre de commentaires (%d) ne peut pas dépasser la quantité commandée (%d).',
-                            count($commentaires),
-                            $qte
-                        )
+                try {
+                    $commentairesComplets = $this->traitementsDS->preparerCommentairesPourQuantite(
+                        $request->request->get('comments'),
+                        $qte
                     );
+                } catch (\InvalidArgumentException $exception) {
+                    $connection->rollBack();
+                    $this->addFlash('danger', $exception->getMessage());
 
                     return $this->redirectToRoute('app_crud_promo_reseau_promo_reseau_en_attente');
                 }
 
-                $parametresCommande['comments'] = implode("\n", $commentaires);
+                $promoReseau->setCommentaires($commentairesComplets);
+                $parametresCommande['comments'] = $commentairesComplets;
             }
+
 
             $resultZefame = $zefame->order($parametresCommande);
 

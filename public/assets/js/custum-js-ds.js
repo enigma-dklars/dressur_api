@@ -46,6 +46,7 @@ $(document).ready(function () {
     
     let network_id;
     let service_network_id;
+    let commentairesRequis = false;
 
     let formatPromoReseauAmount = function (value) {
         if (value === null || value === undefined || value === "" || !Number.isFinite(Number(value))) {
@@ -71,6 +72,39 @@ $(document).ready(function () {
         $("#summaryCalculatedPrice").text(formatPromoReseauAmount(calculatedPrice));
         $("#summaryTotal").text(formatPromoReseauAmount(calculatedPrice));
     };
+
+    let limiterCommentaires = function () {
+        const commentairesInput = $("#commentaires");
+        const messageEl = $("#commentairesMessage");
+        if (!commentairesInput.length) return true;
+
+        const quantite = parseInt($("#quantity").val(), 10) || 0;
+        const lignes = commentairesInput.val()
+            .split(/\r?\n/)
+            .map(function (ligne) { return ligne.trim(); })
+            .filter(function (ligne) { return ligne !== ""; });
+
+        if (lignes.length > quantite) {
+            commentairesInput.val(lignes.slice(0, quantite).join("\n"));
+            messageEl.text("Le nombre de commentaires ne peut pas dépasser la quantité demandée.").removeClass("d-none");
+            return false;
+        }
+
+        messageEl.addClass("d-none").text("");
+        return true;
+    };
+
+    let afficherBlocCommentaires = function () {
+        if (commentairesRequis) {
+            $("#commentairesContainer").removeClass("d-none");
+        } else {
+            $("#commentairesContainer").addClass("d-none");
+            $("#commentaires").val("");
+            $("#commentairesMessage").addClass("d-none").text("");
+        }
+    };
+
+    $(document).on("input", "#commentaires", limiterCommentaires);
 
     let setUidCookie = function (uid) {
         var d = new Date();
@@ -898,9 +932,12 @@ $(document).ready(function () {
     $(document).on("change", "#socialNetwork", function (){
         network_id = $(this).val();
         service_network_id = null;
+        commentairesRequis = false;
         $(".lesFormulesFils").attr("hidden", "");
         $(".select-service-network").val("");
         $("#fils-"+network_id).removeAttr("hidden");
+        $("#commentaires").val("");
+        afficherBlocCommentaires();
         $('#quantity').val(0);
         $('#price').val(0);
         updatePromoReseauSummary();
@@ -908,14 +945,20 @@ $(document).ready(function () {
 
     $(document).on("change", ".select-service-network", function () {
         service_network_id = $(this).val() || null;
+        commentairesRequis = $("#unfils-" + service_network_id).attr("unfils-commentaires-requis") === "1";
         $(".unfils").attr("hidden", "");
         $("#unfils-"+service_network_id).removeAttr("hidden");
+        $("#commentaires").val("");
+        afficherBlocCommentaires();
         $('#quantity').val(0);
         $('#price').val(0);
         updatePromoReseauSummary();
     });
 
     $(document).on('input', '#quantity', function () {
+        if (commentairesRequis) {
+            limiterCommentaires();
+        }
         let unfils = $("#unfils-"+service_network_id);
         let rawQuantity = $(this).val();
         let qteDemander = parseInt(rawQuantity, 10);
@@ -957,6 +1000,21 @@ $(document).ready(function () {
         let paymentMethod = $("#paymentMethod").val();
         let tel = $("#tel").val();
         let uid = $("#uid").val();
+        let commentaires = "";
+        if (commentairesRequis) {
+            if (!limiterCommentaires()) {
+                return;
+            }
+            commentaires = $("#commentaires").val();
+            const nombreCommentaires = commentaires.split(/\r?\n/)
+                .map(function (ligne) { return ligne.trim(); })
+                .filter(function (ligne) { return ligne !== ""; }).length;
+            if (nombreCommentaires === 0) {
+                $("#commentairesMessage").text("Veuillez renseigner au moins un commentaire.").removeClass("d-none");
+                return;
+            }
+        }
+        traitementContact("newPromoReseau", "debut", "");
 
         $.ajax({
             type: "POST",
@@ -971,6 +1029,7 @@ $(document).ready(function () {
                 valueMethodePaiement : paymentMethod,
                 tel : tel,
                 source : 'web',
+                commentaires : commentaires,
             },
             success: function (response) {
                 if(response.error == true){
