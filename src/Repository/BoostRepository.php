@@ -115,30 +115,6 @@ class BoostRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
     }
 
-    public function countUsersWhoEverUsedBoostAndTel(): int
-    {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = "SELECT COUNT(DISTINCT u.id)
-                FROM boost b
-                INNER JOIN `user` u ON b.user_id = u.id
-                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
-
-        return (int) $conn->prepare($sql)->executeQuery()->fetchOne();
-    }
-
-    public function findUsersWhoEverUsedBoostAndTel(): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom
-                FROM boost b
-                INNER JOIN `user` u ON b.user_id = u.id
-                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
-
-        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
-    }
-
     public function findUsersWhoEverUsedBoostAndTelWithDetails(): array
     {
         $conn = $this->getEntityManager()->getConnection();

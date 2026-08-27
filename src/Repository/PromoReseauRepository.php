@@ -119,30 +119,6 @@ class PromoReseauRepository extends ServiceEntityRepository
         return $conn->prepare($sql)->executeQuery(['cutoff' => $cutoff, 'now' => $now])->fetchAllAssociative();
     }
 
-    public function countUsersWhoEverUsedPromoReseauAndTel(): int
-    {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = "SELECT COUNT(DISTINCT u.id)
-                FROM promo_reseau pr
-                INNER JOIN `user` u ON pr.user_id = u.id
-                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
-
-        return (int) $conn->prepare($sql)->executeQuery()->fetchOne();
-    }
-
-    public function findUsersWhoEverUsedPromoReseauAndTel(): array
-    {
-        $conn = $this->getEntityManager()->getConnection();
-
-        $sql = "SELECT DISTINCT u.tel, u.uid, u.pseudo, u.nom
-                FROM promo_reseau pr
-                INNER JOIN `user` u ON pr.user_id = u.id
-                WHERE u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
-
-        return $conn->prepare($sql)->executeQuery()->fetchAllAssociative();
-    }
-
     public function findUsersWhoEverUsedPromoReseauAndTelWithDetails(): array
     {
         $conn = $this->getEntityManager()->getConnection();

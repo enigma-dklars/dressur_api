@@ -296,44 +296,6 @@
     {% endfor %}
 </div>
 
-{# ── Feedback WhatsApp par service ── #}
-<h5 class="mb-3 fw-semibold">
-    <i class="fas fa-star me-1 text-warning"></i>Feedback WhatsApp par service
-</h5>
-<div class="row g-3 mb-4">
-    {% for f in feedback_wa %}
-    <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm border-top border-3 border-{{ f.color }}">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex align-items-center mb-2">
-                    <span class="fs-2 me-2">{{ f.emoji }}</span>
-                    <div>
-                        <div class="fw-semibold">{{ f.label }}</div>
-                        <div class="small text-muted">{{ f.desc }}</div>
-                    </div>
-                </div>
-                <div class="my-2">
-                    <span class="display-6 fw-bold text-{{ f.color }}">{{ f.nb }}</span>
-                    <span class="text-muted small ms-1">utilisateur(s) ciblé(s)</span>
-                </div>
-                <div class="small text-muted mb-2">
-                    <i class="fas fa-clock me-1"></i>Cooldown : 365 jours (envoi unique/an)
-                </div>
-                <a href="{{ path('app_communication_mail_campagne_reactivation', {type: f.key}) }}"
-                   class="btn btn-{{ f.color }} mt-auto {% if f.nb == 0 %}disabled{% endif %}">
-                    <i class="fab fa-whatsapp me-1"></i>
-                    {% if f.nb > 0 %}
-                        Voir & préparer ({{ f.nb }})
-                    {% else %}
-                        Aucun utilisateur ciblé
-                    {% endif %}
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
 <h5 class="mb-3 fw-semibold">Base de données & historique</h5>
 <div class="row g-3">
 

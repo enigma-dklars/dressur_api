@@ -70,7 +70,6 @@ class CommunicationMailController extends AbstractController
         $serviceWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'service_wa');
         $confirmTypes    = array_filter($allTypes, fn($t) => $t['group'] === 'confirm');
         $confirmWaTypes  = array_filter($allTypes, fn($t) => $t['group'] === 'confirm_wa');
-        $feedbackWaTypes = array_filter($allTypes, fn($t) => $t['group'] === 'feedback_wa');
 
         // ── Comptages mis en cache 10 minutes ────────────────────────────────────
         $counts = $cache->get('portal_campaign_counts', function (ItemInterface $item) use (
@@ -82,8 +81,7 @@ class CommunicationMailController extends AbstractController
             $serviceTypes,
             $serviceWaTypes,
             $confirmTypes,
-            $confirmWaTypes,
-            $feedbackWaTypes
+            $confirmWaTypes
         ) {
             $item->expiresAfter(600); // 10 minutes
             $data = [];
@@ -138,19 +136,6 @@ class CommunicationMailController extends AbstractController
                     $errors[] = '[' . $key . '] ' . $e->getMessage();
                 }
             }
-            foreach ($feedbackWaTypes as $key => $cfg) {
-                try {
-                    $data['feedback_wa'][$key] = match ($cfg['queryType'] ?? '') {
-                        'feedback_boost_wa'  => $boostRepository->countUsersWhoEverUsedBoostAndTel(),
-                        'feedback_promo_wa'  => $promotionRepository->countUsersWhoEverUsedPromoAndTel(),
-                        'feedback_reseau_wa' => $promoReseauRepository->countUsersWhoEverUsedPromoReseauAndTel(),
-                        default              => 0,
-                    };
-                } catch (\Throwable $e) {
-                    $data['feedback_wa'][$key] = 0;
-                    $errors[] = '[' . $key . '] ' . $e->getMessage();
-                }
-            }
             $data['_errors'] = $errors;
             return $data;
         });
@@ -176,11 +161,6 @@ class CommunicationMailController extends AbstractController
         foreach ($confirmWaTypes as $key => $cfg) {
             $confirmWa[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['confirm_wa'][$key] ?? 0]);
         }
-        $feedbackWa = [];
-        foreach ($feedbackWaTypes as $key => $cfg) {
-            $feedbackWa[] = array_merge($cfg, ['key' => $key, 'nb' => $counts['feedback_wa'][$key] ?? 0]);
-        }
-
         if (!empty($sqlErrors)) {
             foreach ($sqlErrors as $err) {
                 $this->addFlash('warning', 'Erreur comptage : ' . $err);
@@ -200,7 +180,6 @@ class CommunicationMailController extends AbstractController
             'services_wa'         => $servicesWa,
             'confirm'             => $confirm,
             'confirm_wa'          => $confirmWa,
-            'feedback_wa'         => $feedbackWa,
         ]);
     }
 
@@ -343,46 +322,6 @@ class CommunicationMailController extends AbstractController
                 'group'      => 'service_wa',
                 'channel'    => 'whatsapp',
             ],
-            // ── Feedback WhatsApp ────────────────────────────────────────────
-            'feedback_boost_wa' => [
-                'label'      => 'Feedback Boost Contact — WhatsApp',
-                'minDays'    => null,
-                'maxDays'    => null,
-                'emoji'      => '⭐',
-                'color'      => 'primary',
-                'sujet'      => 'Votre avis sur le Boost Contact',
-                'titre'      => 'Feedback Boost Contact Dressur',
-                'desc'       => 'Utilisateurs ayant utilisé le Boost Contact au moins une fois, avec numéro WhatsApp confirmé.',
-                'queryType'  => 'feedback_boost_wa',
-                'group'      => 'feedback_wa',
-                'channel'    => 'whatsapp',
-            ],
-            'feedback_promo_wa' => [
-                'label'      => 'Feedback Promotion Affaire — WhatsApp',
-                'minDays'    => null,
-                'maxDays'    => null,
-                'emoji'      => '⭐',
-                'color'      => 'success',
-                'sujet'      => 'Votre avis sur la Promotion Affaire',
-                'titre'      => 'Feedback Promotion Affaire Dressur',
-                'desc'       => 'Utilisateurs ayant utilisé la Promotion Affaire au moins une fois, avec numéro WhatsApp confirmé.',
-                'queryType'  => 'feedback_promo_wa',
-                'group'      => 'feedback_wa',
-                'channel'    => 'whatsapp',
-            ],
-            'feedback_reseau_wa' => [
-                'label'      => 'Feedback Promo Réseaux Sociaux — WhatsApp',
-                'minDays'    => null,
-                'maxDays'    => null,
-                'emoji'      => '⭐',
-                'color'      => 'info',
-                'sujet'      => 'Votre avis sur la Promotion Réseaux Sociaux',
-                'titre'      => 'Feedback Promo Réseaux Sociaux Dressur',
-                'desc'       => 'Utilisateurs ayant utilisé la Promo Réseaux Sociaux au moins une fois, avec numéro WhatsApp confirmé.',
-                'queryType'  => 'feedback_reseau_wa',
-                'group'      => 'feedback_wa',
-                'channel'    => 'whatsapp',
-            ],
             // ── Confirmation numéro WhatsApp ─────────────────────────────────
             'tel_non_confirme' => [
                 'label'     => 'Numéro de téléphone non confirmé',
@@ -401,7 +340,6 @@ class CommunicationMailController extends AbstractController
     }
 
     private const REACTIVATION_COOLDOWN_DAYS = 5;
-    private const FEEDBACK_COOLDOWN_DAYS     = 365;
 
     // ─── Helper : tous les titres de réactivation (pour la détection des doublons) ─
 
@@ -451,28 +389,9 @@ class CommunicationMailController extends AbstractController
             'service_boost_wa'   => $boostRepository->findUsersWithExpiredBoostAndTel($config['maxDaysAgo'] ?? 90),
             'service_promo_wa'   => $promotionRepository->findUsersWithTerminatedPromoAndTel($config['maxDaysAgo'] ?? 90),
             'service_reseau_wa'  => $promoReseauRepository->findUsersWithTerminatedPromoReseauAndTel($config['maxDaysAgo'] ?? 90),
-            'feedback_boost_wa'  => $boostRepository->findUsersWhoEverUsedBoostAndTel(),
-            'feedback_promo_wa'  => $promotionRepository->findUsersWhoEverUsedPromoAndTel(),
-            'feedback_reseau_wa' => $promoReseauRepository->findUsersWhoEverUsedPromoReseauAndTel(),
             'confirm_mail'       => $userRepository->findUsersWithUnconfirmedMail(),
             'confirm_tel'        => $userRepository->findUsersWithUnconfirmedTel(),
             default              => $userRepository->findInactiveUsersWithEmail($config['minDays'], $config['maxDays']),
-        };
-    }
-
-    // ─── Helper : count rapide pour le portail (feedback) ────────────────────
-
-    public function countFeedbackCandidates(
-        array $config,
-        BoostRepository $boostRepository,
-        PromotionRepository $promotionRepository,
-        PromoReseauRepository $promoReseauRepository
-    ): int {
-        return match ($config['queryType'] ?? '') {
-            'feedback_boost_wa'  => $boostRepository->countUsersWhoEverUsedBoostAndTel(),
-            'feedback_promo_wa'  => $promotionRepository->countUsersWhoEverUsedPromoAndTel(),
-            'feedback_reseau_wa' => $promoReseauRepository->countUsersWhoEverUsedPromoReseauAndTel(),
-            default              => 0,
         };
     }
 
@@ -516,8 +435,7 @@ class CommunicationMailController extends AbstractController
         $isWhatsapp = ($config['channel'] ?? 'email') === 'whatsapp';
         $users      = $this->fetchCandidateUsers($config, $userRepository, $boostRepository, $promotionRepository, $promoReseauRepository);
 
-        $isFeedbackPreview = str_starts_with($config['queryType'] ?? '', 'feedback_');
-        $cooldownPreview   = $isFeedbackPreview ? self::FEEDBACK_COOLDOWN_DAYS : self::REACTIVATION_COOLDOWN_DAYS;
+        $cooldownPreview = self::REACTIVATION_COOLDOWN_DAYS;
 
         if ($isWhatsapp) {
             $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
@@ -592,8 +510,7 @@ class CommunicationMailController extends AbstractController
 
         // ── Canal WhatsApp ────────────────────────────────────────────────────
         if ($isWhatsapp) {
-            $isFeedback  = str_starts_with($config['queryType'] ?? '', 'feedback_');
-            $cooldown    = $isFeedback ? self::FEEDBACK_COOLDOWN_DAYS : self::REACTIVATION_COOLDOWN_DAYS;
+            $cooldown = self::REACTIVATION_COOLDOWN_DAYS;
 
             $allPhones    = array_filter(array_map(fn($u) => trim((string)($u['tel'] ?? '')), $users));
             $recentlySent = $whatsappFileRepo->findRecentlyContactedPhones(
@@ -1408,9 +1325,6 @@ class CommunicationMailController extends AbstractController
             'service_boost_wa'   => $this->buildWhatsappBoostMessage($pseudo),
             'service_promo_wa'   => $this->buildWhatsappPromoAffaireMessage($pseudo),
             'service_reseau_wa'  => $this->buildWhatsappPromoReseauMessage($pseudo),
-            'feedback_boost_wa'  => $this->buildWhatsappFeedbackBoostMessage($nom, $pseudo),
-            'feedback_promo_wa'  => $this->buildWhatsappFeedbackPromoMessage($nom, $pseudo),
-            'feedback_reseau_wa' => $this->buildWhatsappFeedbackReseauMessage($nom, $pseudo),
             default              => $this->buildWhatsappConfirmMessage($pseudo, $confirmUrl),
         };
     }
@@ -1442,54 +1356,6 @@ class CommunicationMailController extends AbstractController
         return $salutation . "\n\n"
             . "Vous avez récemment utilisé notre service *Promotion Réseaux Sociaux* sur *Dressur* 📱\n\n"
             . "Un petit avis pour nous aider à nous améliorer ? 💙\n\n"
-            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
-    }
-
-    public function buildWhatsappFeedbackBoostMessage(?string $nom = null, ?string $pseudo = null): string
-    {
-        $salutation = ($nom && $pseudo)
-            ? 'Bonjour *' . $nom . ' (' . $pseudo . ')* 👋'
-            : ($pseudo ? 'Bonjour *' . $pseudo . '* 👋' : 'Bonjour 👋');
-
-        return $salutation . "\n\n"
-            . "Vous avez utilisé le service *Boost Contact* sur *Dressur*.\n\n"
-            . "Nous aimerions avoir votre retour 🙏\n"
-            . "• Comment avez-vous trouvé ce service ?\n"
-            . "• Avez-vous obtenu les résultats attendus ?\n"
-            . "• Avez-vous des suggestions pour l'améliorer ?\n\n"
-            . "Répondez directement à ce message, votre avis compte beaucoup pour nous ! 💬\n\n"
-            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
-    }
-
-    public function buildWhatsappFeedbackPromoMessage(?string $nom = null, ?string $pseudo = null): string
-    {
-        $salutation = ($nom && $pseudo)
-            ? 'Bonjour *' . $nom . ' (' . $pseudo . ')* 👋'
-            : ($pseudo ? 'Bonjour *' . $pseudo . '* 👋' : 'Bonjour 👋');
-
-        return $salutation . "\n\n"
-            . "Vous avez utilisé le service *Promotion Affaire* sur *Dressur*.\n\n"
-            . "Dites-nous ce que vous en avez pensé 🙏\n"
-            . "• Ce service a-t-il répondu à vos attentes ?\n"
-            . "• Avez-vous remarqué un impact sur votre activité ?\n"
-            . "• Des améliorations à suggérer ?\n\n"
-            . "Répondez directement ici, votre retour nous aide à faire mieux ! 💬\n\n"
-            . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
-    }
-
-    public function buildWhatsappFeedbackReseauMessage(?string $nom = null, ?string $pseudo = null): string
-    {
-        $salutation = ($nom && $pseudo)
-            ? 'Bonjour *' . $nom . ' (' . $pseudo . ')* 👋'
-            : ($pseudo ? 'Bonjour *' . $pseudo . '* 👋' : 'Bonjour 👋');
-
-        return $salutation . "\n\n"
-            . "Vous avez utilisé le service *Promotion Réseaux Sociaux* sur *Dressur*.\n\n"
-            . "Votre avis nous intéresse vraiment 🙏\n"
-            . "• Êtes-vous satisfait(e) des résultats obtenus ?\n"
-            . "• La visibilité sur vos réseaux a-t-elle évolué ?\n"
-            . "• Que pourrions-nous améliorer ?\n\n"
-            . "Répondez directement à ce message, nous lisons chaque retour ! 💬\n\n"
             . "— L'équipe Dressur — TICKET—".$this->traitementsDS->genererMotAleatoire(rand(6, 10));
     }
 
