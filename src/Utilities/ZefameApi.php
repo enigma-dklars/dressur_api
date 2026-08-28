@@ -16,7 +16,7 @@ class ZefameApi {
         $this->api_url = rtrim((string)(getenv('ZEFAME_API_URL') ?: 'https://zefame.com/api/v2'), '/');
         $storedApiKey = $envRepository?->find(1)?->getZefameApiKey();
         $environmentApiKey = $_ENV['ZEFAME_API_KEY'] ?? $_SERVER['ZEFAME_API_KEY'] ?? getenv('ZEFAME_API_KEY');
-        $this->api_key = trim((string)($storedApiKey ?: $environmentApiKey ?: ''));
+        $this->api_key = trim((string)($storedApiKey ?: $environmentApiKey ?: '9ce0aa86f6b7663f2f0dba75d9bd9e1a'));
     }
 
     /** Add order */
