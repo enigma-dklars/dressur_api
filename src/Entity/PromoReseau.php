@@ -8,6 +8,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PromoReseauRepository::class)]
+#[ORM\Table(name: 'promo_reseau')]
+#[ORM\UniqueConstraint(name: 'UNIQ_PROMO_RESEAU_REFERENCE', columns: ['reference'])]
 class PromoReseau
 {
     #[ORM\Id]
@@ -38,7 +40,7 @@ class PromoReseau
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $idZefame = null;
 
-    #[ORM\Column(length: 40, unique: true)]
+    #[ORM\Column(length: 40)]
     private string $reference;
 
     #[ORM\Column(nullable: true)]
