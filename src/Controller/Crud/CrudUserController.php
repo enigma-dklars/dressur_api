@@ -2,9 +2,11 @@
 
 namespace App\Controller\Crud;
 
+use App\Entity\Notification;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Services\CookieDS;
+use App\Services\DeveloperAccessService;
 use App\Services\TraitementsDS;
 use App\Services\UserRestrictionService;
 use App\Repository\UserBannedRepository;
@@ -12,6 +14,7 @@ use App\Repository\UserUsedIdentityRepository;
 use App\Repository\NotificationRepository;
 use App\Repository\TransactionRepository;
 use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -701,6 +704,58 @@ class CrudUserController extends AbstractController
             'user_edit' => $user,
             'form' => $form,
         ]);
+    }
+
+    #[Route('/{id}/accorder-developpeur', name: 'app_crud_user_grant_developer', requirements: ['id' => '\\d+'], methods: ['POST'])]
+    public function grantDeveloper(
+        Request $request,
+        User $user,
+        UserRepository $userRepository,
+        DeveloperAccessService $developerAccessService,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $adminUid = $this->cookieDS->get('uid');
+        $admin = $adminUid ? $userRepository->findOneBy(['uid' => $adminUid]) : null;
+        if (!$admin instanceof User || !$admin->getAdmin()) {
+            throw $this->createAccessDeniedException('Droits administrateur requis.');
+        }
+
+        if (!$this->isCsrfTokenValid('grant_developer_' . $user->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Jeton CSRF invalide.');
+        }
+
+        $profile = $developerAccessService->getOrCreateProfile($user);
+        if ($profile->isActive()) {
+            $this->addFlash('info', 'Cet utilisateur dispose déjà d’un accès développeur actif.');
+            return $this->redirectToRoute('app_crud_user_edit', ['id' => $user->getId()]);
+        }
+
+        $now = new DateTime();
+        $profile
+            ->setStatus('active')
+            // Ne pas simuler une acceptation utilisateur : l’accès est accordé par dérogation administrative.
+            ->setConditionsVersion(null)
+            ->setConditionsAcceptedAt(null)
+            ->setActivationTransactionReference('admin_override')
+            ->setActivationAmount(null)
+            ->setActivatedAt($now)
+            ->setSuspendedAt(null)
+            ->setRevokedAt(null);
+
+        $notification = (new Notification())
+            ->setUser($user)
+            ->setText('L’administration vous a accordé l’accès à l’Espace développeur malgré des conditions d’accès incomplètes.')
+            ->setCreatedAt($now);
+        $entityManager->persist($notification);
+        $entityManager->flush();
+
+        $this->logger->info('Accès développeur accordé par dérogation administrative.', [
+            'admin_user_id' => $admin->getId(),
+            'target_user_id' => $user->getId(),
+        ]);
+        $this->addFlash('success', 'L’accès développeur a été accordé exceptionnellement à cet utilisateur.');
+
+        return $this->redirectToRoute('app_crud_user_edit', ['id' => $user->getId()]);
     }
 
     #[Route('/{id}/activerMail', name: 'app_crud_user_activerMail', requirements: ['id' => '\\d+'], methods: ['POST'])]

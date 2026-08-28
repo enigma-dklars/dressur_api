@@ -12,4 +12,22 @@
 </div>
 
 {{ include('crud_user/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+
+<div class="card border-warning mt-4">
+    <div class="card-body">
+        <h2 class="h6 text-warning mb-2">Accès développeur exceptionnel</h2>
+        <p class="small mb-3">
+            Cette action accorde immédiatement l’accès développeur à l’utilisateur, même si toutes les conditions ne sont pas remplies.
+            Elle ne simule ni paiement ni acceptation des conditions par l’utilisateur.
+        </p>
+        {% if user_edit.developerProfile and user_edit.developerProfile.isActive() %}
+            <div class="alert alert-info mb-0">Cet utilisateur dispose déjà d’un accès développeur actif.</div>
+        {% else %}
+            <form method="post" action="{{ path('app_crud_user_grant_developer', {'id': user_edit.id}) }}" onsubmit="return confirm('Accorder exceptionnellement l’accès développeur à cet utilisateur ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('grant_developer_' ~ user_edit.id) }}">
+                <button type="submit" class="btn btn-warning">Accorder l’accès développeur</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
