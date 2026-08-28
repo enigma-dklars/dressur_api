@@ -1564,6 +1564,9 @@ class TraitementsDS extends AbstractController
                     ->setPrix($this->calcPrixReseau((float) $unservice->rate))
                     ->setPrixVendeur($this->calcPrixVendeur((float) $unservice->rate))
                 ;
+                $uneFR->setCommentairesRequis(
+                    $this->detecterCommentairesDepuisTitre($uneFR)
+                );
             } else {
                 $newFormuleText .= "<br> $unservice->service => $unservice->name | ... |";
                 
