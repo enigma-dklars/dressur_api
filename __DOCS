@@ -1,21 +1,5 @@
-{
-    "modes": [
-        "mtn",
-        "cybersource",
-        "moov",
-        "mtn_ci",
-        "moov_tg",
-        "orange_ci",
-        "orange_sn",
-        "free_sn",
-        "airtel_ne",
-        "togocel",
-        "orange_ml",
-        "mtn_open",
-        "mtn_ecw",
-        "ecobank_tpe",
-        "orabank_tpe",
-        "uba",
-        "stripe_gw"
-    ]
-}
+php bin/console dressur:repair-promo-references --dry-run
+
+php bin/console dressur:repair-promo-references
+
+php bin/console d:s:u -f
