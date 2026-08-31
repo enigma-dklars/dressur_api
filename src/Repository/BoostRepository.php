@@ -79,6 +79,36 @@ class BoostRepository extends ServiceEntityRepository
     }
 
     /**
+     * Utilisateurs ayant effectué au moins un Boost Contact payant de type date,
+     * sans avoir jamais effectué de Boost Contact de type quota.
+     *
+     * @return array<int, array{user_id: int, tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWithPaidDateBoostWithoutQuotaWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b_date
+                INNER JOIN `user` u ON b_date.user_id = u.id
+                WHERE b_date.`mode` = :paid_mode
+                  AND b_date.type_boost = :date_type
+                  AND NOT EXISTS (
+                      SELECT 1
+                      FROM boost b_quota
+                      WHERE b_quota.user_id = b_date.user_id
+                        AND b_quota.type_boost = :quota_type
+                  )
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery([
+            'paid_mode'  => 'Payant',
+            'date_type'  => 'date',
+            'quota_type' => 'quota',
+        ])->fetchAllAssociative();
+    }
+
+    /**
      * Utilisateurs dont le dernier Boost Contact remonte au moins à $days jours.
      *
      * @return array<int, array{tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
