@@ -292,6 +292,57 @@ class BoostRepository extends ServiceEntityRepository
 
 
     /**
+     * Retourne les Boosts déjà démarrés et actuellement en cours pour l’outil d’aide administrateur.
+     * Les Boosts programmés, expirés et les quotas épuisés sont exclus.
+     *
+     * @return Boost[]
+     */
+    public function findActiveForAdminContactAssistance(): array
+    {
+        $now = new \DateTime();
+
+        return $this->createQueryBuilder('b')
+            ->addSelect('u', 'f')
+            ->innerJoin('b.user', 'u')
+            ->innerJoin('b.formuleBoost', 'f')
+            ->where('b.dateDebut <= :now')
+            ->andWhere('(
+                (b.typeBoost = :quota AND b.dateExp IS NULL)
+                OR (b.typeBoost <> :quota AND b.dateExp IS NOT NULL AND b.dateExp > :now)
+            )')
+            ->setParameter('now', $now)
+            ->setParameter('quota', 'quota')
+            ->orderBy('b.dateDebut', 'ASC')
+            ->addOrderBy('b.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Retourne le plus ancien Boost actif déjà démarré d’un utilisateur.
+     */
+    public function findOldestActiveBoostForUser(\App\Entity\User $user): ?Boost
+    {
+        $now = new \DateTime();
+
+        return $this->createQueryBuilder('b')
+            ->where('b.user = :user')
+            ->andWhere('b.dateDebut <= :now')
+            ->andWhere('(
+                (b.typeBoost = :quota AND b.dateExp IS NULL)
+                OR (b.typeBoost <> :quota AND b.dateExp IS NOT NULL AND b.dateExp > :now)
+            )')
+            ->setParameter('user', $user)
+            ->setParameter('now', $now)
+            ->setParameter('quota', 'quota')
+            ->orderBy('b.dateDebut', 'ASC')
+            ->addOrderBy('b.id', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
      * Retourne le premier boost actif d'un utilisateur, quel que soit son type :
      *  - quota : dateExp IS NULL (le quota n'est pas encore atteint)
      *  - date  : dateExp > maintenant (la période n'est pas encore expirée)

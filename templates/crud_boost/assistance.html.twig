@@ -1,0 +1,127 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Aide Boost Contact{% endblock %}
+
+{% block body %}
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+    <div>
+        <h4 class="mb-1"><i class="fas fa-hand-holding-heart me-2 text-primary"></i>Aide Boost Contact</h4>
+        <p class="text-muted mb-0">Ajoutez des contacts disponibles à un utilisateur pour accompagner la progression de son Boost.</p>
+    </div>
+</div>
+
+{% if errors|length > 0 %}
+    <div class="alert alert-danger" role="alert">
+        <ul class="mb-0">{% for error in errors %}<li>{{ error }}</li>{% endfor %}</ul>
+    </div>
+{% endif %}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header fw-semibold"><i class="fas fa-user-plus me-2 text-primary"></i>Ajouter des contacts</div>
+    <div class="card-body">
+        <form method="post" action="{{ path('app_crud_boost_assistance') }}" id="adminBoostAssistanceForm">
+            <input type="hidden" name="_token" value="{{ csrf_token('admin_boost_contact_assistance') }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-xl-9">
+                    <label for="assistance_boost" class="form-label">Boost Contact en cours <span class="text-danger">*</span></label>
+                    <select id="assistance_boost" name="boost_id" class="form-select" required data-placeholder="Rechercher une formule, un pseudo ou un Boost…">
+                        <option value=""></option>
+                        {% for boost in activeBoosts %}
+                            {% set boostUser = boost.user %}
+                            {% set formule = boost.formuleBoost %}
+                            {% set typeLabel = boost.typeBoost == 'quota' ? 'Quota' : 'Date' %}
+                            {% set modeLabel = boost.mode == 'Payant' ? 'Payant' : 'Gratuit' %}
+                            <option value="{{ boost.id }}"{% if selectedBoost and selectedBoost.id == boost.id %} selected{% endif %}>
+                                {{ modeLabel }} · {{ typeLabel }} · {{ formule.titre|default('Formule inconnue') }} · {{ boost.nbContactsObtenus }} obtenu(s) · {{ boostUser.pseudo|default('Sans pseudo') }} · Boost #{{ boost.id }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Les Boosts programmés, expirés et les quotas épuisés ne sont pas proposés.</div>
+                </div>
+                <div class="col-12 col-xl-3">
+                    <label for="assistance_quantity" class="form-label">Nombre de contacts <span class="text-danger">*</span></label>
+                    <input id="assistance_quantity" type="number" name="quantity" class="form-control" min="1" step="1" required value="{{ quantityValue }}" placeholder="Ex. 100">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-users me-2"></i>Ajouter les contacts</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="boostDetails" class="card shadow-sm border-0{% if not selectedBoost %} d-none{% endif %}">
+    <div class="card-header fw-semibold"><i class="fas fa-circle-info me-2 text-info"></i>Détails du Boost sélectionné</div>
+    <div class="card-body">
+        <div class="row g-3 small">
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Utilisateur</span><strong id="detailUser">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Formule</span><strong id="detailFormula">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Mode / type</span><strong id="detailModeType">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Contacts obtenus</span><strong id="detailObtained">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Date de début</span><strong id="detailStart">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Date de fin</span><strong id="detailEnd">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Plafond quota</span><strong id="detailMaximum">—</strong></div>
+            <div class="col-6 col-md-3"><span class="text-muted d-block">Reste théorique</span><strong id="detailRemaining">—</strong></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+(function () {
+    var select = document.getElementById('assistance_boost');
+    var details = document.getElementById('boostDetails');
+    if (!select || !details) return;
+
+    var data = {
+        {% for boost in activeBoosts %}
+        '{{ boost.id }}': {
+            user: {{ (boost.user.pseudo|default('Sans pseudo'))|json_encode|raw }},
+            formula: {{ (boost.formuleBoost.titre|default('Formule inconnue'))|json_encode|raw }},
+            modeType: {{ ((boost.mode == 'Payant' ? 'Payant' : 'Gratuit') ~ ' / ' ~ (boost.typeBoost == 'quota' ? 'Quota' : 'Date'))|json_encode|raw }},
+            obtained: {{ boost.nbContactsObtenus }},
+            start: {{ (boost.dateDebut ? boost.dateDebut|date('d/m/Y H:i') : '—')|json_encode|raw }},
+            end: {{ (boost.dateExp ? boost.dateExp|date('d/m/Y H:i') : '—')|json_encode|raw }},
+            maximum: {{ (boost.typeBoost == 'quota' and boost.formuleBoost.nbContactsMax is not null ? boost.formuleBoost.nbContactsMax : '—')|json_encode|raw }},
+            remaining: {{ (boost.typeBoost == 'quota' and boost.formuleBoost.nbContactsMax is not null ? max(0, boost.formuleBoost.nbContactsMax - boost.nbContactsObtenus) : '—')|json_encode|raw }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    function setText(id, value) {
+        var element = document.getElementById(id);
+        if (element) element.textContent = value;
+    }
+
+    function updateDetails() {
+        var item = data[select.value];
+        if (!item) {
+            details.classList.add('d-none');
+            return;
+        }
+        details.classList.remove('d-none');
+        setText('detailUser', item.user);
+        setText('detailFormula', item.formula);
+        setText('detailModeType', item.modeType);
+        setText('detailObtained', item.obtained);
+        setText('detailStart', item.start);
+        setText('detailEnd', item.end);
+        setText('detailMaximum', item.maximum);
+        setText('detailRemaining', item.remaining);
+    }
+
+    if (window.jQuery && jQuery.fn.select2) {
+        jQuery(select).select2({
+            theme: 'bootstrap4',
+            width: '100%',
+            placeholder: jQuery(select).data('placeholder'),
+            allowClear: true
+        }).on('change', updateDetails);
+    } else {
+        select.addEventListener('change', updateDetails);
+    }
+    updateDetails();
+})();
+</script>
+{% endblock %}

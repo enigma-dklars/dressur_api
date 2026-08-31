@@ -9,6 +9,7 @@ use App\Repository\FormuleBoostRepository;
 use App\Repository\UserRepository;
 use App\Services\CookieDS;
 use App\Services\TraitementsDS;
+use App\Services\AdminBoostContactAssistanceService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -109,6 +110,64 @@ class CrudBoostController extends AbstractController
             'users'    => $users,
             'formules' => $formules,
             'errors'   => $errors,
+        ]);
+    }
+
+    #[Route('/aide-contacts', name: 'app_crud_boost_assistance', methods: ['GET', 'POST'])]
+    public function contactAssistance(
+        Request $request,
+        BoostRepository $boostRepository,
+        AdminBoostContactAssistanceService $assistanceService
+    ): Response {
+        $activeBoosts = $boostRepository->findActiveForAdminContactAssistance();
+        $errors = [];
+        $selectedBoost = null;
+        $quantityValue = (string) $request->request->get('quantity', '');
+
+        $selectedId = filter_var($request->request->get('boost_id'), FILTER_VALIDATE_INT);
+        if ($selectedId) {
+            foreach ($activeBoosts as $activeBoost) {
+                if ($activeBoost->getId() === $selectedId) {
+                    $selectedBoost = $activeBoost;
+                    break;
+                }
+            }
+        }
+
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('admin_boost_contact_assistance', $request->request->get('_token'))) {
+                $errors[] = 'Token CSRF invalide. Opération annulée.';
+            }
+            if (!$selectedBoost) {
+                $errors[] = 'Veuillez sélectionner un Boost Contact actif.';
+            }
+
+            $quantity = filter_var($quantityValue, FILTER_VALIDATE_INT);
+            if ($quantity === false || $quantity < 1) {
+                $errors[] = 'La quantité doit être un nombre entier supérieur à 0.';
+            }
+
+            if (!$errors) {
+                $result = $assistanceService->addContacts($selectedBoost, $quantity);
+                $message = sprintf(
+                    'Aide terminée pour le Boost #%d : %d contact(s) demandé(s), %d ajouté(s), %d restant(s) non trouvé(s).',
+                    $selectedBoost->getId(),
+                    $result['requested'],
+                    $result['added'],
+                    $result['remaining']
+                );
+                $this->addFlash($result['added'] > 0 ? 'success' : 'warning', $message);
+                return $this->redirectToRoute('app_crud_boost_assistance', [], Response::HTTP_SEE_OTHER);
+            }
+        }
+
+        return $this->render('crud_boost/assistance.html.twig', [
+            'theme' => $this->theme,
+            'user' => $this->traitementsDS->getUserByUidInCookies(),
+            'activeBoosts' => $activeBoosts,
+            'selectedBoost' => $selectedBoost,
+            'quantityValue' => $quantityValue,
+            'errors' => $errors,
         ]);
     }
 

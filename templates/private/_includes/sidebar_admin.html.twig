@@ -4,7 +4,8 @@
 {% set user_special = ['app_crud_user_check_and_confirme','app_crud_user_check','app_crud_user_purge','app_crud_user_banned','app_crud_user_banned_liste','app_crud_user_used_identity_liste','app_crud_user_restrictions','app_crud_user_restriction_toggle'] %}
 {% set is_user        = (r starts with 'app_crud_user') and not (r starts with 'app_crud_user_bot') and r not in user_special %}
 {% set is_user_bot    = r starts with 'app_crud_user_bot' %}
-{% set is_boost       = r starts with 'app_crud_boost' %}
+{% set is_boost       = r starts with 'app_crud_boost' and r != 'app_crud_boost_assistance' %}
+{% set is_boost_assistance = r == 'app_crud_boost_assistance' %}
 {% set is_promotion   = r starts with 'app_crud_promotion' %}
 {% set is_promo_reseau= r starts with 'app_crud_promo_reseau' %}
 {% set is_histo_recomp= r starts with 'app_historique_programme_recompense' %}
@@ -72,6 +73,7 @@
 
       <li class="my-0 {{ is_story ? 'mm-active' : '' }}"> <a href="{{path('app_crud_story_index')}}" class="py-1 small-fort {{ is_story ? 'active' : '' }}"><i class="me-2 fas fa-film"></i>Stories</a></li>
       <li class="my-0 {{ is_boost ? 'mm-active' : '' }}"> <a href="{{path('app_crud_boost_index')}}" class="py-1 small-fort {{ is_boost ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>Boost Contact</a></li>
+      <li class="my-0 {{ is_boost_assistance ? 'mm-active' : '' }}"> <a href="{{path('app_crud_boost_assistance')}}" class="py-1 small-fort bg-primary text-white {{ is_boost_assistance ? 'active' : '' }}"><i class="me-2 fas fa-hand-holding-heart"></i>Aide Boost Contact</a></li>
       <li class="my-0 {{ is_promotion ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promotion_index')}}" class="py-1 small-fort {{ is_promotion ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Affaire</a></li>
       <li class="my-0 {{ is_promo_reseau ? 'mm-active' : '' }}"> <a href="{{path('app_crud_promo_reseau_index')}}" class="py-1 small-fort {{ is_promo_reseau ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>P. Réseaux Sociaux</a></li>
       <li class="my-0 {{ is_histo_recomp ? 'mm-active' : '' }}"> <a href="{{path('app_historique_programme_recompense_index')}}" class="py-1 small-fort {{ is_histo_recomp ? 'active' : '' }}"><i class="me-2 fas fa-align-left"></i>H. P. Récompense</a></li>
