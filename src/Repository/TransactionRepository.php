@@ -169,6 +169,35 @@ class TransactionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Statistiques des transactions approuvées pour la journée courante.
+     */
+    public function getDailyTransactionStats(): array
+    {
+        $now       = new \DateTime();
+        $dayStart  = (clone $now)->setTime(0, 0, 0);
+        $dayEnd    = (clone $now)->setTime(23, 59, 59);
+
+        $row = $this->createQueryBuilder('t')
+            ->select('COUNT(t.id) as nbr, SUM(t.amount) as total')
+            ->where('t.status = :status')
+            ->andWhere('t.createdAt >= :start')
+            ->andWhere('t.createdAt <= :end')
+            ->setParameter('status', 'approved')
+            ->setParameter('start', $dayStart)
+            ->setParameter('end', $dayEnd)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        return [
+            'label'     => 'Aujourd’hui',
+            'dateStart' => $dayStart->format('d/m'),
+            'dateEnd'   => $dayStart->format('d/m'),
+            'nbr'       => (int)   ($row['nbr']   ?? 0),
+            'total'     => (float) ($row['total'] ?? 0),
+        ];
+    }
+
+    /**
      * Statistiques des transactions approuvées pour les 4 dernières semaines calendaires.
      * Index 0 = semaine en cours (lundi → aujourd'hui)
      * Index 1 = semaine précédente complète, etc.

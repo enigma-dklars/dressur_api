@@ -339,6 +339,7 @@ class PrivateController extends AbstractController
                     'chartSummary'  => $chartSummary,
                     'topPays'       => $userRepository->getAllPaysByUserCount(),
                     'revenueByService'        => $transactionRepository->getRevenueByService(),
+                    'todayTransactions'      => $transactionRepository->getDailyTransactionStats(),
                     'weeklyTransactions'      => $transactionRepository->getWeeklyTransactionStats(),
                     'monthlyTransactions'     => $transactionRepository->getMonthlyTransactionComparison(),
                     'topUsersBoostContact'    => $transactionRepository->getTopUsersByService(['boost_contact']),

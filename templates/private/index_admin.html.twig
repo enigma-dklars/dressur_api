@@ -328,39 +328,40 @@
         </div>
     </div>
 
-    {# ── Transactions approuvées – 4 dernières semaines ─────────  #}
+    {# ── Transactions approuvées – aujourd’hui et 4 dernières semaines ──  #}
     <div class="row g-2 mb-2">
         <div class="col-12">
             <p class="mb-1 text-secondary fw-semibold" style="font-size:.85rem;letter-spacing:.04em;">
-                <i class="fas fa-calendar-week me-1"></i> TRANSACTIONS APPROUVÉES — 4 DERNIÈRES SEMAINES
+                <i class="fas fa-calendar-week me-1"></i> TRANSACTIONS APPROUVÉES — AUJOURD’HUI ET 4 DERNIÈRES SEMAINES
             </p>
         </div>
     </div>
-    <div class="row g-2 mb-4 row-cols-2 row-cols-md-4">
-        {% set weekColors = ['#4e73df', '#1cc88a', '#f6a21e', '#9b59b6'] %}
-        {% set weekBgs    = ['bg-primary', 'bg-success', 'bg-warning', 'bg-secondary'] %}
-        {% for week in weeklyTransactions %}
+    <div class="row g-2 mb-4 row-cols-2 row-cols-md-5">
+        {% set transactionPeriods = [todayTransactions]|merge(weeklyTransactions) %}
+        {% set periodColors = ['#0d6efd', '#4e73df', '#1cc88a', '#f6a21e', '#9b59b6'] %}
+        {% set periodBgs    = ['bg-info', 'bg-primary', 'bg-success', 'bg-warning', 'bg-secondary'] %}
+        {% for period in transactionPeriods %}
         <div class="col">
-            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid {{ weekColors[loop.index0] }};">
+            <div class="card radius-10 mb-0 h-100" style="border-left:4px solid {{ periodColors[loop.index0] }};">
                 <div class="card-body">
                     <div class="d-flex align-items-start justify-content-between">
                         <div>
-                            <p class="mb-0 fw-semibold" style="font-size:.8rem;color:{{ weekColors[loop.index0] }};">
-                                {{ week.label }}
+                            <p class="mb-0 fw-semibold" style="font-size:.8rem;color:{{ periodColors[loop.index0] }};">
+                                {{ period.label }}
                             </p>
                             <p class="mb-1 text-secondary" style="font-size:.72rem;">
-                                {{ week.dateStart }} → {{ week.dateEnd }}
+                                {{ period.dateStart }}{% if period.dateStart != period.dateEnd %} → {{ period.dateEnd }}{% endif %}
                             </p>
-                            <h4 class="my-1 fw-bold" style="color:{{ weekColors[loop.index0] }};">
-                                {{ week.total | number_format(0, ',', ' ') }}
+                            <h4 class="my-1 fw-bold" style="color:{{ periodColors[loop.index0] }};">
+                                {{ period.total | number_format(0, ',', ' ') }}
                                 <span class="text-secondary" style="font-size:.7rem;font-weight:400;">FCFA</span>
                             </h4>
                             <p class="mb-0 font-13 text-secondary">
                                 <i class="fas fa-check-circle text-success me-1" style="font-size:.75rem;"></i>
-                                {{ week.nbr }} transaction{{ week.nbr > 1 ? 's' : '' }}
+                                {{ period.nbr }} transaction{{ period.nbr > 1 ? 's' : '' }}
                             </p>
                         </div>
-                        <div class="widget-icon {{ weekBgs[loop.index0] }} text-white ms-2" style="width:38px;height:38px;min-width:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <div class="widget-icon {{ periodBgs[loop.index0] }} text-white ms-2" style="width:38px;height:38px;min-width:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
                             <i class="fas fa-calendar-check" style="font-size:.9rem;"></i>
                         </div>
                     </div>
