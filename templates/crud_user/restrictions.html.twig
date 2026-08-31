@@ -22,132 +22,127 @@
     </div>
 {% endif %}
 
-<div class="row g-3">
-    <div class="col-xl-5">
-        <div class="card h-100">
-            <div class="card-header fw-semibold"><i class="fas fa-shield-halved me-2 text-warning"></i>Appliquer une restriction</div>
-            <div class="card-body">
-                <form method="post" action="{{ path('app_crud_user_restrictions') }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('user_restriction_save') }}">
-
-                    <div class="mb-3">
-                        <label for="restriction_user" class="form-label">Utilisateur <span class="text-danger">*</span></label>
-                        <select id="restriction_user" name="user_id" class="form-select" required data-placeholder="Rechercher par pseudo, nom, téléphone ou e-mail">
-                            <option value=""></option>
-                            {% for candidate in users %}
-                                <option value="{{ candidate.id }}"{% if selectedUserId == candidate.id %} selected{% endif %}>
-                                    {{ candidate.pseudo|default('Sans pseudo') }}{% if candidate.nom %} — {{ candidate.nom }}{% endif %}{% if candidate.tel %} — {{ candidate.tel }}{% endif %}{% if candidate.mail %} — {{ candidate.mail }}{% endif %}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <div class="form-text">Saisissez un pseudo, un nom/prénom, un numéro de téléphone ou une adresse e-mail.</div>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header fw-semibold"><i class="fas fa-shield-halved me-2 text-warning"></i>Appliquer une restriction</div>
+    <div class="card-body">
+        <form method="post" action="{{ path('app_crud_user_restrictions') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('user_restriction_save') }}">
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <label for="restriction_user" class="form-label">Utilisateur <span class="text-danger">*</span></label>
+                    <select id="restriction_user" name="user_id" class="form-select" required data-placeholder="Rechercher par pseudo, nom, téléphone ou e-mail">
+                        <option value=""></option>
+                        {% for candidate in users %}
+                            <option value="{{ candidate.id }}"{% if selectedUserId == candidate.id %} selected{% endif %}>
+                                {{ candidate.pseudo|default('Sans pseudo') }}{% if candidate.nom %} — {{ candidate.nom }}{% endif %}{% if candidate.tel %} — {{ candidate.tel }}{% endif %}{% if candidate.mail %} — {{ candidate.mail }}{% endif %}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Recherchez par pseudo, nom/prénom, numéro de téléphone ou adresse e-mail.</div>
+                </div>
+                <div class="col-lg-6">
+                    <label for="restriction_type" class="form-label">Restriction <span class="text-danger">*</span></label>
+                    <select id="restriction_type" name="type" class="form-select" required>
+                        <option value="">— Choisir une restriction —</option>
+                        {% for value, label in restrictionTypes %}
+                            <option value="{{ value }}"{% if selectedType == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div id="minimum_amount_group" class="col-lg-6"{% if selectedType != 'minimum_transaction_amount' %} style="display:none"{% endif %}>
+                    <label for="minimum_transaction_amount" class="form-label">Montant minimum global <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input id="minimum_transaction_amount" type="number" name="minimum_transaction_amount" class="form-control" min="1" step="1" value="{{ formData.minimum_transaction_amount|default('') }}">
+                        <span class="input-group-text">FCFA</span>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="restriction_type" class="form-label">Restriction <span class="text-danger">*</span></label>
-                        <select id="restriction_type" name="type" class="form-select" required>
-                            <option value="">— Choisir une restriction —</option>
-                            {% for value, label in restrictionTypes %}
-                                <option value="{{ value }}"{% if selectedType == value %} selected{% endif %}>{{ label }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div id="minimum_amount_group" class="mb-3"{% if selectedType != 'minimum_transaction_amount' %} style="display:none"{% endif %}>
-                        <label for="minimum_transaction_amount" class="form-label">Montant minimum global <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input id="minimum_transaction_amount" type="number" name="minimum_transaction_amount" class="form-control" min="1" step="1" value="{{ formData.minimum_transaction_amount|default('') }}">
-                            <span class="input-group-text">FCFA</span>
-                        </div>
-                        <div class="form-text">Ce seuil s’applique à toute transaction payante future de l’utilisateur.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="restriction_expires_at" class="form-label">Date de fin</label>
-                        <input id="restriction_expires_at" type="date" name="expires_at" class="form-control" value="{{ formData.expires_at|default('') }}">
-                        <div class="form-text">Laisser vide pour une restriction jusqu’à sa désactivation manuelle.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="restriction_reason" class="form-label">Motif <span class="text-danger">*</span></label>
-                        <textarea id="restriction_reason" name="reason" class="form-control" rows="4" maxlength="2000" required>{{ formData.reason|default('') }}</textarea>
-                        <div class="form-text">Le motif sera conservé avec la restriction et apparaîtra dans la notification envoyée à l’utilisateur.</div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save me-2"></i>Enregistrer la restriction</button>
-                </form>
+                    <div class="form-text">Ce seuil s’applique à toute transaction payante future de l’utilisateur.</div>
+                </div>
+                <div class="col-lg-6">
+                    <label for="restriction_expires_at" class="form-label">Date de fin</label>
+                    <input id="restriction_expires_at" type="date" name="expires_at" class="form-control" value="{{ formData.expires_at|default('') }}">
+                    <div class="form-text">Laisser vide pour une désactivation manuelle.</div>
+                </div>
+                <div class="col-12">
+                    <label for="restriction_reason" class="form-label">Motif <span class="text-danger">*</span></label>
+                    <textarea id="restriction_reason" name="reason" class="form-control" rows="3" maxlength="2000" required>{{ formData.reason|default('') }}</textarea>
+                    <div class="form-text">Le motif est conservé et apparaît dans la notification envoyée à l’utilisateur.</div>
+                </div>
+                <div class="col-12 col-lg-auto ms-lg-auto">
+                    <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Enregistrer la restriction</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
+</div>
 
-    <div class="col-xl-7">
-        <div class="card">
-            <div class="card-header fw-semibold"><i class="fas fa-list-check me-2 text-primary"></i>Restrictions enregistrées</div>
-            <div class="card-body p-0">
-                {% if restrictions|length > 0 %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Utilisateur</th>
-                                    <th>Restriction</th>
-                                    <th>Paramètre</th>
-                                    <th>Motif</th>
-                                    <th>État</th>
-                                    <th class="text-end">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {% for restriction in restrictions %}
-                                {% set target = restriction.user %}
-                                <tr>
-                                    <td>
-                                        {% if target %}
-                                            <strong>{{ target.pseudo|default('Sans pseudo') }}</strong>
-                                            {% if target.tel %}<small class="d-block text-muted">{{ target.tel }}</small>{% endif %}
-                                        {% else %}
-                                            <strong>Compte supprimé</strong>
-                                            {% if restriction.identityTel %}<small class="d-block text-muted">{{ restriction.identityTel }}</small>{% endif %}
-                                            {% if restriction.identityMail %}<small class="d-block text-muted">{{ restriction.identityMail }}</small>{% endif %}
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if restriction.type == 'block_free_boost' %}
-                                            <span class="badge bg-warning text-dark">Boost gratuit bloqué</span>
-                                        {% else %}
-                                            <span class="badge bg-info text-dark">Minimum transaction</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{% if restriction.type == 'minimum_transaction_amount' %}{{ restriction.minimumTransactionAmount|number_format(0, ',', ' ') }} FCFA{% else %}Tous les Boost Contacts gratuits{% endif %}</td>
-                                    <td class="small" style="max-width:220px;white-space:normal">{{ restriction.reason|default('—') }}</td>
-                                    <td>
-                                        {% if restriction.currentlyActive %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% elseif restriction.active %}
-                                            <span class="badge bg-secondary">Expirée</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">Désactivée</span>
-                                        {% endif %}
-                                        {% if restriction.expiresAt %}<small class="d-block text-muted">jusqu’au {{ restriction.expiresAt|date('d/m/Y') }}</small>{% endif %}
-                                    </td>
-                                    <td class="text-end">
-                                        <form method="post" action="{{ path('app_crud_user_restriction_toggle', {id: restriction.id}) }}">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('user_restriction_toggle' ~ restriction.id) }}">
-                                            <button type="submit" class="btn btn-sm {% if restriction.active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
-                                                {% if restriction.active %}<i class="fas fa-pause me-1"></i>Désactiver{% else %}<i class="fas fa-play me-1"></i>Réactiver{% endif %}
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    <div class="text-center text-muted py-5"><i class="fas fa-shield-halved fs-2 d-block mb-2"></i>Aucune restriction enregistrée.</div>
-                {% endif %}
+<div class="card shadow-sm border-0">
+    <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <span class="fw-semibold"><i class="fas fa-list-check me-2 text-primary"></i>Restrictions enregistrées</span>
+        <span class="badge bg-light text-dark border">{{ restrictions|length }} enregistrement{{ restrictions|length == 1 ? '' : 's' }}</span>
+    </div>
+    <div class="card-body">
+        {% if restrictions|length > 0 %}
+            <div class="table-responsive">
+                <table id="restrictionsTable" class="table table-hover align-middle w-100">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Restriction</th>
+                            <th>Paramètre</th>
+                            <th>Motif</th>
+                            <th>État</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for restriction in restrictions %}
+                        {% set target = restriction.user %}
+                        <tr>
+                            <td>
+                                {% if target %}
+                                    <strong>{{ target.pseudo|default('Sans pseudo') }}</strong>
+                                    {% if target.tel %}<small class="d-block text-muted">{{ target.tel }}</small>{% endif %}
+                                {% else %}
+                                    <strong>Compte supprimé</strong>
+                                    {% if restriction.identityTel %}<small class="d-block text-muted">{{ restriction.identityTel }}</small>{% endif %}
+                                    {% if restriction.identityMail %}<small class="d-block text-muted">{{ restriction.identityMail }}</small>{% endif %}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if restriction.type == 'block_free_boost' %}
+                                    <span class="badge bg-warning text-dark">Boost gratuit bloqué</span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark">Minimum transaction</span>
+                                {% endif %}
+                            </td>
+                            <td>{% if restriction.type == 'minimum_transaction_amount' %}{{ restriction.minimumTransactionAmount|number_format(0, ',', ' ') }} FCFA{% else %}Tous les Boost Contacts gratuits{% endif %}</td>
+                            <td class="small restriction-reason">{{ restriction.reason|default('—') }}</td>
+                            <td>
+                                {% if restriction.currentlyActive %}
+                                    <span class="badge bg-success">Active</span>
+                                {% elseif restriction.active %}
+                                    <span class="badge bg-secondary">Expirée</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Désactivée</span>
+                                {% endif %}
+                                {% if restriction.expiresAt %}<small class="d-block text-muted">jusqu’au {{ restriction.expiresAt|date('d/m/Y') }}</small>{% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form method="post" action="{{ path('app_crud_user_restriction_toggle', {id: restriction.id}) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('user_restriction_toggle' ~ restriction.id) }}">
+                                    <button type="submit" class="btn btn-sm {% if restriction.active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                                        {% if restriction.active %}<i class="fas fa-pause me-1"></i>Désactiver{% else %}<i class="fas fa-play me-1"></i>Réactiver{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
-        </div>
+        {% else %}
+            <div class="text-center text-muted py-5"><i class="fas fa-shield-halved fs-2 d-block mb-2"></i>Aucune restriction enregistrée.</div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -155,6 +150,34 @@
 {% block script %}
 <script>
 (function () {
+    var restrictionsTable = document.getElementById('restrictionsTable');
+    if (window.jQuery && jQuery.fn.DataTable && restrictionsTable) {
+        jQuery(restrictionsTable).DataTable({
+            language: {
+                search: 'Rechercher :',
+                lengthMenu: 'Afficher _MENU_ éléments',
+                info: '_START_ à _END_ sur _TOTAL_ restrictions',
+                infoEmpty: 'Aucune restriction',
+                infoFiltered: '(filtré de _MAX_ restrictions)',
+                zeroRecords: 'Aucune restriction correspondante',
+                emptyTable: 'Aucune restriction enregistrée',
+                paginate: {
+                    first: 'Premier',
+                    last: 'Dernier',
+                    next: 'Suivant',
+                    previous: 'Précédent'
+                }
+            },
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            order: [],
+            autoWidth: false,
+            columnDefs: [
+                { targets: 5, orderable: false, searchable: false }
+            ]
+        });
+    }
+
     if (window.jQuery && jQuery.fn.select2) {
         jQuery('#restriction_user').select2({
             theme: 'bootstrap4',
