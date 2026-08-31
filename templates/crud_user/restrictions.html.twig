@@ -116,7 +116,13 @@
                                 {% endif %}
                             </td>
                             <td>{% if restriction.type == 'minimum_transaction_amount' %}{{ restriction.minimumTransactionAmount|number_format(0, ',', ' ') }} FCFA{% else %}Tous les Boost Contacts gratuits{% endif %}</td>
-                            <td class="small restriction-reason">{{ restriction.reason|default('—') }}</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-secondary view-reason"
+                                        data-bs-toggle="modal" data-bs-target="#restrictionReasonModal"
+                                        data-reason="{{ restriction.reason|default('—')|e('html_attr') }}">
+                                    <i class="fas fa-comment-dots me-1"></i>Voir le motif
+                                </button>
+                            </td>
                             <td>
                                 {% if restriction.currentlyActive %}
                                     <span class="badge bg-success">Active</span>
@@ -145,12 +151,37 @@
         {% endif %}
     </div>
 </div>
+
+<div class="modal fade" id="restrictionReasonModal" tabindex="-1" aria-labelledby="restrictionReasonModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="restrictionReasonModalLabel"><i class="fas fa-comment-dots me-2 text-primary"></i>Motif de la restriction</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p id="restrictionReasonContent" class="mb-0 text-break">—</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block script %}
 <script>
 (function () {
     var restrictionsTable = document.getElementById('restrictionsTable');
+    var reasonContent = document.getElementById('restrictionReasonContent');
+    var reasonModal = document.getElementById('restrictionReasonModal');
+    if (reasonModal && reasonContent) {
+        reasonModal.addEventListener('show.bs.modal', function (event) {
+            var trigger = event.relatedTarget;
+            reasonContent.textContent = trigger ? (trigger.getAttribute('data-reason') || '—') : '—';
+        });
+    }
     if (window.jQuery && jQuery.fn.DataTable && restrictionsTable) {
         jQuery(restrictionsTable).DataTable({
             language: {
