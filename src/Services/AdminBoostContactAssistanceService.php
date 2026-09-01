@@ -42,7 +42,7 @@ class AdminBoostContactAssistanceService
             if (!$candidate instanceof User || $candidate->getId() === $owner->getId()) {
                 continue;
             }
-            if ($candidate->getBlocked() === true || !$candidate->getPreference() || !$candidate->getContact()) {
+            if ($candidate->getAdmin() === true || $candidate->getBlocked() === true || !$candidate->getPreference() || !$candidate->getContact()) {
                 continue;
             }
             if (in_array($candidate->getId(), $alreadyAdded, true)) {
