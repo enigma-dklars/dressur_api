@@ -39,9 +39,11 @@
     <div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
         <span class="fw-semibold me-1">Segment :</span>
         <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous</a>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'rewards'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'rewards' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Récompenses</a>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'sellers'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'sellers' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Vendeurs</a>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'partners'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'partners' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Partenaires</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'rewards'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'rewards' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Récompenses ({{ segmentCounts.rewards }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'sellers'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'sellers' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Vendeurs ({{ segmentCounts.sellers }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'partners'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'partners' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Partenaires ({{ segmentCounts.partners }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'readers'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'readers' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Lecteurs ({{ segmentCounts.readers }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'admins'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'admins' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Administrateurs ({{ segmentCounts.admins }})</a>
     </div>
 
     <!-- Informations sur les résultats -->

@@ -56,7 +56,7 @@ class CrudUserController extends AbstractController
         $search = $request->query->get('search', '');
         $sourceFilter = $request->query->get('source', '');
         $segmentFilter = $request->query->get('segment', '');
-        $segmentFilter = in_array($segmentFilter, ['rewards', 'sellers', 'partners'], true) ? $segmentFilter : '';
+        $segmentFilter = in_array($segmentFilter, ['rewards', 'sellers', 'partners', 'readers', 'admins'], true) ? $segmentFilter : '';
         $limit = 25; // Nombre d'utilisateurs par page
 
         $usersPaginator = $userRepository->findAllPaginatedFiltered($search, $sourceFilter, $segmentFilter, $page, $limit);
@@ -72,6 +72,8 @@ class CrudUserController extends AbstractController
                 'rewards' => 'Programme des récompenses',
                 'sellers' => 'Vendeurs',
                 'partners' => 'Partenaires',
+                'readers' => 'Lecteurs',
+                'admins' => 'Administrateurs',
                 default => 'All',
             },
             'currentPage' => $page,
@@ -81,7 +83,8 @@ class CrudUserController extends AbstractController
             'limit' => $limit,
             'sourceFilter' => $sourceFilter,
             'segmentFilter' => $segmentFilter,
-            'sourceCounts' => $userRepository->getRegisterSourceCounts()
+            'sourceCounts' => $userRepository->getRegisterSourceCounts(),
+            'segmentCounts' => $userRepository->getSegmentCounts(),
         ]);
     }
 

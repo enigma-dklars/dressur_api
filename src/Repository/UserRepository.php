@@ -146,11 +146,53 @@ class UserRepository extends ServiceEntityRepository
         } elseif ($segment === 'partners') {
             $qb->andWhere('u.estPartenaire = :partner')
                ->setParameter('partner', true);
+        } elseif ($segment === 'readers') {
+            $qb->andWhere('u.lecteur = :reader')
+               ->setParameter('reader', true);
+        } elseif ($segment === 'admins') {
+            $qb->andWhere('u.admin = :admin')
+               ->setParameter('admin', true);
         }
 
         $qb->orderBy('u.id', 'DESC');
 
         return $this->paginate($qb->getQuery(), $page, $limit);
+    }
+
+    public function getSegmentCounts(): array
+    {
+        return [
+            'rewards' => (int) $this->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->andWhere('u.isInscritProgrammeRecompense = :value')
+                ->setParameter('value', true)
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'sellers' => (int) $this->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->andWhere('u.vendeur = :value')
+                ->setParameter('value', true)
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'partners' => (int) $this->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->andWhere('u.estPartenaire = :value')
+                ->setParameter('value', true)
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'readers' => (int) $this->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->andWhere('u.lecteur = :value')
+                ->setParameter('value', true)
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'admins' => (int) $this->createQueryBuilder('u')
+                ->select('COUNT(u.id)')
+                ->andWhere('u.admin = :value')
+                ->setParameter('value', true)
+                ->getQuery()
+                ->getSingleScalarResult(),
+        ];
     }
 
     public function getRegisterSourceCounts(): array
