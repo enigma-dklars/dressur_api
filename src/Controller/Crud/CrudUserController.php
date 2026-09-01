@@ -231,17 +231,10 @@ class CrudUserController extends AbstractController
                 $user = array_values($found)[0];
                 $this->addFlash('success', 'User found.');
                 $user_array['user_info'] = $user;
-                $paysChoisies = $user->getPreference()->getPaysChoisies();
-                $transactions = $transactionRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-
-                // Calcul du vrai nombre de contacts
-                $contact = $user->getContact();
-                $whoIAdd  = $contact ? $contact->getWhoIAdd()  : [];
-                $whoAddMe = $contact ? $contact->getWhoAddMe() : [];
-                $mergedIds   = array_unique(array_merge($whoIAdd, $whoAddMe));
-                $allUserIds  = $userRepository->findAllIds();
-                $allIdsFlip  = array_flip($allUserIds);
-                $contactCount = count(array_intersect_key(array_flip($mergedIds), $allIdsFlip));
+                $details = $this->buildUserDetailsData($user, $userRepository, $transactionRepository);
+                $paysChoisies = $details['paysChoisies'];
+                $transactions = $details['transactions'];
+                $contactCount = $details['contactCount'];
             } else {
                 // Add a flash message if user is not found
                 $this->addFlash('danger', 'User not found.');
@@ -672,13 +665,36 @@ class CrudUserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_crud_user_show', requirements: ['id' => '\\d+'], methods: ['GET'])]
-    public function show(User $user): Response
+    private function buildUserDetailsData(User $targetUser, UserRepository $userRepository, TransactionRepository $transactionRepository): array
     {
+        $paysChoisies = $targetUser->getPreference()?->getPaysChoisies() ?? [];
+        $transactions = $transactionRepository->findBy(['user' => $targetUser], ['createdAt' => 'DESC']);
+        $contact = $targetUser->getContact();
+        $mergedIds = $contact ? array_unique(array_merge($contact->getWhoIAdd(), $contact->getWhoAddMe())) : [];
+        $allIdsFlip = array_flip($userRepository->findAllIds());
+        $contactCount = count(array_intersect_key(array_flip($mergedIds), $allIdsFlip));
+
+        return [
+            'paysChoisies' => $paysChoisies,
+            'transactions' => $transactions,
+            'contactCount' => $contactCount,
+        ];
+    }
+
+    #[Route('/{id}', name: 'app_crud_user_show', requirements: ['id' => '\\d+'], methods: ['GET'])]
+    public function show(User $user, UserRepository $userRepository, TransactionRepository $transactionRepository): Response
+    {
+        $details = $this->buildUserDetailsData($user, $userRepository, $transactionRepository);
+
         return $this->render('crud_user/show.html.twig', [
             'theme' => $this->theme,
             'user' => $this->traitementsDS->getUserByUidInCookies(),
-            'user_show' => $user,
+            'u' => $user,
+            'users' => [],
+            'transactions' => $details['transactions'],
+            'contactCount' => $details['contactCount'],
+            'nbr_pays_preference' => count($details['paysChoisies']),
+            'pays_preference' => implode(', ', $details['paysChoisies']),
         ]);
     }
 
