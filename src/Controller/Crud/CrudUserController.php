@@ -52,7 +52,7 @@ class CrudUserController extends AbstractController
     #[Route('/', name: 'app_crud_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository, Request $request): Response
     {
-        $page = $request->query->getInt('page', 1);
+        $page = max(1, $request->query->getInt('page', 1));
         $search = $request->query->get('search', '');
         $sourceFilter = $request->query->get('source', '');
         $segmentFilter = $request->query->get('segment', '');
@@ -62,7 +62,7 @@ class CrudUserController extends AbstractController
         $usersPaginator = $userRepository->findAllPaginatedFiltered($search, $sourceFilter, $segmentFilter, $page, $limit);
         
         $totalItems = $usersPaginator->count();
-        $totalPages = ceil($totalItems / $limit);
+        $totalPages = (int) ceil($totalItems / $limit);
 
         return $this->render('crud_user/index.html.twig', [
             'theme' => $this->theme,

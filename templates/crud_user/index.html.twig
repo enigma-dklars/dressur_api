@@ -29,19 +29,19 @@
     <!-- Filtre Source -->
     <div class="mb-3 d-flex align-items-center gap-2">
         <span class="fw-semibold me-1">Source :</span>
-        <a href="{{ path('app_crud_user_index', {'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
-        <a href="{{ path('app_crud_user_index', {'source': 'mobile', 'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
-        <a href="{{ path('app_crud_user_index', {'source': 'web', 'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
-        <a href="{{ path('app_crud_user_index', {'source': 'none', 'search': search, 'limit': limit, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
+        <a href="{{ path('app_crud_user_index', {'search': search, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous ({{ sourceCounts.total }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'mobile', 'search': search, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'mobile' ? 'bg-warning text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">mobile ({{ sourceCounts.mobile }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'web', 'search': search, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'web' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">web ({{ sourceCounts.web }})</a>
+        <a href="{{ path('app_crud_user_index', {'source': 'none', 'search': search, 'segment': segmentFilter ?? ''}) }}" class="badge text-decoration-none {{ sourceFilter == 'none' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">none ({{ sourceCounts.none }})</a>
     </div>
 
     <!-- Filtre Segment -->
     <div class="mb-3 d-flex align-items-center gap-2 flex-wrap">
         <span class="fw-semibold me-1">Segment :</span>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous</a>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit, 'segment': 'rewards'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'rewards' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Récompenses</a>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit, 'segment': 'sellers'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'sellers' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Vendeurs</a>
-        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'limit': limit, 'segment': 'partners'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'partners' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Partenaires</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == '' ? 'bg-dark text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Tous</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'rewards'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'rewards' ? 'bg-success text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Récompenses</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'sellers'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'sellers' ? 'bg-primary text-white' : 'bg-secondary text-white' }}" style="font-size:.8rem">Vendeurs</a>
+        <a href="{{ path('app_crud_user_index', {'source': sourceFilter, 'search': search, 'segment': 'partners'}) }}" class="badge text-decoration-none {{ (segmentFilter ?? '') == 'partners' ? 'bg-info text-dark' : 'bg-secondary text-white' }}" style="font-size:.8rem">Partenaires</a>
     </div>
 
     <!-- Informations sur les résultats -->
@@ -53,7 +53,7 @@
     </div>
 
     <div class="table-responsive">
-        <table class="data-table table table-bordered table-striped my-5">
+        <table class="table table-bordered table-striped my-5">
             <thead>
                 <tr>
                     <th></th>
@@ -213,26 +213,4 @@
     </nav>
     {% endif %}
 
-    <!-- Sélecteur de limite par page -->
-    <div class="d-flex justify-content-end align-items-center mt-3">
-        <span class="me-2">Afficher :</span>
-        <select class="form-select form-select-sm" style="width: auto;" onchange="changeLimit(this.value)">
-            <option value="10" {% if limit == 10 %}selected{% endif %}>10</option>
-            <option value="20" {% if limit == 20 %}selected{% endif %}>20</option>
-            <option value="50" {% if limit == 50 %}selected{% endif %}>50</option>
-            <option value="100" {% if limit == 100 %}selected{% endif %}>100</option>
-        </select>
-        <span class="ms-2">par page</span>
-    </div>
-{% endblock %}
-
-{% block script %}
-<script>
-function changeLimit(limit) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('limit', limit);
-    url.searchParams.set('page', 1); // Retour à la première page
-    window.location.href = url.toString();
-}
-</script>
 {% endblock %}
