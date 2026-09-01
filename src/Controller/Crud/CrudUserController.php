@@ -57,7 +57,7 @@ class CrudUserController extends AbstractController
         $sourceFilter = $request->query->get('source', '');
         $segmentFilter = $request->query->get('segment', '');
         $segmentFilter = in_array($segmentFilter, ['rewards', 'sellers', 'partners'], true) ? $segmentFilter : '';
-        $limit = 100; // Nombre d'utilisateurs par page
+        $limit = 25; // Nombre d'utilisateurs par page
 
         $usersPaginator = $userRepository->findAllPaginatedFiltered($search, $sourceFilter, $segmentFilter, $page, $limit);
         
