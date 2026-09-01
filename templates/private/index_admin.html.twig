@@ -25,7 +25,7 @@
                         <span class="badge bg-primary text-white" style="font-size:.75rem;">{{ topPays|length }} pays</span>
                     </div>
                     {% if topPays is not empty %}
-                        {% set countryColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-secondary'] %}
+                        {% set countryColors = ['bg-primary', 'bg-success', 'bg-warning', 'bg-info', 'bg-danger'] %}
                         <div class="d-flex flex-wrap gap-2">
                             {% for row in topPays %}
                                 {% set countryColor = loop.index0 < 5 ? countryColors[loop.index0] : 'bg-secondary' %}
