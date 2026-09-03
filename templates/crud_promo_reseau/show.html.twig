@@ -21,7 +21,23 @@
             </tr>
             <tr>
                 <th>Url</th>
-                <td>{{ promo_reseau.url }}</td>
+                <td class="text-break">{{ promo_reseau.url }}</td>
+            </tr>
+            <tr>
+                <th>Référence</th>
+                <td>
+                    <span id="promo-reference-{{ promo_reseau.id }}" class="text-break">{{ promo_reseau.reference }}</span>
+                    <button
+                        type="button"
+                        class="btn btn-link btn-sm p-0 ms-2 align-baseline"
+                        data-copy-reference="{{ promo_reseau.reference }}"
+                        title="Copier la référence"
+                        aria-label="Copier la référence"
+                    >
+                        <i class="fas fa-copy" aria-hidden="true"></i>
+                    </button>
+                    <span class="small text-success ms-1 d-none" data-copy-feedback>Copiée</span>
+                </td>
             </tr>
             <tr>
                 <th>Status</th>
@@ -55,4 +71,40 @@
     <a href="{{ path('app_crud_promo_reseau_edit', {'id': promo_reseau.id}) }}" class="btn btn-sm btn-success">Edit</a>
 
     {{ include('crud_promo_reseau/_delete_form.html.twig') }}
+{% endblock %}
+
+{% block script %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-copy-reference]').forEach(function (button) {
+                button.addEventListener('click', async function () {
+                    const reference = button.dataset.copyReference || '';
+                    if (!reference) return;
+
+                    try {
+                        await navigator.clipboard.writeText(reference);
+                    } catch (error) {
+                        const fallback = document.createElement('textarea');
+                        fallback.value = reference;
+                        fallback.setAttribute('readonly', '');
+                        fallback.style.position = 'fixed';
+                        fallback.style.opacity = '0';
+                        document.body.appendChild(fallback);
+                        fallback.select();
+                        document.execCommand('copy');
+                        fallback.remove();
+                    }
+
+                    const feedback = button.parentElement.querySelector('[data-copy-feedback]');
+                    if (feedback) {
+                        feedback.classList.remove('d-none');
+                        window.setTimeout(function () {
+                            feedback.classList.add('d-none');
+                        }, 1500);
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}
