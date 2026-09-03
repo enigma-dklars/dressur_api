@@ -109,6 +109,38 @@ class BoostRepository extends ServiceEntityRepository
     }
 
     /**
+     * Utilisateurs ayant déjà utilisé Boost Contact mais ne possédant aucun
+     * Boost Contact actuellement en cours.
+     *
+     * @return array<int, array{user_id: int, tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWithBoostButNoActiveBoostAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $now = (new \DateTime())->format('Y-m-d H:i:s');
+
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b_used
+                INNER JOIN `user` u ON b_used.user_id = u.id
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM boost b_active
+                    WHERE b_active.user_id = b_used.user_id
+                      AND b_active.date_debut <= :now
+                      AND (
+                          (b_active.type_boost = :quota_type AND b_active.date_exp IS NULL)
+                          OR (b_active.type_boost <> :quota_type AND b_active.date_exp IS NOT NULL AND b_active.date_exp >= :now)
+                      )
+                )
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery([
+            'now' => $now,
+            'quota_type' => 'quota',
+        ])->fetchAllAssociative();
+    }
+
+    /**
      * Utilisateurs ayant au moins un Boost Contact actuellement en cours,
      * quel que soit le type ou le mode. Les Boosts programmés et terminés
      * sont exclus.

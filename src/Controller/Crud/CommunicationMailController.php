@@ -321,6 +321,13 @@ class CommunicationMailController extends AbstractController
                     'emoji' => '⚡',
                     'titre' => 'Message Personnalisé — Boost Contact en cours',
                 ],
+                'boost_sans_cours' => [
+                    'label' => 'Utilisateurs ayant utilisé Boost Contact sans Boost en cours',
+                    'group' => 'Situation actuelle',
+                    'description' => 'A déjà utilisé Boost Contact, mais ne possède actuellement aucun Boost Contact en cours.',
+                    'emoji' => '🔁',
+                    'titre' => 'Message Personnalisé — Retour sur Boost Contact',
+                ],
             ] + $audiences;
         }
 
@@ -339,6 +346,7 @@ class CommunicationMailController extends AbstractController
     ): array {
         return match ($audienceKey) {
             'boost_en_cours'       => $boostRepository->findUsersWithActiveBoostAndTelWithDetails(),
+            'boost_sans_cours'     => $boostRepository->findUsersWithBoostButNoActiveBoostAndTelWithDetails(),
             'boost_all'            => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
             'boost_gratuit'        => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Gratuit', 'Payant'),
             'boost_payant'         => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Payant', 'Gratuit'),
