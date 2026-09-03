@@ -167,9 +167,9 @@ class CommunicationMailController extends AbstractController
 
     // ─── Message personnalisé WhatsApp ───────────────────────────────────────
 
-    private static function getMessagePersonnaliseAudiences(): array
+    private static function getMessagePersonnaliseAudiences(bool $includeActiveBoostAudience = false): array
     {
-        return [
+        $audiences = [
             'boost_all' => [
                 'label' => 'Utilisateurs Boost Contact',
                 'group' => 'Historique des services',
@@ -311,6 +311,20 @@ class CommunicationMailController extends AbstractController
                 'titre' => 'Message Personnalisé — Vous nous manquez',
             ],
         ];
+
+        if ($includeActiveBoostAudience) {
+            $audiences = [
+                'boost_en_cours' => [
+                    'label' => 'Utilisateurs ayant un Boost Contact en cours',
+                    'group' => 'Situation actuelle',
+                    'description' => 'Possède actuellement un Boost Contact en cours, quel que soit le type ou le mode.',
+                    'emoji' => '⚡',
+                    'titre' => 'Message Personnalisé — Boost Contact en cours',
+                ],
+            ] + $audiences;
+        }
+
+        return $audiences;
     }
 
     /**
@@ -324,6 +338,7 @@ class CommunicationMailController extends AbstractController
         UserRepository $userRepository
     ): array {
         return match ($audienceKey) {
+            'boost_en_cours'       => $boostRepository->findUsersWithActiveBoostAndTelWithDetails(),
             'boost_all'            => $boostRepository->findUsersWhoEverUsedBoostAndTelWithDetails(),
             'boost_gratuit'        => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Gratuit', 'Payant'),
             'boost_payant'         => $boostRepository->findUsersWhoEverUsedOnlyBoostModeAndTelWithDetails('Payant', 'Gratuit'),
@@ -407,7 +422,7 @@ class CommunicationMailController extends AbstractController
         UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): Response {
-        $audiences = self::getMessagePersonnaliseAudiences();
+        $audiences = self::getMessagePersonnaliseAudiences(false);
         $replyto = 'dressur.ds@gmail.com';
 
         if ($request->isMethod('POST')) {
@@ -518,7 +533,7 @@ class CommunicationMailController extends AbstractController
         UserRepository $userRepository,
         EntityManagerInterface $entityManager
     ): Response {
-        $audiences = self::getMessagePersonnaliseAudiences();
+        $audiences = self::getMessagePersonnaliseAudiences(true);
 
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('message_personnalise_whatsapp', $request->request->get('_token'))) {

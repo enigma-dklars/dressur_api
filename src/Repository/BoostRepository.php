@@ -109,6 +109,34 @@ class BoostRepository extends ServiceEntityRepository
     }
 
     /**
+     * Utilisateurs ayant au moins un Boost Contact actuellement en cours,
+     * quel que soit le type ou le mode. Les Boosts programmés et terminés
+     * sont exclus.
+     *
+     * @return array<int, array{user_id: int, tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
+     */
+    public function findUsersWithActiveBoostAndTelWithDetails(): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $now = (new \DateTime())->format('Y-m-d H:i:s');
+
+        $sql = "SELECT DISTINCT u.id AS user_id, u.tel, u.uid, u.pseudo, u.nom, u.mail
+                FROM boost b
+                INNER JOIN `user` u ON b.user_id = u.id
+                WHERE b.date_debut <= :now
+                  AND (
+                      (b.type_boost = :quota_type AND b.date_exp IS NULL)
+                      OR (b.type_boost <> :quota_type AND b.date_exp IS NOT NULL AND b.date_exp >= :now)
+                  )
+                  AND u.tel IS NOT NULL AND u.tel != '' AND u.tel_is_verified = 1 AND u.blocked = 0";
+
+        return $conn->prepare($sql)->executeQuery([
+            'now' => $now,
+            'quota_type' => 'quota',
+        ])->fetchAllAssociative();
+    }
+
+    /**
      * Utilisateurs dont le dernier Boost Contact remonte au moins à $days jours.
      *
      * @return array<int, array{tel: string, uid: string|null, pseudo: string|null, nom: string|null, mail: string|null}>
