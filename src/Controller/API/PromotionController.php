@@ -296,11 +296,11 @@ class PromotionController extends AbstractController
         if ($datas->get('boostFacebook') !== null) {
             $boostFacebook = ((int)$datas->get('boostFacebook') == 1);
             $montantBoostFacebook = max(0, (int)$datas->get('montantBoostFacebook'));
-            if ($boostFacebook && $montantBoostFacebook < 700) {
+            if ($boostFacebook && $montantBoostFacebook < 3000) {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
-                    'message' => 'Le montant minimum pour le boost Facebook est de 700 FCFA.',
+                    'message' => 'Selon les nouvelles règles de Facebook, le montant minimum requis pour le boost Facebook est de 3 000 FCFA.',
                 ]);
             }
         }
@@ -1105,11 +1105,11 @@ class PromotionController extends AbstractController
         if ($datas->get('boostFacebook') !== null) {
             $boostFacebook = ((int)$datas->get('boostFacebook') == 1);
             $montantBoostFacebook = max(0, (int)$datas->get('montantBoostFacebook'));
-            if ($boostFacebook && $montantBoostFacebook < 700) {
+            if ($boostFacebook && $montantBoostFacebook < 3000) {
                 return new JsonResponse([
                     'error' => true,
                     'titre' => 'Attention!',
-                    'message' => 'Le montant minimum pour le boost Facebook est de 700 FCFA.',
+                    'message' => 'Selon les nouvelles règles de Facebook, le montant minimum requis pour le boost Facebook est de 3 000 FCFA.',
                 ]);
             }
         }
