@@ -362,15 +362,18 @@ class CrudPromotionController extends AbstractController
 
               // Les deux dates sont facultatives : une promotion en attente n'en possède
               // normalement pas encore. Elles seront recalculées si la formule change.
-              $dateDebut = null;
-              $dateExp = null;
+              // Une date vide signifie qu’elle n’a pas été touchée : on conserve la valeur
+              // déjà enregistrée. Les dates ne sont recalculées qu’en cas de changement réel
+              // de formule, conformément au comportement attendu pour l’édition partielle.
+              $dateDebut = $promotion->getDateDebut();
+              $dateExp = $promotion->getDateExp();
               if ($dateDebutValue !== '') {
-                  $dateDebut = DateTime::createFromFormat('Y-m-d\TH:i', $dateDebutValue)
+                  $dateDebut = DateTime::createFromFormat('Y-m-d\\TH:i', $dateDebutValue)
                       ?: DateTime::createFromFormat('Y-m-d', $dateDebutValue);
                   if (!$dateDebut) $errors[] = 'Date de début invalide.';
               }
               if ($dateExpValue !== '') {
-                  $dateExp = DateTime::createFromFormat('Y-m-d\TH:i', $dateExpValue)
+                  $dateExp = DateTime::createFromFormat('Y-m-d\\TH:i', $dateExpValue)
                       ?: DateTime::createFromFormat('Y-m-d', $dateExpValue);
                   if (!$dateExp) $errors[] = 'Date d’expiration invalide.';
               }
@@ -432,13 +435,24 @@ class CrudPromotionController extends AbstractController
                       ->setSource($source !== '' ? $source : null)
                       ->setMotif($motif !== '' ? $motif : null)
                       ->setWhatsappContact($whatsappContact !== '' ? $whatsappContact : null)
-                      ->setReferencement($request->request->has('referencement'))
-                      ->setInProgrammeRecompense($request->request->has('in_programme_recompense'))
-                      ->setPublishOnDressurStatus($request->request->has('publish_on_dressur_status'))
-                      ->setBoostFacebook($request->request->has('boost_facebook'))
-                      ->setLimited($request->request->has('limited'))
-                      ->setIsFakeVue($request->request->has('is_fake_vue'))
                       ->setFormulePromoAffaire($isSiteApp ? null : $formule);
+
+                  // Une case à cocher n’est appliquée que si l’administrateur l’a
+                  // réellement modifiée. Une case inchangée ne peut donc plus écraser
+                  // sa valeur existante lors d’une modification d’image ou de description.
+                  $checkboxChanges = [
+                      'referencement'              => 'setReferencement',
+                      'in_programme_recompense'    => 'setInProgrammeRecompense',
+                      'publish_on_dressur_status'  => 'setPublishOnDressurStatus',
+                      'boost_facebook'             => 'setBoostFacebook',
+                      'limited'                    => 'setLimited',
+                      'is_fake_vue'                => 'setIsFakeVue',
+                  ];
+                  foreach ($checkboxChanges as $field => $setter) {
+                      if ($request->request->get($field . '_changed') === '1') {
+                          $promotion->{$setter}($request->request->has($field));
+                      }
+                  }
 
                   if ($isSiteApp) {
                       $promotion
