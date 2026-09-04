@@ -148,58 +148,68 @@ class BoostController extends AbstractController
             $message = "Vous avez déjà un Boost Contact en cours. Il n'est pas possible de programmer un Boost Contact Gratuit.";
         } else if(!$lastBoostContact) {
             $boost = new Boost();
-            if ($typeBoost === 'quota') {
-                $formuleQuotaGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'quota', 'prix' => 0, 'activated' => true]);
+            $formuleQuotaGratuit = $formuleBoostRepository->findOneBy([
+                'typeBoost' => 'quota',
+                'prix' => 0,
+                'activated' => true,
+            ]);
+
+            if (!$formuleQuotaGratuit || (int) $formuleQuotaGratuit->getNbContactsMax() <= 0) {
+                $error = true;
+                $message = $typeBoost === 'date'
+                    ? "Les Boosts Contacts gratuits de type date sont actuellement indisponibles. Contactez l'Assistance Dressur par WhatsApp pour plus d'explications."
+                    : "Aucune formule gratuite de type quota n'est actuellement disponible. Contactez l'Assistance Dressur par WhatsApp pour plus d'explications.";
+            } else {
                 $boost->setFormuleBoost($formuleQuotaGratuit)
                     ->setUser($user)
+                    ->setMode('Gratuit')
                     ->setSource($source)
                     ->setTypeBoost('quota')
-                    ->setDateDebut(new DateTime())
-                ;
+                    ->setDateDebut(new DateTime());
+
                 $error = false;
-                $message = "Votre Boost Contact Gratuit limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s) a démarré.";
-            } else {
-                $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
-                $boost->setFormuleBoost($formuleDateGratuit)
-                    ->setUser($user)
-                    ->setSource($source)
-                    ->setTypeBoost('date')
-                    ->setDateDebut(new DateTime())
-                    ->setDateExp(new DateTime("+ ".$formuleDateGratuit->getNbrJour()."days"))
-                ;
-                $error = false;
-                $message = "Votre Boost Contact Gratuit de ".$formuleDateGratuit->getNbrJour()." jour(s) à démarrer.";
+                $message = $typeBoost === 'date'
+                    ? "Les Boosts Contacts gratuits de type date sont actuellement indisponibles. Un Boost Contact gratuit de type quota, limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s), vous a été activé."
+                    : "Votre Boost Contact gratuit de type quota, limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s), a démarré.";
             }
-            $traitementsDS->addNotification($message, $user);
-            $this->em->persist($boost);
-            $this->em->flush();
+
+            if (!$error) {
+                $traitementsDS->addNotification($message, $user);
+                $this->em->persist($boost);
+                $this->em->flush();
+            }
         } else if($lastBoostContact->getMode() == "Payant") {
             $boost = new Boost();
-            if ($typeBoost === 'quota') {
-                $formuleQuotaGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'quota', 'prix' => 0, 'activated' => true]);
+            $formuleQuotaGratuit = $formuleBoostRepository->findOneBy([
+                'typeBoost' => 'quota',
+                'prix' => 0,
+                'activated' => true,
+            ]);
+
+            if (!$formuleQuotaGratuit || (int) $formuleQuotaGratuit->getNbContactsMax() <= 0) {
+                $error = true;
+                $message = $typeBoost === 'date'
+                    ? "Les Boosts Contacts gratuits de type date sont actuellement indisponibles. Contactez l'Assistance Dressur par WhatsApp pour plus d'explications."
+                    : "Aucune formule gratuite de type quota n'est actuellement disponible. Contactez l'Assistance Dressur par WhatsApp pour plus d'explications.";
+            } else {
                 $boost->setFormuleBoost($formuleQuotaGratuit)
                     ->setUser($user)
+                    ->setMode('Gratuit')
                     ->setSource($source)
                     ->setTypeBoost('quota')
-                    ->setDateDebut(new DateTime())
-                ;
+                    ->setDateDebut(new DateTime());
+
                 $error = false;
-                $message = "Votre Boost Contact Gratuit limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s) a démarré.";
-            } else {
-                $formuleDateGratuit = $formuleBoostRepository->findOneBy(['typeBoost' => 'date', 'prix' => 0, 'activated' => true]);
-                $boost->setFormuleBoost($formuleDateGratuit)
-                    ->setUser($user)
-                    ->setSource($source)
-                    ->setTypeBoost('date')
-                    ->setDateDebut(new DateTime())
-                    ->setDateExp(new DateTime("+ ".$formuleDateGratuit->getNbrJour()."days"))
-                ;
-                $error = false;
-                $message = "Votre Boost Contact Gratuit de ".$formuleDateGratuit->getNbrJour()." jour(s) à démarrer.";
+                $message = $typeBoost === 'date'
+                    ? "Les Boosts Contacts gratuits de type date sont actuellement indisponibles. Un Boost Contact gratuit de type quota, limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s), vous a été activé."
+                    : "Votre Boost Contact gratuit de type quota, limité à ".$formuleQuotaGratuit->getNbContactsMax()." contact(s), a démarré.";
             }
-            $traitementsDS->addNotification($message, $user);
-            $this->em->persist($boost);
-            $this->em->flush();
+
+            if (!$error) {
+                $traitementsDS->addNotification($message, $user);
+                $this->em->persist($boost);
+                $this->em->flush();
+            }
         } else {
             $error = true;
             $message = "Demande de Boost Contact Gratuit refusé. Votre précédent Boost Contact est en mode Gratuit. Vous devez donc faire un Boost Contact Payant avant de pouvoir demander un autre Boost Contact Gratuit.";
